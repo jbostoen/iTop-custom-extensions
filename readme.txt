@@ -40,7 +40,7 @@ You need to run http://your-itop-instance/setup .
 Go through the wizard (you'll remember this from your initial iTop installation or upgrade process). 
 At one point, you can select the extensions you want to be installed.
 
-
+If you already use IPPhone objects: see warning above.
 
 
 ********************************************************
@@ -63,6 +63,8 @@ iTop by default considers IP Phones to be an element similar to regular phones.
 In my humble opinion, it lacks an essential Network Devices tab. 
 
 This module redefines the IP Phone object to be a basic network device, 
-with three additional properties: internal number, external number, management IP.
+with three additional properties: internal number, external number, management IP. 
+This makes sense, because a lot of IP Phones are small switches - put between a PC and a network switch. 
+
 
 
