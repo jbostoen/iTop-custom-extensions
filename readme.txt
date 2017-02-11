@@ -15,7 +15,7 @@ You're free to use, share, customize these modules.
 * Warnings
 ********************************************************
 
-- Fix Class IP Phone -
+- Class: IP Devices -
 
 Please backup your existing IP Phones. It might be best to:
 1. export your existing IP Phones to a CSV-file
@@ -43,8 +43,30 @@ At one point, you can select the extensions you want to be installed.
 If you already use IPPhone objects: see warning above.
 
 
+
+
 ********************************************************
-* Add Class Monitor 
+* Class: IP Devices
+********************************************************
+
+Originated as an adjustment to IP Phones.
+However, to make it more fitting for future purposes, I first added a class IP Device. 
+It's very similar to a network device, but it's been defined at the same level as PC, Printer and DataCenter Device.
+( Network Device is a subclass of DataCenter Device already ).
+
+iTop by default considers IP Phones to be an element similar to regular phones. 
+In my humble opinion, it lacks an essential Network Devices tab. 
+
+This module redefines the IP Phone class to be a basic IP Device, 
+with some additional properties: internal number and external number. 
+This makes sense, because a lot of IP Phones are small switches - put between a PC and a network switch. 
+
+It also adds an IP Camera class.
+
+
+ 
+********************************************************
+* Class: Monitor
 ********************************************************
 
 This is mostly a copy of iTop's "Add Sample Class" extension, which is used in a tutorial. 
@@ -53,18 +75,3 @@ However, one important issue has been fixed. If you use the original example, yo
 If you want to define a new model, you can do so, but there's no model type "Monitor". 
 You could select a different model type such as "Peripheral". 
 But, if you add another monitor CI, same brand, you notice the model you just added for the previous CI won't appear for you to select.
-
-
-********************************************************
-* Fix Class IP Phone
-********************************************************
-
-iTop by default considers IP Phones to be an element similar to regular phones. 
-In my humble opinion, it lacks an essential Network Devices tab. 
-
-This module redefines the IP Phone object to be a basic network device, 
-with three additional properties: internal number, external number, management IP. 
-This makes sense, because a lot of IP Phones are small switches - put between a PC and a network switch. 
-
-
-

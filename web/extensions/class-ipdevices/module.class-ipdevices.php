@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'fix-class-ipphone/',
+	'class-ipdevices/',
 	array(
 		// Identification
 		//
-		'label' => 'Fix Class IP Phone',
+		'label' => 'Class: IP Devices',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.fix-class-ipphone.php'
+			'model.class-ipdevices.php'
 		),
 		'webservice' => array(
 			

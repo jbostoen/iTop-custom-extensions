@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'add-class-monitor/',
+	'class-monitor/',
 	array(
 		// Identification
 		//
-		'label' => 'Add Class Monitor',
+		'label' => 'Class: Monitor',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.add-class-monitor.php'
+			'model.class-monitor.php'
 		),
 		'webservice' => array(
 			
