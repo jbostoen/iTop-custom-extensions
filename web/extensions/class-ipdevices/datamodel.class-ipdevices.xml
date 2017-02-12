@@ -628,7 +628,8 @@
     </class> 
 	
 	
-	
+	 
+	</classes>
 	
 <menus>
   <menu id="ConfigManagementOverview" xsi:type="DashboardMenuNode" _delta="must_exist">
@@ -636,11 +637,11 @@
       <cells>
         <cell id="2" _delta="must_exist">
           <dashlets>
-            <dashlet id="99" xsi:type="DashletBadge" _delta="define">
+            <dashlet id="8901" xsi:type="DashletBadge" _delta="define">
               <rank>9</rank>
               <class>IPDevice</class>
             </dashlet>
-            <dashlet id="100" xsi:type="DashletBadge" _delta="define">
+            <dashlet id="8902" xsi:type="DashletBadge" _delta="define">
               <rank>10</rank>
               <class>IPCamera</class>
             </dashlet> 
@@ -651,7 +652,4 @@
   </menu>
 </menus>
 
-
-	 
-	</classes>
 </itop_design>

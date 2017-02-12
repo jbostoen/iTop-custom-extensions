@@ -42,11 +42,23 @@ If you already use IPPhone objects: see warning above.
 
 
 
+********************************************************
+* Class: Change (ITIL-based) - don't automatically add impacted CI's
+********************************************************
+ 
+While it might be beneficial to see all issues which might have impacted a CI by looking at the CI's tickets, 
+it makes the Change's related CI's tab full of irrelevant 'computed' CI's. 
+
+Say you add a firewall rule to open up a new port for one specific application. 
+On adding the firewall rule, iTop adds all related applications to the related CI's tab. 
+While it's good to have an Impact Analysis tab, this behavior makes the actual change more obscure.
+
+
 
 ********************************************************
 * Class: IP Devices
 ********************************************************
-
+ 
 Originated as an adjustment to IP Phones.
 However, to make it more fitting for future purposes, I first added a class IP Device. 
 It's very similar to a network device, but it's been defined at the same level as PC, Printer and DataCenter Device.
@@ -73,3 +85,20 @@ However, one important issue has been fixed. If you use the original example, yo
 If you want to define a new model, you can do so, but there's no model type "Monitor". 
 You could select a different model type such as "Peripheral". 
 But, if you add another monitor CI, same brand, you notice the model you just added for the previous CI won't appear for you to select.
+
+
+
+********************************************************
+* Class: User Request - don't make title read-only on resolve
+********************************************************
+ 
+Tickets are quickly marked as resolved. This makes the title attribute read-only. 
+If you still want to give the ticket a more meaningful title, you need to reopen the ticket. 
+However, this may lead to users and agents receiving notifications (if configured). 
+
+This change in the datamodel makes sure you can modify the title any time without consequences.
+
+
+
+
+

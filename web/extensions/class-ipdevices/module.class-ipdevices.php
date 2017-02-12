@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Class: IP Devices',
+		'label' => 'Class: IP Devices - Adds IP Device, IP Camera, updates IP Phone',
 		'category' => 'business',
 
 		// Setup

@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-monitor/',
+	'class-userrequest-no-readonly-title/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: Monitor - Adds Monitor',
+		'label' => 'Class: User Request - Don\'t make title Read-Only on resolve',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-endusers-devices/2.0.0'
+			'itop-change-mgmt-itil/2.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-monitor.php'
+			'model.class-userrequest-no-readonly-title.php'
 		),
 		'webservice' => array(
 			
