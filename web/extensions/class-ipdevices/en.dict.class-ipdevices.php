@@ -14,7 +14,7 @@
 Dict::Add('EN US', 'English', 'English', array(
 
 
-	'Class:IPDevice' => 'IP Device',
+	'Class:IPDevice' => 'IP Device CI',
 	'Class:IPDevice+' => '', 
 	'Class:IPDevice/Attribute:management_ip' => 'Management IP',
 	'Class:IPDevice/Attribute:management_ip+' => '', 
@@ -23,6 +23,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:IPCamera' => 'IP Camera',
 	'Class:IPCamera+' => '',   
 	 
+	'Class:IPDeviceGeneric' => 'IP Device',
+	'Class:IPDeviceGeneric+' => '',   
 	
 	'Class:IPPhone' => 'IP Phone',
 	'Class:IPPhone+' => '',

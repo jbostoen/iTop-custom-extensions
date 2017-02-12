@@ -2,7 +2,7 @@
 
 
 ********************************************************
-* Version 2017.02.11 - for iTop 2.3.3
+* Version 2017.02.12 - for iTop 2.3.3
 ********************************************************
 
 I'm releasing these modules as I'm using them. 
@@ -43,14 +43,14 @@ If you already use IPPhone objects: see warning above.
 
 
 ********************************************************
-* Class: Change (ITIL-based) - don't automatically add impacted CI's
+* Class: Change (ITIL-based) - don't automatically add impacted CIs
 ********************************************************
  
-While it might be beneficial to see all issues which might have impacted a CI by looking at the CI's tickets, 
-it makes the Change's related CI's tab full of irrelevant 'computed' CI's. 
+While it might be beneficial to see all issues which might have impacted a CI by looking at the its tickets, 
+it makes the Change's related CIs tab full of irrelevant 'computed' CIs. 
 
 Say you add a firewall rule to open up a new port for one specific application. 
-On adding the firewall rule, iTop adds all related applications to the related CI's tab. 
+On adding the firewall rule, iTop adds all related applications to the related CIs tab. 
 While it's good to have an Impact Analysis tab, this behavior makes the actual change more obscure.
 
 
@@ -70,7 +70,8 @@ This model change takes care of that, so you can for example easily see all issu
 ********************************************************
  
 Originated as an adjustment to IP Phones.
-However, to make it more fitting for future purposes, I first added a class IP Device. 
+However, to make it more fitting for future purposes, I first added an abstract class IP Device. 
+Next, I also added an IP Camera and a more generic IP Device class.
 It's very similar to a network device, but it's been defined at the same level as PC, Printer and DataCenter Device.
 ( Network Device is a subclass of DataCenter Device already ).
 
@@ -80,8 +81,7 @@ In my humble opinion, it lacks an essential Network Devices tab.
 This module redefines the IP Phone class to be a basic IP Device, 
 with some additional properties: internal number and external number. 
 This makes sense, because a lot of IP Phones are small switches - put between a PC and a network switch. 
-
-It also adds an IP Camera class.
+ 
 
 
  
@@ -107,8 +107,6 @@ If you still want to give the ticket a more meaningful title, you need to reopen
 However, this may lead to users and agents receiving notifications (if configured). 
 
 This change in the datamodel makes sure you can modify the title any time without consequences.
-
-
 
 
 
