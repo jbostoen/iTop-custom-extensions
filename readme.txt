@@ -56,6 +56,16 @@ While it's good to have an Impact Analysis tab, this behavior makes the actual c
 
 
 ********************************************************
+* Class: Functional CI - show all related tickets
+********************************************************
+ 
+I think it used to be default behavior in iTop to show all related tickets for a CI. 
+Anyhow, in my case I want to have quick access to the complete overview of tickets. 
+This model change takes care of that, so you can for example easily see all issues related to a PC. 
+
+
+
+********************************************************
 * Class: IP Devices
 ********************************************************
  
