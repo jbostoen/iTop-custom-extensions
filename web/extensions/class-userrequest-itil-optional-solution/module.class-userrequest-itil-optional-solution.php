@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-userrequest-itil-solution-optional/',
+	'class-userrequest-itil-optional-solution/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL-based) - Make solution optional on resolve',
+		'label' => 'Class: User Request (ITIL-based) - Make solution optional (on resolve)',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-userrequest-itil-solution-optional-title.php'
+			'model.class-userrequest-itil-optional-solution.php'
 		),
 		'webservice' => array(
 			

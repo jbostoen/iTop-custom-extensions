@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-request-itil-no-computed-impact/',
+	'class-userrequest-itil-no-computed-impact/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: Request (ITIL-based) - Don\'t auto-add computed CI\'s',
+		'label' => 'Class: User Request (ITIL-based) - Don\'t auto-add computed CIs',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-request-itil-no-computed-impact.php'
+			'model.class-userrequest-itil-no-computed-impact.php'
 		),
 		'webservice' => array(
 			

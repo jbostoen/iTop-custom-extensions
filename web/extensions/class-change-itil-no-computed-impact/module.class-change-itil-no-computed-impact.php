@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Class: Change (ITIL-based) - Don\'t auto-add computed CI\'s',
+		'label' => 'Class: Change (ITIL-based) - Don\'t auto-add computed CIs',
 		'category' => 'business',
 
 		// Setup

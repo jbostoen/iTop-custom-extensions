@@ -2,7 +2,7 @@
 
 
 ********************************************************
-* Version 2017.02.12 - for iTop 2.3.3
+* Version 2017.02.13 - for iTop 2.3.3
 ********************************************************
 
 I'm releasing these modules as I'm using them. 
@@ -99,7 +99,20 @@ But, if you add another monitor CI, same brand, you notice the model you just ad
 
 
 ********************************************************
-* Class: User Request - don't make title read-only on resolve
+* Class: User Request (ITIL-based) - don't automatically add impacted CIs
+********************************************************
+ 
+While it might be beneficial to see all issues which might have impacted a CI by looking at the its tickets, 
+it makes the User Request's related CIs tab full of irrelevant 'computed' CIs. 
+
+Say you add a firewall rule to open up a new port for one specific application. 
+On adding the firewall rule, iTop adds all related applications to the related CIs tab. 
+While it's good to have an Impact Analysis tab, this behavior makes the actual user request more obscure.
+
+
+
+********************************************************
+* Class: User Request (ITIL) - don't make title read-only (on resolve)
 ********************************************************
  
 Tickets are quickly marked as resolved. This makes the title attribute read-only. 
@@ -107,6 +120,16 @@ If you still want to give the ticket a more meaningful title, you need to reopen
 However, this may lead to users and agents receiving notifications (if configured). 
 
 This change in the datamodel makes sure you can modify the title any time without consequences.
+
+
+
+********************************************************
+* Class: User Request (ITIL) - make solution optional (on resolve)
+********************************************************
+ 
+Solutions are often found in Private Logs, along with the way things came to be. 
+For my organization, it makes the solution field either useless or we'd have to copy-paste.
+
 
 
 
