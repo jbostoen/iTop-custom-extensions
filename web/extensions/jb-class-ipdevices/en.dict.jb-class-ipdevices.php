@@ -31,6 +31,13 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:IPPhone/Attribute:number_internal' => 'Internal number',
 	'Class:IPPhone/Attribute:number_internal+' => '', 
 	'Class:IPPhone/Attribute:number_external' => 'External number',
+	
+	
+	'Class:Model/Attribute:type/Value:IPDeviceGeneric' => 'IP Device',
+	'Class:Model/Attribute:type/Value:IPDeviceGeneric+' => 'IP Device',
+	'Class:Model/Attribute:type/Value:IPCamera' => 'IP Camera',
+	'Class:Model/Attribute:type/Value:IPCamera+' => 'IP Camera',
+	
 ));
 
 
