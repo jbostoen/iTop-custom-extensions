@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.3">
+  
+	<classes>
+		<class id="UserRequest" _delta="merge"> 
+ 
+			<lifecycle> 
+				<states>  
+					<state id="resolved" _delta="merge"> 
+						<flags> 
+							<attribute id="solution" _delta="redefine"> 
+								<must_prompt/>
+							</attribute> 
+						</flags> 
+ 
+					</state>
+				</states>
+			</lifecycle>  
+		</class>
+	</classes>
+	 
+</itop_design>

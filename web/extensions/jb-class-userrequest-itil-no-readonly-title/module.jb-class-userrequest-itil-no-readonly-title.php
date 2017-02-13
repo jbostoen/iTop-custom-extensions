@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request - Don\'t make title Read-Only (on resolve)',
+		'label' => 'Class: User Request (ITIL) - Don\'t make title Read-Only (on resolve)',
 		'category' => 'business',
 
 		// Setup

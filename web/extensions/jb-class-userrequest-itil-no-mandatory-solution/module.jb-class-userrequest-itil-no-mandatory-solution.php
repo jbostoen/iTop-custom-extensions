@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL-based) - Don\'t make solution mandatory (on resolve)',
+		'label' => 'Class: User Request (ITIL) - Don\'t make solution mandatory (on resolve)',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-userrequest-itil-no-mandatory-solution/.php'
+			'model.jb-class-userrequest-itil-no-mandatory-solution.php'
 		),
 		'webservice' => array(
 			
