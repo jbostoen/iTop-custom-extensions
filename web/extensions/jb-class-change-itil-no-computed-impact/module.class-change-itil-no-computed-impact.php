@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-change-itil-no-computed-impact/',
+	'jb-class-change-itil-no-computed-impact/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: Change (ITIL-based) - Don\'t auto-add computed CIs',
+		'label' => 'Class: Change (ITIL-based) - Don\'t auto-add computed CIs (on insert/update)',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-change-itil-no-computed-impact.php'
+			'model.jb-class-change-itil-no-computed-impact.php'
 		),
 		'webservice' => array(
 			

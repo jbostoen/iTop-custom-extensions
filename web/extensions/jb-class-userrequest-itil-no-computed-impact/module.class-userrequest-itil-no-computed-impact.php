@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-ipdevices/',
+	'jb-class-userrequest-itil-no-computed-impact/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: IP Devices - Adds IP Device, IP Camera, updates IP Phone',
+		'label' => 'Class: User Request (ITIL-based) - Don\'t auto-add computed CIs (on insert/update)',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-endusers-devices/2.0.0'
+			'itop-request-mgmt-itil/2.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-ipdevices.php'
+			'model.jb-class-userrequest-itil-no-computed-impact.php'
 		),
 		'webservice' => array(
 			

@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-functional-ci-all-tickets/',
+	'jb-class-functional-ci-all-tickets/',
 	array(
 		// Identification
 		//
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-functional-ci-all-tickets.php'
+			'model.jb-class-functional-ci-all-tickets.php'
 		),
 		'webservice' => array(
 			

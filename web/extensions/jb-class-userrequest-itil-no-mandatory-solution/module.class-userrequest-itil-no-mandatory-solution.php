@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-userrequest-itil-no-computed-impact/',
+	'jb-class-userrequest-itil-no-mandatory-solution/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL-based) - Don\'t auto-add computed CIs',
+		'label' => 'Class: User Request (ITIL-based) - Don\'t make solution mandatory (on resolve)',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-userrequest-itil-no-computed-impact.php'
+			'model.jb-class-userrequest-itil-no-mandatory-solution/.php'
 		),
 		'webservice' => array(
 			

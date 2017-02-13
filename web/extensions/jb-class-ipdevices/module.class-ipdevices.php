@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-userrequest-itil-no-readonly-title/',
+	'jb-class-ipdevices/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request - Don\'t make title Read-Only (on resolve)',
+		'label' => 'Class: IP Devices - Adds IP Device, IP Camera, updates IP Phone',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-request-mgmt-itil/2.0.0'
+			'itop-endusers-devices/2.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-userrequest-itil-no-readonly-title.php'
+			'model.jb-class-ipdevices.php'
 		),
 		'webservice' => array(
 			
