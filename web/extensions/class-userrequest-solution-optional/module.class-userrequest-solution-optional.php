@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'class-change-no-computed-impact/',
+	'class-userrequest-itil-solution-optional/',
 	array(
 		// Identification
 		//
-		'label' => 'Class: Change (ITIL-based) - Don\'t auto-add computed CI\'s',
+		'label' => 'Class: User Request (ITIL-based) - Make solution optional on resolve',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-change-mgmt-itil/2.0.0'
+			'itop-request-mgmt-itil/2.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.class-change-no-computed-impact.php'
+			'model.class-userrequest-itil-solution-optional-title.php'
 		),
 		'webservice' => array(
 			
