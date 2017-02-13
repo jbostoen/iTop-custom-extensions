@@ -2,6 +2,17 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
   <classes>
   
+    <class id="Model" _delta="merge"> 
+	<fields>
+        <field id="type" xsi:type="AttributeEnum" _delta="merge">
+          <values _delta="merge">
+            <value id="IPDeviceGeneric" _delta="define">IPDeviceGeneric</value> 
+            <value id="IPCamera" _delta="define">IPCamera</value>  
+		  </values>
+        </field>
+	</fields>
+	</class>
+	
   
     <class id="IPDevice" _delta="define">
       <parent>ConnectableCI</parent>
