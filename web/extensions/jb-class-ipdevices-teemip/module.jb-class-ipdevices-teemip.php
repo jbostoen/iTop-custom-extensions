@@ -5,18 +5,20 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-userrequest-itil-no-mandatory-solution/1.0.0',
+	'jb-class-ipdevices-teemip/1.0.0',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL) - Don\'t make solution mandatory (on resolve)',
+		'label' => 'Class: IP Devices - use TeemIP module',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-request-mgmt-itil/2.0.0'
+			'itop-endusers-devices/2.0.0',
+			'teemip-endusers-devices-adaptor/2.0.0', 
+			'jb-class-ipdevices/1.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +26,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-userrequest-itil-no-mandatory-solution.php'
+			'model.jb-class-ipdevices-teemip.php'
 		),
 		'webservice' => array(
 			
