@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
   <classes>  
-    <class id="IPDeviceZ" _delta="if_exists">
+    <class id="IPDevice" _delta="must_exist">
       <fields>  
         <field id="management_ip" xsi:type="AttributeIPAddress" _delta="delete"/>
         <field id="managementip_id" xsi:type="AttributeExternalKey" _delta="define">

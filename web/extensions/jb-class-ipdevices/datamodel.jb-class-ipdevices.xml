@@ -3,32 +3,19 @@
   <classes>
   
     <class id="Model" _delta="merge"> 
-		<fields>
-			<field id="type" xsi:type="AttributeEnum" _delta="merge">
-			  <values _delta="merge">
-				<value id="IPDeviceGeneric" _delta="define">IPDeviceGeneric</value> 
-				<value id="IPCamera" _delta="define">IPCamera</value>  
-			  </values>
-			</field>
-		</fields>
-	</class>
-	
-    <class id="NetworkDevice" _delta="merge"> 
-      <fields>
-        <field id="networkdevicetype_id" xsi:type="AttributeExternalKey">
-          <is_null_allowed _delta="redefine">true</is_null_allowed>
+	<fields>
+        <field id="type" xsi:type="AttributeEnum" _delta="merge">
+          <values _delta="merge">
+            <value id="IPDeviceGeneric" _delta="define">IPDeviceGeneric</value> 
+            <value id="IPCamera" _delta="define">IPCamera</value>  
+		  </values>
         </field>
-		</fields>
+	</fields>
 	</class>
-	
-	
-	
-
-	
 	
   
     <class id="IPDevice" _delta="define">
-      <parent>NetworkDevice</parent>
+      <parent>ConnectableCI</parent>
       <properties>
         <category>bizmodel,searchable</category>
         <abstract>true</abstract>
@@ -51,20 +38,107 @@
           </attributes>
         </reconciliation>
       </properties>
-	   <methods/>
-	  <fields>
-	  
-
-		
+      <fields>
+        <field id="management_ip" xsi:type="AttributeIPAddress">
+          <sql>management_ip</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
 	  </fields>
+      <methods/>
       <presentation>
         <details>
-          <items>  
+          <items>
+            <item id="contacts_list">
+              <rank>10</rank>
+            </item>
+            <item id="documents_list">
+              <rank>20</rank>
+            </item>
+            <item id="physicalinterface_list">
+              <rank>40</rank>
+            </item>
+            <item id="networkdevice_list">
+              <rank>50</rank>
+            </item>
+            <item id="providercontracts_list">
+              <rank>60</rank>
+            </item>
+            <item id="services_list">
+              <rank>70</rank>
+            </item>
+            <item id="col:col1">
+              <rank>80</rank>
+              <items>
+                <item id="fieldset:Server:baseinfo">
+                  <rank>10</rank>
+                  <items>
+                    <item id="name">
+                      <rank>10</rank>
+                    </item>
+                    <item id="org_id">
+                      <rank>20</rank>
+                    </item>
+                    <item id="status">
+                      <rank>30</rank>
+                    </item>
+                    <item id="business_criticity">
+                      <rank>40</rank>
+                    </item>
+                    <item id="location_id">
+                      <rank>50</rank>
+                    </item>
+                  </items>
+                </item>
+                <item id="fieldset:Server:moreinfo">
+                  <rank>20</rank>
+                  <items>
+                    <item id="brand_id">
+                      <rank>10</rank>
+                    </item>
+                    <item id="model_id">
+                      <rank>20</rank>
+                    </item>
+                    <item id="serialnumber">
+                      <rank>30</rank>
+                    </item>
+                    <item id="asset_number">
+                      <rank>40</rank>
+                    </item> 
+                    <item id="management_ip">
+                      <rank>50</rank>
+                    </item>
+                  </items>
+                </item>
+              </items>
+            </item>
             <item id="col:col2">
-				<items>
-					<item id="fieldset:Server:power" _delta="delete"/>
-				</items>
-			</item>
+              <rank>90</rank>
+              <items>
+                <item id="fieldset:Server:Date">
+                  <rank>10</rank>
+                  <items>
+                    <item id="move2production">
+                      <rank>10</rank>
+                    </item>
+                    <item id="purchase_date">
+                      <rank>20</rank>
+                    </item>
+                    <item id="end_of_warranty">
+                      <rank>30</rank>
+                    </item>
+                  </items>
+                </item>
+                <item id="fieldset:Server:otherinfo">
+                  <rank>20</rank>
+                  <items>
+                    <item id="description">
+                      <rank>10</rank>
+                    </item>
+                  </items>
+                </item>
+              </items>
+            </item>
           </items>
         </details>
         <search>
@@ -182,7 +256,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
-            <item id="connectablecis_list">
+            <item id="networkdevice_list">
               <rank>50</rank>
             </item>
             <item id="providercontracts_list">
@@ -379,7 +453,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
-            <item id="connectablecis_list">
+            <item id="networkdevice_list">
               <rank>50</rank>
             </item>
             <item id="providercontracts_list">
@@ -586,7 +660,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
-            <item id="connectablecis_list">
+            <item id="networkdevice_list">
               <rank>50</rank>
             </item>
             <item id="providercontracts_list">
@@ -762,7 +836,6 @@
     </class> 
 	
  
-		 
 	
 	</classes>
 	
