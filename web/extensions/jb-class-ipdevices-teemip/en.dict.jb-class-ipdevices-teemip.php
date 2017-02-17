@@ -8,7 +8,7 @@
 
 
 //
-// Class: IPPhone
+// Class: IPDevice
 //
 
 Dict::Add('EN US', 'English', 'English', array(
@@ -18,6 +18,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:IPDevice/Attribute:managementip_name' => 'IP Address Name',
 	'Class:IPDevice/Attribute:managementip_name+' => '',
 
+	
 ));
 
 
