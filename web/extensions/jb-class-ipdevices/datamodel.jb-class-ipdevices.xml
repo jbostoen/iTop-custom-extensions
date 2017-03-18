@@ -2,7 +2,9 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
   <classes>
   
-	<!-- Add proper models. IPPhone already exists. -->
+	<!-- 
+		Add proper models. IPPhone already exists. 
+	-->
     <class id="Model" _delta="merge"> 
 	<fields>
         <field id="type" xsi:type="AttributeEnum" _delta="merge">
@@ -14,7 +16,9 @@
 	</fields>
 	</class>
 	
-	<!-- Fix for PCs and other connectable CIs which wouldn't show our IPDevices -->
+	<!-- 
+		Fix for PCs and other connectable CIs which wouldn't show our IPDevices 
+	-->
     <class id="ConnectableCI" _delta="merge"> 
 	<fields>
         <field id="networkdevice_list" xsi:type="AttributeLinkedSetIndirect" _delta="merge">
@@ -22,11 +26,33 @@
         </field>
 	</fields>
 	</class>
-
+	
+	<!-- 
+		lnkConnectableCIToNetworkDevice automatically adds a reversed record for a NetworkDevice. 
+		However, our IPPhone is also heavily based on NetworkDevice. It should have the same behavior. 
+		Rather than altering the code, we'll just use our custom class based in lnkConnectableCIToNetworkDevice
+	-->
+    <class id="NetworkDevice" _delta="merge"> 
+      <fields>
+        <field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect" _delta="merge">
+          <linked_class _delta="redefine">lnkConnectableCIToConnectableCI</linked_class> 
+        </field>
+        <relation id="impacts" _delta="merge">
+          <neighbours>
+            <neighbour id="connectableci" _delta="merge">
+              <query_down _delta="redefine">SELECT ConnectableCI AS d JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
+              <query_up _delta="redefine">SELECT NetworkDevice AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
+            </neighbour>
+          </neighbours>
+        </relation>
+      </relations>
+    </class>
 	
 
 	
-  
+	<!-- 
+		An abstract class for IP Devices to inherit from.
+	-->  
     <class id="IPDevice" _delta="define">
       <parent>ConnectableCI</parent>
       <properties>
@@ -83,8 +109,9 @@
         <relation id="impacts">
           <neighbours>
             <neighbour id="connectableci">
-              <query_down>SELECT ConnectableCI AS d JOIN lnkConnectableCIToNetworkDevice AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
-              <query_up>SELECT NetworkDevice AS nw JOIN lnkConnectableCIToNetworkDevice AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
+				<!-- leave the original table name here. -->
+              <query_down>SELECT ConnectableCI AS d JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
+              <query_up>SELECT NetworkDevice AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
             </neighbour>
           </neighbours>
         </relation>
@@ -955,9 +982,9 @@
           <code><![CDATA[	protected function AddConnectedNetworkDevice()
 	{
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
-		if (is_object($oDevice) && (get_class($oDevice) =='ConnectableCI'))
+		if (is_object($oDevice) && (get_class($oDevice) =='IPPhone'))
 		{
-			$sOQL = "SELECT  lnkConnectableCIToNetworkDevice WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
 							array(),
 							array(
@@ -972,7 +999,7 @@
 				$sLink = $this->Get('connection_type');
 				$sConnLink = ($sLink == 'uplink') ? 'downlink' : 'uplink';
 
-				$oNewLink = new lnkConnectableCIToNetworkDevice();
+				$oNewLink = new lnkConnectableCIToConnectableCI();
 				$oNewLink->Set('networkdevice_id', $this->Get('connectableci_id'));
 				$oNewLink->Set('connectableci_id', $this->Get('networkdevice_id'));
 				$oNewLink->Set('network_port', $this->Get('device_port'));
@@ -990,10 +1017,10 @@
           <code><![CDATA[	protected function UpdateConnectedNetworkDevice()
 	{
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
-		if (is_object($oDevice) && (get_class($oDevice) =='ConnectableCI'))
+		if (is_object($oDevice) && (get_class($oDevice) =='IPPhone'))
 		{
 			// Note: in case a port has been changed, search with the original values
-			$sOQL = "SELECT  lnkConnectableCIToNetworkDevice WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
 							array(),
 							array(
@@ -1025,10 +1052,10 @@
 	{
 		// The device might be already deleted (reentrance in the current procedure when both device are NETWORK devices!)
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'), false);
-		if (is_object($oDevice) && (get_class($oDevice) =='ConnectableCI'))
+		if (is_object($oDevice) && (get_class($oDevice) =='IPPhone'))
 		{
 			// Track and delete the counterpart link
-			$sOQL = "SELECT  lnkConnectableCIToNetworkDevice WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
 							array(),
 							array(
@@ -1142,6 +1169,7 @@
 	
 	</classes>
 	
+<!-- Add items in config management -->
 <menus>
   <menu id="ConfigManagementOverview" xsi:type="DashboardMenuNode" _delta="must_exist">
     <definition>
