@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2">
+
+  <classes>  
+    <class id="RoutineChange" _delta="merge"> 
+      <lifecycle _delta="merge"> 
+        <states>  
+          <state id="assigned" _delta="merge">  
+            <transitions> 
+			  <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state>  
+          <state id="plannedscheduled" _delta="merge">  
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state>
+          <state id="approved" _delta="merge">  
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state>
+          <state id="notapproved" _delta="merge">
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions> 
+          </state>
+        </states>
+      </lifecycle> 
+    </class>
+	
+	<!-- ApprovedChange is abstract class for NormalChange, EmergencyChange. No changes needed. -->
+    <class id="ApprovedChange" _delta="merge">    
+    </class>
+	
+	
+    <class id="NormalChange" _delta="merge"> 
+      <lifecycle _delta="merge"> 
+        <states> 
+          <state id="validated" _delta="merge"> 
+            <transitions> 
+			  <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state> 
+          <state id="assigned" _delta="merge"> 
+            <transitions> 
+			   <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state>
+          <state id="plannedscheduled" _delta="merge">  
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state>
+          <state id="approved" _delta="merge">  
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>
+            </transitions>
+          </state>
+          <state id="notapproved" _delta="merge">  
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>			  
+            </transitions>
+          </state> 
+		</states>
+      </lifecycle>  
+ 
+    </class>
+	
+	<!-- EmergencyChange. By default, there's no reject option. If we ever want to implement it, we need to add stimulus too. -->
+	<!--
+    <class id="EmergencyChange" _delta="merge">
+      <lifecycle _delta="merge"> 
+        <states> 
+		 <state id="assigned" _delta="merge"> 
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>			  
+            </transitions>
+          </state>
+          <state id="plannedscheduled" _delta="merge"> 
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>			  
+            </transitions>
+          </state>
+          <state id="approved" _delta="merge"> 
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>			  
+            </transitions>
+          </state>
+          <state id="notapproved" _delta="merge"> 
+            <transitions> 
+              <transition id="ev_reject" _delta="define">
+                <target>rejected</target>
+                <actions/>
+              </transition>					  
+            </transitions>
+          </state>
+           
+         
+        </states>
+      </lifecycle>
+
+	  </class> 
+	  -->
+	
+  </classes>
+
+</itop_design>

@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-class-userrequest-itil-origin-in-person/',
+        'jb-class-request-mgmt-itil-origin-in-person/',
         array(
                 // Identification
                 //
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-class-userrequest-itil-origin-in-person.php'
+                        'model.jb-class-request-mgmt-itil-origin-in-person.php'
                 ),
                 'webservice' => array(
 

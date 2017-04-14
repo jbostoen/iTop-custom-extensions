@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-userrequest-itil-no-mandatory-solution/1.0.0',
+	'jb-class-request-mgmt-itil-no-readonly-title/1.0.0',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL) - Don\'t make solution mandatory (on resolve)',
+		'label' => 'Class: User Request (ITIL) - Don\'t make title Read-Only (on resolve)',
 		'category' => 'business',
 
 		// Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-userrequest-itil-no-mandatory-solution.php'
+			'model.jb-class-request-mgmt-itil-no-readonly-title.php'
 		),
 		'webservice' => array(
 			

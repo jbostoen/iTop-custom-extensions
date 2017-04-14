@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-userrequest-itil-no-computed-impact/1.0.0',
+	'jb-class-change-mgmt-itil-reject-anytime/1.0.0',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL) - Don\'t auto-add computed CIs (on insert/update)',
+		'label' => 'Class: NormalChange and RoutineChange (ITIL) - reject anytime (before implement)',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-request-mgmt-itil/2.0.0'
+			'itop-change-mgmt-itil/2.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-userrequest-itil-no-computed-impact.php'
+			'model.jb-class-change-mgmt-itil-reject-anytime.php'
 		),
 		'webservice' => array(
 			

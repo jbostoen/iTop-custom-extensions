@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-userrequest-itil-no-readonly-title/1.0.0',
+	'jb-class-change-mgmt-itil-no-computed-impact/1.0.0',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL) - Don\'t make title Read-Only (on resolve)',
+		'label' => 'Class: Change (ITIL) - Don\'t auto-add computed CIs (on insert/update)',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
 			'itop-config-mgmt/2.0.0',
-			'itop-request-mgmt-itil/2.0.0'
+			'itop-change-mgmt-itil/2.0.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-userrequest-itil-no-readonly-title.php'
+			'model.jb-class-change-mgmt-itil-no-computed-impact.php'
 		),
 		'webservice' => array(
 			
