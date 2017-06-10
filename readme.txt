@@ -1,3 +1,9 @@
-See the Wiki on GitHub for more information on the extensions/modules.
+To avoid confusion: 
 
+sql -> contains a few queries for some basic mainenance.
+web -> tested extensions
+wip -> work in progress. Unfinished.
+
+
+See the Wiki on GitHub for more information on the extensions/modules.
 https://github.com/jbostoen/iTop-custom-extensions/wiki
