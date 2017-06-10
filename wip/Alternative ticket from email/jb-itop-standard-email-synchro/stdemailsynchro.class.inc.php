@@ -29,8 +29,7 @@ class StdEmailSynchro extends ModuleHandlerAPI
 		if (UserRights::IsAdministrator())
 		{
 			$oAdminMenu = new MenuGroup('AdminTools', 80 /* fRank */);
-			new OQLMenuNode('MailInboxes', 'SELECT MailInboxStandard', $oAdminMenu->GetIndex(), 20 /* fRank */, true);
-			new OQLMenuNode('MailInboxPolicies', 'SELECT MailInboxPolicy', $oAdminMenu->GetIndex(), 21 /* fRank */, true);
+			new OQLMenuNode('MailInboxes', 'SELECT MailInboxStandard', $oAdminMenu->GetIndex(), 20 /* fRank */, true); 
 		}
 	}
 }
