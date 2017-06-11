@@ -67,19 +67,14 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward eMails To',
 	'Class:MailInboxStandard/Attribute:notify_errors_from' => '(From)',
 	
-	
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:mark_as_error' => 'Keep (mark as error)',
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_max_size_MB' => 'Max size (MB)',
+ 
 	
 	// Policy: mail size too large
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior' => 'eMail',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_max_size_MB' => 'Max size (MB)',
 	
@@ -88,6 +83,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_mimetypes' => 'MIME Types',
 	
@@ -97,6 +93,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_no_subject_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_default_value' => 'Default subject',
 	
@@ -106,6 +103,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new contact (one per line, example: org_id:1)',
 	
@@ -117,6 +115,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_default_values' => 'Default values for new contacts (one per line, example: org_id:1)',
 	
@@ -125,6 +124,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:fallback' => 'Fallback: reopen ticket',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:delete' => 'Delete',
+	'Class:MailInboxStandard/Attribute:policy_ticket_closed_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_notification' => 'Bounce message', 
 	
@@ -133,6 +133,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:fallback' => 'Fallback: reopen ticket',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:delete' => 'Delete',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_notification' => 'Bounce message', 
 	 
@@ -141,6 +142,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_notification' => 'Bounce message', 
 	
 	// Policy: undesired patterns
@@ -148,6 +150,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_big_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_notification' => 'Bounce message', 
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	

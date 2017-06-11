@@ -129,6 +129,11 @@
           <default_value>bounce_delete</default_value>
           <is_null_allowed>false</is_null_allowed>
         </field>
+        <field id="policy_mail_size_too_big_subject" xsi:type="AttributeString">
+          <sql>policy_mail_size_too_big_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
         <field id="policy_mail_size_too_big_notification" xsi:type="AttributeHTML">
           <sql>policy_mail_size_too_big_notification</sql>
           <default_value/>
@@ -151,6 +156,11 @@
           <sql>policy_forbidden_attachments_behavior</sql>
           <default_value>bounce_delete</default_value>
           <is_null_allowed>false</is_null_allowed>
+        </field>
+        <field id="policy_forbidden_attachments_subject" xsi:type="AttributeString">
+          <sql>policy_forbidden_attachments_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
         </field>
         <field id="policy_forbidden_attachments_notification" xsi:type="AttributeHTML">
           <sql>policy_forbidden_attachments_notification</sql>
@@ -177,6 +187,11 @@
           <default_value>fallback</default_value>
           <is_null_allowed>false</is_null_allowed>
         </field>
+        <field id="policy_no_subject_subject" xsi:type="AttributeString">
+          <sql>policy_no_subject_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
         <field id="policy_no_subject_notification" xsi:type="AttributeHTML">
           <sql>policy_no_subject_notification</sql>
           <default_value/>
@@ -201,6 +216,11 @@
           <sql>policy_unknown_caller_behavior</sql>
           <default_value>bounce_delete</default_value>
           <is_null_allowed>false</is_null_allowed>
+        </field>
+        <field id="policy_unknown_caller_subject" xsi:type="AttributeString">
+          <sql>policy_unknown_caller_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
         </field>
         <field id="policy_unknown_caller_notification" xsi:type="AttributeHTML">
           <sql>policy_unknown_caller_notification</sql>
@@ -230,6 +250,11 @@
           <default_value>bounce_delete</default_value>
           <is_null_allowed>false</is_null_allowed>
         </field>
+        <field id="policy_other_recipients_subject" xsi:type="AttributeString">
+          <sql>policy_other_recipients_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
         <field id="policy_other_recipients_notification" xsi:type="AttributeHTML">
           <sql>policy_other_recipients_notification</sql>
           <default_value/>
@@ -254,12 +279,40 @@
           <default_value>bounce_delete</default_value>
           <is_null_allowed>false</is_null_allowed>
         </field>
+        <field id="policy_ticket_closed_subject" xsi:type="AttributeString">
+          <sql>policy_ticket_closed_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
         <field id="policy_ticket_closed_notification" xsi:type="AttributeHTML">
           <sql>policy_ticket_closed_notification</sql>
           <default_value/>
           <is_null_allowed>true</is_null_allowed>
         </field>
 		 
+		<!-- Reference to resolved ticket -->
+        <field id="policy_ticket_resolved_behavior" xsi:type="AttributeEnum">
+          <values>
+            <value>fallback</value><!-- reopen -->
+            <value>mark_as_error</value>
+            <value>delete</value> 
+            <value>bounce_delete</value> 
+          </values>
+          <sql>policy_ticket_resolved_behavior</sql>
+          <default_value>bounce_delete</default_value>
+          <is_null_allowed>false</is_null_allowed>
+        </field>
+        <field id="policy_ticket_resolved_subject" xsi:type="AttributeString">
+          <sql>policy_ticket_resolved_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
+        <field id="policy_ticket_resolved_notification" xsi:type="AttributeHTML">
+          <sql>policy_ticket_resolved_notification</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
+		
 		<!-- Reference to non-existing ticket -->
         <field id="policy_ticket_unknown_behavior" xsi:type="AttributeEnum">
           <values> 
@@ -270,6 +323,11 @@
           <sql>policy_ticket_unknown_behavior</sql>
           <default_value>bounce_delete</default_value>
           <is_null_allowed>false</is_null_allowed>
+        </field>
+        <field id="policy_ticket_unknown_subject" xsi:type="AttributeString">
+          <sql>policy_ticket_unknown_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
         </field>
         <field id="policy_ticket_unknown_notification" xsi:type="AttributeHTML">
           <sql>policy_ticket_unknown_notification</sql>
@@ -288,6 +346,11 @@
           <sql>policy_undesired_pattern_behavior</sql>
           <default_value>delete</default_value>
           <is_null_allowed>false</is_null_allowed>
+        </field>
+        <field id="policy_undesired_pattern_subject" xsi:type="AttributeString">
+          <sql>policy_undesired_pattern_subject</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
         </field>
         <field id="policy_undesired_pattern_notification" xsi:type="AttributeHTML">
           <sql>policy_undesired_pattern_notification</sql>
@@ -423,8 +486,7 @@ EOF
 			}
 		}
 		return parent::GetNextAction();		
-		
-	}
+		 
 	
 		}]]></code>
         </method>
@@ -1404,7 +1466,7 @@ EOF
           <static>false</static>
           <access>public</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	public function HandleError($oEmail, $sPolicyViolation, $oRawEmail = null, $sAdditionalErrorMessage = '')
+          <code><![CDATA[	public function HandlePolicyViolation($oEmail, $sPolicyViolation, $oRawEmail = null, $sAdditionalErrorMessage = '')
 	{
 	
 		// Rather than informing the admin, we need to inform the sender 
@@ -1635,6 +1697,9 @@ EOF
                     <item id="policy_mail_size_too_big_behavior">
                       <rank>10</rank>
                     </item>
+                    <item id="policy_mail_size_too_big_subject">
+                      <rank>15</rank>
+                    </item>
                     <item id="policy_mail_size_too_big_notification">
                       <rank>20</rank>
                     </item>
@@ -1652,6 +1717,9 @@ EOF
                     <item id="policy_forbidden_attachments_behavior">
                       <rank>10</rank>
                     </item>
+                    <item id="policy_forbidden_attachments_subject">
+                      <rank>15</rank>
+                    </item>
                     <item id="policy_forbidden_attachments_notification">
                       <rank>20</rank>
                     </item>
@@ -1667,6 +1735,9 @@ EOF
                   <items>
                     <item id="policy_no_subject_behavior">
                       <rank>10</rank>
+                    </item>
+                    <item id="policy_no_subject_subject">
+                      <rank>15</rank>
                     </item>
                     <item id="policy_no_subject_notification">
                       <rank>20</rank>
@@ -1684,6 +1755,9 @@ EOF
                     <item id="policy_ticket_closed_behavior">
                       <rank>10</rank>
                     </item>
+                    <item id="policy_ticket_closed_subject">
+                      <rank>15</rank>
+                    </item>
                     <item id="policy_ticket_closed_notification">
                       <rank>20</rank>
                     </item> 
@@ -1696,6 +1770,9 @@ EOF
                   <items>
                     <item id="policy_ticket_resolved_behavior">
                       <rank>10</rank>
+                    </item>
+                    <item id="policy_ticket_resolved_subject">
+                      <rank>15</rank>
                     </item>
                     <item id="policy_ticket_resolved_notification">
                       <rank>20</rank>
@@ -1710,6 +1787,9 @@ EOF
                     <item id="policy_ticket_unknown_behavior">
                       <rank>10</rank>
                     </item>
+                    <item id="policy_ticket_unknown_subject">
+                      <rank>15</rank>
+                    </item>
                     <item id="policy_ticket_unknown_notification">
                       <rank>20</rank>
                     </item> 
@@ -1722,6 +1802,9 @@ EOF
                   <items>
                     <item id="policy_unknown_caller_behavior">
                       <rank>10</rank>
+                    </item>
+                    <item id="policy_unknown_caller_subject">
+                      <rank>15</rank>
                     </item>
                     <item id="policy_unknown_caller_notification">
                       <rank>20</rank>
@@ -1739,6 +1822,9 @@ EOF
                     <item id="policy_other_recipients_behavior">
                       <rank>10</rank>
                     </item>
+                    <item id="policy_other_recipients_subject">
+                      <rank>15</rank>
+                    </item>
                     <item id="policy_other_recipients_notification">
                       <rank>20</rank>
                     </item> 
@@ -1751,6 +1837,9 @@ EOF
                   <items>
                     <item id="policy_undesired_pattern_behavior">
                       <rank>10</rank>
+                    </item>
+                    <item id="policy_undesired_pattern_subject">
+                      <rank>15</rank>
                     </item>
                     <item id="policy_undesired_pattern_notification">
                       <rank>20</rank>
