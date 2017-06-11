@@ -256,6 +256,8 @@ EOF
 				// Ignore the mailbox
 				$sNewMailbox = '';
 			}
+			
+			// Search for possible duplicates (other id and similar settings)
 			$oSearch = DBObjectSearch::FromOQL_AllData("SELECT MailInboxBase WHERE login = :newlogin AND server = :newserver AND ((protocol = 'imap' AND mailbox = :newmailbox) OR (protocol = 'pop3' AND '' = :newmailbox)) AND id != :id");
 			$oSet = new DBObjectSet($oSearch, array(), array('id' => $this->GetKey(), 'newlogin' => $sNewLogin, 'newserver' => $sNewServer, 'newmailbox' => $sNewMailbox));
 			if ($oSet->Count() > 0)
@@ -266,6 +268,7 @@ EOF
 				}
 				else
 				{
+					// IMAP: server must not be unique, but mailbox FOLDER should be unique .
 					$this->m_aCheckIssues[] = Dict::Format('MailInbox:Login/Server/MailboxMustBeUnique', $sNewLogin, $sNewServer, $sNewMailbox);
 				}
 			}
@@ -312,8 +315,8 @@ EOF
 			$iTicketId = $oEmailReplica->Get('ticket_id');
 			$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false /* => may not exist anymore */);
 			if (is_object($oTicket))
-			{
-				if ($oTicket->Get('status') == 'closed')
+			{ 
+				if ( $oTicket->Get('status') == 'closed' )
 				{
 					// The corresponding ticket was closed, delete the email (and the replica)
 					$this->SetNextAction(EmailProcessor::DELETE_MESSAGE);
@@ -443,6 +446,7 @@ EOF
 	{
 		$oTicket = $oEmail->oRelatedObject;
 			
+		// There is a related object, but it's not a ticket.
 		if (($oTicket != null) && !($oTicket instanceof Ticket))
 		{
 			// The object referenced by the email is not a ticket !!

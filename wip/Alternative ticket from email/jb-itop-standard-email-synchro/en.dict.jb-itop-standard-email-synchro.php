@@ -127,6 +127,14 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_notification' => 'Bounce message', 
+	
+	// Policy: resolved ticket
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior' => 'eMail',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:fallback' => 'Fallback: reopen ticket',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:mark_as_error' => 'Keep (mark as error)',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:delete' => 'Delete',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_notification' => 'Bounce message', 
 	 
 	// Policy: unknown ticket
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior' => 'eMail', 
@@ -158,6 +166,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'MailInbox:PolicySize' => 'Policy: Mail Size',
 	'MailInbox:PolicyForbiddenAttachments' => 'Policy: Forbidden attachments',
 	'MailInbox:PolicyUndesiredPatterns' => 'Policy: Undesired patterns',
+	'MailInbox:PolicyResolvedTicket' => 'Policy: Resolved tickets',
 	'MailInbox:PolicyClosedTicket' => 'Policy: Closed tickets',
 	'MailInbox:PolicyUnknownTicket' => 'Policy: Unknown tickets',
 	'MailInbox:PolicyNoSubject' => 'Policy: No subject',
