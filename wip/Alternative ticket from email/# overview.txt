@@ -3,12 +3,12 @@
 Work in progress. The idea is to either extend and contribute back to iTop, or to fork the 3.0.5 version of the Combodo Create-Ticket-From-Email extension.
 
 - combine 'combodo-email-synchro' and 'itop-standard-email'?
-- should differentiate between error (inform specific contact/mail) and policy violations (should bounce mail back to sender with a case specific notification)
-- should add 'Incoming eMail Policies'
+- should differentiate between actaul error (inform specific contact/mail) and policy violations (should bounce mail back to sender with a case specific notification)
+
 
 Notifications: 
 - independent from PreCanned Reply. 
-- If we want to include the original email: independent from Notifications (ActionEmail)
+- independent from Notifications (ActionEmail)
 
 Errors: 
 - failed to decode 
@@ -23,6 +23,10 @@ Errors:
 - undesired pattern (out of office, read:, delivered:)
 
 
+Most stuff can be found under jb-itop-standard-email-synchro. 
+Policies could easily be expanded upon any information one can retrieve for an email (or: one can determine the info is missing).
+
+
+Not part of current scope:
 Since there's plenty of policy violations with custom behavior (delete or mark as error; return to sender or not; custom notification), 
 it could be handy to share this policy amongst mailboxes.
-

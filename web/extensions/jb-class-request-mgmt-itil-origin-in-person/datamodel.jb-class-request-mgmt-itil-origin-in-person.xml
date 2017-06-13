@@ -6,7 +6,7 @@
                         <fields>
                                 <field id="origin" xsi:type="AttributeEnum" _delta="merge">
                                         <values _delta="merge">
-                                                <value id="in_person" _delta="define">In person</value>
+                                                <value id="in_person" _delta="define">in_person</value>
                                         </values>
                                 </field>
                         </fields>
