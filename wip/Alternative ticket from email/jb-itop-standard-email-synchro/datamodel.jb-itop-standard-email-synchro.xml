@@ -84,6 +84,12 @@
           <default_value/>
           <is_null_allowed>true</is_null_allowed>
         </field>
+        <field id="mail_aliases" xsi:type="AttributeText">
+          <sql>mail_aliases</sql>
+          <default_value></default_value>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
+		
         
 		<field id="trace" xsi:type="AttributeEnum">
           <values>
@@ -506,13 +512,20 @@ EOF
 		$this->Trace("Processing new eMail (index = $index)");
 		$oTicket = null;
 		
+		$oPolicy = $this->PolicyCompliant($oEmail);
+		
 		// Not policy compliant? Then stop processing. 
-		if( !$this->PolicyCompliantCompliant($oEmail) ) {
+		if( !$oPolicy->compliant ) {
 			return null;
 		}
 		
+		$oCaller = $oPolicy->oCaller;
+		$oTicket = $oPolicy->oTicket;
 		
 		
+		
+		
+		// To review: 
 		
 		// Search if the caller email is an existing contact in iTop
 		// This function also takes care of the fallback (create) if applicable.
@@ -523,9 +536,7 @@ EOF
 			return null;
 		}
 		 
-		
-		
-		// End policies.
+	
 
 		// Check whether we need to create a new ticket or to update an existing one
 		$oTicket = $this->GetRelatedTicket($oEmail);
@@ -887,7 +898,7 @@ EOF
         <method id="FindAdditionalContact">
           <comment>/**
 	 * Search if the CC email is an existing contact in iTop, if so return it, otherwise ignore it
-	 * @param $sEmail string The email address to seach
+	 * @param $sEmail string The email address to search
 	 * @return Contact | null
 	 */</comment>
           <static>false</static>
@@ -1000,6 +1011,14 @@ EOF
 		// Try to extract what's new from the message's body
 		$this->Trace("iTop Simple Email Synchro: Updating the iTop ticket ".$oTicket->GetName()." from eMail '".$oEmail->sSubject."'");
 
+		
+		
+		// Not policy compliant? Then stop processing. 
+		if( !$this->PolicyCompliant($oEmail) ) {
+			return null;
+		}
+		
+		
 		
 		// Process attachments
 		$aIgnoredAttachments = array();
@@ -1573,7 +1592,7 @@ EOF
           <comment><![CDATA[/**
 	 * Check all policies to see if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
-	 * @return boolean
+	 * @return array ( boolean 'compliant', Ticket 'ticket', string 'Caller' )
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
@@ -1603,64 +1622,71 @@ EOF
 		// If for example 'no subject' is allowed, it will be handled later on in CreateTicketFromEmail 
 		
 		
+		$oCaller = null;
+		$oTicket = null; 
+		
 		if ($this->PolicyCompliantForbiddenAttachments($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_forbidden_attachments', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		 
 		if ($this->PolicyCompliantMailSizeTooBig($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_mail_size_too_big', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		
 		if ($this->PolicyCompliantNoSubject($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_no_subject', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		if ($this->PolicyCompliantOtherRecipients($oEmail))
 		{
-			$this->HandlePolicyViolation($oEmail, 'policy_other_recipients', $oEmail->oRawEmail);
-			return false;
+			$this->HandlePolicyViolation($oEmail, 'policy_other_recipients', $oEmail->oRawEmail
+			return (Object)["compliant" => false];
 		}
 		
 		
 		if ($this->PolicyCompliantTicketClosed($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_ticket_closed', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		if ($this->PolicyCompliantTicketResolved($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_ticket_resolved', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		if ($this->PolicyCompliantTicketUnknown($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_ticket_unknown', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		if ($this->PolicyCompliantUndesiredPattern($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_undesired_pattern', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		if ($this->PolicyCompliantUnknownCaller($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
-			return false;
+			return (Object)["compliant" => false];
 		}
 		
 		
-		return true;
+		return (Object)[
+			"compliant" => true,
+			"caller" => $oCaller, 
+			"ticket" => $oTicket 
+		];
 		
 		
 	}]]></code>
@@ -1727,8 +1753,26 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function policyCompliantOtherRecipients(EmailMessage $oEmail)
 	{
-		// To implement: check for other recipients in To: or CC: . Or check if this mailbox (or aliases) are missing in 'To:' (which would happen in BCC)
+		// To implement: check for other recipients in To: or CC: . 
+		// Or check if this mailbox (or aliases) are missing in 'To:' (which would happen in BCC)
+		
+		
+		$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs); // Take both the To: and CC:, no actual merge since the keys of the arrays are numeric (i.e. 0, 1, 2...)
+		$aExcludeContacts = array_merge( $sCallerEmail , preg_split('/\\r\\n|\\r|\\n/' , $this->Get('mail_aliases') )  );
+
+		foreach($aAdditionalContacts as $aInfo)
+		{
+			// If we find an email address which is from a third party, and it's not the original caller or an alias for this mailbox, 
+			// then we're dealing with an undesired message. (another person in To:, CC:)
+			if ( !in_array( $aInfo['email'] , $aExcludeContacts ) ) 
+			{
+				// Found other contacts in To: or CC: 
+				return true; // Match, undesired message. 
+			} 
+		}
+		
 		return false; // No match, the message is NOT undesired
+		
 	}]]></code>
         </method>
         <method id="PolicyCompliantTicketClosed">

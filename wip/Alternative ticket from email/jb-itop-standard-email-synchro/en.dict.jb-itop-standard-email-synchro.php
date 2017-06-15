@@ -65,8 +65,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:error_behavior/Value:delete' => 'Delete the message from the mailbox',
 	'Class:MailInboxStandard/Attribute:error_behavior/Value:mark_as_error' => 'Keep the message in the mailbox',
 	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward eMails To',
-	'Class:MailInboxStandard/Attribute:notify_errors_from' => '(From)',
-	
+	'Class:MailInboxStandard/Attribute:notify_errors_from' => 'Mail From',
+	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases',
+	 
  
 	
 	// Policy: mail size too large
