@@ -41,9 +41,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:stimuli+' => 'Apply a stimulus when the ticket is in a given state',
 	'Class:MailInboxStandard/Attribute:stimuli?' => 'Use the format <state_code>:<stimulus_code>',
 
-	// 'Class:MailInboxStandard/Attribute:unknown_caller_behavior' => 'Behavior in case of Unknown Caller',
-	// 'Class:MailInboxStandard/Attribute:unknown_caller_behavior/Value:create_contact' => 'Create a new Person',
-	// 'Class:MailInboxStandard/Attribute:unknown_caller_behavior/Value:reject_email' => 'Reject the eMail',
 
 	'Class:MailInboxStandard/Attribute:trace' => 'Debug trace',
 	'Class:MailInboxStandard/Attribute:trace/Value:yes' => 'Yes',
@@ -64,9 +61,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:error_behavior' => 'Behavior',
 	'Class:MailInboxStandard/Attribute:error_behavior/Value:delete' => 'Delete the message from the mailbox',
 	'Class:MailInboxStandard/Attribute:error_behavior/Value:mark_as_error' => 'Keep the message in the mailbox',
-	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward eMails To',
-	'Class:MailInboxStandard/Attribute:notify_errors_from' => 'Mail From',
-	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases',
+	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward eMails (in error) To Address',
+	'Class:MailInboxStandard/Attribute:notify_from' => 'Mail From Address',
+	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases<br>(one per line)',
 	 
  
 	
@@ -86,7 +83,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_mimetypes' => 'MIME Types',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_mimetypes' => 'MIME Types<br>(one per line)',
 	
 	// Policy: no subject
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior' => 'eMail',
@@ -106,7 +103,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new contact (one per line, example: org_id:1)',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new contact <br>(one per line, example: org_id:1)',
 	
 	// Policy: other recipients
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior' => 'eMail',
@@ -151,9 +148,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_big_subject' => 'Bounce subject',
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_notification' => 'Bounce message', 
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
 	
 	
 	
@@ -167,12 +164,12 @@ Dict::Add('EN US', 'English', 'English', array(
 	// 'MailInbox:Caller' => 'Unknown Callers',
 	
 	// Policies
-	'MailInbox:PolicySize' => 'Policy: Mail Size',
+	'MailInbox:PolicyMailSize' => 'Policy: Mail Size',
 	'MailInbox:PolicyForbiddenAttachments' => 'Policy: Forbidden attachments',
-	'MailInbox:PolicyUndesiredPatterns' => 'Policy: Undesired patterns',
-	'MailInbox:PolicyTicketResolved' => 'Policy: Resolved tickets',
-	'MailInbox:PolicyTicketClosed' => 'Policy: Closed tickets',
-	'MailInbox:PolicyTicketUnknown' => 'Policy: Unknown tickets',
+	'MailInbox:PolicyUndesiredPattern' => 'Policy: Undesired patterns',
+	'MailInbox:PolicyResolvedTicket' => 'Policy: Resolved tickets',
+	'MailInbox:PolicyClosedTicket' => 'Policy: Closed tickets',
+	'MailInbox:PolicyUnknownTicket' => 'Policy: Unknown tickets',
 	'MailInbox:PolicyNoSubject' => 'Policy: No subject',
 	'MailInbox:PolicyUnknownCaller' => 'Policy: Unknown caller',
 	'MailInbox:PolicyOtherRecipients' => 'Policy: Other recipients',
@@ -182,8 +179,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	 
 	'MailInboxStandard:DebugTrace' => 'Debug Trace',
 	'MailInboxStandard:DebugTraceNotActive' => 'Activate the debug on this Inbox to see the debug trace here.',
-	// 'MailInbox:NoSubject' => 'No subject',
-	
+	 
 	 
 	
 ));

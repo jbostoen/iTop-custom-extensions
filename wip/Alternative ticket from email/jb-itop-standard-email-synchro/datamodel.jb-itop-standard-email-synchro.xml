@@ -1638,7 +1638,7 @@ EOF
 		
 		if ($this->PolicyCompliantOtherRecipients($oEmail))
 		{
-			$this->HandlePolicyViolation($oEmail, 'policy_other_recipients', $oEmail->oRawEmail
+			$this->HandlePolicyViolation($oEmail, 'policy_other_recipients', $oEmail->oRawEmail);
 			return (object)["compliant" => false];
 		}
 		
@@ -1646,7 +1646,7 @@ EOF
 
 		// Ticket unknown.
 		// Or if known: ticket closed, resolved.
-		if ($this->PolicyCompliantTicketUnknown($oEmail, $oTicket))
+		if ($this->PolicyCompliantUnknownTicket($oEmail, $oTicket))
 		{
 			$this->HandlePolicyViolation($oTicket, 'policy_ticket_unknown', $oEmail->oRawEmail);
 			return (object)["compliant" => false];
@@ -1655,13 +1655,13 @@ EOF
 			
 			// Ticket must exist to determine status. 
 		
-			if ($this->PolicyCompliantTicketClosed($oEmail, $oTicket))
+			if ($this->PolicyCompliantClosedTicket($oEmail, $oTicket))
 			{
 				$this->HandlePolicyViolation($oTicket, 'policy_ticket_closed', $oEmail->oRawEmail);
 				return (object)["compliant" => false];
 			}
 			
-			if ($this->PolicyCompliantTicketResolved($oEmail, $oTicket))
+			if ($this->PolicyCompliantResolvedTicket($oEmail, $oTicket))
 			{
 				$this->HandlePolicyViolation($oTicket, 'policy_ticket_resolved', $oEmail->oRawEmail);
 				return (object)["compliant" => false];
@@ -1709,14 +1709,26 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyForbiddenAttachments(EmailMessage $oEmail)
 	{
-		// To implement
-		return true; 
+	
+		// Get list of forbidden file types 
+		$aForbiddenMimeTypes =  preg_split('/\\r\\n|\\r|\\n/' , $this->Get('policy_forbidden_attachments_mimetypes') );
+		
+		// Forbidden attachments? 		
+		foreach($oEmail->aAttachments as $aAttachment)
+		{ 
+			if ( in_array($aAttachment['mimeType'], $aForbiddenMimeTypes ) )
+			{
+				return false; // Message is undesired 
+			}
+		}
+		
+		return true; // Message is NOT undesired 
 	}]]></code>
         </method>
         <method id="PolicyCompliantMailSizeTooBig">
 
           <comment><![CDATA[/**
-	 * Check (based on a an empty subject) if the email is considered as "undesired"
+	 * Check if the email size is not too big 
 	 * @param EmailMessage $oEmail The message to check
 	 * @return boolean
 	 */]]></comment>
@@ -1725,6 +1737,15 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyCompliantMailSizeTooBig(EmailMessage $oEmail)
 	{
+	
+			$oRawEmail = $oEmail->oRawEmail;
+			
+			if ( $oRawEmail->GetSize() > $this->Get('policy_mail_size_too_big_max_size_MB') * 1024 )
+			{
+				// Mail size too big  
+				return false;
+			}
+	
 		// To implement: mail size 
 		return true; // No match, the message is NOT undesired
 	}]]></code>
@@ -1782,7 +1803,7 @@ EOF
 		
 	}]]></code>
         </method>
-        <method id="PolicyCompliantTicketClosed">
+        <method id="PolicyCompliantClosedTicket">
 
           <comment><![CDATA[/**
 	 * Check (based on already closed status) if the email is considered as "undesired"
@@ -1793,7 +1814,7 @@ EOF
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantTicketClosed(EmailMessage $oEmail, Ticket $oTicket)
+          <code><![CDATA[	protected function PolicyCompliantClosedTicket(EmailMessage $oEmail, Ticket $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket->Get('status') == 'closed' ) {
@@ -1808,6 +1829,7 @@ EOF
 				case 'fallback': 
 					// Reopen ticket 
 					$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
+					$oTicket->ApplyStimulus('ev_reopen');
 					return true;
 					break; // unnecessary.
 					
@@ -1824,7 +1846,7 @@ EOF
 		
 	}]]></code>
         </method>
-        <method id="PolicyCompliantTicketResolved">
+        <method id="PolicyCompliantResolvedTicket">
 
           <comment><![CDATA[/**
 	 * Check (based on already resolved status) if the email is considered as "undesired"
@@ -1835,7 +1857,7 @@ EOF
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantTicketResolved(EmailMessage $oEmail, Ticket $oTicket)
+          <code><![CDATA[	protected function PolicyCompliantResolvedTicket(EmailMessage $oEmail, Ticket $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket->Get('status') == 'resolved' ) {
@@ -1850,6 +1872,7 @@ EOF
 				case 'fallback': 
 					// Reopen ticket 
 					$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
+					$oTicket->ApplyStimulus('ev_reopen');
 					return true;
 					break; // unnecessary.
 					
@@ -1866,7 +1889,7 @@ EOF
 		
 	}]]></code>
         </method>
-        <method id="PolicyCompliantTicketUnknown">
+        <method id="PolicyCompliantUnknownTicket">
 
           <comment><![CDATA[/**
 	 * Check (based on given ticket ID) if the email is considered as "undesired"
@@ -1877,7 +1900,7 @@ EOF
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantTicketUnknown(EmailMessage $oEmail, Ticket $oTicket)
+          <code><![CDATA[	protected function PolicyCompliantUnknownTicket(EmailMessage $oEmail, Ticket $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket === null ) {
@@ -2113,7 +2136,7 @@ EOF
 				<!-- ################################# POLICIES ####################### -->
 				
 				<!-- Mail (attachments) size too large -->
-                <item id="fieldset:MailInbox:PolicySize">
+                <item id="fieldset:MailInbox:PolicyMailSize">
                   <rank>110</rank>
                   <items>
                     <item id="policy_mail_size_too_big_behavior">
@@ -2171,7 +2194,7 @@ EOF
                 </item> 
 				
 				<!-- Closed ticket -->
-                <item id="fieldset:MailInbox:PolicyTicketClosed">
+                <item id="fieldset:MailInbox:PolicyClosedTicket">
                   <rank>140</rank>
                   <items>
                     <item id="policy_ticket_closed_behavior">
@@ -2187,7 +2210,7 @@ EOF
                 </item> 
 				
 				<!-- Resolved ticket -->
-                <item id="fieldset:MailInbox:PolicyTicketResolved">
+                <item id="fieldset:MailInbox:PolicyResolvedTicket">
                   <rank>141</rank>
                   <items>
                     <item id="policy_ticket_resolved_behavior">
@@ -2203,7 +2226,7 @@ EOF
                 </item> 
 				
 				<!-- Unknown ticket -->
-                <item id="fieldset:MailInbox:PolicyTicketUnknown">
+                <item id="fieldset:MailInbox:PolicyUnknownTicket">
                   <rank>150</rank>
                   <items>
                     <item id="policy_ticket_unknown_behavior">
