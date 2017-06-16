@@ -1644,8 +1644,9 @@ EOF
 		
 		
 
-		
-		if ($this->PolicyCompliantTicketUnknown($oTicket))
+		// Ticket unknown.
+		// Or if known: ticket closed, resolved.
+		if ($this->PolicyCompliantTicketUnknown($oEmail, $oTicket))
 		{
 			$this->HandlePolicyViolation($oTicket, 'policy_ticket_unknown', $oEmail->oRawEmail);
 			return (object)["compliant" => false];
@@ -1654,13 +1655,13 @@ EOF
 			
 			// Ticket must exist to determine status. 
 		
-			if ($this->PolicyCompliantTicketClosed($oTicket))
+			if ($this->PolicyCompliantTicketClosed($oEmail, $oTicket))
 			{
 				$this->HandlePolicyViolation($oTicket, 'policy_ticket_closed', $oEmail->oRawEmail);
 				return (object)["compliant" => false];
 			}
 			
-			if ($this->PolicyCompliantTicketResolved($oTicket))
+			if ($this->PolicyCompliantTicketResolved($oEmail, $oTicket))
 			{
 				$this->HandlePolicyViolation($oTicket, 'policy_ticket_resolved', $oEmail->oRawEmail);
 				return (object)["compliant" => false];
@@ -1786,12 +1787,13 @@ EOF
           <comment><![CDATA[/**
 	 * Check (based on already closed status) if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
+	 * @param Ticket $oTicket The ticket to check
 	 * @return boolean
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantTicketClosed(EmailMessage $oEmail)
+          <code><![CDATA[	protected function PolicyCompliantTicketClosed(EmailMessage $oEmail, Ticket $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket->Get('status') == 'closed' ) {
@@ -1827,12 +1829,13 @@ EOF
           <comment><![CDATA[/**
 	 * Check (based on already resolved status) if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
+	 * @param Ticket $oTicket The ticket to check
 	 * @return boolean
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantTicketResolved(EmailMessage $oEmail)
+          <code><![CDATA[	protected function PolicyCompliantTicketResolved(EmailMessage $oEmail, Ticket $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket->Get('status') == 'resolved' ) {
@@ -1868,12 +1871,13 @@ EOF
           <comment><![CDATA[/**
 	 * Check (based on given ticket ID) if the email is considered as "undesired"
 	 * @param Ticket $oTicket The ticket being written
+	 * @param Ticket $oTicket The ticket to check
 	 * @return boolean
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantTicketUnknown(Ticket $oTicket)
+          <code><![CDATA[	protected function PolicyCompliantTicketUnknown(EmailMessage $oEmail, Ticket $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket === null ) {
