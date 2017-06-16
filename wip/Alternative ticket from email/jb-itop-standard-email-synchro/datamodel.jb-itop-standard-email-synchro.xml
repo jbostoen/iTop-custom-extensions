@@ -87,7 +87,7 @@
         <field id="mail_aliases" xsi:type="AttributeText">
           <sql>mail_aliases</sql>
           <default_value></default_value>
-          <is_null_allowed>true</is_null_allowed>
+          <is_null_allowed>false</is_null_allowed>
         </field>
 		
         
@@ -155,6 +155,7 @@
 		<!-- Forbidden mail attachments -->
         <field id="policy_forbidden_attachments_behavior" xsi:type="AttributeEnum">
           <values>
+            <value>fallback</value>
             <value>mark_as_error</value>
             <value>delete</value> 
             <value>bounce_delete</value> 
@@ -519,7 +520,8 @@ EOF
 		$oPolicy = $this->PolicyCompliant($oEmail, $oTicket);
 		
 		// Not policy compliant? Then stop processing. 
-		if( !$oPolicy->compliant ) {
+		if( !$oPolicy->bCompliant ) {
+			$this->Trace('Email does not comply with at least one policy.');
 			return null;
 		}
 		
@@ -1006,9 +1008,16 @@ EOF
 		
 		// Not policy compliant? Then stop processing. 
 		if( !$this->PolicyCompliant($oEmail) ) {
+			$this->Trace('Email does not comply with at least one policy.');
 			return null;
 		}
 		
+		// Everything compliant, but we might need to perform actions.
+		
+		// Fallback: reopen ticket
+		if( in_array( $oTicket-Get('status'), ['resolved','closed'] ) ) {
+			$oTicket->ApplyStimulus('ev_reopen');
+		}
 		
 		
 		// Process attachments
@@ -1507,6 +1516,7 @@ EOF
 	
 		// Policy violations have a typical way of handling.
 		// The behavior is to bounce and delete the message, just delete the message, mark as error, fallback (sometimes multiple fallbacks) 
+		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
 		
 		switch( $this->Get( $sPolicyViolation.'_behavior' ) ){
 		
@@ -1525,7 +1535,7 @@ EOF
 				}
 				else if($oRawEmail)
 				{
-					$this->Trace($sSubject."\n\n".$sBody);
+					$this->Trace("Raw Email: ".$sSubject."\n\n".$sBody);
 					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 				}
 				
@@ -1583,13 +1593,13 @@ EOF
           <comment><![CDATA[/**
 	 * Check all policies to see if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
-	 * @param Ticket $oTicket The ticket being written
+	 * @param $oTicket The ticket being written (Ticket or null)
 	 * @return array ( boolean 'compliant', Ticket 'ticket', string 'Caller' )
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliant(EmailMessage $oEmail, Ticket $oTicket)
+          <code><![CDATA[	protected function PolicyCompliant(EmailMessage $oEmail, /* Ticket or null */ $oTicket)
 	{
 		
 
@@ -1613,85 +1623,110 @@ EOF
 		// The calls to functions below actually just check for compliance. 
 		// If for example 'no subject' is allowed, it will be handled later on in CreateTicketFromEmail 
 		
+		// Traces were added. Passed means either it's passed or a fallback can/will be applied later.
 		
-		$oCaller = null;
-		$oTicket = null; 
+		$oCaller = null; 
 		
-		if ($this->PolicyCompliantForbiddenAttachments($oEmail))
+		if (!$this->PolicyCompliantForbiddenAttachments($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_forbidden_attachments', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
+			return (object)["bCompliant" => false];
+		}
+		else {
+			$this->Trace('Passed: mail has no forbidden attachments.');
 		}
 		 
-		if ($this->PolicyCompliantMailSizeTooBig($oEmail))
+		if (!$this->PolicyCompliantMailSizeTooBig($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_mail_size_too_big', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
+			return (object)["bCompliant" => false];
+		}
+		else {
+			$this->Trace('Passed: mail size not too big.');
 		}
 		
 		
-		if ($this->PolicyCompliantNoSubject($oEmail))
+		if (!$this->PolicyCompliantNoSubject($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_no_subject', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
+			return (object)["bCompliant" => false];
+		}
+		else {
+			$this->Trace('Passed: mail has subject.');
 		}
 		
-		if ($this->PolicyCompliantOtherRecipients($oEmail))
+		if (!$this->PolicyCompliantOtherRecipients($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_other_recipients', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
+			return (object)["bCompliant" => false];
+		}
+		else {
+			$this->Trace('Passed: no other recipients.');
 		}
 		
 		
 
 		// Ticket unknown.
 		// Or if known: ticket closed, resolved.
-		if ($this->PolicyCompliantUnknownTicket($oEmail, $oTicket))
+		if (!$this->PolicyCompliantUnknownTicket($oEmail, $oTicket))
 		{
 			$this->HandlePolicyViolation($oTicket, 'policy_ticket_unknown', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
-		}
+			return (object)["bCompliant" => false];
+		} 
 		else {
+			$this->Trace('Passed: ticket unknown.');
+		 
+			// Ticket must exist in order to handle these policies and reopen (=fallback) if necessary
+			if( $oTicket != null ) {
+				
+				if (!$this->PolicyCompliantClosedTicket($oEmail, $oTicket))
+				{
+					$this->HandlePolicyViolation($oTicket, 'policy_ticket_closed', $oEmail->oRawEmail);
+					return (object)["bCompliant" => false];
+				}
+				else {
+					$this->Trace('Passed: ticket closed.');
+				}
+				
+				if (!$this->PolicyCompliantResolvedTicket($oEmail, $oTicket))
+				{
+					$this->HandlePolicyViolation($oTicket, 'policy_ticket_resolved', $oEmail->oRawEmail);
+					return (object)["bCompliant" => false];
+				}	
+				else {
+					$this->Trace('Passed: ticket resolved.');
+				}
 			
-			// Ticket must exist to determine status. 
-		
-			if ($this->PolicyCompliantClosedTicket($oEmail, $oTicket))
-			{
-				$this->HandlePolicyViolation($oTicket, 'policy_ticket_closed', $oEmail->oRawEmail);
-				return (object)["compliant" => false];
 			}
-			
-			if ($this->PolicyCompliantResolvedTicket($oEmail, $oTicket))
-			{
-				$this->HandlePolicyViolation($oTicket, 'policy_ticket_resolved', $oEmail->oRawEmail);
-				return (object)["compliant" => false];
-			}	
-		
 		
 		}
 		
-		if ($this->PolicyCompliantUndesiredPattern($oEmail))
+		if (!$this->PolicyCompliantUndesiredPattern($oEmail))
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_undesired_pattern', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
+			return (object)["bCompliant" => false];
+		}
+		else {
+			$this->Trace('Passed: undesired pattern.');
 		}
 		
 		// Get caller (id of person). 
 		$oPolicyUnknownCaller = $this->PolicyCompliantUnknownCaller($oEmail);
-		if ( $oPolicyUnknownCaller === null )
+		if ( $oPolicyUnknownCaller == null )
 		{
 			$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
-			return (object)["compliant" => false];
-		}
+			return (object)["bCompliant" => false];
+		} 
 		else {
+			$this->Trace('Passed: no unknown caller.');			
 			$oCaller = $oPolicyUnknownCaller;
 		}
 		
+		$this->Trace('Passed: everything.');	
 		
 		return (object)[
-			"compliant" => true,
-			"caller" => $oCaller, 
-			"ticket" => $oTicket 
+			"bCompliant" => true,
+			"oCaller" => $oCaller 
 		];
 		
 		
@@ -1707,17 +1742,19 @@ EOF
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyForbiddenAttachments(EmailMessage $oEmail)
+          <code><![CDATA[	protected function PolicyCompliantForbiddenAttachments(EmailMessage $oEmail)
 	{
 	
 		// Get list of forbidden file types 
 		$aForbiddenMimeTypes =  preg_split('/\\r\\n|\\r|\\n/' , $this->Get('policy_forbidden_attachments_mimetypes') );
 		
 		// Forbidden attachments? 		
+		// Fallback would be to ignore the attachments. 
 		foreach($oEmail->aAttachments as $aAttachment)
 		{ 
 			if ( in_array($aAttachment['mimeType'], $aForbiddenMimeTypes ) )
 			{
+				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains forbidden attachments.");
 				return false; // Message is undesired 
 			}
 		}
@@ -1743,6 +1780,7 @@ EOF
 			if ( $oRawEmail->GetSize() > $this->Get('policy_mail_size_too_big_max_size_MB') * 1024 )
 			{
 				// Mail size too big  
+				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the mail size is too big.");
 				return false;
 			}
 	
@@ -1786,7 +1824,7 @@ EOF
 		
 		
 		$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs); // Take both the To: and CC:, no actual merge since the keys of the arrays are numeric (i.e. 0, 1, 2...)
-		$aExcludeContacts = array_merge( $sCallerEmail , preg_split('/\\r\\n|\\r|\\n/' , $this->Get('mail_aliases') )  );
+		$aExcludeContacts = array_merge( [ $oEmail->sCallerEmail ] , preg_split('/\\r\\n|\\r|\\n/' , $this->Get('mail_aliases') )  );
 
 		foreach($aAdditionalContacts as $aInfo)
 		{
@@ -1795,6 +1833,7 @@ EOF
 			if ( !in_array( $aInfo['email'] , $aExcludeContacts ) ) 
 			{
 				// Found other contacts in To: or CC: 
+				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains an undefined recipient (missing alias or unwanted): ".$aInfo['email'] );
 				return false; // Match, undesired message. 
 			} 
 		}
@@ -1827,9 +1866,8 @@ EOF
 					break; // unnecessary.
 					
 				case 'fallback': 
-					// Reopen ticket 
+					// Reopen ticket in dispatch
 					$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
-					$oTicket->ApplyStimulus('ev_reopen');
 					return true;
 					break; // unnecessary.
 					
@@ -1870,9 +1908,8 @@ EOF
 					break; // unnecessary.
 					
 				case 'fallback': 
-					// Reopen ticket 
-					$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
-					$oTicket->ApplyStimulus('ev_reopen');
+					// Reopen ticket in dispatch
+					$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened."); 
 					return true;
 					break; // unnecessary.
 					
@@ -1893,19 +1930,35 @@ EOF
 
           <comment><![CDATA[/**
 	 * Check (based on given ticket ID) if the email is considered as "undesired"
-	 * @param Ticket $oTicket The ticket being written
+	 * @param EmailMessage $oEmail The message to check
 	 * @param Ticket $oTicket The ticket to check
 	 * @return boolean
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyCompliantUnknownTicket(EmailMessage $oEmail, Ticket $oTicket)
+          <code><![CDATA[	protected function PolicyCompliantUnknownTicket(EmailMessage $oEmail, /* Ticket or null */ $oTicket)
 	{
 		// null object means there was no ticket.
 		if( $oTicket === null ) {
-			$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any ticket.");
-			return false;
+		
+		
+			// We could be handling with a new ticket! 
+			// So we would need to check if there was something (header or pattern in subject) which would have lead us to believe there was a ticket. 
+		 
+			$sPattern = $this->FixPattern($this->Get('title_pattern'));
+			if(($sPattern != '') && (preg_match($sPattern, $oEmail->sSubject, $aMatches))) {
+				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject.");
+				return false;
+			} 
+			
+			// eMail Header?
+			if( $oEmail->oRelatedObject != null ) {
+				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite an email header (".$oEmail->oRelatedObject.").");
+				return false;			
+			}
+			
+			
 		}
 	
 		// To implement: check for ticket status
@@ -1924,18 +1977,25 @@ EOF
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function PolicyUndesiredPattern(EmailMessage $oEmail)
+          <code><![CDATA[	protected function PolicyCompliantUndesiredPattern(EmailMessage $oEmail)
 	{ 
-		$aUndesiredSubjectPatterns = preg_split("/\\r\\n|\\r|\\n/",    $this->Get('policy_undesired_pattern_patterns') ); 
+	
+		// pattern specified 
+		if( $this->Get('policy_undesired_pattern_patterns') != '' ) { 
+		
+			// Go over each pattern and check.
+			$aUndesiredSubjectPatterns = preg_split("/\\r\\n|\\r|\\n/", $this->Get('policy_undesired_pattern_patterns') ); 
 
-		foreach($aUndesiredSubjectPatterns as $sPattern)
-		{
-			if (preg_match($sPattern, $oEmail->sSubject))
+			foreach($aUndesiredSubjectPatterns as $sPattern)
 			{
-				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it matches '$sPattern'.");
-				return false;
+				if (preg_match($sPattern, $oEmail->sSubject))
+				{
+					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it matches '$sPattern'.");
+					return false;
+				}
 			}
 		}
+		
 		$this->Trace("The message '{$oEmail->sSubject}' is NOT considered as undesired.");
 		return true; // No match, the message is NOT undesired
 	}]]></code>
@@ -2088,6 +2148,9 @@ EOF
                     </item>
                     <item id="trace">
                       <rank>90</rank>
+                    </item>
+                    <item id="mail_aliases">
+                      <rank>100</rank>
                     </item>
                   </items>
                 </item>

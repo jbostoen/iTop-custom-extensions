@@ -193,7 +193,7 @@ class MailInboxesEmailProcessor extends EmailProcessor
 				else
 				{
 					// Error ???
-					$this->sLastErrorSubject = "Failed to create a ticket for the incoming email";
+					$this->sLastErrorSubject = "Failed to create a ticket for the incoming email (ProcessMessage - EmailProcessor). No Ticket object.";
 					$this->sLastErrorMessage = $oInbox->sLastError;
 					self::Trace("Combodo Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL})");
 				}	

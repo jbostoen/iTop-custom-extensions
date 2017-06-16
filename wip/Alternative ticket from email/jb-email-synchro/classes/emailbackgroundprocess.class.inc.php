@@ -262,40 +262,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 										}
 									}
 								}
-								// Checks if email needs to be bounced 
-							
-								elseif( count($oEmail->aTos) > 1 || count($oEmail->aCCs) > 0 ) 
-								{
-									// Either:
-									// - Multiple recipients in To: 
-									// - Recipient in CC: 
-									// Flawed at the moment: If we could somehow obtain if our mailbox's email address is the only To:, then we could be sure our helpdesk was not in BCC. 
-									// $this->aTos, $this->aCCs is an array of ('email' => email_address, 'name' => display_name) one per recipient
-									// Handle unwanted user behavior.
-		 
-									$iNextActionCode = $oProcessor->OnPolicyViolation($oSource, $sUIDL, null, $oRawEmail, 'not_only_recipient');
-									switch($iNextActionCode)
-									{
-										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-										$iTotalMarkedAsError++;
-										$this->Trace("Refusing to process message (not solely addressed to mailbox), marking the message (and its replica): uidl=$sUIDL index=$iMessage as in error.");
-										$oEmailReplica->Set('status', 'error');
-										$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
-										$oEmailReplica->DBWrite();
-										$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-										break;
-							
-										case EmailProcessor::DELETE_MESSAGE:
-										$iTotalDeleted++;
-										$this->Trace("Refusing to process message (not solely addressed to mailbox), deleting the message (and its replica): $sUIDL");
-										$oSource->DeleteMessage($iMessage);
-										if (!$oEmailReplica->IsNew())
-										{
-											$oEmailReplica->DBDelete();
-											$oEmailReplica = null;
-										}
-									}
-								}
+								 
 								else
 								{
 									$iNextActionCode = $oProcessor->ProcessMessage($oSource, $iMessage, $oEmail, $oEmailReplica);

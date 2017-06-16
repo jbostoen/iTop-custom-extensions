@@ -78,6 +78,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	
 	// Policy: forbidden attachments
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior' => 'eMail',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:fallback' => 'Fallback: ignore forbidden attachments',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:mark_as_error' => 'Keep (mark as error)',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
