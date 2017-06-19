@@ -1007,7 +1007,7 @@ EOF
 		
 		
 		// Not policy compliant? Then stop processing. 
-		if( !$this->PolicyCompliant($oEmail) ) {
+		if( !$this->PolicyCompliant($oEmail, $oTicket ) ) {
 			$this->Trace('Email does not comply with at least one policy.');
 			return null;
 		}
@@ -1541,7 +1541,7 @@ EOF
 				}
 				else if($oRawEmail)
 				{
-					$this->Trace("Raw Email: ".$sSubject."\n\n".$sBody);
+					$this->Trace("Raw Email: ".$sSubject."\n\n".strip_tags($sBody));
 					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 				}
 				
