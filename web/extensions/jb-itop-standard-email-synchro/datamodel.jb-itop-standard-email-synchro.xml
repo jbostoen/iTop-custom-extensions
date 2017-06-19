@@ -514,7 +514,10 @@ EOF
 				
 		// First check if there is any iTop object mentioned in the headers of the eMail
 		// We will be handling null values and closed/resolved tickets in policy checks.
-		$oTicket = parent::GetRelatedTicket($oEmail);
+                // Check whether we need to create a new ticket or to update an existing one
+		// This is more thorough than the parent method
+                $oTicket = $this->GetRelatedTicket($oEmail);
+
 		
 		
 		$oPolicy = $this->PolicyCompliant($oEmail, $oTicket);
@@ -527,12 +530,6 @@ EOF
 		
 		$oCaller = $oPolicy->oCaller;
 		 
-		
-		
-		 
-
-		// Check whether we need to create a new ticket or to update an existing one
-		$oTicket = $this->GetRelatedTicket($oEmail);
 
 		switch($this->Get('behavior'))
 		{
@@ -1676,7 +1673,7 @@ EOF
 		// Or if known: ticket closed, resolved.
 		if (!$this->PolicyCompliantUnknownTicket($oEmail, $oTicket))
 		{
-			$this->HandlePolicyViolation($oTicket, 'policy_ticket_unknown', $oEmail->oRawEmail);
+			$this->HandlePolicyViolation($oEmail, 'policy_ticket_unknown', $oEmail->oRawEmail);
 			return (object)["bCompliant" => false];
 		} 
 		else {
@@ -1687,7 +1684,7 @@ EOF
 				
 				if (!$this->PolicyCompliantClosedTicket($oEmail, $oTicket))
 				{
-					$this->HandlePolicyViolation($oTicket, 'policy_ticket_closed', $oEmail->oRawEmail);
+					$this->HandlePolicyViolation($oEmail, 'policy_ticket_closed', $oEmail->oRawEmail);
 					return (object)["bCompliant" => false];
 				}
 				else {
@@ -1696,7 +1693,7 @@ EOF
 				
 				if (!$this->PolicyCompliantResolvedTicket($oEmail, $oTicket))
 				{
-					$this->HandlePolicyViolation($oTicket, 'policy_ticket_resolved', $oEmail->oRawEmail);
+					$this->HandlePolicyViolation($oEmail, 'policy_ticket_resolved', $oEmail->oRawEmail);
 					return (object)["bCompliant" => false];
 				}	
 				else {
@@ -1952,16 +1949,17 @@ EOF
 			// We could be handling with a new ticket! 
 			// So we would need to check if there was something (header or pattern in subject) which would have lead us to believe there was a ticket. 
 		 
+			// Why undesired?
 			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			if(($sPattern != '') && (preg_match($sPattern, $oEmail->sSubject, $aMatches))) {
-				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject.");
-				return false;
+				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('".$sPattern."').");
+#				return false;
 			} 
 			
 			// eMail Header?
 			if( $oEmail->oRelatedObject != null ) {
 				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite an email header (".$oEmail->oRelatedObject.").");
-				return false;			
+#				return false;			
 			}
 			
 			
