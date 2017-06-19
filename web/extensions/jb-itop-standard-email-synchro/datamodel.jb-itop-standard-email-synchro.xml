@@ -1007,7 +1007,7 @@ EOF
 		
 		
 		// Not policy compliant? Then stop processing. 
-		if( !$this->PolicyCompliant($oEmail, $oTicket ) ) {
+		if( !$this->PolicyCompliant($oEmail, $oTicket) ) {
 			$this->Trace('Email does not comply with at least one policy.');
 			return null;
 		}
@@ -1015,7 +1015,7 @@ EOF
 		// Everything compliant, but we might need to perform actions.
 		
 		// Fallback: reopen ticket
-		if( in_array( $oTicket-Get('status'), ['resolved','closed'] ) ) {
+		if( in_array( $oTicket->Get('status'), ['resolved','closed'] ) ) {
 			$oTicket->ApplyStimulus('ev_reopen');
 		}
 		
@@ -2147,6 +2147,7 @@ EOF
 			'$mail->CallerName',
 			'$mail->Recipient',
 			'$mail->Date',
+			'$mail->BodyTextPlain',
 			'$mail->BodyText',
 			'$mail->BodyFormat'
 		];
@@ -2159,6 +2160,7 @@ EOF
 			$oEmail->sCallerName,
 			$oEmail->sRecipient,
 			$oEmail->sDate,
+			strip_tags($oEmail->sBodyText), 
 			$oEmail->sBodyText,
 			$oEmail->sBodyFormat 
 		]; 
