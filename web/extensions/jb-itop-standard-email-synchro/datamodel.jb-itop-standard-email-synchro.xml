@@ -510,13 +510,13 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
 	{		
-		$this->Trace("Processing new eMail (index = $index)");
+		$this->Trace("Processing new eMail ( index = $index --- UIDL ".$oEmail->sUIDL." --- msg id ".$oEmail->sMessageId." )");
 				
 		// First check if there is any iTop object mentioned in the headers of the eMail
 		// We will be handling null values and closed/resolved tickets in policy checks.
-                // Check whether we need to create a new ticket or to update an existing one
+        // Check whether we need to create a new ticket or to update an existing one
 		// This is more thorough than the parent method
-                $oTicket = $this->GetRelatedTicket($oEmail);
+        $oTicket = $this->GetRelatedTicket($oEmail);
 
 		
 		
@@ -698,7 +698,7 @@ EOF
           <code><![CDATA[	public function CreateTicketFromEmail(EmailMessage $oEmail, Contact $oCaller)
 	{
 		// In case of error (exception...) set the behavior
-		if ($this->Get('error_behavior') == 'delete')
+		if ( $this->Get('error_behavior') == 'delete'  )
 		{
 			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
 		}
@@ -1117,7 +1117,15 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function ApplyConfiguredStimulus(ticket $oTicket)
 	{
+	
 		$sConf = $this->Get('stimuli');
+		
+		// In Combodo's version, this gave a warning?
+		// We will reopen ticket elsewhere if needed.
+		if( trim($sConf) == "" ) {
+			return;
+		}
+	
 		$aConf = explode("\n", $sConf);
 		$aStateToStimulus = array();
 		foreach($aConf as $sLine)
@@ -1636,7 +1644,7 @@ EOF
 			return (object)["bCompliant" => false];
 		}
 		else {
-			$this->Trace('Passed: mail has no forbidden attachments.');
+			// $this->Trace('Passed: mail has no forbidden attachments.');
 		}
 		 
 		if (!$this->PolicyCompliantMailSizeTooBig($oEmail))
@@ -1645,7 +1653,7 @@ EOF
 			return (object)["bCompliant" => false];
 		}
 		else {
-			$this->Trace('Passed: mail size not too big.');
+			// $this->Trace('Passed: mail size not too big.');
 		}
 		
 		
@@ -1655,7 +1663,7 @@ EOF
 			return (object)["bCompliant" => false];
 		}
 		else {
-			$this->Trace('Passed: mail has subject.');
+			// $this->Trace('Passed: mail has subject.');
 		}
 		
 		if (!$this->PolicyCompliantOtherRecipients($oEmail))
@@ -1664,7 +1672,7 @@ EOF
 			return (object)["bCompliant" => false];
 		}
 		else {
-			$this->Trace('Passed: no other recipients.');
+			// $this->Trace('Passed: no other recipients.');
 		}
 		
 		
@@ -1677,7 +1685,8 @@ EOF
 			return (object)["bCompliant" => false];
 		} 
 		else {
-			$this->Trace('Passed: ticket unknown.');
+			
+			// $this->Trace('Passed: ticket known.');
 		 
 			// Ticket must exist in order to handle these policies and reopen (=fallback) if necessary
 			if( $oTicket != null ) {
@@ -1688,7 +1697,7 @@ EOF
 					return (object)["bCompliant" => false];
 				}
 				else {
-					$this->Trace('Passed: ticket closed.');
+					// $this->Trace('Passed: ticket not yet closed.');
 				}
 				
 				if (!$this->PolicyCompliantResolvedTicket($oEmail, $oTicket))
@@ -1697,7 +1706,7 @@ EOF
 					return (object)["bCompliant" => false];
 				}	
 				else {
-					$this->Trace('Passed: ticket resolved.');
+					// $this->Trace('Passed: ticket not yet resolved.');
 				}
 			
 			}
@@ -1710,7 +1719,7 @@ EOF
 			return (object)["bCompliant" => false];
 		}
 		else {
-			$this->Trace('Passed: undesired pattern.');
+			// $this->Trace('Passed: no undesired pattern.');
 		}
 		
 		// Get caller (id of person). 
@@ -1721,11 +1730,11 @@ EOF
 			return (object)["bCompliant" => false];
 		} 
 		else {
-			$this->Trace('Passed: no unknown caller.');			
+			// $this->Trace('Passed: no unknown caller.');			
 			$oCaller = $oPolicyUnknownCaller;
 		}
 		
-		$this->Trace('Passed: everything.');	
+		$this->Trace('Passed: policy compliant.');	
 		
 		return (object)[
 			"bCompliant" => true,
@@ -1747,6 +1756,10 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyCompliantForbiddenAttachments(EmailMessage $oEmail)
 	{
+	
+		if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback') {
+			return true;
+		}
 	
 		// Get list of forbidden file types 
 		$aForbiddenMimeTypes =  preg_split('/\\r\\n|\\r|\\n/' , $this->Get('policy_forbidden_attachments_mimetypes') );
@@ -1803,6 +1816,14 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyCompliantNoSubject(EmailMessage $oEmail)
 	{
+	
+	
+		if( $this->Get('policy_no_subject_behavior') == 'fallback') {
+			return true;
+		}
+	
+	
+	
 		if( $oEmail->sSubject == '' && in_array($this->Get('policy_no_subject_behavior'), ['bounce_delete', 'delete', 'mark_as_error']) == true ) {
 			$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it has no subject.");
 			return false;
@@ -1825,6 +1846,12 @@ EOF
 		// To implement: check for other recipients in To: or CC: . 
 		// Or check if this mailbox (or aliases) are missing in 'To:' (which would happen in BCC)
 		
+		// Fallback.
+		if( in_array( $this->Get('policy_other_recipients_behavior'), ['add_existing_contact','add_all_contacts','ignore_all_contacts'] ) ){
+			return true; 
+		}
+		
+	
 		
 		$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs); // Take both the To: and CC:, no actual merge since the keys of the arrays are numeric (i.e. 0, 1, 2...)
 		$aExcludeContacts = array_merge( [ $oEmail->sCallerEmail ] , preg_split('/\\r\\n|\\r|\\n/' , $this->Get('mail_aliases') )  );
@@ -1858,6 +1885,9 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyCompliantClosedTicket(EmailMessage $oEmail, Ticket $oTicket)
 	{
+	
+	
+	
 		// null object means there was no ticket.
 		if( $oTicket->Get('status') == 'closed' ) {
 			switch( $this->Get('policy_ticket_resolved_behavior') ) {
@@ -1953,12 +1983,14 @@ EOF
 			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			if(($sPattern != '') && (preg_match($sPattern, $oEmail->sSubject, $aMatches))) {
 				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('".$sPattern."').");
+# disabled for testing/tracing
 #				return false;
 			} 
 			
 			// eMail Header?
 			if( $oEmail->oRelatedObject != null ) {
 				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite an email header (".$oEmail->oRelatedObject.").");
+# disabled for testing/tracing
 #				return false;			
 			}
 			
@@ -1999,8 +2031,7 @@ EOF
 				}
 			}
 		}
-		
-		$this->Trace("The message '{$oEmail->sSubject}' is NOT considered as undesired.");
+		 
 		return true; // No match, the message is NOT undesired
 	}]]></code>
         </method>
@@ -2016,6 +2047,11 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyCompliantUnknownCaller(EmailMessage $oEmail)
 	{
+	
+		if( $this->Get('policy_unknown_caller_behavior') == 'fallback') {
+			return true;
+		}
+	
 		$oCaller = null;
 		$sContactQuery = 'SELECT Contact WHERE email = :email';
 		$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
