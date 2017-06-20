@@ -7,3 +7,6 @@ wip -> work in progress. Unfinished.
 
 See the Wiki on GitHub for more information on the extensions/modules.
 https://github.com/jbostoen/iTop-custom-extensions/wiki
+
+iTop is an open source product by Combodo. 
+For any general support questions (issues/questions NOT caused by my [versions of] extensions): https://sourceforge.net/p/itop/discussion/
