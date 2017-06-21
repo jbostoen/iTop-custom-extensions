@@ -510,7 +510,7 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
 	{		
-		$this->Trace("Processing new eMail ( index = $index --- UIDL ".$oEmail->sUIDL." --- msg id ".$oEmail->sMessageId." )");
+		$this->Trace("Processing new eMail ( index = $index --- UIDL ".htmlspecialchars($oEmail->sUIDL)." --- msg id ".htmlspecialchars ($oEmail->sMessageId)." )");
 				
 		// First check if there is any iTop object mentioned in the headers of the eMail
 		// We will be handling null values and closed/resolved tickets in policy checks.
