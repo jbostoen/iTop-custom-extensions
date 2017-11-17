@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Class: NormalChange and RoutineChange (ITIL) - don\'t make title Read-Only ',
+		'label' => 'Class: NormalChange and RoutineChange (ITIL) - don\'t make title Read-Only',
 		'category' => 'business',
 
 		// Setup

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-mail-to-ticket-automation</extension_code>
+	<extension_code>jb-class-request-mgmt-itil-no-computed-impact</extension_code>
 	<company>none</company>
 	<author><![CDATA[jbostoen]]></author>
-	<label><![CDATA[Feature: Mail to ticket automation]]></label>
-	<description><![CDATA[Scan several mailboxes to create or update tickets.]]></description>
+	<label><![CDATA[Class: User Request (ITIL) - Don\'t auto-add computed CIs (on insert/update)]]></label>
+	<description><![CDATA[It's often undesired when dealing with User Requests to have iTop automatically add (possibly) impacted CIs.]]></description>
 	<version>2.4.171117</version>
 	<release_date>2017-11-17</release_date>
 	<version_description><![CDATA[ ]]></version_description>

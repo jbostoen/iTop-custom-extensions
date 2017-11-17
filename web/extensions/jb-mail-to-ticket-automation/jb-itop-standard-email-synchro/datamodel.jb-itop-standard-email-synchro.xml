@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
   <classes>
     <class id="MailInboxStandard" _delta="define">
       <parent>MailInboxBase</parent>
@@ -534,34 +534,34 @@ EOF
 		switch($this->Get('behavior'))
 		{
 			case 'create_only':
-			$oTicket = $this->CreateTicketFromEmail($oEmail, $oCaller);
-			break;
+				$oTicket = $this->CreateTicketFromEmail($oEmail, $oCaller);
+				break;
 			
 			case 'update_only':
-			if (!is_object($oTicket))
-			{
-				// No ticket associated with the incoming email, nothing to update, reject the email
-				$this->HandleError($oEmail, 'nothing_to_update', $oEmail->oRawEmail);
-			}
-			else
-			{
-				// Update the ticket with the incoming eMail
-				$this->UpdateTicketFromEmail($oTicket, $oEmail, $oCaller);
-			}
-			break;
+				if (!is_object($oTicket))
+				{
+					// No ticket associated with the incoming email, nothing to update, reject the email
+					$this->HandleError($oEmail, 'nothing_to_update', $oEmail->oRawEmail);
+				}
+				else
+				{
+					// Update the ticket with the incoming eMail
+					$this->UpdateTicketFromEmail($oTicket, $oEmail, $oCaller);
+				}
+				break;
 			
 			default: // both: update or create as needed
-			if (!is_object($oTicket))
-			{
-				// Let's create a new ticket
-				$oTicket = $this->CreateTicketFromEmail($oEmail, $oCaller);
-			}
-			else
-			{
-				// Update the ticket with the incoming eMail
-				$this->UpdateTicketFromEmail($oTicket, $oEmail, $oCaller);
-			}
-			break;			
+				if (!is_object($oTicket))
+				{
+					// Let's create a new ticket
+					$oTicket = $this->CreateTicketFromEmail($oEmail, $oCaller);
+				}
+				else
+				{
+					// Update the ticket with the incoming eMail
+					$this->UpdateTicketFromEmail($oTicket, $oEmail, $oCaller);
+				}
+				break;			
 		}
 		
 		return $oTicket;
@@ -2047,11 +2047,7 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function PolicyCompliantUnknownCaller(EmailMessage $oEmail)
 	{
-	
-		if( $this->Get('policy_unknown_caller_behavior') == 'fallback') {
-			return true;
-		}
-	
+	 
 		$oCaller = null;
 		$sContactQuery = 'SELECT Contact WHERE email = :email';
 		$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
@@ -2059,65 +2055,66 @@ EOF
 		switch($oSet->Count())
 		{
 			case 1:
-			// Ok, the caller was found in iTop
-			$oCaller = $oSet->Fetch();
-			break;
-			
-			case 0: 
-			switch($this->Get('policy_unknown_caller_behavior'))
-			{ 
-				case 'mark_as_error': 
-				case 'bounce_delete': 
-				case 'delete':
-				// Policy violation will be handled in function PolicyCompliant()
-				$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed');
-				return null;
+				// Ok, the caller was found in iTop
+				$this->Trace('Contact found for the email address "'.$oEmail->sCallerEmail.'"');
+				$oCaller = $oSet->Fetch();
 				break;
 				
-				case 'fallback':
-				default:
-				$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
-				$oCaller = new Person();
-				$oCaller->Set('email', $oEmail->sCallerEmail);
-				$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
-				$aDefaults = explode("\n", $sDefaultValues);
-				$aDefaultValues = array();
-				foreach($aDefaults as $sLine)
-				{
-					if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-					{
-						$sAttCode = trim($aMatches[1]);
-						$sValue = trim($aMatches[2]);
-						$aDefaultValues[$sAttCode] = $sValue;
-					}
-				}
-				$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
-				try
-				{
-					// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
-					$oMyChange = MetaModel::NewObject("CMDBChange");
-					$oMyChange->Set("date", time());
-					$sUserString = CMDBChange::GetCurrentUserName();
-					$oMyChange->Set("userinfo", $sUserString);
-					$iChangeId = $oMyChange->DBInsert();
-					$oCaller->DBInsertTracked($oMyChange);					
-				}
-				catch(Exception $e)
-				{
-					// This is an actual error.
-					$this->Trace('Failed to create a Person for the email address "'.$oEmail->sCallerEmail.'".');
-					$this->Trace($e->getMessage());
-					$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
-					return null;
-				}
-				
-			}			
-			break;
+			case 0: 
+				switch($this->Get('policy_unknown_caller_behavior'))
+				{ 
+					case 'mark_as_error': 
+					case 'bounce_delete': 
+					case 'delete':
+						// Policy violation will be handled in function PolicyCompliant()
+						$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed');
+						return null;
+						break;
+					
+					case 'fallback':
+					default:
+						$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
+						$oCaller = new Person();
+						$oCaller->Set('email', $oEmail->sCallerEmail);
+						$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
+						$aDefaults = explode("\n", $sDefaultValues);
+						$aDefaultValues = array();
+						foreach($aDefaults as $sLine)
+						{
+							if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
+							{
+								$sAttCode = trim($aMatches[1]);
+								$sValue = trim($aMatches[2]);
+								$aDefaultValues[$sAttCode] = $sValue;
+							}
+						}
+						$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
+						try
+						{
+							// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
+							$oMyChange = MetaModel::NewObject("CMDBChange");
+							$oMyChange->Set("date", time());
+							$sUserString = CMDBChange::GetCurrentUserName();
+							$oMyChange->Set("userinfo", $sUserString);
+							$iChangeId = $oMyChange->DBInsert();
+							$oCaller->DBInsertTracked($oMyChange);					
+						}
+						catch(Exception $e)
+						{
+							// This is an actual error.
+							$this->Trace('Failed to create a Person for the email address "'.$oEmail->sCallerEmail.'".');
+							$this->Trace($e->getMessage());
+							$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
+							return null;
+						}
+					
+				}			
+				break;
 			
 			default:
-			$this->Trace('Found '.$oSet->Count().' callers with the same email address "'.$oEmail->sCallerEmail.'", the first one will be used...');
-			// Multiple callers with the same email address !!!
-			$oCaller = $oSet->Fetch();
+				$this->Trace('Found '.$oSet->Count().' callers with the same email address "'.$oEmail->sCallerEmail.'", the first one will be used...');
+				// Multiple callers with the same email address !!!
+				$oCaller = $oSet->Fetch();
 		}
 		
 		return $oCaller;
