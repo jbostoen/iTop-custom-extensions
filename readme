@@ -1,6 +1,9 @@
+**Working on compatibility with the iTop 2.4.x-branch.**
+
+
 To avoid confusion: 
 
-sql -> contains a few queries for some basic mainenance.
+sql -> contains a few queries for some basic maintenance.
 web -> tested extensions
 wip -> work in progress. Unfinished.
 
