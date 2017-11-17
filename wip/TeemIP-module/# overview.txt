@@ -1,3 +1,3 @@
-This adapts IP address class so it can show IPPhone as well (ConnectableCI) on the IP Address-object device's tab.
+This adapts IP address class so it can show our IPPhone as well (ConnectableCI) on the IP Address-object device's tab.
 
 
