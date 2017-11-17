@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+  <classes>
+    <class id="Change" _delta="merge">
+	<methods> 
+        <method id="OnInsert" _delta="merge">
+          <code _delta="redefine"><![CDATA[
+    protected function OnInsert()
+	{
+        parent::OnInsert();
+        //$this->UpdateImpactedItems();
+		$this->Set('creation_date', time());
+		$this->Set('last_update', time());
+	}]]>
+          </code>
+        </method>
+        <method id="OnUpdate" _delta="merge"> 
+          <code _delta="redefine"><![CDATA[
+    protected function OnUpdate()
+  	{
+        parent::OnUpdate();
+        // $aChanges = $this->ListChanges();
+		// if (array_key_exists('functionalcis_list', $aChanges))
+		// {
+		// 	$this->UpdateImpactedItems();
+		// }
+		$this->Set('last_update', time());
+  	}]]>
+          </code>
+        </method>
+      </methods> 
+    </class>
+	</classes>
+</itop_design>

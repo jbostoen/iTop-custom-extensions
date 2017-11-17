@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+
+        <classes>
+                <class id="UserRequest" _delta="merge">
+                        <fields>
+                                <field id="origin" xsi:type="AttributeEnum" _delta="merge">
+                                        <values _delta="merge">
+                                                <value id="in_person" _delta="define">in_person</value>
+                                        </values>
+                                </field>
+                        </fields>
+                </class>
+        </classes>
+
+</itop_design>
