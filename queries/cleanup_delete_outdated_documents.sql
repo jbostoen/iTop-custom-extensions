@@ -2,44 +2,73 @@ use itop;
  
  
 # Which outdated files can safely be removed, based on their extensions? 
-set @ext3 = ('.doc', '.jpg', '.pdf', '.png'); 
-set @ext4 = ('.docx');
-
  
-# Select IDs of changes related to DocumentFiles. Based on extensions of previous files.
-set @deleteChangeOps = (
-
-	SELECT priv_changeop.id 
-	FROM priv_changeop  
-	LEFT JOIN priv_changeop_setatt_data ON priv_changeop.id = priv_changeop_setatt_data.id
-	WHERE 
-				objclass LIKE 'DocumentFile' 
-        AND 	optype = 'CMDBChangeOpSetAttributeBlob' 
-		AND 	
-				( 
-						RIGHT(LCASE(prevdata_filename), 4 ) IN ( @ext3 )
-					OR 	RIGHT(LCASE(prevdata_filename), 4 ) IN ( @ext4 )
-				)
-        
-);
-
-# We got the IDs we wanted. 
+    
 # Delete all change entries. 
 DELETE FROM priv_change 
 WHERE 
 	id IN ( 
 		SELECT DISTINCT(changeid) 
         FROM priv_changeop 
-        WHERE id IN ( @deleteChangeOps ) 
+        WHERE id IN ( 
+			/* --- Subselection: select Change operation IDs to be deleted (only changes related to actual document file changes) --- */
+			(
+
+				SELECT priv_changeop.id 
+				FROM priv_changeop  
+				LEFT JOIN priv_changeop_setatt_data ON priv_changeop.id = priv_changeop_setatt_data.id
+				WHERE 
+							objclass LIKE 'DocumentFile' 
+					AND 	optype = 'CMDBChangeOpSetAttributeBlob' 
+					AND 	
+							( 
+									RIGHT(LCASE(prevdata_filename), 4 ) IN ( '.doc', '.jpg', '.pdf', '.png' )
+								OR 	RIGHT(LCASE(prevdata_filename), 5 ) IN ( '.docx' )
+							)
+					
+			)
+			/* --- End subselection --- */
+		) 
 	);
  
 # In this case, delete from priv_changeop; priv_changeop_set_blob and priv_changeop_set_data
 DELETE FROM priv_changeop_setatt
 WHERE 
-	id IN ( @deleteChangeOps );
+	id IN ( 
+		/* --- Subselection: select Change operation IDs to be deleted (only changes related to actual document file changes) --- */
+		(
+
+			SELECT priv_changeop.id 
+			FROM priv_changeop  
+			LEFT JOIN priv_changeop_setatt_data ON priv_changeop.id = priv_changeop_setatt_data.id
+			WHERE 
+						objclass LIKE 'DocumentFile' 
+				AND 	optype = 'CMDBChangeOpSetAttributeBlob' 
+				AND 	
+						( 
+								RIGHT(LCASE(prevdata_filename), 4 ) IN ( '.doc', '.jpg', '.pdf', '.png' )
+							OR 	RIGHT(LCASE(prevdata_filename), 5 ) IN ( '.docx' )
+						)
+				
+		)
+		/* --- End subselection --- */
+	);
     
-DELETE FROM priv_changeop_setatt_data 
+/* Remove from priv_changeop_setatt_data (blob data of document), priv_changeop (type of change op) */
+DELETE priv_changeop_setatt_data, priv_changeop     
+FROM priv_changeop_setatt_data
+LEFT JOIN priv_changeop   ON  priv_changeop_setatt_data.id =  priv_changeop.id
 WHERE 
-	id IN ( @deleteChangeOps );
+			priv_changeop.objclass LIKE 'DocumentFile' 
+	AND 	priv_changeop.optype = 'CMDBChangeOpSetAttributeBlob' 
+	AND 	
+		( 
+				RIGHT(LCASE(priv_changeop_setatt_data.prevdata_filename), 4 ) IN ( '.doc', '.jpg', '.pdf', '.png' )
+			OR 	RIGHT(LCASE(priv_changeop_setatt_data.prevdata_filename), 5 ) IN ( '.docx' )
+		)
+;
+
+
+	
     
     
