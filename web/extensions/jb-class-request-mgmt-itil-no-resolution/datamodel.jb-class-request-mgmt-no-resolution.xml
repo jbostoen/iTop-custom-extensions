@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+	<classes>
+		<class id="UserRequest"> 
+			<lifecycle> 
+				<states>  
+					<state id="new"> 
+						<flags> 
+							<attribute id="solution" _delta="delete"/>
+							<attribute id="resolution_code" _delta="delete"/>
+						</flags>  
+					</state>
+					<state id="resolved"> 
+						<flags> 
+							<attribute id="solution" _delta="delete"/>
+							<attribute id="resolution_code" _delta="delete"/>
+						</flags>  
+					</state>
+					<state id="closed"> 
+						<flags> 
+							<attribute id="solution" _delta="delete"/>
+							<attribute id="resolution_code" _delta="delete"/>
+						</flags>  
+					</state>
+				</states>
+			</lifecycle>  
+			<fields>
+				<field id="solution" xsi:type="AttributeText" _delta="delete"/>
+				<field id="resolution_code" xsi:type="AttributeText" _delta="delete"/>
+			</fields>
+		</class>
+	</classes> 
+</itop_design>

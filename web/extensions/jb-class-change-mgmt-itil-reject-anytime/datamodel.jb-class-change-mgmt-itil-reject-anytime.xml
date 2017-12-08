@@ -2,10 +2,10 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
 
   <classes>  
-    <class id="RoutineChange" _delta="merge"> 
-      <lifecycle _delta="merge"> 
+    <class id="RoutineChange"> 
+      <lifecycle> 
         <states>  
-          <state id="assigned" _delta="merge">  
+          <state id="assigned">  
             <transitions> 
 			  <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -13,7 +13,7 @@
               </transition>
             </transitions>
           </state>  
-          <state id="plannedscheduled" _delta="merge">  
+          <state id="plannedscheduled">  
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -21,7 +21,7 @@
               </transition>
             </transitions>
           </state>
-          <state id="approved" _delta="merge">  
+          <state id="approved">  
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -29,7 +29,7 @@
               </transition>
             </transitions>
           </state>
-          <state id="notapproved" _delta="merge">
+          <state id="notapproved">
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -42,14 +42,14 @@
     </class>
 	
 	<!-- ApprovedChange is abstract class for NormalChange, EmergencyChange. No changes needed. -->
-    <class id="ApprovedChange" _delta="merge">    
+    <class id="ApprovedChange">    
     </class>
 	
 	
-    <class id="NormalChange" _delta="merge"> 
-      <lifecycle _delta="merge"> 
+    <class id="NormalChange"> 
+      <lifecycle> 
         <states> 
-          <state id="validated" _delta="merge"> 
+          <state id="validated"> 
             <transitions> 
 			  <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -57,7 +57,7 @@
               </transition>
             </transitions>
           </state> 
-          <state id="assigned" _delta="merge"> 
+          <state id="assigned"> 
             <transitions> 
 			   <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -65,7 +65,7 @@
               </transition>
             </transitions>
           </state>
-          <state id="plannedscheduled" _delta="merge">  
+          <state id="plannedscheduled">  
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -73,7 +73,7 @@
               </transition>
             </transitions>
           </state>
-          <state id="approved" _delta="merge">  
+          <state id="approved">  
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -81,7 +81,7 @@
               </transition>
             </transitions>
           </state>
-          <state id="notapproved" _delta="merge">  
+          <state id="notapproved">  
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -96,10 +96,10 @@
 	
 	<!-- EmergencyChange. By default, there's no reject option. If we ever want to implement it, we need to add stimulus too. -->
 	<!--
-    <class id="EmergencyChange" _delta="merge">
-      <lifecycle _delta="merge"> 
+    <class id="EmergencyChange">
+      <lifecycle> 
         <states> 
-		 <state id="assigned" _delta="merge"> 
+		 <state id="assigned"> 
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -107,7 +107,7 @@
               </transition>			  
             </transitions>
           </state>
-          <state id="plannedscheduled" _delta="merge"> 
+          <state id="plannedscheduled"> 
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -115,7 +115,7 @@
               </transition>			  
             </transitions>
           </state>
-          <state id="approved" _delta="merge"> 
+          <state id="approved"> 
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>
@@ -123,7 +123,7 @@
               </transition>			  
             </transitions>
           </state>
-          <state id="notapproved" _delta="merge"> 
+          <state id="notapproved"> 
             <transitions> 
               <transition id="ev_reject" _delta="define">
                 <target>rejected</target>

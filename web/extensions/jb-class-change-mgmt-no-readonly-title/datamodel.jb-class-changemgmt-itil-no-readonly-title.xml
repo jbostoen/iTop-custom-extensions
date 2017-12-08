@@ -2,12 +2,12 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
   <classes>
   
-    <class id="NormalChange" _delta="merge">
-	  <lifecycle _delta="merge">
+    <class id="NormalChange">
+	  <lifecycle>
         <states>
-          <state id="implemented" _delta="merge">
+          <state id="implemented">
             <flags>
-              <attribute id="title" _delta="merge">
+              <attribute id="title">
                 <read_only _delta="delete"/>
               </attribute>
             </flags>  
@@ -17,12 +17,12 @@
 	  </lifecycle>
 	</class>
 	
-    <class id="RoutineChange" _delta="merge">
-	  <lifecycle _delta="merge">
+    <class id="RoutineChange">
+	  <lifecycle>
         <states>
-          <state id="implemented" _delta="merge">
+          <state id="implemented">
             <flags>
-              <attribute id="title" _delta="merge">
+              <attribute id="title">
                 <read_only _delta="delete"/>
               </attribute>
             </flags>  
@@ -30,8 +30,7 @@
 		  
 		</states>
 	  </lifecycle>
-	</class>
-	
+	</class> 
 	
 </classes>
  

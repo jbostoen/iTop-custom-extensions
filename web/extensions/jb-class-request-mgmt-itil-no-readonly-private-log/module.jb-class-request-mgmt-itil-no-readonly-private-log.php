@@ -5,18 +5,18 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-change-mgmt-itil-reject-anytime/2.4.171208',
+	'jb-class-request-mgmt-itil-no-readonly-private-log/2.4.171208',
 	array(
 		// Identification
 		//
-		'label' => 'Class: NormalChange and RoutineChange (ITIL) - reject anytime (before implement)',
+		'label' => 'Class: User Request (ITIL) - Don\'t make private log Read-Only (on resolve)',
 		'category' => 'business',
 
 		// Setup
 		//
-		// Compatible with this version. Maybe higher.
-		'dependencies' => array( 
-			'itop-change-mgmt-itil/2.4.0'
+		'dependencies' => array(
+			'itop-config-mgmt/2.4.0',
+			'itop-request-mgmt-itil/2.4.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-change-mgmt-itil-reject-anytime.php'
+			'model.jb-class-request-mgmt-itil-no-readonly-private-log.php'
 		),
 		'webservice' => array(
 			

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-class-request-mgmt-itil-origin-in-person</extension_code>
+	<extension_code>jb-class-request-mgmt-itil-no-resolution</extension_code>
 	<company>none</company>
 	<author><![CDATA[jbostoen]]></author>
-	<label><![CDATA[Class: User Request (ITIL) - Add origin: in person]]></label>
-	<description><![CDATA[Adds 'in person' option to the 'origin' field of a User Request.]]></description>
+	<label><![CDATA[Class: User Request (ITIL) - Remove mandatory resolution]]></label>
+	<description><![CDATA[If you use the public and private log as reference, the mandatory solution field and category is pointless.]]></description>
 	<version>2.4.171208</version>
 	<release_date>2017-11-17</release_date>
 	<version_description><![CDATA[ ]]></version_description>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+  <classes>
+  
+    <class id="NormalChange">
+	  <lifecycle>
+        <states>
+          <state id="closed">
+            <flags>
+              <attribute id="private_log">
+                <read_only _delta="delete"/>
+              </attribute>
+            </flags>  
+		   </state>
+		  
+		</states>
+	  </lifecycle>
+	</class>
+	
+    <class id="RoutineChange">
+	  <lifecycle>
+        <states>
+          <state id="closed">
+            <flags>
+              <attribute id="private_log">
+                <read_only _delta="delete"/>
+              </attribute>
+            </flags>  
+		   </state>
+		  
+		</states>
+	  </lifecycle>
+	</class>
+	
+	
+</classes>
+ 
+</itop_design>
+

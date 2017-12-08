@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
   <classes>
-    <class id="FunctionalCI" _delta="merge">
+    <class id="FunctionalCI">
       <methods> 
-        <method id="DisplayBareRelations" _delta="merge"> 
+        <method id="DisplayBareRelations"> 
           <code _delta="redefine"><![CDATA[	function DisplayBareRelations(WebPage $oPage, $bEditMode = false)
 	{
 		parent::DisplayBareRelations($oPage, $bEditMode);

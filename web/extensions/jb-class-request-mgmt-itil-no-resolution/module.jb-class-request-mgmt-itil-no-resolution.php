@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-request-mgmt-itil-no-mandatory-solution/2.4.171117',
+	'jb-class-request-mgmt-itil-no-resolution/2.4.171208',
 	array(
 		// Identification
 		//
-		'label' => 'Class: User Request (ITIL) - Don\'t make solution mandatory (on resolve)',
+		'label' => 'Class: User Request (ITIL) - Remove mandatory resolution (on resolve)',
 		'category' => 'business',
 
 		// Setup

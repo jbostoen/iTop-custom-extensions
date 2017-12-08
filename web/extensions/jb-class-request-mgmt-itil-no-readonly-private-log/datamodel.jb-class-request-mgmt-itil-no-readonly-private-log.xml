@@ -4,9 +4,9 @@
 		<class id="UserRequest">
 			<lifecycle>
 				<states>
-					<state id="resolved"> 
+					<state id="closed"> 
 						<flags>
-							<attribute id="title">
+							<attribute id="private_log">
 								<read_only _delta="delete"/>
 							</attribute>
 						</flags>
@@ -14,6 +14,6 @@
 				</states>
 			</lifecycle>
 		</class> 
-	</classes> 
+	</classes>
 </itop_design>
 

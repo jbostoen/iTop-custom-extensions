@@ -1,10 +1,14 @@
 use itop;
  
  
-# Which outdated files can safely be removed, based on their extensions? 
- 
+/*
+	Which outdated files can safely be removed, based on their extensions? 
+	Do this for graphics and most common Office files. 
+	Don't do this for .cfg, .xml (those files are small and usually config files, so previous versions is nice in this case. 
+*/
+
     
-# Delete all change entries. 
+/* Delete all change entries. */ 
 DELETE FROM priv_change 
 WHERE 
 	id IN ( 
@@ -22,8 +26,8 @@ WHERE
 					AND 	optype = 'CMDBChangeOpSetAttributeBlob' 
 					AND 	
 							( 
-									RIGHT(LCASE(prevdata_filename), 4 ) IN ( '.doc', '.jpg', '.pdf', '.png' )
-								OR 	RIGHT(LCASE(prevdata_filename), 5 ) IN ( '.docx' )
+									RIGHT(LCASE(prevdata_filename), 4 ) IN ( '.doc', '.jpg', '.pdf', '.png', '.ppt', '.xls' )
+								OR 	RIGHT(LCASE(prevdata_filename), 5 ) IN ( '.docx', '.xlsx', '.pptx' )
 							)
 					
 			)

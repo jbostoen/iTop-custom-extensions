@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-ipdevices/2.4.171117',
+	'jb-class-ipdevices/2.4.171208',
 	array(
 		// Identification
 		//

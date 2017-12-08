@@ -5,10 +5,10 @@
 	<!-- 
 		Add proper models. IPPhone already exists. 
 	-->
-    <class id="Model" _delta="merge"> 
+    <class id="Model"> 
 		<fields>
-			<field id="type" xsi:type="AttributeEnum" _delta="merge">
-			  <values _delta="merge">
+			<field id="type" xsi:type="AttributeEnum">
+			  <values>
 				<value id="IPDeviceGeneric" _delta="define">IPDeviceGeneric</value> 
 				<value id="IPCamera" _delta="define">IPCamera</value>  
 			  </values>
@@ -19,9 +19,9 @@
 	<!-- 
 		Fix for PCs and other connectable CIs which wouldn't show our IPDevices 
 	-->
-    <class id="ConnectableCI" _delta="merge"> 
+    <class id="ConnectableCI"> 
 		<fields>
-			<field id="networkdevice_list" xsi:type="AttributeLinkedSetIndirect" _delta="merge">
+			<field id="networkdevice_list" xsi:type="AttributeLinkedSetIndirect">
 			  <linked_class _delta="redefine">lnkConnectableCIToConnectableCI</linked_class>
 			</field>
 		</fields>
@@ -32,16 +32,16 @@
 		However, our IPPhone is also heavily based on NetworkDevice. It should have the same behavior. 
 		Rather than altering the code, we'll just use our custom class based in lnkConnectableCIToNetworkDevice
 	-->
-    <class id="NetworkDevice" _delta="merge"> 
+    <class id="NetworkDevice"> 
 		<fields>
-			<field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect" _delta="merge">
+			<field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect">
 				<linked_class _delta="redefine">lnkConnectableCIToConnectableCI</linked_class> 
 			</field>
 		</fields>
 		<relations>
-			<relation id="impacts" _delta="merge">
+			<relation id="impacts">
 			<neighbours>
-				<neighbour id="connectableci" _delta="merge">
+				<neighbour id="connectableci">
 					<query_down _delta="redefine">SELECT ConnectableCI AS d JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
 					<query_up _delta="redefine">SELECT NetworkDevice AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
 				</neighbour>

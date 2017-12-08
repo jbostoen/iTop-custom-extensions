@@ -5,7 +5,7 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: NormalChange and RoutineChange (ITIL) - reject anytime (before implement)]]></label>
 	<description><![CDATA[You might want to be able to reject changes at any time (even after prior approval) before implementation.]]></description>
-	<version>2.4.171117</version>
+	<version>2.4.171208</version>
 	<release_date>2017-11-17</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>

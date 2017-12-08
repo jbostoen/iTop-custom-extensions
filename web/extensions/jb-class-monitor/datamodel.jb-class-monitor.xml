@@ -2,10 +2,10 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
 
   <classes>
-    <class id="Model" _delta="merge"> 
+    <class id="Model"> 
 	<fields>
-        <field id="type" xsi:type="AttributeEnum" _delta="merge">
-          <values _delta="merge">
+        <field id="type" xsi:type="AttributeEnum">
+          <values>
             <value id="Monitor" _delta="define">Monitor</value> 
 		  </values>
         </field>

@@ -2,9 +2,9 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
 
 	<classes>
-		<class id="UserRequest" _delta="merge">
+		<class id="UserRequest">
 			<methods>
-				<method id="OnInsert" _delta="merge">
+				<method id="OnInsert">
 					<code _delta="redefine"><![CDATA[
     protected function OnInsert()
 	{
@@ -13,7 +13,7 @@
 		$this->Set('start_date', time());
 	}]]></code>
 				</method>
-				<method id="OnUpdate" _delta="merge">
+				<method id="OnUpdate">
 					<code _delta="redefine"><![CDATA[
     protected function OnUpdate()
 	{
