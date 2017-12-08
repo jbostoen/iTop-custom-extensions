@@ -33,6 +33,22 @@
 	</class>
 	
 	
+    <class id="EmergencyChange">
+	  <lifecycle>
+        <states>
+          <state id="closed">
+            <flags>
+              <attribute id="private_log">
+                <read_only _delta="delete"/>
+              </attribute>
+            </flags>  
+		   </state>
+		  
+		</states>
+	  </lifecycle>
+	</class>
+	
+	
 </classes>
  
 </itop_design>
