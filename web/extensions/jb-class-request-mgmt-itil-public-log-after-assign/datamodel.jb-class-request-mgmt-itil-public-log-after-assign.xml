@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+	<classes>
+		<class id="UserRequest">
+			<lifecycle>
+				<states> 
+					<state id="new">
+						<flags>
+							<attribute id="public_log">
+								<hidden/>
+							</attribute>
+						</flags>
+					</state>
+					<state id="assigned">
+						<flags>
+							<attribute id="public_log"/>
+						</flags>
+					</state>
+				</states>
+			</lifecycle>
+		</class>
+	</classes>
+</itop_design>

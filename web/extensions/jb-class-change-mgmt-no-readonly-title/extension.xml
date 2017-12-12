@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: NormalChange and RoutineChange (ITIL) - don't make title Read-Only]]></label>
 	<description><![CDATA[Allows you to change the title at any time.]]></description>
-	<version>2.4.171208</version>
-	<release_date>2017-11-17</release_date>
+	<version>2.4.171212</version>
+	<release_date>2017-12-12</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>
 	<status>stable</status>

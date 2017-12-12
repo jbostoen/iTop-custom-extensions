@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-class-monitor</extension_code>
+	<extension_code>jb-class-request-mgmt-itil-public-log-after-assign</extension_code>
 	<company>none</company>
 	<author><![CDATA[jbostoen]]></author>
-	<label><![CDATA[Class: Monitor]]></label>
-	<description><![CDATA[Adds monitor.]]></description>
+	<label><![CDATA[Class: User Request (ITIL) - Public log: after assign]]></label>
+	<description><![CDATA[Makes Public Log only available after a User Request has been created. If you make the request yourself and have mail notifications enabled, iTop will only be able to send notifications after the ticket has been created.]]></description>
 	<version>2.4.171212</version>
 	<release_date>2017-12-12</release_date>
 	<version_description><![CDATA[ ]]></version_description>

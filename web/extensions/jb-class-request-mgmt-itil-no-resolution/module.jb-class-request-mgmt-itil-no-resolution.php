@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-request-mgmt-itil-no-resolution/2.4.171208',
+	'jb-class-request-mgmt-itil-no-resolution/2.4.171212',
 	array(
 		// Identification
 		//
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-class-request-mgmt-itil-no-mandatory-solution.php'
+			'model.jb-class-request-mgmt-itil-no-resolution.php'
 		),
 		'webservice' => array(
 			

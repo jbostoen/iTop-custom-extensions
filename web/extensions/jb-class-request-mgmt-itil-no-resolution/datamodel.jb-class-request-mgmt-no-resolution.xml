@@ -1,33 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
 	<classes>
+		<!-- To avoid future conflicts, we won't delete the resolution_code and solution fields. We'll hide them and make them optional. -->
 		<class id="UserRequest"> 
 			<lifecycle> 
-				<states>  
-					<state id="new"> 
-						<flags> 
-							<attribute id="solution" _delta="delete"/>
-							<attribute id="resolution_code" _delta="delete"/>
-						</flags>  
-					</state>
+				<states>   
 					<state id="resolved"> 
 						<flags> 
-							<attribute id="solution" _delta="delete"/>
-							<attribute id="resolution_code" _delta="delete"/>
+							<attribute id="resolution_code">
+								<mandatory/>
+								<must_prompt/>
+							</attribute>
+							<attribute id="solution">
+								<mandatory/>
+								<must_prompt/>
+							</attribute>
 						</flags>  
-					</state>
-					<state id="closed"> 
-						<flags> 
-							<attribute id="solution" _delta="delete"/>
-							<attribute id="resolution_code" _delta="delete"/>
-						</flags>  
-					</state>
+					</state> 
 				</states>
-			</lifecycle>  
-			<fields>
-				<field id="solution" xsi:type="AttributeText" _delta="delete"/>
-				<field id="resolution_code" xsi:type="AttributeText" _delta="delete"/>
-			</fields>
+			</lifecycle>
 		</class>
 	</classes> 
 </itop_design>
