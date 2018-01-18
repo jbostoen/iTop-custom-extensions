@@ -15,14 +15,11 @@
         protected function MakeTicketRef($iNextId)
         {
                 switch(get_class($this))
-                {
+                { 
 				
-				
-                        case 'HRRequest':
+                        case 'UserRequest':
                         $sFormat = 'HR-%06d';
-                        break;
-						
-						
+                        break; 
 						
                         case 'HRRequest':
                         $sFormat = 'R-%06d';
@@ -1432,19 +1429,6 @@
 
 	}]]></code>
 				</method>
-				<method id="ComputeImpactedItems">
-					<static>false</static>
-					<access>public</access>
-					<type>LifecycleAction</type>
-					<code><![CDATA[
-    public function ComputeImpactedItems()
-	{
-        // This method is kept for backward compatibility
-        // in case a delta redefines it, but you may call
-        // UpdateImpactedItems directly
-		$this->UpdateImpactedItems();
-	}]]></code>
-				</method>
 				<method id="OnInsert">
 					<static>false</static>
 					<access>protected</access>
@@ -1453,7 +1437,7 @@
     protected function OnInsert()
 	{
         parent::OnInsert();
-		$this->ComputeImpactedItems();
+		
 		$this->Set('last_update', time());
 		$this->Set('start_date', time());
 	}]]></code>
@@ -1466,11 +1450,7 @@
    	protected function OnUpdate()
 	{
         parent::OnUpdate();
-        $aChanges = $this->ListChanges();
-        if (array_key_exists('functionalcis_list', $aChanges))
-        {
-            $this->UpdateImpactedItems();
-        }
+		
 		$this->Set('last_update', time());
 		$this->UpdateChildRequestLog();
 	}]]></code>
@@ -1772,7 +1752,7 @@
 						<dashlets>
 							<dashlet id="9" xsi:type="DashletHeaderDynamic">
 								<rank>0</rank>
-								<title>Menu:RequestManagement</title>
+								<title>Menu:HRManagement</title>
 								<icon>itop-welcome-itil/images/user-request-deadline.png</icon>
 								<subtitle>Menu:HRRequest:OpenRequests</subtitle>
 								<query>SELECT HRRequest WHERE status != "closed"</query>
@@ -1790,23 +1770,23 @@
 				</cells>
 			</definition>
 		</menu>
-		<menu id="RequestManagement" xsi:type="MenuGroup" _delta="define">
+		<menu id="HRManagement" xsi:type="MenuGroup" _delta="define">
 			<rank>40</rank>
 			<enable_stimulus/>
 		</menu>
 		<menu id="HRRequest:Overview" xsi:type="DashboardMenuNode" _delta="define">
 			<rank>0</rank>
-			<parent>RequestManagement</parent>
+			<parent>HRManagement</parent>
 			<definition>
 				<layout>DashboardLayoutTwoCols</layout>
-				<title>UI:RequestMgmtMenuOverview:Title</title>
+				<title>UI:HRMgmtMenuOverview:Title</title>
 				<cells>
 					<cell id="0">
 						<rank>0</rank>
 						<dashlets>
 							<dashlet id="1" xsi:type="DashletGroupByPie">
 								<rank>0</rank>
-								<title>UI-RequestManagementOverview-RequestByType-last-14-days</title>
+								<title>UI-HRManagementOverview-RequestByType-last-14-days</title>
 								<query>SELECT HRRequest WHERE DATE_SUB(NOW(), INTERVAL 14 DAY) &lt; start_date</query>
 								<group_by>request_type</group_by>
 								<style>pie</style>
@@ -1818,7 +1798,7 @@
 						<dashlets>
 							<dashlet id="2" xsi:type="DashletGroupByBars">
 								<rank>0</rank>
-								<title>UI-RequestManagementOverview-Last-14-days</title>
+								<title>UI-HRManagementOverview-Last-14-days</title>
 								<query>SELECT HRRequest WHERE DATE_SUB(NOW(), INTERVAL 14 DAY) &lt; start_date</query>
 								<group_by>start_date:day_of_month</group_by>
 								<style>bars</style>
@@ -1830,7 +1810,7 @@
 						<dashlets>
 							<dashlet id="3" xsi:type="DashletGroupByTable">
 								<rank>0</rank>
-								<title>UI-RequestManagementOverview-OpenRequestByStatus</title>
+								<title>UI-HRManagementOverview-OpenRequestByStatus</title>
 								<query>SELECT HRRequest WHERE status NOT IN ('closed','rejected')</query>
 								<group_by>status</group_by>
 								<style>table</style>
@@ -1842,7 +1822,7 @@
 						<dashlets>
 							<dashlet id="4" xsi:type="DashletGroupByTable">
 								<rank>0</rank>
-								<title>UI-RequestManagementOverview-OpenRequestByAgent</title>
+								<title>UI-HRManagementOverview-OpenRequestByAgent</title>
 								<query>SELECT HRRequest WHERE status NOT IN ('closed','rejected')</query>
 								<group_by>agent_id</group_by>
 								<style>table</style>
@@ -1854,7 +1834,7 @@
 						<dashlets>
 							<dashlet id="5" xsi:type="DashletGroupByTable">
 								<rank>0</rank>
-								<title>UI-RequestManagementOverview-OpenRequestByType</title>
+								<title>UI-HRManagementOverview-OpenRequestByType</title>
 								<query>SELECT HRRequest WHERE status NOT IN ('closed','rejected')</query>
 								<group_by>finalclass</group_by>
 								<style>table</style>
@@ -1866,7 +1846,7 @@
 						<dashlets>
 							<dashlet id="6" xsi:type="DashletGroupByTable">
 								<rank>0</rank>
-								<title>UI-RequestManagementOverview-OpenRequestByCustomer</title>
+								<title>UI-HRManagementOverview-OpenRequestByCustomer</title>
 								<query>SELECT HRRequest WHERE status NOT IN ('closed','rejected')</query>
 								<group_by>org_id</group_by>
 								<style>table</style>
@@ -1878,17 +1858,17 @@
 		</menu>
 		<menu id="NewHRRequest" xsi:type="NewObjectMenuNode" _delta="define">
 			<rank>1</rank>
-			<parent>RequestManagement</parent>
+			<parent>HRManagement</parent>
 			<class>HRRequest</class>
 		</menu>
 		<menu id="SearchHRRequests" xsi:type="SearchMenuNode" _delta="define">
 			<rank>2</rank>
-			<parent>RequestManagement</parent>
+			<parent>HRManagement</parent>
 			<class>HRRequest</class>
 		</menu>
 		<menu id="HRRequest:Shortcuts" xsi:type="TemplateMenuNode" _delta="define">
 			<rank>3</rank>
-			<parent>RequestManagement</parent>
+			<parent>HRManagement</parent>
 			<template_file/>
 		</menu> 
 	</menus>
