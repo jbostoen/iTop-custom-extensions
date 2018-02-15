@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-ipdevices-teemip/2.4.171212',
+	'jb-class-ipdevices-teemip/2.4.180215',
 	array(
 		// Identification
 		//
@@ -18,7 +18,7 @@ SetupWebPage::AddModule(
 			'itop-config-mgmt/2.4.0',
 			'itop-endusers-devices/2.4.0',
 			'teemip-endusers-devices-adaptor/2.1.0', 
-			'jb-class-ipdevices/2.4.171212'
+			'jb-class-ipdevices/2.4.180215'
 		),
 		'mandatory' => false,
 		'visible' => true,

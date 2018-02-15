@@ -622,6 +622,7 @@ EOF
 				$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
 				try
 				{
+					$this->Trace("Try to create user with default values");
 					// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 					$oMyChange = MetaModel::NewObject("CMDBChange");
 					$oMyChange->Set("date", time());
@@ -1373,8 +1374,10 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	public function HandleError($oEmail, $sErrorCode, $oRawEmail = null, $sAdditionalErrorMessage = '')
 	{
+	
 		$sTo = $this->Get('notify_errors_to');
 		$sFrom = $this->Get('notify_from');
+		
 		if ($this->Get('error_behavior') == 'delete')
 		{
 			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
@@ -1389,103 +1392,107 @@ EOF
 		switch($sErrorCode)
 		{ 
 			case 'decode_failed':
-			$sSubject = '[iTop] Failed to decode an incoming eMail';
-			if ($oRawEmail && ($oRawEmail->GetSize() > EmailBackgroundProcess::$iMaxEmailSize))
-			{
-				$sBody = "<p>The incoming eMail is bigger (".$oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize.").</p>\n";
-				$this->sLastError = "eMail is bigger (".$oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize.")";
-				
-				if ($this->Get('error_behavior') == 'delete')
+			
+				$sSubject = '[iTop] Failed to decode an incoming eMail';
+				if ($oRawEmail && ($oRawEmail->GetSize() > EmailBackgroundProcess::$iMaxEmailSize))
 				{
-					if ($this->sBigFilesDir == '')
+					$sBody = "<p>The incoming eMail is bigger (".$oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize.").</p>\n";
+					$this->sLastError = "eMail is bigger (".$oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize.")";
+					
+					if ($this->Get('error_behavior') == 'delete')
 					{
-						$sBody .= "<p>The email was deleted. In the future you can:\n<ul>\n";
-						$sBody .= "<li>either increase the 'maximum_email_size' parameter in the iTop configuration file, so that the message gets processed</li>\n";
-						$sBody .= "<li>or configure the parameter 'big_files_dir' in the iTop configuration file, so that such emails are kept on the web server for further inspection.</li>\n</ul>";
-					}
-					else if (!is_writable($this->sBigFilesDir))
-					{
-						$sBody .= "<p>The email was deleted, since the directory where to save such files on the web server ($this->sBigFilesDir) is NOT writable to iTop.</p>\n";
+						if ($this->sBigFilesDir == '')
+						{
+							$sBody .= "<p>The email was deleted. In the future you can:\n<ul>\n";
+							$sBody .= "<li>either increase the 'maximum_email_size' parameter in the iTop configuration file, so that the message gets processed</li>\n";
+							$sBody .= "<li>or configure the parameter 'big_files_dir' in the iTop configuration file, so that such emails are kept on the web server for further inspection.</li>\n</ul>";
+						}
+						else if (!is_writable($this->sBigFilesDir))
+						{
+							$sBody .= "<p>The email was deleted, since the directory where to save such files on the web server ($this->sBigFilesDir) is NOT writable to iTop.</p>\n";
+						}
+						else
+						{
+							$idx = 1;
+							$sFileName = 'email_'.(date('Y-m-d')).'_';
+							$sExtension = '.eml';
+							$hFile = false;
+							while(($hFile = fopen($this->sBigFilesDir.'/'.$sFileName.$idx.$sExtension, 'x')) === false)
+							{
+								$idx++;
+							}
+							fwrite($hFile, $oRawEmail->GetRawContent());
+							fclose($hFile);
+							$sBody .= "<p>The message was saved as '{$sFileName}{$idx}{$sExtension}' on the web server, in the directory '{$this->sBigFilesDir}'.</p>\n";
+							$sBody .= "<p>In order process such messages, increase the value of the 'maximum_email_size' parameter in the iTop configuration file.</p>\n";
+						}
 					}
 					else
 					{
-						$idx = 1;
-						$sFileName = 'email_'.(date('Y-m-d')).'_';
-						$sExtension = '.eml';
-						$hFile = false;
-						while(($hFile = fopen($this->sBigFilesDir.'/'.$sFileName.$idx.$sExtension, 'x')) === false)
-						{
-							$idx++;
-						}
-						fwrite($hFile, $oRawEmail->GetRawContent());
-						fclose($hFile);
-						$sBody .= "<p>The message was saved as '{$sFileName}{$idx}{$sExtension}' on the web server, in the directory '{$this->sBigFilesDir}'.</p>\n";
-						$sBody .= "<p>In order process such messages, increase the value of the 'maximum_email_size' parameter in the iTop configuration file.</p>\n";
+						$sBody .= $sLastAction;
+					}
+									
+					$oRawEmail = null; // Do not attach the original message to the mail sent to the admin since it's already big, send the message now
+					$this->Trace($sSubject."\n\n".$sBody);
+					// Send the email now...
+					if(($sTo != '') && ($sFrom != ''))
+					{
+						$oEmailToSend = new Email();
+						$oEmailToSend->SetRecipientTO($sTo);
+						$oEmailToSend->SetSubject($sSubject);
+						$oEmailToSend->SetBody($sBody, 'text/html');	
+						$oEmailToSend->SetRecipientFrom($sFrom);
+						$oEmailToSend->Send($aIssues, true /* bForceSynchronous */, null /* $oLog */);
 					}
 				}
 				else
 				{
+					$sBody = "<p>The following eMail (see attachment) was not decoded properly and therefore was not processed at all.</p>\n";
 					$sBody .= $sLastAction;
 				}
-								
-				$oRawEmail = null; // Do not attach the original message to the mail sent to the admin since it's already big, send the message now
-				$this->Trace($sSubject."\n\n".$sBody);
-				// Send the email now...
-				if(($sTo != '') && ($sFrom != ''))
-				{
-					$oEmailToSend = new Email();
-			  		$oEmailToSend->SetRecipientTO($sTo);
-			  		$oEmailToSend->SetSubject($sSubject);
-			  		$oEmailToSend->SetBody($sBody, 'text/html');	
-			  		$oEmailToSend->SetRecipientFrom($sFrom);
-			  		$oEmailToSend->Send($aIssues, true /* bForceSynchronous */, null /* $oLog */);
-				}
-			}
-			else
-			{
-				$sBody = "<p>The following eMail (see attachment) was not decoded properly and therefore was not processed at all.</p>\n";
-				$sBody .= $sLastAction;
-			}
 			break;
 			
 			
 			case 'failed_to_create_contact':
-			$sSubject = '[iTop] Failed to create a contact for the incoming eMail - '.$oEmail->sSubject;
-			$sBody = "<p>The following email (see attachment) comes from an unknown caller (".$oEmail->sCallerEmail.").<br/>\n";
-			$sBody .= "The configuration of the Mail Inbox ".$this->GetName()." instructs to create a new contact based on some default values, but this creation was not successful.<br/>\n";
-			$sBody .= "Check the contact's default values configured in the Mail Inbox.</p>\n";
-			$sBody .= $sLastAction;
-			$this->sLastError = "Failed to create a contact from the incoming eMail. Caller = ".$oEmail->sCallerEmail;
-			break;
+			
+				$sSubject = '[iTop] Failed to create a contact for the incoming eMail - '.$oEmail->sSubject;
+				$sBody = "<p>The following email (see attachment) comes from an unknown caller (".$oEmail->sCallerEmail.").<br/>\n";
+				$sBody .= "The configuration of the Mail Inbox ".$this->GetName()." instructs to create a new contact based on some default values, but this creation was not successful.<br/>\n";
+				$sBody .= "Check the contact's default values configured in the Mail Inbox.</p>\n";
+				$sBody .= $sLastAction;
+				$this->sLastError = "Failed to create a contact from the incoming eMail. Caller = ".$oEmail->sCallerEmail;
+				break;
 			
 			case 'rejected_attachments':
-			$sSubject = '[iTop] Failed to process attachment(s) for the incoming eMail - '.$oEmail->sSubject;
-			$sBody = "<p>Some attachments to the eMail were not processed because they are too big:</p>\n";
-			$sBody .= "<pre>".$sAdditionalErrorMessage."</pre>\n";
-			$sBody .= $sLastAction;
+			
+				$sSubject = '[iTop] Failed to process attachment(s) for the incoming eMail - '.$oEmail->sSubject;
+				$sBody = "<p>Some attachments to the eMail were not processed because they are too big:</p>\n";
+				$sBody .= "<pre>".$sAdditionalErrorMessage."</pre>\n";
+				$sBody .= $sLastAction;
 			 
 			case 'undesired_message':
-			$sSubject = '[iTop] Undesired message - '.$oEmail->sSubject;
-			$sBody = "<p>The attached message was rejected because it is considered as undesired, based on the 'undesired_subject_patterns' specified in the iTop configuration file.</p>\n";
-			$sBody .= $sLastAction;
 			
-			// Send the email now...
-			if(($sTo != '') && ($sFrom != ''))
-			{
-				$oEmailToSend = new Email();
-		  		$oEmailToSend->SetRecipientTO($sTo);
-		  		$oEmailToSend->SetSubject($sSubject);
-		  		$oEmailToSend->SetBody($sBody, 'text/html');	
-		  		$oEmailToSend->SetRecipientFrom($sFrom);
-		  		$oEmailToSend->Send($aIssues, true /* bForceSynchronous */, null /* $oLog */);
-			}
+				$sSubject = '[iTop] Undesired message - '.$oEmail->sSubject;
+				$sBody = "<p>The attached message was rejected because it is considered as undesired, based on the 'undesired_subject_patterns' specified in the iTop configuration file.</p>\n";
+				$sBody .= $sLastAction;
+				
+				// Send the email now...
+				if(($sTo != '') && ($sFrom != ''))
+				{
+					$oEmailToSend = new Email();
+					$oEmailToSend->SetRecipientTO($sTo);
+					$oEmailToSend->SetSubject($sSubject);
+					$oEmailToSend->SetBody($sBody, 'text/html');	
+					$oEmailToSend->SetRecipientFrom($sFrom);
+					$oEmailToSend->Send($aIssues, true /* bForceSynchronous */, null /* $oLog */);
+				}
 			break;
 			
 			default:
-			$sSubject = '[iTop] handle error';
-			$sBody = '<p>Unexpected error: '.$sErrorCode."</p>\n";
-			$sBody .= $sLastAction;
-			$this->sLastError = 'Unexpected error: '.$sErrorCode;
+				$sSubject = '[iTop] handle error';
+				$sBody = '<p>Unexpected error: '.$sErrorCode."</p>\n";
+				$sBody .= $sLastAction;
+				$this->sLastError = 'Unexpected error: '.$sErrorCode;
 		}
 		$sBody .= "<p>&nbsp;</p><p>Mail Inbox Configuration: ".$this->GetHyperlink()."</p>\n";
 		
@@ -1502,7 +1509,7 @@ EOF
         </method>
 		<method id="HandlePolicyViolation">
           <comment>/**
-	 * Policy violation handler... what to do in case of Policy violation ??
+	 * Policy violation handler... what to do in case of Policy violation ?
 	 * @param EmailMessage $oEmail can be null in case of decoding error (like message too big)
 	 * @param string $sPolicyViolation
 	 * @return void
@@ -1550,16 +1557,19 @@ EOF
 					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 				}
 				
+				$this->Trace("Set next action for EmailProcessor to DELETE_MESSAGE");
 				$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
 				$sLastAction = "<p>The eMail was deleted from the mailbox after being bounced to sender (".$sTo.").</p>\n";			
 				break;
 				
 			case 'delete': 
+				$this->Trace("Set next action for EmailProcessor to DELETE_MESSAGE");
 				$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
 				$sLastAction = "<p>The eMail was deleted from the mailbox.</p>\n";			
 				break;
 				
 			case 'mark_as_error': 
+				$this->Trace("Set next action for EmailProcessor to MARK_AS_ERROR");
 				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 				$sLastAction = "<p>The eMail is marked as error and will be ignored in further processing of the mailbox.</p>\n";
 				break;
@@ -1568,6 +1578,10 @@ EOF
 			// Any specific fallback (policy_other_recipients_behavior)
 			case 'fallback': 
 			default: 
+			
+			
+				$this->Trace("HandlePolicyViolation ending up in a fallback/default.");
+				
 				// Depends on Policy. This could be: create new contact for unknown callers, reopen tickets ...
 				// Fallbacks actually mean we should never get here. 
 				switch( $sPolicyViolation ) {
