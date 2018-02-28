@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: User Request (ITIL) - Public log: after assign]]></label>
 	<description><![CDATA[Makes Public Log only available after a User Request has been created. If you make the request yourself and have mail notifications enabled, iTop will only be able to send notifications after the ticket has been created.]]></description>
-	<version>2.4.171212</version>
-	<release_date>2017-12-12</release_date>
+	<version>2.4.180228</version>
+	<release_date>2018-02-28</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>
 	<status>stable</status>
