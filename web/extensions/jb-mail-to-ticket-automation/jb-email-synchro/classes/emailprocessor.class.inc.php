@@ -29,6 +29,7 @@ abstract class EmailProcessor
 	const PROCESS_MESSAGE = 2;
 	const PROCESS_ERROR = 3;
 	const MARK_MESSAGE_AS_ERROR = 4;
+    const MARK_MESSAGE_AS_UNDESIRED = 5;
 	
 	abstract public function ListEmailSources();
 	
@@ -84,7 +85,7 @@ abstract class EmailProcessor
 		$sMessage .= "The original message is attached to this message.\n";
 		$this->Trace($sMessage);
 		EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
-		return self::MARK_MESSAGE_AS_ERROR;		
+		return self::MARK_MESSAGE_AS_UNDESIRED;		
 	}
 	
 	/**

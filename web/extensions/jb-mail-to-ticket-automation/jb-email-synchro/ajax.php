@@ -95,7 +95,21 @@ function GetMailboxContent($oPage, $oInbox)
 				$sErrorMsg = '';
 				if (array_key_exists($sUIDLs, $aProcessed))
 				{
-					$sStatus = ($aProcessed[$sUIDLs]['status'] == 'ok') ? Dict::S('MailInbox:Status/Processed') : Dict::S('MailInbox:Status/Error');
+				    switch ($aProcessed[$sUIDLs]['status'])
+                    {
+                        case 'ok':
+                        $sStatus = Dict::S('MailInbox:Status/Processed');
+                        break;
+
+                        case 'error':
+                        $sStatus = Dict::S('MailInbox:Status/Error');
+                        break;
+
+                        case 'undesired':
+                        $sStatus = Dict::S('MailInbox:Status/Undesired');
+                        break;
+
+                    }
 					$sErrorMsg = $aProcessed[$sUIDLs]['error_message'];
 					if ($aProcessed[$sUIDLs]['ticket_id'] != '')
 					{

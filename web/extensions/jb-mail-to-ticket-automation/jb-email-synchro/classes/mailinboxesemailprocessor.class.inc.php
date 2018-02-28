@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2012-2016 Combodo SARL
+// Copyright (C) 2012-2018 Combodo SARL
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Lesser General Public License as published by
@@ -14,7 +14,7 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /**
- * @copyright   Copyright (C) 2012-2016 Combodo SARL
+ * @copyright   Copyright (C) 2012-2018 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -117,24 +117,28 @@ class MailInboxesEmailProcessor extends EmailProcessor
 		switch($iRetCode)
 		{
 			case EmailProcessor::NO_ACTION:
-			$sRetCode = 'NO_ACTION';
-			break;
+				$sRetCode = 'NO_ACTION';
+				break;
 			
 			case EmailProcessor::DELETE_MESSAGE;
-			$sRetCode = 'DELETE_MESSAGE';
-			break;
+				$sRetCode = 'DELETE_MESSAGE';
+				break;
 			
 			case EmailProcessor::PROCESS_MESSAGE:
-			$sRetCode = 'PROCESS_MESSAGE';
-			break;
+				$sRetCode = 'PROCESS_MESSAGE';
+				break;
 			
 			case EmailProcessor::PROCESS_ERROR:
-			$sRetCode = 'PROCESS_ERROR';
-			break;
-			
+				$sRetCode = 'PROCESS_ERROR';
+				break;
+				
 			case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-			$sRetCode = 'MARK_MESSAGE_AS_ERROR';
-			break;
+				$sRetCode = 'MARK_MESSAGE_AS_ERROR';
+				break;
+
+            case EmailProcessor::MARK_MESSAGE_AS_UNDESIRED:
+				$sRetCode = 'MARK_MESSAGE_AS_UNDESIRED';
+				break;
 		}
 		return $sRetCode;		
 	}
@@ -142,6 +146,8 @@ class MailInboxesEmailProcessor extends EmailProcessor
 	/**
 	 * Decides whether a message should be downloaded and processed, deleted, or simply ignored
 	 * (i.e left as-is in the mailbox)
+	 *
+	 * @throws \Exception
 	 */
 	public function DispatchMessage(EmailSource $oSource, $index, $sUIDL, $oEmailReplica = null)
 	{
@@ -191,6 +197,11 @@ class MailInboxesEmailProcessor extends EmailProcessor
 					$oEmailReplica->Set('message_id', $oEmail->sMessageId);
 					$oEmailReplica->Set('ticket_id', $oTicket->GetKey());
 					$oEmailReplica->DBInsert();
+					if (!empty($oInbox->sLastError))
+					{
+						$this->sLastErrorSubject = "Error during ticket update";
+						$this->sLastErrorMessage = $oInbox->sLastError;
+					} 
 				}
 				else
 				{

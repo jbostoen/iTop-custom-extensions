@@ -59,18 +59,28 @@ class EmailBackgroundProcess implements iBackgroundProcess
 		}
 	}
 	
-	/**
-	 * Tries to set the error message from the $oProcessor. Sets a default error message in case of failure.
-	 *
-	 * @param EmailReplica $oEmailReplica
-	 * @param EmailProcessor $oProcessor
-	 */
-	protected function SetErrorOnEmailReplica(&$oEmailReplica, $oProcessor)
+    /**
+     * Tries to set the error message from the $oProcessor. Sets a default error message in case of failure.
+     *
+
+
+     * @param EmailReplica $oEmailReplica
+     * @param EmailProcessor $oProcessor
+     * @param string $sErrorCode
+     */
+	 
+	protected function SetErrorOnEmailReplica(&$oEmailReplica, $oProcessor, $sErrorCode = 'error')
 	{
 		try
 		{
-			$oEmailReplica->Set('status', 'error');
+			$oEmailReplica->Set('status', $sErrorCode);
 			$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject() . " - " . $oProcessor->GetLastErrorMessage());
+            $sDate = $oEmailReplica->Get('message_date');
+            if (empty($sDate))
+            {
+                $oEmailReplica->SetCurrentDate('message_date');
+            }
+			
 			$oEmailReplica->DBWrite();
 		}
 		catch (Exception $e)
@@ -121,6 +131,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 		$iTotalMarkedAsError = 0;
 		$iTotalSkipped = 0;
 		$iTotalDeleted = 0;
+        $iTotalUndesired = 0;
 		foreach(self::$aEmailProcessors as $sProcessorClass)
 		{
 			$oProcessor = new $sProcessorClass();
@@ -186,10 +197,41 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							$iTotalSkipped++;
 							continue;
 						}
+						else if ($oEmailReplica->Get('status') == 'undesired')
+                        {
+                            $this->Trace("\nUndesired message: uidl=$sUIDL index=$iMessage");
+                            $iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7) * 86400;
+                            if ($iDelay > 0)
+                            {
+                                $sDate = $oEmailReplica->Get('message_date');
+                                $oDate = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);
+                                if ($oDate !== false)
+                                {
+                                    $iDate = $oDate->getTimestamp();
+                                    $iDelay -= time() - $iDate;
+                                }
+                            }
+                            if ($iDelay <= 0)
+                            {
+                                $iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7);
+                                $this->Trace("\nDeleting undesired message (AND replica) due to purge delay threshold ({$iDelay}): uidl=$sUIDL index=$iMessage");
+                                $iTotalDeleted++;
+                                $ret = $oSource->DeleteMessage($iMessage);
+                                $this->Trace("DeleteMessage($iMessage) returned $ret");
+                                if (!$oEmailReplica->IsNew())
+                                {
+                                    $this->Trace("Deleting replica #".$oEmailReplica->GetKey());
+                                    $oEmailReplica->DBDelete();
+                                    $oEmailReplica = null;
+                                }
+                                continue;
+                            }
+                            $iTotalSkipped++;
+                            continue;
+                        }
 						else
 						{
-							$this->Trace("\nDispatching old (already read) message: uidl=$sUIDL index=$iMessage");
-							
+							$this->Trace("\nDispatching old (already read) message: uidl=$sUIDL index=$iMessage");						
 						}
 						
 						$iActionCode = $oProcessor->DispatchMessage($oSource, $iMessage, $sUIDL, $oEmailReplica);
@@ -199,9 +241,8 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 							$iTotalMarkedAsError++;
 							$this->Trace("Marking the message1 (and replica): uidl=$sUIDL index=$iMessage as in error.");
-							$oEmailReplica->Set('status', 'error');
 							$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
-							$oEmailReplica->DBWrite();
+
 							break;
 							
 							case EmailProcessor::DELETE_MESSAGE:
@@ -237,23 +278,22 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								switch($iNextActionCode)
 								{
 									case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-									$iTotalMarkedAsError++;
-									$this->Trace("Email too big, marking the message4 (and replica): uidl=$sUIDL index=$iMessage as in error.");
-									$oEmailReplica->Set('status', 'error');
-									$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
-									$oEmailReplica->DBWrite();
-									$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-									break;
-						
+										$iTotalMarkedAsError++;
+										$this->Trace("Email too big, marking the message4 (and replica): uidl=$sUIDL index=$iMessage as in error.");
+										$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+										$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+
+										break;
+							
 									case EmailProcessor::DELETE_MESSAGE:
-									$iTotalDeleted++;
-									$this->Trace("Email too big, deleting message (and replica): $sUIDL");
-									$oSource->DeleteMessage($iMessage);
-									if (!$oEmailReplica->IsNew())
-									{
-										$oEmailReplica->DBDelete();
-										$oEmailReplica = null;
-									}
+										$iTotalDeleted++;
+										$this->Trace("Email too big, deleting message (and replica): $sUIDL");
+										$oSource->DeleteMessage($iMessage);
+										if (!$oEmailReplica->IsNew())
+										{
+											$oEmailReplica->DBDelete();
+											$oEmailReplica = null;
+										}
 								}								
 							}
 							else
@@ -267,25 +307,21 @@ class EmailBackgroundProcess implements iBackgroundProcess
 									switch($iNextActionCode)
 									{
 										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-										$iTotalMarkedAsError++;
-										$this->Trace("Failed to decode the message, marking the message3 (and replica): uidl=$sUIDL index=$iMessage as in error.");
-										$oEmailReplica->Set('status', 'error');
-										$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
-										$oEmailReplica->DBWrite();
-
-										$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
-										$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+											$iTotalMarkedAsError++;
+											$this->Trace("Failed to decode the message, marking the message3 (and replica): uidl=$sUIDL index=$iMessage as in error.");
+											$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 										break;
 							
 										case EmailProcessor::DELETE_MESSAGE:
-										$iTotalDeleted++;
-										$this->Trace("Failed to decode the message, deleting it (and its replica): $sUIDL");
-										$oSource->DeleteMessage($iMessage);
-										if (!$oEmailReplica->IsNew())
-										{
-											$oEmailReplica->DBDelete();
-											$oEmailReplica = null;
-										}
+											$iTotalDeleted++;
+											$this->Trace("Failed to decode the message, deleting it (and its replica): $sUIDL");
+											$oSource->DeleteMessage($iMessage);
+											if (!$oEmailReplica->IsNew())
+											{
+												$oEmailReplica->DBDelete();
+												$oEmailReplica = null;
+											}
 									}
 								}
 								 
@@ -295,45 +331,48 @@ class EmailBackgroundProcess implements iBackgroundProcess
 									switch($iNextActionCode)
 									{
 										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-										$iTotalMarkedAsError++;
-										$this->Trace("Marking the valid message (and replica): uidl=$sUIDL index=$iMessage as in error.");
-										$oEmailReplica->Set('status', 'error');
-										$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
-										$oEmailReplica->DBWrite();
-			
-										$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);							
-										$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-										$this->Trace("EmailReplica ID: ".$oEmailReplica->GetKey());
-										break;
-							
+											$iTotalMarkedAsError++;
+											$this->Trace("Marking the valid message (and replica): uidl=$sUIDL index=$iMessage as in error.");
+											$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);							
+											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+											$this->Trace("EmailReplica ID: ".$oEmailReplica->GetKey());
+											break;
+ 
+                                        case EmailProcessor::MARK_MESSAGE_AS_UNDESIRED:
+											$iTotalUndesired++;
+											$this->Trace("Marking the message (and replica): uidl=$sUIDL index=$iMessage as undesired.");
+											$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor, 'undesired');
+											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+											break;
+ 
 										case EmailProcessor::DELETE_MESSAGE:
-										$iTotalDeleted++;
-										$this->Trace("Deleting message (and replica): $sUIDL");
-										$oSource->DeleteMessage($iMessage);
-										if (!$oEmailReplica->IsNew())
-										{
-											$oEmailReplica->DBDelete();
-											$oEmailReplica = null;
-										}
-										break;
+											$iTotalDeleted++;
+											$this->Trace("Deleting message (and replica): $sUIDL");
+											$oSource->DeleteMessage($iMessage);
+											if (!$oEmailReplica->IsNew())
+											{
+												$oEmailReplica->DBDelete();
+												$oEmailReplica = null;
+											}
+											break;
 										
 										case EmailProcessor::PROCESS_ERROR:
-										$sSubject = $oProcessor->GetLastErrorSubject();
-										$sMessage = $oProcessor->GetLastErrorMessage();
-										EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
-										$iTotalDeleted++;
-										$this->Trace("Deleting message (and replica): $sUIDL");
-										$oSource->DeleteMessage($iMessage);
-										if (!$oEmailReplica->IsNew())
-										{
-											$oEmailReplica->DBDelete();
-											$oEmailReplica = null;
-										}
-										break;
-	
+											$sSubject = $oProcessor->GetLastErrorSubject();
+											$sMessage = $oProcessor->GetLastErrorMessage();
+											EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
+											$iTotalDeleted++;
+											$this->Trace("Deleting message (and replica): $sUIDL");
+											$oSource->DeleteMessage($iMessage);
+											if (!$oEmailReplica->IsNew())
+											{
+												$oEmailReplica->DBDelete();
+												$oEmailReplica = null;
+											}
+											break;
+		
 										default:
-										$this->Trace("EmailReplica ID: ".$oEmailReplica->GetKey());
-										$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+											$this->Trace("EmailReplica ID: ".$oEmailReplica->GetKey());
+											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 									}
 								}
 							}
@@ -376,7 +415,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 			}
 			if (time() > $iTimeLimit) break; // We'll do the rest later
 		}
-		return "Message(s) read: $iTotalMessages, message(s) skipped: $iTotalSkipped, message(s) processed: $iTotalProcessed, message(s) deleted: $iTotalDeleted, message(s) marked as error: $iTotalMarkedAsError";
+		return "Message(s) read: $iTotalMessages, message(s) skipped: $iTotalSkipped, message(s) processed: $iTotalProcessed, message(s) deleted: $iTotalDeleted, message(s) marked as error: $iTotalMarkedAsError, undesired message(s): $iTotalUndesired";
 	}
 }
 

@@ -40,9 +40,22 @@ class TriggerOnMailUpdate extends TriggerOnObject
 		MetaModel::Init_Params($aParams);
 		MetaModel::Init_InheritAttributes();
 
-		// Display lists
-		MetaModel::Init_SetZListItems('details', array('description', 'target_class', 'action_list')); // Attributes to be displayed for the complete details
-		MetaModel::Init_SetZListItems('list', array('finalclass', 'target_class', 'description')); // Attributes to be displayed for a list
-		// Search criteria
+
+		// -- Display lists
+
+		// Attributes to be displayed for the complete details
+		MetaModel::Init_SetZListItems('details', array(
+			'description', 
+			'target_class', 
+			'action_list'
+		)); 
+		
+		// Attributes to be displayed for the complete details
+		MetaModel::Init_SetZListItems('list', array(
+			'finalclass', 
+			'target_class', 
+			'description'
+		));
+
 	}
 }

@@ -348,7 +348,7 @@ EOF
 		$this->SetNextAction(EmailProcessor::NO_ACTION);
 		
 		// Search if the caller email is an existing contact in iTop
-		$oCaller = $this->FindCaller($Email);
+		$oCaller = $this->FindCaller($oEmail);
 		if ($oCaller === null)
 		{
 			// Cannot create/update a ticket if the caller is unknown
@@ -513,13 +513,21 @@ EOF
         </method>
         <method id="AddAttachments">
           <comment><![CDATA[/**
-	 * 
+
 	 * Add the eMail's attachments to the given Ticket. Avoid duplicates (based on name/size/md5),
 	 * avoid attaching blacklisted file types, and can potentially call an AntiVirus before adding the attachment
+	 *
 	 * @param Ticket $oTicket
 	 * @param EmailMessage $oEmail
 	 * @param bool $bNoDuplicates If true, don't add attachment that seem already attached to the ticket (same type, same name, same size, same md5 checksum)
-	 * @return an array of cid => attachment_id
+	 * @param array $aIgnoredAttachments
+	 *
+	 * @return array array of cid => attachment_id
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 * @throws \CoreWarning
+	 * @throws \Exception
+	 * @throws \OQLException
 	 */]]></comment>
           <static>false</static>
           <access>protected</access>
@@ -682,7 +690,7 @@ EOF
 				}
 				if (!$bIgnoreAttachment)
 				{
-					if (class_exists('InlineImage') && $aAttachment['inline'])
+					if ($this->IsImage($aAttachment['mimeType']) && class_exists('InlineImage') && $aAttachment['inline'])
 					{
 						$oAttachment = new InlineImage();
 						MailInboxesEmailProcessor::Trace("Info: email attachment {$aAttachment['filename']} will be stored as an InlineImage.");

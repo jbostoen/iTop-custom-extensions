@@ -305,6 +305,11 @@ class EmailMessage {
 	/**
 	 * When the message is a reply or forward of another message, this method
 	 * (tries to) extract the "new" part of the body
+	 *
+	 * @param string $sBodyText
+	 * @param string $sBodyFormat
+	 *
+	 * @return string
 	 */
 	public function GetNewPart($sBodyText = null, $sBodyFormat = null)
 	{
@@ -352,7 +357,7 @@ class EmailMessage {
 		$sBodyText = str_replace($sUTF8NonBreakingSpace, ' ', $sBodyText); // Replace UTF-8 non-breaking spaces by "normal" spaces to ease pattern matching
 																		   // since PHP/PCRE does not understand MBCS so 0xc2 0xa0 is seen as two characters whereas it displays as a single (non-breaking) space!!
 		$aLines = explode("\n", $sBodyText);
-		$sPrevLine = '';
+		
 		$bGlobalPattern = false;
 		$iStartPos = null; // New part position if global pattern is found
 		foreach($aGlobalDelimiterPatterns as $sPattern)
