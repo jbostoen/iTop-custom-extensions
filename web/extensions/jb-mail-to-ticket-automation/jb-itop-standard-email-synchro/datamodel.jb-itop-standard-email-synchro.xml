@@ -479,7 +479,7 @@ EOF
 			else
 			{
 				$iTicketId = $oEmailReplica->Get('ticket_id');
-				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false /* => may not exist anymore */);
+				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false  );
 				if (is_object($oTicket))
 				{ 
 					// The eMail replica still exists, if user has 'keep on mailserver' configured. 
