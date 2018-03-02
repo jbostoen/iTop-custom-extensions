@@ -1,4 +1,11 @@
-- Extension: 
-- Version of extension: 
-- Version of iTop:
-- Description:
+**Type**: issue / request 
+
+**Versions**:
+- extension: 
+- iTop:
+- PHP:
+- MySQL:
+
+**Description:**
+Describe here.
+
