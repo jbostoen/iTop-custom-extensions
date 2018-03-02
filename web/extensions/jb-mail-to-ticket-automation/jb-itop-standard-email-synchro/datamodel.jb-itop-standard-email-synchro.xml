@@ -126,8 +126,7 @@
 		<!-- Mail size (attachments) too big -->
         <field id="policy_mail_size_too_big_behavior" xsi:type="AttributeEnum">
           <values>								
-            <value>mark_as_undesired</value>
-            <value>mark_as_error</value>
+            <value>mark_as_undesired</value> 
             <value>delete</value> 
             <value>bounce_delete</value> 
           </values>
@@ -429,7 +428,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', substr($this->Get('debug_trace').$sStampedText, -$iMaxTraceLength));
+			$this->Set('debug_trace', substr($sStampedText . $this->Get('debug_trace'), 0, $iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");
@@ -514,7 +513,9 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
 	{		
-		$this->Trace("Processing new eMail ( index = $index --- UIDL ".htmlspecialchars($oEmail->sUIDL)." --- msg id ".htmlspecialchars ($oEmail->sMessageId)." )");
+		$this->Trace("Processing new eMail ( index = $index )"); 
+		$this->Trace(". UIDL ".htmlspecialchars($oEmail->sUIDL) );
+		$this->Trace(". Message-ID ".htmlspecialchars ($oEmail->sMessageId) );
 				
 		// Contrary to Combodo: First check if there is any iTop object mentioned in the headers of the eMail
 		// We will be handling null values and closed/resolved tickets in policy checks.
@@ -529,8 +530,12 @@ EOF
 		
 		// Not policy compliant? Then stop processing. 
 		if( $oPolicy->bUndesired ) {
-			$this->Trace('Email does not comply with at least one policy - so undesired.');
+			$this->Trace('. Email does not comply with at least one policy - so undesired.');
+			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
 			return null;
+		}
+		else {
+			$this->Trace('. Email complies with our policies.');
 		}
 		 
 		$oCaller = $oPolicy->oCaller;
@@ -744,6 +749,29 @@ EOF
 		}
 		
 		$aIgnoredAttachments = array();
+		
+		
+		// Get list of forbidden file types 
+		if( $this->Get('policy_forbidden_attachments_mimetypes') != '' ) {
+			$aForbiddenMimeTypes =  preg_split('/\\r\\n|\\r|\\n/' , $this->Get('policy_forbidden_attachments_mimetypes') );
+			
+			// Forbidden attachments? 
+			foreach($oEmail->aAttachments as $index => $aAttachment)
+			{ 
+				if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
+				{
+					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: ". $aAttachment['mimeType'] ." = forbidden.");
+					// In the Combodo version, you often see $aIgnoredAttachments ; however it's barely used. 
+					// Instead, we remove it ourselves.
+					unset( $oEmail->aAttachments[ $index ] );
+				}
+				else {
+					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: ". $aAttachment['mimeType'] ." = allowed.");
+				}
+			}
+			
+		}
+		
 		
 		// Insert the remaining attachments so that we know their ID and can reference them in the message's body
 		$aAddedAttachments = $this->AddAttachments($oTicket, $oEmail, true, $aIgnoredAttachments);  // Cannot insert them for real since the Ticket is not saved yet (we don't know its ID)
@@ -1008,8 +1036,11 @@ EOF
 
 		// Not policy compliant? Then stop processing. 
 		if( $this->IsUndesired($oEmail, $oTicket) ) {
-			$this->Trace('Email does not comply with at least one policy.');
+			$this->Trace('. Email does not comply with at least one policy.');
 			return null;
+		}
+		else {
+			$this->Trace('. Email complies with our policies.');
 		}
 		
 		// Everything compliant, but we might need to perform actions.
@@ -1545,14 +1576,18 @@ EOF
           <code><![CDATA[	public function HandlePolicyViolation($oEmail, $sPolicyViolation, $oRawEmail = null, $sAdditionalErrorMessage = '')
 	{
 	
-		// Rather than informing the admin, we need to inform the sender 
-		
-		
+		// Rather than informing the admin, we need to inform the sender who doesn't follow guidelines.		
+		// You can try user education, but sometimes you need to rely on enforcing policies rather than just giving in.
 		$sTo = $oEmail->sCallerEmail;
 		$sFrom = $this->Get('notify_from'); 
 	
 		// Policy violations have a typical way of handling.
-		// The behavior is to bounce and delete the message, just delete the message, mark as error, fallback (sometimes multiple fallbacks) 
+		// The behavior is usually one of the following:
+		// - bounce and delete the message
+		// - delete the message
+		// - mark as undesired (stays in the mailbox for a few days)
+		// - fallback (usually ignoring or using default values, shouldn't end up here.)  
+		
 		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
 		
 		switch( $this->Get( $sPolicyViolation.'_behavior' ) ){
@@ -1563,21 +1598,20 @@ EOF
 				// $oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize
 								
 				$sSubject = $this->Get( $sPolicyViolation.'_subject' );
-				$sBody = $this->Get( $sPolicyViolation.'_notification');
-				 
+				$sBody = $this->Get( $sPolicyViolation.'_notification'); 
 				
-				// Allow some customization
+				// Allow some customization in the bounce message
 				$sSubject = $this->ReplaceMailVariables($sSubject, $oEmail);
 				$sBody = $this->ReplaceMailVariables($sBody, $oEmail);
 				
-			
 				// Return to sender.
-				if(($sTo == '') || ($sFrom == ''))
-				{
-					$this->Trace("HandlePolicyViolation($sPolicyViolation): No 'from' or 'to' defined (To: '$sTo', From: '$sFrom'), skipping.");
+				if($sTo == ''){ 
+					$this->Trace("HandlePolicyViolation($sPolicyViolation): No 'to' defined, skipping.");
 				}
-				else if($oRawEmail)
-				{
+				elseif($sFrom == ''){ 
+					$this->Trace("HandlePolicyViolation($sPolicyViolation): No 'from' defined, skipping.");
+				}
+				else if($oRawEmail){
 					$this->Trace("Raw Email: ".$sSubject."\n\n".strip_tags($sBody));
 					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 				}
@@ -1594,14 +1628,14 @@ EOF
 				break;
 				
 			case 'mark_as_error': 
-				$this->Trace("Set next action for EmailProcessor to MARK_AS_ERROR");
+				$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_ERROR");
 				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 				$sLastAction = "<p>The eMail is marked as error and will be ignored in further processing of the mailbox.</p>\n";
 				break;
 				
 			case 'mark_as_undesired': 
-				$this->Trace("Set next action for EmailProcessor to MARK_AS_UNDESIRED");
-				$this->SetNextAction(EmailProcessor::MARK_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
+				$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED");
+				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
 				$sLastAction = "<p>The eMail is marked as undesired and will be deleted after the specified interval.</p>\n";
 				break;
 				
@@ -1638,51 +1672,42 @@ EOF
 		
 
 		// --- Policies ---
-		// Start to check if mails are compliant with policies.
-		// For easy reference, each policy should have its own function. 
-		// We'll try to keep them grouped and go over them alphabetically
-		
-		// List of current policies:
-		// policy_forbidden_attachments
-		// policy_mail_size_too_big
-		// policy_no_subject 
-		// policy_other_recipients
-		// policy_ticket_closed
-		// policy_ticket_resolved 
-		// policy_ticket_unknown 
-		// policy_undesired_pattern
-		// policy_unknown_caller
-		
-		// The generic HandlePolicyViolation will mark as undesired, send bounce message and delete, or delete the message.  
-		// Below we check with policies we've configured. Fallbacks are handled in specific functions. 
+		// Start to check if mails are compliant with policies.  
+		// The generic HandlePolicyViolation will take care of default actions (bounce, delete, mark as undesired ...)
+		// Fallbacks are handled in specific functions. 
 		// For example 'no subject' is allowed, it will be handled later on in CreateTicketFromEmail 
-		
 		
 		$oCaller = null; 
 		
 		// ### Policy: Forbidden Attachments.
+		$this->Trace(".. Policy: forbidden attachments. Behavior: $this->Get('policy_forbidden_attachments_behavior') ");
 		
-			if( $this->Get('policy_forbidden_attachments_mimetypes') == '' ) {
-				// Will be processed. Attachments will be ignored. So fallback does not make sense.
+			if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback' ) {
+				// Will be processed. Forbidden attachments will be ignored. So fallback does not make sense.
 			}
-			else {
+			elseif( $this->Get('policy_forbidden_attachments_mimetypes') != '' ) {
 			
 				// Get list of forbidden file types 
-				$aForbiddenMimeTypes =  preg_split('/\\r\\n|\\r|\\n/' , $this->Get('policy_forbidden_attachments_mimetypes') );
+				$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_forbidden_attachments_mimetypes') );
 				
+				$this->Trace(".. testing for these forbidden MimeTypes: " . implode(" - ", $aForbiddenMimeTypes) );
+				
+				 
 				// Forbidden attachments? 
 				foreach($oEmail->aAttachments as $aAttachment)
 				{ 
-					if ( in_array($aAttachment['mimeType'], $aForbiddenMimeTypes ) )
+					$this->Trace('.. MimeType: '.$aAttachment['mimeType'] );
+					if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
 					{
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains forbidden attachments.");
-						return (object)["bUndesired" => true, "bPolicy" => "policy_forbidden_attachments"];
+						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains an attachment with MimeType ".$aAttachment['mimeType']);
+						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_forbidden_attachments'];
 					}
 				}
 				
 			}
 			
 		// ### Policy: Mail Size
+		$this->Trace(".. Policy: mail size");
 		
 			$oRawEmail = $oEmail->oRawEmail;
 			
@@ -1690,11 +1715,11 @@ EOF
 			{
 				// Mail size too big  
 				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the mail size is too big (mail = '".($oRawEmail->GetSize()/1024/1024)." MB = ".$oRawEmail->GetSize()."' bytes, limit = '".$this->Get('policy_mail_size_too_big_max_size_MB')."' MB = '".($this->Get('policy_mail_size_too_big_max_size_MB')*1024*1024)."' bytes ) ");
-				$this->HandlePolicyViolation($oEmail, 'policy_mail_size_too_big', $oEmail->oRawEmail);
-				return (object)["bUndesired" => true, "bPolicy" => "policy_mail_size_too_big"];
+				return (object)["bUndesired" => true, 'sPolicyId' => 'policy_mail_size_too_big'];
 			}
 		
-		// ### Policy: No subject	
+		// ### Policy: No subject
+		$this->Trace(".. Policy: no subject");	
 		
 			if( $this->Get('policy_no_subject_behavior') == 'fallback') {
 				 // Will use default subject.
@@ -1702,14 +1727,14 @@ EOF
 			else {
 			
 				if( $oEmail->sSubject == '' && in_array($this->Get('policy_no_subject_behavior'), ['bounce_delete', 'delete', 'mark_as_undesired']) == true ) {
-					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it has no subject.");
-					$this->HandlePolicyViolation($oEmail, 'policy_no_subject', $oEmail->oRawEmail);
-					return (object)["bUndesired" => true, "bPolicy" => "policy_no_subject"];
+					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it has no subject."); 
+					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_no_subject'];
 				}
 		
 			}
 		
 		// ### Policy: No other recipients 
+		$this->Trace(".. Policy: no other recipients");
 		
 			// To implement: check for other recipients in To: or CC: . 
 			// Or check if this mailbox (or aliases) are missing in 'To:' (which would happen in BCC)
@@ -1733,8 +1758,7 @@ EOF
 					{
 						// Found other contacts in To: or CC: 
 						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains another recipient (missing alias or unwanted): ".$aInfo['email'] );
-						$this->HandlePolicyViolation($oEmail, 'policy_other_recipients', $oEmail->oRawEmail);
-						return (object)["bUndesired" => true, "bPolicy" => "policy_other_recipients"];
+						return (object)["bUndesired" => true, 'sPolicyId' => 'policy_other_recipients'];
 					} 
 				}
 			}
@@ -1751,82 +1775,82 @@ EOF
 				$sPattern = $this->FixPattern($this->Get('title_pattern'));
 				if(($sPattern != '') && (preg_match($sPattern, $oEmail->sSubject, $aMatches))) {
 					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('".$sPattern."').");
-					$this->HandlePolicyViolation($oEmail, 'policy_ticket_unknown', $oEmail->oRawEmail);
-					return (object)["bUndesired" => true, "bPolicy" => "policy_undesired_pattern"];
+					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_undesired_pattern'];
 				} 
 				elseif( $oEmail->oRelatedObject != null ) {
 					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite an email header (".$oEmail->oRelatedObject.").");
-					$this->HandlePolicyViolation($oEmail, 'policy_ticket_unknown', $oEmail->oRawEmail);
-					return (object)["bUndesired" => true, "bPolicy" => "policy_undesired_pattern"];			
+					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_undesired_pattern'];			
 				}
 				
 			}
 		
 		// ### Policy: Resolved tickets 
+		$this->Trace(".. Policy: resolved tickets");
 		
-			if( $oTicket->Get('status') == 'resolved' ) {
-				switch( $this->Get('policy_ticket_resolved_behavior') ) {
-					case 'bounce_delete': 
-					case 'delete': 
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as an error, since the ticket has been resolved.");
-						$this->HandlePolicyViolation($oEmail, 'policy_ticket_resolved', $oEmail->oRawEmail);
-						return (object)["bUndesired" => true, "bPolicy" => "policy_ticket_resolved"];			
-						break;
+			if( $oTicket !== null ) {
+				if( $oTicket->Get('status') == 'resolved' ) {
+					switch( $this->Get('policy_ticket_resolved_behavior') ) {
+						case 'bounce_delete': 
+						case 'delete': 
+							$this->Trace("The message '{$oEmail->sSubject}' IS considered as an error, since the ticket has been resolved."); 
+							return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_resolved'];			
+							break;
+							
+						case 'mark_as_undesired': 
+							$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the ticket has been resolved."); 
+							return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_resolved'];		
+							break;
+							
 						
-					case 'mark_as_undesired': 
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the ticket has been resolved.");
-						$this->HandlePolicyViolation($oEmail, 'policy_ticket_resolved', $oEmail->oRawEmail);
-						return (object)["bUndesired" => true, "bPolicy" => "policy_ticket_resolved"];		
-						break;
+						case 'fallback': 
+							// Reopen ticket
+							$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened."); 
+							$oTicket->ApplyStimulus('ev_reopen');
+							break; 
+							
+						default:
+							// Should not happen.
+							$this->Trace("Unknown action for resolved tickets.");
+							break; 
 						
-					
-					case 'fallback': 
-						// Reopen ticket
-						$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened."); 
-						$oTicket->ApplyStimulus('ev_reopen');
-						break; 
-						
-					default:
-						// Should not happen.
-						$this->Trace("Unknown action for resolved tickets.");
-						break; 
-					
+					}
 				}
-			}
-			
+			}	
 		
 		// ### Policy: Closed tickets
+		$this->Trace(".. Policy: closed tickets");
 		
-			if( $oTicket->Get('status') == 'closed' ) {
-				switch( $this->Get('policy_ticket_closed_behavior') ) {
-					case 'bounce_delete': 
-					case 'delete':  
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as an error, since the ticket has been closed.");
-						$this->HandlePolicyViolation($oEmail, 'policy_ticket_closed', $oEmail->oRawEmail);
-						return (object)["bUndesired" => true, "bPolicy" => "policy_ticket_closed"];		
-						break; 
+			if( $oTicket !== null ) {
+				if( $oTicket->Get('status') == 'closed' ) {
+					switch( $this->Get('policy_ticket_closed_behavior') ) {
+						case 'bounce_delete': 
+						case 'delete':  
+							$this->Trace("The message '{$oEmail->sSubject}' IS considered as an error, since the ticket has been closed."); 
+							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_ticket_closed'];		
+							break; 
+							
+						case 'mark_as_undesired': 
+							$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the ticket has been closed."); 
+							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_ticket_closed'];		
+							break;
+							
+						case 'fallback': 
+							// Reopen ticket
+							$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
+							$oTicket->ApplyStimulus('ev_reopen');
+							break; 
+							
+						default:
+							// Should not happen.
+							$this->Trace("Unknown action for closed tickets.");
+							break; 
 						
-					case 'mark_as_undesired': 
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the ticket has been closed.");
-						$this->HandlePolicyViolation($oEmail, 'policy_ticket_closed', $oEmail->oRawEmail);
-						return (object)["bUndesired" => true, "bPolicy" => "policy_ticket_closed"];		
-						break;
-						
-					case 'fallback': 
-						// Reopen ticket
-						$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
-						$oTicket->ApplyStimulus('ev_reopen');
-						break; 
-						
-					default:
-						// Should not happen.
-						$this->Trace("Unknown action for closed tickets.");
-						break; 
-					
+					}
 				}
 			}
 		
 		// ### Policy: Undesired patterns in subject
+		$this->Trace(".. Policy: undesired patterns");
 		 		
 			if( $this->Get('policy_undesired_pattern_patterns') != '' ) { 
 			
@@ -1837,15 +1861,15 @@ EOF
 				{
 					if (preg_match($sPattern, $oEmail->sSubject))
 					{
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it matches '$sPattern'.");
-						$this->HandlePolicyViolation($oEmail, 'policy_undesired_pattern', $oEmail->oRawEmail);
-						return (object)["bUndesired" => true];
+						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it matches '$sPattern'."); 
+						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_undesired_pattern'];
 					}
 				}
 			}
 		 
 		
 		// ### Policy: Unknown caller
+		$this->Trace(".. Policy: unknown caller");
 		 
 			$sContactQuery = 'SELECT Contact WHERE email = :email';
 			$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
@@ -1864,9 +1888,8 @@ EOF
 						case 'mark_as_undesired':
 						case 'bounce_delete': 
 						case 'delete': 
-							$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed');
-							$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
-							return (object)["bUndesired" => true];
+							$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed'); 
+							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_unknown_caller'];
 							break;
 						
 						case 'fallback':
@@ -1916,13 +1939,11 @@ EOF
 			}
 		
 		// End of checking if ticket is compliant with policies.  
-		
-		
-		$this->Trace('Passed: complies with all policies.');	
+		 
 		
 		return (object)[
-			"bUndesired" => false,
-			"oCaller" => $oCaller 
+			'bUndesired' => false,
+			'oCaller' => $oCaller 
 		];
 		
 		
