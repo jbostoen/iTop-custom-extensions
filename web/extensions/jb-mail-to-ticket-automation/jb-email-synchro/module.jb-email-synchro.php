@@ -33,6 +33,7 @@ SetupWebPage::AddModule(
 		'notify_errors_from' => '', // mandatory as well (can be set at the same value as notify_errors_to)
 		'debug' => false, // Set to true to turn on debugging
 		'periodicity' => 30, // interval at which to check for incoming emails (in s)
+		'undesired-purge-delay' => 7, // interval (in days) after which undesired emails are deleted in the mailbox
 		'body_parts_order' => 'text/html,text/plain', // Order in which to read the parts of the incoming emails
 		'pop3_auth_option' => 'USER',
 		'imap_options' => array('imap'),
