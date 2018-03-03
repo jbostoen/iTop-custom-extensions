@@ -129,6 +129,7 @@
             <value>mark_as_undesired</value> 
             <value>delete</value> 
             <value>bounce_delete</value> 
+            <value>bounce_mark_as_undesired</value>
           </values>
           <sql>policy_mail_size_too_big_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -158,6 +159,7 @@
             <value>mark_as_undesired</value>
             <value>delete</value> 
             <value>bounce_delete</value> 
+            <value>bounce_mark_as_undesired</value>
           </values>
           <sql>policy_forbidden_attachments_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -187,7 +189,8 @@
             <value>fallback</value><!-- use default subject -->
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_no_subject_behavior</sql>
           <default_value>fallback</default_value>
@@ -217,7 +220,8 @@
             <value>fallback</value><!-- create contact -->
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_unknown_caller_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -250,7 +254,8 @@
 			<value>ignore_all_contacts</value>
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_other_recipients_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -279,7 +284,8 @@
             <value>fallback</value><!-- reopen -->
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_ticket_closed_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -302,7 +308,8 @@
             <value>fallback</value><!-- reopen -->
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_ticket_resolved_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -324,7 +331,8 @@
           <values> 
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_ticket_unknown_behavior</sql>
           <default_value>bounce_delete</default_value>
@@ -347,7 +355,8 @@
           <values> 
             <value>mark_as_undesired</value>
             <value>delete</value> 
-            <value>bounce_delete</value> 
+            <value>bounce_delete</value>
+            <value>bounce_mark_as_undesired</value> 
           </values>
           <sql>policy_undesired_pattern_behavior</sql>
           <default_value>delete</default_value>
@@ -603,9 +612,10 @@ EOF
 			case 0: 
 			switch($this->Get('policy_unknown_caller_behavior'))
 			{
-				case 'mark_as_undesired':
 				case 'bounce_delete': 
+				case 'bounce_mark_as_undesired':
 				case 'delete':
+				case 'mark_as_undesired':
 					// Policy violation
 					$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed');
 					$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
@@ -1594,6 +1604,7 @@ EOF
 		
 			// Generic cases
 			case 'bounce_delete':
+			case' bounce_mark_as_undesired':
 				
 				// $oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize
 								
@@ -1616,9 +1627,23 @@ EOF
 					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 				}
 				
-				$this->Trace("Set next action for EmailProcessor to DELETE_MESSAGE");
-				$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
-				$sLastAction = "<p>The eMail was deleted from the mailbox after being bounced to sender (".$sTo.").</p>\n";			
+				switch( $this->Get( $sPolicyViolation.'_behavior' ) ) {
+					case 'bounce_delete': 
+						$this->Trace("Set next action for EmailProcessor to DELETE_MESSAGE");
+						$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
+						$sLastAction = "<p>The eMail was deleted from the mailbox after being bounced to sender (".$sTo.").</p>\n";			
+						break;
+						
+					case 'bounce_mark_as_undesired':
+						$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED");
+						$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
+						$sLastAction = "<p>The eMail is marked as undesired and will be deleted after the specified interval.</p>\n";
+						break; 
+						
+					default: 
+						// Unexpected
+					
+				}
 				break;
 				
 			case 'delete': 
@@ -1627,12 +1652,13 @@ EOF
 				$sLastAction = "<p>The eMail was deleted from the mailbox.</p>\n";			
 				break;
 				
+			// Mark as error should be irrelevant now. Keeping it just in case.
 			case 'mark_as_error': 
 				$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_ERROR");
 				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 				$sLastAction = "<p>The eMail is marked as error and will be ignored in further processing of the mailbox.</p>\n";
 				break;
-				
+				 
 			case 'mark_as_undesired': 
 				$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED");
 				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
@@ -1726,7 +1752,7 @@ EOF
 			}
 			else {
 			
-				if( $oEmail->sSubject == '' && in_array($this->Get('policy_no_subject_behavior'), ['bounce_delete', 'delete', 'mark_as_undesired']) == true ) {
+				if( $oEmail->sSubject == '' && in_array($this->Get('policy_no_subject_behavior'), ['bounce_delete', 'bounce_mark_as_undesired', 'delete', 'mark_as_undesired']) == true ) {
 					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it has no subject."); 
 					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_no_subject'];
 				}
@@ -1789,19 +1815,15 @@ EOF
 		
 			if( $oTicket !== null ) {
 				if( $oTicket->Get('status') == 'resolved' ) {
-					switch( $this->Get('policy_ticket_resolved_behavior') ) {
+					switch( $this->Get('policy_ticket_resolved_behavior') ) { 
 						case 'bounce_delete': 
+						case 'bounce_mark_as_undesired':
 						case 'delete': 
-							$this->Trace("The message '{$oEmail->sSubject}' IS considered as an error, since the ticket has been resolved."); 
+						case 'mark_as_undesired':
+							$this->Trace("The message '{$oEmail->sSubject}' IS undesired, since the ticket has been resolved."); 
 							return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_resolved'];			
 							break;
-							
-						case 'mark_as_undesired': 
-							$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the ticket has been resolved."); 
-							return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_resolved'];		
-							break;
-							
-						
+							 
 						case 'fallback': 
 							// Reopen ticket
 							$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened."); 
@@ -1824,16 +1846,13 @@ EOF
 				if( $oTicket->Get('status') == 'closed' ) {
 					switch( $this->Get('policy_ticket_closed_behavior') ) {
 						case 'bounce_delete': 
-						case 'delete':  
-							$this->Trace("The message '{$oEmail->sSubject}' IS considered as an error, since the ticket has been closed."); 
+						case 'bounce_mark_as_undesired':
+						case 'delete': 
+						case 'mark_as_undesired':
+							$this->Trace("The message '{$oEmail->sSubject}' IS undesired, since the ticket has been closed."); 
 							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_ticket_closed'];		
 							break; 
-							
-						case 'mark_as_undesired': 
-							$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the ticket has been closed."); 
-							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_ticket_closed'];		
-							break;
-							
+							 
 						case 'fallback': 
 							// Reopen ticket
 							$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
@@ -1885,9 +1904,10 @@ EOF
 				case 0: 
 					switch($this->Get('policy_unknown_caller_behavior'))
 					{ 
-						case 'mark_as_undesired':
 						case 'bounce_delete': 
+						case 'bounce_mark_as_undesired':
 						case 'delete': 
+						case 'mark_as_undesired':
 							$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed'); 
 							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_unknown_caller'];
 							break;

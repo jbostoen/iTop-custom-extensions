@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: IP Devices - Adds IP Device, IP Camera, updates IP Phone]]></label>
 	<description><![CDATA[Adds new CIs, including: (generic) IP Device, IP Camera and an alternate implementation of IP Phone which allows you to link the IP Phone to other network devices.]]></description>
-	<version>2.4.180228</version>
-	<release_date>2018-02-28</release_date>
+	<version>2.4.180303</version>
+	<release_date>2018-03-03</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>
 	<status>stable</status>

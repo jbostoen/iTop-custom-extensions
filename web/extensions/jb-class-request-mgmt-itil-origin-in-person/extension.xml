@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: User Request (ITIL) - Add origin: in person]]></label>
 	<description><![CDATA[Adds 'in person' option to the 'origin' field of a User Request.]]></description>
-	<version>2.4.180228</version>
-	<release_date>2018-02-28</release_date>
+	<version>2.4.180303</version>
+	<release_date>2018-03-03</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>
 	<status>stable</status>
