@@ -26,7 +26,7 @@ $db = [
 ];
 
 
-// Change the path accordingly as well as the user.
+// Change the path accordingly as well as the iTop user credentials.
 // In our example, we created a data source in iTop first (ID: 21) for Persons.
 // This is for a Ubuntu implementation.
 $syncSource = "php -q /var/www/html/itop_2_4_1/web/synchro/synchro_exec.php --auth_user=admin --auth_pwd=password --data_sources=21";
