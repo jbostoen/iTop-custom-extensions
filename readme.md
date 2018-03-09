@@ -1,6 +1,7 @@
 # Warning
 Currently updating/testing a new version of Mail to Ticket Automation. 
-Rewrote a lot of things to match Combodo's new implementation of their own Mail to Ticket (3.0.11)
+Rewrote a lot of things to match Combodo's new implementation of their own Mail to Ticket (3.0.11). 
+Make sure to change "mark as error" BEFORE upgrading to something else (temporarily).
  
 # Compatibility
 I currently develop for iTop 2.4.1
