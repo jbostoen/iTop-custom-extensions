@@ -1,8 +1,0 @@
-
-Things to keep in mind when customizing.
-
-
-# Config of modules
-* config-itop.php contain the actual settings
-* in XML datamodel: module parameters = Contains the module specific DEFAULT parameters
-
