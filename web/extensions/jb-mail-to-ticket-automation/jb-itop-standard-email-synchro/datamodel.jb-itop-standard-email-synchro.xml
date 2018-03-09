@@ -1706,7 +1706,7 @@ EOF
 		$oCaller = null; 
 		
 		// ### Policy: Forbidden Attachments.
-		$this->Trace(".. Policy: forbidden attachments. Behavior: $this->Get('policy_forbidden_attachments_behavior') ");
+		$this->Trace(".. Policy: forbidden attachments. Behavior: ".$this->Get('policy_forbidden_attachments_behavior') );
 		
 			if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback' ) {
 				// Will be processed. Forbidden attachments will be ignored. So fallback does not make sense.
