@@ -1598,13 +1598,13 @@ EOF
 		// - mark as undesired (stays in the mailbox for a few days)
 		// - fallback (usually ignoring or using default values, shouldn't end up here.)  
 		
-		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
+		$this->Trace("HandlePolicyViolation(".$sPolicyViolation."): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
 		
 		switch( $this->Get( $sPolicyViolation.'_behavior' ) ){
 		
 			// Generic cases
 			case 'bounce_delete':
-			case' bounce_mark_as_undesired':
+			case 'bounce_mark_as_undesired':
 				
 				// $oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize
 								
