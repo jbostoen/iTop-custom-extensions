@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: User Request (ITIL) - Remove mandatory resolution]]></label>
 	<description><![CDATA[If you use the public and private log as reference, the mandatory solution field and category is pointless.]]></description>
-	<version>2.4.180303</version>
-	<release_date>2018-03-03</release_date>
+	<version>2.4.180309</version>
+	<release_date>2018-03-09</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>
 	<status>stable</status>
