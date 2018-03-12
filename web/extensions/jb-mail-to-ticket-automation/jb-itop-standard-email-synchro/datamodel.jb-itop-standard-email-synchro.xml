@@ -539,7 +539,7 @@ EOF
 		
 		// Not policy compliant? Then stop processing. 
 		if( $oPolicy->bUndesired ) {
-			$this->Trace('. Email does not comply with at least one policy - so undesired.');
+			$this->Trace('. Email does not comply with at least one policy ('. $oPolicy->sPolicyId .') - so undesired.');
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
 			return null;
 		}
@@ -1045,16 +1045,29 @@ EOF
 		$this->Trace("iTop Simple Email Synchro: Updating the iTop ticket ".$oTicket->GetName()." from eMail '".$oEmail->sSubject."'");
 
 		// Not policy compliant? Then stop processing. 
-		if( $this->IsUndesired($oEmail, $oTicket) ) {
-			$this->Trace('. Email does not comply with at least one policy.');
+		// Careful: Combodo's version implemented an IsUndesired-method in later versions (v3.0.11).
+		// Our method needs an additional parameter ( $oTicket ) to handle some policies.
+		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
+		
+		// Not policy compliant? Then stop processing. 
+		if( $oPolicy->bUndesired ) {
+			$this->Trace('. Email (update) does not comply with at least one policy ('. $oPolicy->sPolicyId .') - so undesired.');
+			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
 			return null;
 		}
 		else {
-			$this->Trace('. Email complies with our policies.');
+			$this->Trace('. Email (update) complies with our policies.');
 		}
+		 
+		$oCaller = $oPolicy->oCaller;
+		
+
+
+
+
 		
 		// Everything compliant, but we might need to perform actions.
-		 
+		
 		
 		
 		// Process attachments
@@ -1598,13 +1611,13 @@ EOF
 		// - mark as undesired (stays in the mailbox for a few days)
 		// - fallback (usually ignoring or using default values, shouldn't end up here.)  
 		
-		$this->Trace("HandlePolicyViolation(".$sPolicyViolation."): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
+		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
 		
 		switch( $this->Get( $sPolicyViolation.'_behavior' ) ){
 		
 			// Generic cases
 			case 'bounce_delete':
-			case 'bounce_mark_as_undesired':
+			case' bounce_mark_as_undesired':
 				
 				// $oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize
 								
@@ -1706,7 +1719,7 @@ EOF
 		$oCaller = null; 
 		
 		// ### Policy: Forbidden Attachments.
-		$this->Trace(".. Policy: forbidden attachments. Behavior: ".$this->Get('policy_forbidden_attachments_behavior') );
+		$this->Trace(".. Policy: forbidden attachments. Behavior: $this->Get('policy_forbidden_attachments_behavior') ");
 		
 			if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback' ) {
 				// Will be processed. Forbidden attachments will be ignored. So fallback does not make sense.
