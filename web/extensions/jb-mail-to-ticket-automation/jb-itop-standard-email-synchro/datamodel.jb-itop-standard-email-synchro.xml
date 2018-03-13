@@ -1617,7 +1617,7 @@ EOF
 		
 			// Generic cases
 			case 'bounce_delete':
-			case' bounce_mark_as_undesired':
+			case 'bounce_mark_as_undesired':
 				
 				// $oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize
 								
