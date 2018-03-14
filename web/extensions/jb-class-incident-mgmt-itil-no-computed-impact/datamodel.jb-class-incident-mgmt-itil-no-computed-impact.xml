@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+
+	<classes>
+		<class id="Incident">
+			<methods>
+				<method id="OnInsert">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function OnInsert()
+
+	{
+        parent::OnInsert();    
+		// $this->ComputeImpactedItems();
+		$this->Set('last_update', time());
+		$this->Set('start_date', time());
+	}]]></code>
+	
+				</method>
+				<method id="OnUpdate">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function OnUpdate()
+	{
+        parent::OnUpdate(); 
+        $aChanges = $this->ListChanges();
+        if (array_key_exists('functionalcis_list', $aChanges))
+        {
+            // $this->UpdateImpactedItems();
+        }
+		$this->Set('last_update', time());
+		$this->UpdateChildRequestLog();
+		$this->UpdateChildIncidentLog();
+	}]]></code>
+				</method>
+			</methods>
+		</class>
+	</classes>
+	
+</itop_design>
