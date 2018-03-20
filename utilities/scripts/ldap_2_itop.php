@@ -121,7 +121,7 @@ function ad_2_itop( $orgName, $ldap, $db ) {
 	}
 	echo '</table>';
 
-	mysqli_close($link);
+	$mysqli->close();
 
 }
 
