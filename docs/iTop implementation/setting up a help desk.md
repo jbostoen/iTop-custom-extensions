@@ -1,5 +1,8 @@
 
-# Initial config for internal helpdesk
+# Setting up a help desk
+
+# Steps
+
 * you need a delivery model for the organization (provider = yourself)
 * you need to configure a service (and service subcategories)
 * make your user (example: admin) part of a team (example: IT Crowd)
