@@ -24,8 +24,8 @@ iTop keeps a history! So if you keep configs in iTop, you can simply edit an exi
 The Combodo version doesn't allow you to link an IP Phone (often a switch at the same time) to network devices and clients. Either use the Network Device or use a customized data model.
 
 ### Monitor
-There is (was?) an issue in the official Combodo example, where you'll be unable to create a model in the Monitor class. It's fixed in our version.
-
+There is (was?) an issue in the official Combodo example, where you'll be unable to create a model in the Monitor class. There's a fixed version available in this repository.
+ 
 
 # Linking devices
 
@@ -44,4 +44,4 @@ A state is really a phase in the lifecycle. 'on entering/leaving a state' should
 
 
 # Themes
-* css -> contains two .scss-files with some variables, but lots of them are still hardcoded...
+* css -> contains css-variables.scss and light-grey.scss, but most colors are still 'hardcoded' rather than using a variable.  
