@@ -35,8 +35,9 @@ $syncSource = "php -q /var/www/html/itop_2_4_1/web/synchro/synchro_exec.php --au
 $iTopDBTableSource = 'synchro_data_persons';
 
 // For each organization
-ad_2_itop('Organization name', $ldapOrg1, $db); 
+ad_2_itop('Organization name', $ldapOrg, $db); 
 
+// You might adjust this, but it's probably not necessary
 
 function ad_2_itop( $orgName, $ldap, $db ) {
 
@@ -93,7 +94,7 @@ function ad_2_itop( $orgName, $ldap, $db ) {
 	        echo '<tr>';
 
 		foreach( $attributes as $a ) {
-			echo '<td>'.$ldap_entry[$a][0].'</td>';
+			echo '<td>'.@$ldap_entry[$a][0].'</td>';
 		}
        		echo '</tr>';
 
