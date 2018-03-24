@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+
+  <classes>
+     
+	
+    <class id="Intervention" _delta="define">
+      <parent>cmdbAbstractObject</parent>
+      <properties>
+        <category>bizmodel,searchable</category>
+        <abstract>false</abstract>
+        <key_type>autoincrement</key_type>
+        <db_table>intervention</db_table>
+        <db_key_field>id</db_key_field>
+        <db_final_class_field/>
+		
+		<naming>
+			<attributes>
+				<attribute id="ref"/>
+			</attributes>
+		</naming>
+ 
+        <display_template/>
+        <icon>images/Intervention.png</icon>
+        <reconciliation>
+          <attributes>
+            <attribute id="ref"/>
+            <attribute id="id"/>
+            <attribute id="org_id"/>
+            <attribute id="organization_name"/>
+          </attributes>
+        </reconciliation>
+      </properties>
+	  
+	  
+      <fields>
+		
+		<field id="org_id" xsi:type="AttributeExternalKey">
+			<sql>org_id</sql>
+			<target_class>Organization</target_class>
+			<is_null_allowed>false</is_null_allowed>
+			<on_target_delete>DEL_AUTO</on_target_delete>
+		</field>
+		<field id="org_name" xsi:type="AttributeExternalField">
+			<extkey_attcode>org_id</extkey_attcode>
+			<target_attcode>name</target_attcode>
+		</field>
+		
+		<field id="ref" xsi:type="AttributeString">
+			<sql>ref</sql>
+			<default_value/>
+			<is_null_allowed>true</is_null_allowed>
+			<read_only>true</read_only>
+		</field>
+		
+		<field id="agent_id" xsi:type="AttributeExternalKey">
+			<!-- Filter optional. -->
+			<filter><![CDATA[SELECT Person AS p ]]></filter>
+			<sql>agent_id</sql>
+			<target_class>Person</target_class>
+			<is_null_allowed>true</is_null_allowed>
+			<on_target_delete>DEL_AUTO</on_target_delete>
+			<allow_target_creation>false</allow_target_creation>
+		</field>
+		<field id="agent_name" xsi:type="AttributeExternalField">
+			<extkey_attcode>agent_id</extkey_attcode>
+			<target_attcode>name</target_attcode>
+		</field>
+		 
+		
+	  
+        <field id="start" xsi:type="AttributeDateTime">
+          <sql>start</sql>
+		  <is_null_allowed>false</is_null_allowed>  
+        </field>
+		
+        <field id="end" xsi:type="AttributeDateTime">
+          <sql>end</sql>
+		  <is_null_allowed>false</is_null_allowed>  
+        </field>
+		
+        <field id="type" xsi:type="AttributeEnum"> 
+          <sql>type</sql>  
+		  <values>
+			<value id="on_site">on_site</value>
+			<value id="remote">remote</value>
+		  </values>
+		  <default_value>on_site</default_value>
+          <is_null_allowed>false</is_null_allowed>
+		  <display_style>radio</display_style>		  
+        </field>
+		 
+        <field id="description" xsi:type="AttributeCaseLog"> 
+          <sql>description</sql>  
+		  <default_value/>
+          <is_null_allowed>true</is_null_allowed> 
+        </field>
+		 
+		
+		
+      </fields>
+      <methods/>
+      <presentation>
+        <details>
+          <items>
+            <item id="ref">
+              <rank>1</rank>
+            </item>
+            <item id="org_id">
+              <rank>10</rank>
+            </item>
+            <item id="agent_id">
+              <rank>20</rank>
+            </item>
+            <item id="start">
+              <rank>30</rank>
+            </item>
+            <item id="end">
+              <rank>40</rank>
+            </item>
+            <item id="type">
+              <rank>50</rank>
+            </item>
+            <!-- <item id="description"> -->
+              <!-- <rank>60</rank> -->
+            <!-- </item> -->
+          
+			<!--
+            <item id="contacts_list">
+              <rank>170</rank>
+            </item>
+            <item id="documents_list">
+              <rank>180</rank>
+            </item>
+            <item id="tickets_list">
+              <rank>190</rank>
+            </item>
+			--> 
+			 
+          </items>
+        </details>
+        <search>
+          <items>
+            <item id="org_id">
+              <rank>10</rank>
+            </item>
+            <item id="agent_id">
+              <rank>20</rank>
+            </item>
+            <item id="start">
+              <rank>30</rank>
+            </item>
+            <item id="end">
+              <rank>40</rank>
+            </item>
+            <item id="type">
+              <rank>50</rank>
+            </item>
+            <!-- <item id="description"> -->
+              <!-- <rank>60</rank> -->
+            <!-- </item> -->
+            <item id="ref">
+              <rank>70</rank>
+            </item>
+             
+          </items>
+        </search>
+        <list>
+          <items>
+
+			<item id="org_id">
+              <rank>10</rank>
+            </item>
+            <item id="agent_id">
+              <rank>20</rank>
+            </item>
+            <item id="start">
+              <rank>30</rank>
+            </item>
+            <item id="end">
+              <rank>40</rank>
+            </item>
+            <item id="type">
+              <rank>50</rank>
+            </item>
+            <!-- <item id="description"> -->
+              <!-- <rank>60</rank> -->
+            <!-- </item> -->
+            <item id="ref">
+              <rank>70</rank>
+            </item>
+			
+          </items>
+        </list>
+      </presentation>
+	  
+	  		<methods>
+				<method id="DBInsertNoReload">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[
+    public function DBInsertNoReload()
+    {
+          $oMutex = new iTopMutex('Intervention_insert');
+          $oMutex->Lock();
+          $iNextId = MetaModel::GetNextKey(get_class($this));
+          $sRef = $this->MakeRef($iNextId);
+          $this->Set('ref', $sRef ." - ".$iNextId );
+          $iKey = parent::DBInsertNoReload();
+          $oMutex->Unlock();
+          return $iKey;
+    }
+        ]]></code>
+				</method>
+				<method id="MakeRef">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[
+        protected function MakeRef($iNextId)
+        {
+				// Leaving this in the data model, could easily be extended
+                switch(get_class($this))
+                {   
+					default:
+						$sFormat = 'IV-%06d';
+                }
+                return sprintf($sFormat, $iNextId);
+        }
+        ]]></code>
+				</method>
+			</methods>
+			
+			
+    </class>
+  </classes>
+  
+	<!-- Adds a link to the Helpdesk Overview -->
+	<menus>
+	 
+	  
+		<menu id="NewIntervention" xsi:type="NewObjectMenuNode" _delta="define">
+			<rank>901</rank>
+			<parent>RequestManagement</parent>
+			<class>Intervention</class>
+		</menu>
+		<menu id="SearchInterventions" xsi:type="SearchMenuNode" _delta="define">
+			<rank>902</rank>
+			<parent>RequestManagement</parent>
+			<class>Intervention</class> 
+		</menu> 
+	</menus>
+	
+  <profiles>
+  </profiles>
+</itop_design>

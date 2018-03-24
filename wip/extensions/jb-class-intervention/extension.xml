@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-class-intervention</extension_code>
+	<company>none</company>
+	<author><![CDATA[jbostoen]]></author>
+	<label><![CDATA[Class: Intervention]]></label>
+	<description><![CDATA[Adds Intervention.]]></description>
+	<version>2.4.180309</version>
+	<release_date>2018-03-09</release_date>
+	<version_description><![CDATA[ ]]></version_description>
+	<itop_version_min>2.4.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/wiki</more_info_url>
+</extension>
