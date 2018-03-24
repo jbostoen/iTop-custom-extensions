@@ -53,10 +53,26 @@
 			<read_only>true</read_only>
 		</field>
 		
+		<field id="team_id" xsi:type="AttributeExternalKey">
+			<filter><![CDATA[SELECT Team ]]></filter>
+			<sql>team_id</sql>
+			<target_class>Team</target_class>
+			<is_null_allowed>false</is_null_allowed>
+			<on_target_delete>DEL_MANUAL</on_target_delete>
+		</field>
+		<field id="team_name" xsi:type="AttributeExternalField">
+			<extkey_attcode>team_id</extkey_attcode>
+			<target_attcode>email</target_attcode>
+		</field>
+		
+		
 		<field id="agent_id" xsi:type="AttributeExternalKey">
 			<!-- Filter optional. -->
-			<filter><![CDATA[SELECT Person AS p ]]></filter>
+			<filter><![CDATA[SELECT Person AS p JOIN lnkPersonToTeam AS l ON l.person_id=p.id JOIN Team AS t ON l.team_id=t.id WHERE t.id = :this->team_id]]></filter>
 			<sql>agent_id</sql>
+			<dependencies>
+				<attribute id="team_id"/>
+			</dependencies>
 			<target_class>Person</target_class>
 			<is_null_allowed>true</is_null_allowed>
 			<on_target_delete>DEL_AUTO</on_target_delete>
@@ -98,28 +114,30 @@
 		 
 		
 		
-      </fields>
-      <methods/>
+      </fields> 
       <presentation>
         <details>
           <items>
-            <item id="ref">
-              <rank>1</rank>
-            </item>
+            <!-- <item id="ref"> -->
+              <!-- <rank>1</rank> -->
+            <!-- </item> -->
             <item id="org_id">
               <rank>10</rank>
             </item>
+			<item id="team_id">
+				<rank>20</rank>
+			</item>
             <item id="agent_id">
-              <rank>20</rank>
-            </item>
-            <item id="start">
               <rank>30</rank>
             </item>
-            <item id="end">
+            <item id="start">
               <rank>40</rank>
             </item>
-            <item id="type">
+            <item id="end">
               <rank>50</rank>
+            </item>
+            <item id="type">
+              <rank>60</rank>
             </item>
             <!-- <item id="description"> -->
               <!-- <rank>60</rank> -->
@@ -171,17 +189,20 @@
 			<item id="org_id">
               <rank>10</rank>
             </item>
-            <item id="agent_id">
+            <item id="team_id">
               <rank>20</rank>
             </item>
-            <item id="start">
+            <item id="agent_id">
               <rank>30</rank>
             </item>
-            <item id="end">
+            <item id="start">
               <rank>40</rank>
             </item>
-            <item id="type">
+            <item id="end">
               <rank>50</rank>
+            </item>
+            <item id="type">
+              <rank>60</rank>
             </item>
             <!-- <item id="description"> -->
               <!-- <rank>60</rank> -->
@@ -206,7 +227,7 @@
           $oMutex->Lock();
           $iNextId = MetaModel::GetNextKey(get_class($this));
           $sRef = $this->MakeRef($iNextId);
-          $this->Set('ref', $sRef ." - ".$iNextId );
+          $this->Set('ref', $sRef );
           $iKey = parent::DBInsertNoReload();
           $oMutex->Unlock();
           return $iKey;

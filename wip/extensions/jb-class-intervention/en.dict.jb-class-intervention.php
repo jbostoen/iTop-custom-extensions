@@ -15,10 +15,17 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:Intervention/Attribute:ref' => 'Reference',
 	'Class:Intervention/Attribute:ref+' => 'The reference for this intervention',
 	
+	'Class:Intervention/Attribute:team_id' => 'Team ID',
+	'Class:Intervention/Attribute:team_id+' => 'The team who did the intervention',
+	'Class:Intervention/Attribute:team_name' => 'Team name',
+	'Class:Intervention/Attribute:team_name+' => 'The team who did the intervention',
+	
 	'Class:Intervention/Attribute:agent_id' => 'Agent ID',
 	'Class:Intervention/Attribute:agent_id+' => 'The agent who did the intervention',
 	'Class:Intervention/Attribute:agent_name' => 'Agent name',
 	'Class:Intervention/Attribute:agent_name+' => 'The agent who did the intervention',
+	
+	
 	
 	'Class:Intervention/Attribute:org_id' => 'Client organization ID',
 	'Class:Intervention/Attribute:org_id+' => 'The organization for which you did the intervention',
