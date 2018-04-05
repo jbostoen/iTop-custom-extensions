@@ -1,6 +1,6 @@
 
 # Compatibility
-I currently maintain a few **unofficial** extensions (tweaks, extra features) for iTop 2.4.1
+I (jbostoen) currently maintain a few **unofficial** extensions (tweaks, extra features) for iTop 2.4.1
 Extensions most likely work with any 2.4.x-version. 
 It's unknown if extensions work on older versions of iTop. 
 
