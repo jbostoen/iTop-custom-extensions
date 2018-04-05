@@ -9,3 +9,6 @@ Difference:
 * the profile you give to an user, is for ALL organizations. No way to differentiate.
 * deny > allow
 
+# Troubleshooting
+'Error: Unknown attribute energysource from class Vehicle'
+=> mistake in translation file
