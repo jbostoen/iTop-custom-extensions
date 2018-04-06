@@ -13,6 +13,27 @@ Difference:
 'Error: Unknown attribute energysource from class Vehicle'
 => mistake in translation file
 
+'DBObjectSearch::__construct called for an invalid class: ""'
+For example, in a Typology Overview. Issue may be seen in datamodel-production.xml:
+
+            <dashlets>
+             ...
+              <dashlet id="10" xsi:type="DashletBadge">
+                <rank>9</rank>
+                <class>DocumentType</class>
+              </dashlet>
+              <dashlet id="901" xsi:type="DashletBadge">
+                <rank/>
+                <class/>
+              </dashlet>
+            ...
+            </dashlets>
+
+Solution: specify _delta="define" on the dashlet tags
+
 
 # Interesting files
-* web/data/datamodel-production.xml : compiled data model
+##web/data/datamodel-production.xml 
+Compiled data model. Even specifies where a class was created or edited (example: <class id="IOSVersion" _created_in="itop-config-mgmt" _altered_in="itop-config-mgmt"> ). Great resource for dependencies.
+  
+  
