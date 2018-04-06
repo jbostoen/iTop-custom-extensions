@@ -2,7 +2,7 @@ Just a collection of some general pointers on iTop customization, recommendation
 
 
 # Interesting files
-##web/data/datamodel-production.xml 
+## web/data/datamodel-production.xml 
 Compiled data model. Even specifies where a class was created or edited (example: <class id="IOSVersion" _created_in="itop-config-mgmt" _altered_in="itop-config-mgmt"> ). Great resource for dependencies.
             
 # Config of modules / module specific settings
