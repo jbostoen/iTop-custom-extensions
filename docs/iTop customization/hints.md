@@ -12,3 +12,7 @@ Difference:
 # Troubleshooting
 'Error: Unknown attribute energysource from class Vehicle'
 => mistake in translation file
+
+
+# Interesting files
+* web/data/datamodel-production.xml : compiled data model
