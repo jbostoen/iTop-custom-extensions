@@ -153,10 +153,7 @@ I wasn't satisfied with the default IPPhone class, so I never used it and had no
 ### Monitor 
 This is mostly a copy of iTop's "Add Sample Class" extension, which is used in a tutorial, extended with some fields (number of ports: VGA, HDMI, DisplayPort)
 
-However, one important issue has been fixed. If you use the original example, you can create a new monitor CI. 
-If you want to define a new model, you can do so, but there's no model type "Monitor". 
-You could select a different model type such as "Peripheral". 
-But, if you add another monitor CI, same brand, you notice the model you just added for the previous CI won't appear for you to select.
+However, one important issue has been fixed. If you use the original example, you can create a new monitor CI. If you want to define a new model, you can do so, but there's no model type "Monitor". You could select a different model type such as "Peripheral". But, if you add another monitor CI, same brand, you notice the model you just added for the previous CI won't appear for you to select. On 9th of April 2018, a Combodo employee confirmed they will add my fix in the official version.
 
 ##  Features 
 
