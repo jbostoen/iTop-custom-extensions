@@ -14,6 +14,13 @@ Difference:
 * the profile you give to an user, is for ALL organizations. No way to differentiate.
 * deny > allow
 
+
+# Using CaseLog
+* Don't include it again in your presentation-XML. 
+* Shown by default at the bottom; but if you include it in presentation, it's shown twice.
+
+
+
 # Troubleshooting
 
 ## 'DBObjectSearch::__construct called for an invalid class: ""'
