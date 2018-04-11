@@ -13,7 +13,7 @@
  
 	class iTop_Rest {
 		
-		/* URL of the iTop web services, including version */
+		/* URL of the iTop web services, including version. This is a test environment for us. */
 		private $url = "http://10.1.20.22/itop/web/webservices/rest.php?version=1.3";
 		
 		/* Credentials of an iTop user */
@@ -160,6 +160,22 @@
 						"key" => "SELECT LendRecord WHERE physicaldevice_id = '".$physicaldevice_id."' AND ISNULL( date_in )"
 					]); 
 					 
+					 
+					$fields = [	
+						"physicaldevice_id" => $physicaldevice_id,
+						"org_id" => $params["org_id"],
+						"contact_id" => $params["contact_id"],  
+						"date_out" => date("Y-m-d H:i:s")
+					];
+					
+					if( isset($params["reason"]) == TRUE ) {
+						$fields["reason"] = $params["reason"];
+					}
+					
+					if( isset($params["remarks"]) == TRUE ) {
+						$fields["remarks"] = $params["remarks"];
+					}
+					
 					
 					if( count($res["objects"]) == 0 ) {
 						
@@ -170,13 +186,7 @@
 							"comment" => "Create from iTop_Scan",
 							"class" => "LendRecord",  
 							// "output_fields" => [],
-							"fields" =>[
-								"org_id" => $params["org_id"],
-								"contact_id" => $params["contact_id"], 
-								"reason" => "Reden",
-								"physicaldevice_id" => $physicaldevice_id,
-								"date_out" => date("Y-m-d H:i:s")
-							]
+							"fields" => $fields 
 						]);
 						
 						return $res;
@@ -189,15 +199,25 @@
 												
 						$lendrecord_id = $res["objects"][ array_keys($res["objects"])[0] ]["key"];
 						
+						$fields = [
+							"date_in" => date("Y-m-d H:i:s")
+						];
+						
+						if( isset($params["reason"]) == TRUE ) {
+							$fields["reason"] = $params["reason"];
+						}
+						
+						if( isset($params["remarks"]) == TRUE ) {
+							$fields["remarks"] = $params["remarks"];
+						}
+						
 						$res = $this->post([
 							"operation" => "core/update", 
 							"comment" => "Update from iTop_Scan",
 							"class" => "LendRecord", 
 							"key" => $lendrecord_id, 
 							// "output_fields" => [],
-							"fields" =>[
-								"date_in" => date("Y-m-d H:i:s")
-							]
+							"fields" => $fields 
 						]);
 						
 						return $res;

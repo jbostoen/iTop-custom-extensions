@@ -64,6 +64,19 @@
 					
 					<button type="button" class="btn btn-block btn-default" data-action="reset">Alles wissen</button>
 					
+					<hr>
+					
+					<div class="form-group">
+					
+						<label for="serialnumber">Toestel toevoegen (serienummer)</label>
+						 
+						<div class="input-group-append">
+							<input type="text" id="serialnumber" class="form-control"> 							
+							<div class="input-group-text" data-action="lookup">Zoeken</div>
+						</div>
+						 
+					</div>
+					
 				</div>
 				
 				
@@ -85,26 +98,23 @@
 							</select>
 						</div>
 						
-						<button type="button" class="btn btn-block btn-success" data-action="register">Registreren</button>
-					
-					
-						<hr>
-						
 						<div class="form-group">
 						
-							<label for="serialnumber">Toestel toevoegen (serienummer)</label>
-							 
+							<label for="reason">Reden uitleen</label> 
 							<div class="input-group-append">
-								<input type="text" id="serialnumber" class="form-control"> 
-								
-								<div class="input-group-text">Zoeken</div>
-								</div>
-								
+								<input type="text" id="reason" class="form-control">  
 							</div>
 							
 						</div>
+							
+						<div class="form-group">
+							<label for="reason">Opmerking (bv. 'kapot' bij terugname)</label> 
+							<textarea id="remarks" class="form-control"></textarea>
+						</div>
 						
+						<button type="button" class="btn btn-block btn-success" data-action="register">Registreren</button>
 					
+					 
 					</form>
 				
 				
@@ -126,53 +136,7 @@
 			if( evt.which == 13 ) {
 			
 				evt.preventDefault();
-				
-				if( $("#serialnumber").val().length == 0 ) {
-					
-					// Specify serial number. Otherwise you get everything.
-					alerty("Geef een serienummer op.", "danger");
-					
-					
-				}
-				else {
-					
-					// Find iTop PhysicalDevice.
-					$.getJSON("api.php", { action: "GetPhysicalDeviceBySerial", serialnumber: $("#serialnumber").val() }, function(data) {
-					 
-						if( data === null ) {
-						
-							alerty("Fout opgetreden. Ongeldig serienummer?", "danger");
-						
-						}
-						else {
-						
-							// Will only be 1
-							$.each( data, function( k, v ) {
-								
-								if( $("[data-id='" + v.key + "']").length > 0 ) {
-									// Device already ready to be lend out?
-									alerty("Toestel staat al het lijstje.", "danger");
-								}
-								else {
-									
-									$("#physicaldevices").append(
-										'<tr data-id="' + v.key + '" data-serialnumber="' + v.fields.serialnumber + '">' + 
-										'	<td>' + v.fields.serialnumber + '</td>' +
-										'	<td>' + v.fields.friendlyname + '</td>' +
-										'	<td>' + ( v.takeback == 1 ? '<span class="text-danger">Terugnemen</span>' /* Take back */ : '<span class="text-success">Uitlenen</span>' /* Lend out */ ) + '</td>' +
-										'</tr>' 
-									);
-								
-								}
-							});
-							
-							// Reset
-							$("#serialnumber").val("");
-						}
-					
-					});
-					
-				 }
+				lookup();
 				 
 			}
 		});
@@ -190,7 +154,9 @@
 					action: "Register", 
 					serialnumber: $("#physicaldevices [data-serialnumber]").map(function() { return $(this).attr("data-serialnumber"); }).get(), 
 					org_id: $("#org_id").val(), 
-					contact_id: $("#contact_id").val()
+					contact_id: $("#contact_id").val(),
+					remarks: $("#remarks").val(),
+					reason: $("#reason").val()
 				},
 				success: function(data) {
 				
@@ -211,9 +177,24 @@
 		// Reset 
 		$("[data-action='reset']").on("click", function(){
 		
-			$("#physicaldevices").html("");
+			reset();
 			
 		});
+		
+		// Reset 
+		$("[data-action='lookup']").on("click", function(){
+		
+			lookup();
+			
+		});
+	
+		 
+		
+	
+		function reset() {
+			$("#physicaldevices").html("");
+		}
+		
 	
 	
 		function alerty( sMsg, sClass ) {
@@ -227,6 +208,57 @@
 			if( sMsg != "" ) {
 				setTimeout( function(){ alerty("&nbsp;", "light") }, 3000);
 			}
+		}
+		
+		function lookup(){
+		
+			if( $("#serialnumber").val().length == 0 ) {
+				
+				// Specify serial number. Otherwise you get everything.
+				alerty("Geef een serienummer op.", "danger");
+				
+				
+			}
+			else {
+				
+				// Find iTop PhysicalDevice.
+				$.getJSON("api.php", { action: "GetPhysicalDeviceBySerial", serialnumber: $("#serialnumber").val() }, function(data) {
+				 
+					if( data === null ) {
+					
+						alerty("Fout opgetreden. Ongeldig serienummer?", "danger");
+					
+					}
+					else {
+					
+						// Will only be 1
+						$.each( data, function( k, v ) {
+							
+							if( $("[data-id='" + v.key + "']").length > 0 ) {
+								// Device already ready to be lend out?
+								alerty("Toestel staat al het lijstje.", "danger");
+							}
+							else {
+								
+								$("#physicaldevices").append(
+									'<tr data-id="' + v.key + '" data-serialnumber="' + v.fields.serialnumber + '">' + 
+									'	<td>' + v.fields.serialnumber + '</td>' +
+									'	<td>' + v.fields.friendlyname + '</td>' +
+									'	<td>' + ( v.takeback == 1 ? '<span class="text-danger">Terugnemen</span>' /* Take back */ : '<span class="text-success">Uitlenen</span>' /* Lend out */ ) + '</td>' +
+									'</tr>' 
+								);
+							
+							}
+						});
+						
+						// Reset
+						$("#serialnumber").val('');
+					}
+				
+				});
+				
+			 }
+			 
 		}
 	
 	

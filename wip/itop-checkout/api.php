@@ -71,30 +71,38 @@
 			
 				/* Requires 'serialnumber' */
 				if( isset($_REQUEST["serialnumber"]) == TRUE ) {
+					
+					if( is_string( $_REQUEST["serialnumber"] ) == TRUE  ) {
 						
+						$_REQUEST["serialnumber"] = [ $_REQUEST["serialnumber"] ];
+						
+					}
+					
+					// Now, same procedure.
 					if( is_array( $_REQUEST["serialnumber"] ) == TRUE ) {
 						
 						$res = [];
 						foreach( $_REQUEST["serialnumber"] as $sn ) {
-								
-							$res = array_merge( $res, $i->register([ 
+							
+							$fields = [
 								"serialnumber" => $sn,
 								"org_id" => $_REQUEST["org_id"],
 								"contact_id" => $_REQUEST["contact_id"]
-							]));
+							];
+							
+							if( isset( $_REQUEST["reason"] ) == TRUE ) {								
+								$fields["reason"] = $_REQUEST["reason"];
+							}
+							if( isset( $_REQUEST["remarks"] ) == TRUE ) {								
+								$fields["remarks"] = $_REQUEST["remarks"];
+							}							 
+							
+							$res = array_merge( $res, $i->register( $fields ) );
 					
 						}
 						
 					}
-					elseif ( is_string( $_REQUEST["serialnumber"] ) == TRUE ) {
-						
-						$res = $i->register([ 
-								"serialnumber" => $_REQUEST["serialnumber"],
-								"org_id" => $_REQUEST["org_id"],
-								"contact_id" => $_REQUEST["contact_id"]
-						]);
-						
-					}
+					
 					
 				}
 				else {
