@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+	<head>
+	
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		
+		<title>iTop Scan</title>
+		
+		<style>
+		
+		
+			html body div.container {			
+				width: 90%;
+				min-width: 90%;				
+			}
+			 
+		
+		</style>
+		
+	</head>
+	
+	
+	<body>
+		
+		
+		<nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4">
+			<a class="navbar-brand" href="#">iTop Scan</a>
+		 
+		</nav>
+
+		
+
+		<script src="js/jquery-3.3.1.min.js"></script> 
+		<script src="js/bootstrap-4.1.0.min.js"></script>
+		
+		
+
+
+		<div class="container">
+			
+			<div class="alert alert-light" role="alert">
+				
+			</div>
+			
+			<div class="row">
+				
+				<div class="col-8">
+				
+					<table class="table" id="physicaldevices">
+						<thead class="thead-dark">
+							<tr>
+							  <th class="col-2">Serienummer</th>
+							  <th class="col-8">Omschrijving</th>
+							  <th class="col-2">In / uit</th>
+							</tr>
+						</thead>
+						<tbody>
+					  </tbody>
+					</table>
+					
+					<button type="button" class="btn btn-block btn-default" data-action="reset">Alles wissen</button>
+					
+				</div>
+				
+				
+				<div class="col-4">
+				
+					<form class="form">
+					
+						<!-- Org id. -->
+						<input type="hidden" id="org_id" value="2">
+					
+						<div class="form-group">
+							<label for="contact_id">Uitgeleend aan</label>
+							<select class="form-control" id="contact_id" size="15">
+								{% for key, c in contacts %}
+								
+								<!-- {{ key }} -->
+									<option value="{{ c.key }}">{{ c.fields.friendlyname }}</option>
+								{% endfor %}
+							</select>
+						</div>
+						
+						<button type="button" class="btn btn-block btn-success" data-action="register">Registreren</button>
+					
+					
+						<hr>
+						
+						<div class="form-group">
+						
+							<label for="serialnumber">Toestel toevoegen (serienummer)</label>
+							 
+							<div class="input-group-append">
+								<input type="text" id="serialnumber" class="form-control"> 
+								
+								<div class="input-group-text">Zoeken</div>
+								</div>
+								
+							</div>
+							
+						</div>
+						
+					
+					</form>
+				
+				
+				</div>
+			
+			</div>
+		
+		</div>
+
+
+	</body>
+	
+	
+	<script>
+	
+		// Retrieve PhysicalDevice - add to list
+		$("#serialnumber").on("keypress", function(evt){
+			
+			if( evt.which == 13 ) {
+			
+				evt.preventDefault();
+				
+				if( $("#serialnumber").val().length == 0 ) {
+					
+					// Specify serial number. Otherwise you get everything.
+					alerty("Geef een serienummer op.", "danger");
+					
+					
+				}
+				else {
+					
+					// Find iTop PhysicalDevice.
+					$.getJSON("api.php", { action: "GetPhysicalDeviceBySerial", serialnumber: $("#serialnumber").val() }, function(data) {
+					 
+						if( data === null ) {
+						
+							alerty("Fout opgetreden. Ongeldig serienummer?", "danger");
+						
+						}
+						else {
+						
+							// Will only be 1
+							$.each( data, function( k, v ) {
+								
+								if( $("[data-id='" + v.key + "']").length > 0 ) {
+									// Device already ready to be lend out?
+									alerty("Toestel staat al het lijstje.", "danger");
+								}
+								else {
+									
+									$("#physicaldevices").append(
+										'<tr data-id="' + v.key + '" data-serialnumber="' + v.fields.serialnumber + '">' + 
+										'	<td>' + v.fields.serialnumber + '</td>' +
+										'	<td>' + v.fields.friendlyname + '</td>' +
+										'	<td>' + ( v.takeback == 1 ? '<span class="text-danger">Terugnemen</span>' /* Take back */ : '<span class="text-success">Uitlenen</span>' /* Lend out */ ) + '</td>' +
+										'</tr>' 
+									);
+								
+								}
+							});
+							
+							// Reset
+							$("#serialnumber").val("");
+						}
+					
+					});
+					
+				 }
+				 
+			}
+		});
+		
+		
+		// Lend out or take back 
+		$("[data-action='register']").on("click", function(){
+		
+			// Create lend records 
+			$.ajax({
+				url: "api.php", 
+				type: "POST", 
+				dataType: "json",
+				data: { 
+					action: "Register", 
+					serialnumber: $("#physicaldevices [data-serialnumber]").map(function() { return $(this).attr("data-serialnumber"); }).get(), 
+					org_id: $("#org_id").val(), 
+					contact_id: $("#contact_id").val()
+				},
+				success: function(data) {
+				
+					console.log(data); 
+					test = data;
+					
+					if( data.code == 0 ) {
+						alerty("Registratie OK", "success");
+						$("#physicaldevices").html("");
+					}
+					
+				
+				}
+			});
+		
+		});
+		
+		// Reset 
+		$("[data-action='reset']").on("click", function(){
+		
+			$("#physicaldevices").html("");
+			
+		});
+	
+	
+		function alerty( sMsg, sClass ) {
+			$("div[role='alert'")
+				.html( sMsg )
+				.removeClass()
+				.addClass("alert alert-" + sClass );
+				 
+			
+			// Return to default
+			if( sMsg != "" ) {
+				setTimeout( function(){ alerty("&nbsp;", "light") }, 3000);
+			}
+		}
+	
+	
+	</script>
+	
+</html>
