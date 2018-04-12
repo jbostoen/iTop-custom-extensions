@@ -53,7 +53,7 @@
 				$res = $i->getPhysicalDeviceBySerialNumber(["serialnumber" => $_REQUEST["serialnumber"] ]);
 				
 				 
-				if( isset( $res["objects"]) == FALSE ) {
+				if( isset( $res["objects"]) == TRUE ) {
 						
 					/* Let's find out if it's already lend out? */
 					$res[ array_keys($res)[0] ]["takeback"] = ( count($i->post([
