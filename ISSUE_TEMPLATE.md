@@ -1,11 +1,11 @@
-**Type**: issue / request 
+**Type**: issue or request 
 
-**Versions**:
-- extension: 
+**Version info**:
 - iTop:
 - PHP:
 - MySQL:
+- Version of extension (if applicable): 
 
 **Description:**
-Describe here.
+Describe issue/request here.
 
