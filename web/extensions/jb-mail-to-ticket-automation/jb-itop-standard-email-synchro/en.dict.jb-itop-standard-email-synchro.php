@@ -155,11 +155,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
 	
 	
-	// Policy: remove patterns
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior' => 'Ignore/remove patterns in subject', 
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:delete' => 'Delete from subject',
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:ignore' => 'Ignore in subject',
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
 	
 	
 	

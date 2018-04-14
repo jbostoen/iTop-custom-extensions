@@ -379,26 +379,6 @@
         </field>
 		
 		
-		
-		<!-- Remove pattern -->
-		<!-- option: specify patterns to remove from the title. -->
-        <field id="policy_remove_pattern_behavior" xsi:type="AttributeEnum">
-          <values> 
-            <value>ignore</value>
-            <value>delete</value> 
-          </values>
-          <sql>policy_remove_pattern_behavior</sql>
-          <default_value>ignore</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field> 
-        <field id="policy_remove_pattern_patterns" xsi:type="AttributeText">
-          <sql>policy_remove_pattern_patterns</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		
       </fields>
 
       <methods>
@@ -711,22 +691,7 @@ EOF
 			// No associated ticket found by parsing the headers, check
 			// if the subject does not match a specific pattern
 			$sPattern = $this->FixPattern($this->Get('title_pattern'));
-			
-			$sSubject = $oEmail->sSubject;
-			
-			// Are there patterns which should be ignored/removed from the title? 
-			// To find the reference, let's remove it from our temp variable. 
-			// We'll remove it elsewhere if it really needs to be gone.
-			// Patterns should be specified 1 per line			
-			if(  $this->Get('policy_remove_pattern_patterns') != '' ) {
-				$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
-				
-				foreach( $aIgnorePatterns as $sIgnorePattern ) {
-					$sSubject = preg_replace($sIgnorePattern, "", $sSubject);
-				}
-			}
-			
-			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches)))
+			if(($sPattern != '') && (preg_match($sPattern, $oEmail->sSubject, $aMatches)))
 			{
 				$iTicketId = 0;
 				sscanf($aMatches[1], '%d', $iTicketId);
@@ -790,21 +755,7 @@ EOF
 		{
 			$oTicketTitleAttDef = MetaModel::GetAttributeDef(get_class($oTicket), 'title');
 			$iTitleMaxSize = $oTicketTitleAttDef->GetMaxSize();
-			
-			// Some patterns might be removed 
-			$sSubject = $oEmail->sSubject;
-			
-			// Do we want some patterns removed from the title?
-			if( $this->Get('policy_remove_pattern_patterns') != '' && $this->Get('policy_remove_pattern_behavior') == 'delete' ) {
-			
-				$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
-				
-				foreach( $aIgnorePatterns as $sIgnorePattern ) {
-					$sSubject = preg_replace($sIgnorePattern, "", $sSubject);
-				}
-			}
-			
-			$oTicket->Set('title', substr( $sSubject , 0, $iTitleMaxSize));
+			$oTicket->Set('title', substr($oEmail->sSubject, 0, $iTitleMaxSize));
 		}
 		
 		$aIgnoredAttachments = array();
