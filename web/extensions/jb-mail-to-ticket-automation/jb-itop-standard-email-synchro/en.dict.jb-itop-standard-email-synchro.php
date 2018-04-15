@@ -144,7 +144,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_notification' => 'Bounce message', 
 	
-	// Policy: undesired patterns
+	// Policy: undesired title patterns
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior' => 'eMail', 
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
@@ -155,11 +155,11 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
 	
 	
-	// Policy: remove patterns
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior' => 'Ignore/remove patterns in subject', 
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:delete' => 'Delete from subject',
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:ignore' => 'Ignore in subject',
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
+	// Policy: remove or ignore title patterns
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Ignore/remove patterns in subject', 
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:delete' => 'Delete from subject',
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:ignore' => 'Ignore in subject',
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
 	
 	
 	
@@ -171,7 +171,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	// Policies
 	'MailInbox:PolicyMailSize' => 'Policy: Mail Size',
 	'MailInbox:PolicyForbiddenAttachments' => 'Policy: Forbidden attachments',
-	'MailInbox:PolicyUndesiredPattern' => 'Policy: Undesired patterns',
+	'MailInbox:PolicyUndesiredPattern' => 'Policy: Undesired title patterns',
+	'MailInbox:PolicyIgnoreRemovePattern' => 'Policy: Ignore/remove unwanted title patterns',
 	'MailInbox:PolicyResolvedTicket' => 'Policy: Resolved tickets',
 	'MailInbox:PolicyClosedTicket' => 'Policy: Closed tickets',
 	'MailInbox:PolicyUnknownTicket' => 'Policy: Unknown tickets',

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+	<classes>
+	
+		<!-- Applying this to the main class doesn't seem to work. Likely because Change is abstract? -->
+        <class id="Change">
+			<properties>
+				<naming>
+					<attributes _delta="redefine">
+						<attribute id="title"/>
+						<attribute id="ref"/>
+					</attributes> 
+				</naming>
+			</properties>
+		</class>
+		
+		
+        <class id="EmergencyChange">
+			<properties>
+				<naming>
+					<attributes _delta="redefine">
+						<attribute id="title"/>
+						<attribute id="ref"/>
+					</attributes> 
+				</naming>
+			</properties>
+		</class>
+        <class id="NormalChange">
+			<properties>
+				<naming>
+					<attributes _delta="redefine">
+						<attribute id="title"/>
+						<attribute id="ref"/>
+					</attributes> 
+				</naming>
+			</properties>
+		</class>
+        <class id="RoutineChange">
+			<properties>
+				<naming>
+					<attributes _delta="redefine">
+						<attribute id="title"/>
+						<attribute id="ref"/>
+					</attributes> 
+				</naming>
+			</properties>
+		</class>
+		
+	 
+	</classes>
+</itop_design>
+
+

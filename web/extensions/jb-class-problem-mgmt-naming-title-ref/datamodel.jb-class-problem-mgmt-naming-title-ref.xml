@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+	<classes>
+        <class id="Problem">
+			<properties>
+				<naming>
+					<attributes _delta="redefine">
+						<attribute id="title"/>
+						<attribute id="ref"/>
+					</attributes> 
+				</naming>
+			</properties>
+		</class>
+	</classes>
+</itop_design>

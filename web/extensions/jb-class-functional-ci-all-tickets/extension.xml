@@ -5,11 +5,11 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: Functional CI - Show all related tickets]]></label>
 	<description><![CDATA[Allows you to see all tickets, which provides a better history - especially when troubleshooting prior issues.]]></description>
-	<version>2.4.180309</version>
-	<release_date>2018-03-09</release_date>
+	<version>2.4.180415</version>
+	<release_date>2018-04-15</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.4.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
-	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/wiki</more_info_url>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
 </extension>

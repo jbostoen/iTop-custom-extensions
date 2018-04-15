@@ -712,12 +712,12 @@ EOF
 			// if the subject does not match a specific pattern
 			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			
-			$sSubject = $oEmail->sSubject;
 			
 			// Are there patterns which should be ignored/removed from the title? 
 			// To find the reference, let's remove it from our temp variable. 
 			// We'll remove it elsewhere if it really needs to be gone.
-			// Patterns should be specified 1 per line			
+			// Patterns should be specified 1 per line	
+			$sSubject = $oEmail->sSubject;		
 			if(  $this->Get('policy_remove_pattern_patterns') != '' ) {
 				$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
 				
@@ -790,11 +790,9 @@ EOF
 		{
 			$oTicketTitleAttDef = MetaModel::GetAttributeDef(get_class($oTicket), 'title');
 			$iTitleMaxSize = $oTicketTitleAttDef->GetMaxSize();
-			
-			// Some patterns might be removed 
-			$sSubject = $oEmail->sSubject;
-			
+			 
 			// Do we want some patterns removed from the title?
+			$sSubject = $oEmail->sSubject;
 			if( $this->Get('policy_remove_pattern_patterns') != '' && $this->Get('policy_remove_pattern_behavior') == 'delete' ) {
 			
 				$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
@@ -1768,7 +1766,7 @@ EOF
 		$oCaller = null; 
 		
 		// ### Policy: Forbidden Attachments.
-		$this->Trace(".. Policy: forbidden attachments. Behavior: $this->Get('policy_forbidden_attachments_behavior') ");
+		$this->Trace(".. Policy: forbidden attachments. Behavior: " . $this->Get('policy_forbidden_attachments_behavior') );
 		
 			if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback' ) {
 				// Will be processed. Forbidden attachments will be ignored. So fallback does not make sense.
@@ -1855,19 +1853,32 @@ EOF
 			// null object means there was no ticket.
 			if( $oTicket === null ) {
 			
-				// We could be handling with a new ticket! 
+				// We could be handling a new ticket! 
 				// So we would need to check if there was something (header or pattern in subject) which would have lead us to believe there was a ticket. 
 			 
 				// Why undesired? Because of a pattern in the subject; or an email header? 
 				
+				// Are there patterns which should be ignored/removed from the title? 
+				// To find the reference, let's remove it from our temp variable. 
+				// We'll remove it elsewhere if it really needs to be gone.
+				// Patterns should be specified 1 per line		
+				$sSubject = $oEmail->sSubject;
+				if(  $this->Get('policy_remove_pattern_patterns') != '' ) {
+					$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
+					
+					foreach( $aIgnorePatterns as $sIgnorePattern ) {
+						$sSubject = preg_replace($sIgnorePattern, "", $sSubject);
+					}
+				}
+				
 				$sPattern = $this->FixPattern($this->Get('title_pattern'));
-				if(($sPattern != '') && (preg_match($sPattern, $oEmail->sSubject, $aMatches))) {
+				if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
 					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('".$sPattern."').");
-					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_undesired_pattern'];
+					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];
 				} 
 				elseif( $oEmail->oRelatedObject != null ) {
 					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite an email header (".$oEmail->oRelatedObject.").");
-					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_undesired_pattern'];			
+					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];			
 				}
 				
 			}
@@ -2338,7 +2349,7 @@ EOF
                   </items>
                 </item> 
 				
-				<!-- Other contacts -->
+				<!-- Undesired pattern behavior -->
                 <item id="fieldset:MailInbox:PolicyUndesiredPattern">
                   <rank>180</rank>
                   <items>
@@ -2357,6 +2368,18 @@ EOF
                   </items>
                 </item> 
 				
+				<!-- Remove/ignore pattern behavior -->
+                <item id="fieldset:MailInbox:PolicyIgnoreRemovePattern">
+                  <rank>190</rank>
+                  <items>
+                    <item id="policy_remove_pattern_behavior">
+                      <rank>10</rank>
+                    </item> 
+                    <item id="policy_remove_pattern_patterns">
+                      <rank>20</rank>
+                    </item> 
+                  </items>
+                </item> 
 				
 				
           </items>
