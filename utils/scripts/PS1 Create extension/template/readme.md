@@ -1,4 +1,4 @@
-# {{ extTitle }}
+# {{ extName }}
 
 {{ extDescription }}
 
