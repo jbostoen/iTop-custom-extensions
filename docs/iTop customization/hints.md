@@ -45,8 +45,11 @@ For example, in a Typology Overview. Issue may be seen in datamodel-production.x
 Solution: specify _delta="define" on the dashlet tags
 
 
-## 'Error: Unknown attribute energysource from class Vehicle'
+## 'Error: Unknown attribute <attribute name> from class <class name>'
 Look for a mistake in a translation file
+
+## Naming doesn't work?
+In iTop 2.4.1, it seems naming isn't applied to abstract classes such as 'Change'. It must be applied to child classes.
 
 
   
