@@ -127,9 +127,16 @@ UIDL
 * **Bounce message**
 * fallback: ignore
 	 	 
-# Policy: Undesired patterns
+# Policy: Undesired patterns in title
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * **Undesired patterns in subject** - (regex, one per line)
 
+
+# Policy: Patterns to ignore/remove from title
+* Use case: another ticket system which uses IR-1234567 as format. Our format is R-123456, this would lead to issues when handling emails with a reference from the other ticket.
+* Fallback - Ignore: just ignores parts when handling a new e-mail, but keeps the original subject to create the ticket. 
+* Fallback - Remove, it's gone completely. 
+* **Fallback** ignore/remove 	 
+* **Undesired patterns in subject** - (regex, one per line)
