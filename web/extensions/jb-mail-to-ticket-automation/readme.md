@@ -1,18 +1,12 @@
-Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (version 3.0.11). 
+Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally from version 3.0.7, but we also copied the changes Combodo's done up to version 3.0.11 so far). 
+
 One thing is important here: we highly recommend to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
 
-What is different? We noted a few situations where Combodo's implementation of Mail to Ticket Automation was not sufficient enough. 
-We added some options to bounce (ignore and auto-reply to) the message.
-* despite giving our (internal) users very specific guidelines, they kept sending mails with other recipients than just the helpdesk. When other recipients replied to all, this generated new tickets rather than it updated the ticket. We couldn't avoid this behavior with mail rules.
-* despite a bold red warning, people still replied to mails after a ticket was resolved or closed. But we never noticed those replies.
-* some specific situations where we wanted to inform the user why the mail bounces.
-
+What is different? We noted a few situations where Combodo's implementation of Mail to Ticket Automation was not sufficient enough. We split them up in what I'll refer to as "Policies".
 
 # Basics about policies
-There's quite a few policies. 
-
-They all have:
-* eMail - behavior: always 'bounce and delete', 'delete', 'mark as error'. Sometimes fallbacks are possible.
+Most of them have:
+* eMail - behavior: always 'bounce and delete', 'delete', 'mark as undesired'. Sometimes 'mark as error'. Sometimes fallbacks are possible.
 * bounce subject - message subject when message is bounced back to sender (caller)
 * bounce message - message content when message is bounced back to sender (caller)
 
@@ -69,12 +63,14 @@ UIDL
 ***
 
 # Policy: Mail Size
+* Use case: mail size is too big (often related to PHP, MySQL limits)
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * **Max size (MB)** - 10 	
  	 
 # Policy: Forbidden attachments
+* Use case: you might not want .exe attachments
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
@@ -82,6 +78,7 @@ UIDL
 * Fallback: ignore forbidden attachments?
 	 	 
 # Policy: No subject
+* Use case: you want to enforce people to at least supply a subject.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
@@ -89,24 +86,28 @@ UIDL
 * Fallback: use specified default subject	 	 
  	 
 # Policy: Closed tickets
+* Use case: despite very clear warnings a ticket has been closed, user still replies.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * Fallback: reopen
  
 # Policy: Resolved tickets
+* Use case: despite very clear warnings a ticket has been resolved, user still replies.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * Fallback: reopen
 	 	 
 # Policy: Unknown tickets
+* Use case: usually if the extension misinterprets a pattern in the email header and can't find the ticket.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * No fallback
  
 # Policy: Unknown caller
+* Use case: first time caller
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
@@ -122,12 +123,14 @@ UIDL
 ( creates a contact named 'Unknown Caller', belonging to first organization in iTop)
 	 	 
 # Policy: Other recipients
+* Use case: if you allow (B)CC to a helpdesk system, you might see people replying to the initial email from the caller. This would lead to multiple new tickets, since there is no ticket reference in the email header or subject.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * fallback: ignore
 	 	 
 # Policy: Undesired patterns in title
+* Use case: out-of-office
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
