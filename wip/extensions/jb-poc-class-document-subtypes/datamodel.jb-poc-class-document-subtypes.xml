@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+	<classes>
+		
+		<!-- Turns DocumentFile into an abstract class. -->
+		<class id="DocumentFile" >
+		 
+			<properties> 
+				<abstract _delta="redefine">true</abstract>
+			  </properties>
+		  
+		</class>
+		
+		
+		<!-- Extra DocumentFile types. Basically identical to DocumentFile (inherits everything), but we should be able to be more granular with rights. -->
+		<class id="DocumentFileRcx" _delta="define">
+		
+			<parent>DocumentFile</parent>
+			<properties>
+				<db_table>documentfilercx</db_table>
+			  </properties>
+			<presentation/>
+			<methods/>
+		  
+		</class>
+		
+		
+		
+	</classes>
+</itop_design>
+
+
+

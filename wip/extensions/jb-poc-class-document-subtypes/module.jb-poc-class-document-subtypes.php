@@ -5,16 +5,17 @@
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        '{{ extName }}/',
+        'jb-poc-class-document-subtypes/',
         array(
                 // Identification
                 //
-                'label' => '{{ extLabel }}',
+                'label' => 'Class: Document - Makes Document abstracts, adds sub-types',
                 'category' => 'business',
 
                 // Setup
                 //
                 'dependencies' => array( 
+					"itop-config-mgmt/2.0.0"
                 ),
                 'mandatory' => false,
                 'visible' => true,
@@ -22,7 +23,7 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.{{ extName }}.php'
+                        'model.jb-poc-class-document-subtypes.php'
                 ),
                 'webservice' => array(
 
@@ -49,4 +50,6 @@ SetupWebPage::AddModule(
 
 
 ?>
+
+
 
