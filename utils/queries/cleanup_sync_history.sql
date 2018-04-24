@@ -56,7 +56,7 @@ WHERE priv_change.origin = 'synchro-data-source' AND priv_changeop.optype = 'CMD
 
 
 # Delete syncs setting longtext (advised: remove data from subclasses first) (tested)
-DELETE priv_changeop_setatt.*, priv_changeop_setatt_longtext.*, priv_changeop_setatt_html.*, priv_changeop.* 
+DELETE priv_changeop_setatt.*, priv_changeop_setatt_longtext.*, priv_changeop.* 
 FROM priv_changeop 
 LEFT JOIN priv_change ON priv_changeop.changeid = priv_change.id  
 LEFT JOIN priv_changeop_setatt ON priv_changeop.id = priv_changeop_setatt.id 
@@ -64,8 +64,8 @@ LEFT JOIN priv_changeop_setatt_longtext ON priv_changeop.id = priv_changeop_seta
 WHERE priv_change.origin = 'synchro-data-source' AND priv_changeop.optype = 'CMDBChangeOpSetAttributeLongText';
 
 
-# Delete syncs setting log (untested)
-DELETE priv_changeop_setatt.*, priv_changeop_setatt_longtext.*, priv_changeop_setatt_log.*, priv_changeop.* 
+# Delete syncs setting log (untested! Does iTop just keep track of entry number, since you always append to a log?)
+DELETE priv_changeop_setatt.*, priv_changeop_setatt_log.*, priv_changeop.* 
 FROM priv_changeop 
 LEFT JOIN priv_change ON priv_changeop.changeid = priv_change.id  
 LEFT JOIN priv_changeop_setatt ON priv_changeop.id = priv_changeop_setatt.id 
@@ -102,8 +102,10 @@ WHERE priv_change.origin = 'synchro-data-source' AND priv_changeop.optype = 'CMD
 
 
 # Now check if there are changes without any change operations. 
-
-
+DELETE priv_change.* 
+FROM priv_change 
+LEFT JOIN priv_changeop ON priv_change.id = priv_changeop.changeid 
+WHERE priv_changeop.changeid IS NULL;
 
  
 # change to commit if okay. 
