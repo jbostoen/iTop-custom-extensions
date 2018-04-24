@@ -1,7 +1,7 @@
 
 # Not tested yet, work in progress!
 # Careful: there can be multiple change operations per change. 
-# For names of CMDB Change Operatoins, see data model (menu)
+# For names of CMDB Change Operations, see data model (menu)
 
 START TRANSACTION;
 
