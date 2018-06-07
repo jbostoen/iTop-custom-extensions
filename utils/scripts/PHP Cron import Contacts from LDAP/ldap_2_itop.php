@@ -1,5 +1,6 @@
 <?php
 
+// Make sure you have a UNIQUE index on your iTop (for example: org id + first name + name)
 
 // Report all PHP errors
 error_reporting(-1);
@@ -101,23 +102,24 @@ function ad_2_itop( $orgName, $ldap, $db ) {
 
 
 		# Insert / update in iTop data source
-        	if( strtolower($key) != "count" && @$ldap_entry['sn'][0] != "" && @$ldap_entry['givenname'][0] != "" ) {
-			$mysqli->query("
-                		INSERT INTO ".$iTopDBTableSource." ( org_id, name, first_name, phone, mobile_phone, email )
-                		VALUES (
-                        		'".$orgName."',
-                        		'".@$ldap_entry['sn'][0]."',
-                        		'".@$ldap_entry['givenname'][0]."',
-                        		'".@$ldap_entry['telephonenumber'][0]."',
-                       	 		'".@$ldap_entry['mobile'][0]."',
-                        		'".@$ldap_entry['mail'][0]."'
-                		)
+		if( strtolower($key) != "count" && @$ldap_entry['sn'][0] != "" && @$ldap_entry['givenname'][0] != "" ) {
+				$mysqli->query("
+						INSERT INTO synchro_data_persons ( org_id, name, first_name, phone, mobile_phone, email )
+						VALUES (
+								'".$mysqli->real_escape_string($orgName)."',
+								'".$mysqli->real_escape_string(@$ldap_entry['sn'][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry['givenname'][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry['telephonenumber'][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry['mobile'][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry['mail'][0])."'
+						)
 
-                		ON DUPLICATE KEY UPDATE
-                        		phone = '".@$ldap_entry['telephonenumber'][0]."',
-        	                	mobile_phone = '".@$ldap_entry['mobile_phone'][0]."'
-	        	");
+						ON DUPLICATE KEY UPDATE
+								phone = '".$mysqli->real_escape_string(@$ldap_entry['telephonenumber'][0])."',
+								mobile_phone = '".$mysqli->real_escape_string(@$ldap_entry['mobile_phone'][0])."'
+				");
 		}
+
 
 	}
 	echo '</table>';
