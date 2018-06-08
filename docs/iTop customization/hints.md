@@ -22,7 +22,8 @@ Difference:
 * Don't include it again in your presentation-XML. 
 * Shown by default at the bottom; but if you include it in presentation, it's shown twice.
 
-
+# Combining extensions
+Since iTop 2.4.0, you can combine extensions as subfolders into one extension. However, make sure these subfolders have different names. Don't simply copy and rename the main folder to create a new extension.
 
 # Troubleshooting
 
