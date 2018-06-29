@@ -5,17 +5,18 @@
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-class-change-mgmt-itil-naming-title-ref/',
+        'jb-class-request-mgmt-itil-ext-field-phone/',
         array(
                 // Identification
                 //
-                'label' => 'Class: Change - Change FriendlyName to Title (Ref)',
+                'label' => 'lass: User Request (ITIL) - Add external field phone (caller)',
                 'category' => 'business',
 
                 // Setup
                 //
-                'dependencies' => array( 
-					'itop-change-mgmt-itil/2.4.0'
+                'dependencies' => array(
+                        'itop-config-mgmt/2.4.0',
+                        'itop-request-mgmt-itil/2.4.0'
                 ),
                 'mandatory' => false,
                 'visible' => true,
@@ -23,7 +24,7 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-class-change-mgmt-itil-naming-title-ref.php'
+                        'model.jb-class-request-mgmt-itil-ext-field-phone.php'
                 ),
                 'webservice' => array(
 
@@ -50,5 +51,3 @@ SetupWebPage::AddModule(
 
 
 ?>
-
-
