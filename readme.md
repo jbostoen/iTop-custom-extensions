@@ -1,7 +1,7 @@
 Warning: for stable version, use iTop 2.4.x and this branch: https://github.com/jbostoen/iTop-custom-extensions/tree/itop-2.4 
 
 The master branch will now start to focus in iTop 2.5.x compatibility, but is work in progress!
-
+We will only move to datamodel version 1.5 once iTop 2.5 is stable (likely 2.5.1)
 
 # Compatibility
 I (jbostoen) currently maintain a few **unofficial** extensions (tweaks, extra features) for iTop 2.4.1
