@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.4">
+	<classes>
+		<class id="UserRequest">
+			<fields>
+				<field id="caller_phone" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>caller_id</extkey_attcode>
+					<target_attcode>phone</target_attcode>
+					<dependencies>
+						<attribute id="phone"/>
+					</dependencies>
+				</field>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="col:col1">
+							<items>
+								<item id="fieldset:Ticket:baseinfo">
+									<items>
+										<item id="caller_phone" _delta="define">
+											<rank>21</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+			</presentation>
+		</class>
+	</classes>
+</itop_design>

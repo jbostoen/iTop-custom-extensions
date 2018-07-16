@@ -8,9 +8,9 @@
 
 Dict::Add('EN US', 'English', 'English', array(
 
-    'Class:Problem/Name' => '%1$s (%2$s)'
-	
-	
+
+        'Class:UserRequest/Attribute:origin/Value:in_person' => 'in person',
+        'Class:UserRequest/Attribute:origin/Value:in_person+' => 'in person',
 ));
 
 
