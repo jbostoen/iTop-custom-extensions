@@ -1,6 +1,6 @@
 <?php
 
-// Make sure you have a UNIQUE index on your iTop (for example: org id + first name + name)
+// Version: 20180716-1640
 
 // Report all PHP errors
 error_reporting(-1);
