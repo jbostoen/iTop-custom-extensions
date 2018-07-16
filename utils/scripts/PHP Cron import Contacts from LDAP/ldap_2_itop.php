@@ -8,35 +8,34 @@ error_reporting(-1);
 
 // LDAP
 $ldapOrg = [
-	'host' 		=>  'ip',
-	'user' 		=> 'user@intranet.domain.com', 
-	'pass'		=> 'password',
+	"host" 		=>  "ip",
+	"user" 		=> "user@intranet.domain.com", 
+	"pass"		=> "password",
   // Make your own query. To exclude non-person accounts, we just select users with a phone number
-	'query'		=> '(&(objectclass=user)(objectcategory=person)(telephoneNumber=+32 51*))',
-	'baseDN'	=> 'DC=intranet,DC=domain,DC=com'
+	"query"		=> "(&(objectclass=user)(objectcategory=person)(telephoneNumber=+32 *))",
+	"baseDN"	=> "DC=intranet,DC=domain,DC=com"
 ];
  
 
 
 // MySQL
 $db = [
-	'host'	=> 'ip', 
-	'name' 	=> 'name', 
-	'user'	=> 'user',
-	'pass'	=> 'pass'
+	"host"	=> "ip", 
+	"name" 	=> "name", 
+	"user"	=> "user",
+	"pass"	=> "pass",
+	
+	"table" => "synchro_data_persons" // name of the table to write to (=name of the iTop data source in your MySQL Database)
 ];
 
 
-// Change the path accordingly as well as the iTop user credentials.
+// Change the path accordingly as well as the iTop user credentials and id of the data source.
 // In our example, we created a data source in iTop first (ID: 21) for Persons.
 // This is for a Ubuntu implementation.
-$syncSource = "php -q /var/www/html/itop_2_4_1/web/synchro/synchro_exec.php --auth_user=admin --auth_pwd=password --data_sources=21";
-
-// Name of the table to write to (=name of the data-source in your MYSQL database)
-$iTopDBTableSource = 'synchro_data_persons';
-
+$syncSource = "php -q /var/www/html/itop_2_4_1/web/synchro/synchro_exec.php --auth_user=syncuser --auth_pwd=password --data_sources=21";
+ 
 // For each organization
-ad_2_itop('Organization name', $ldapOrg, $db); 
+ad_2_itop("Your organization name", $ldapOrg, $db); 
 
 // You might adjust this, but it's probably not necessary
 
@@ -57,72 +56,122 @@ function ad_2_itop( $orgName, $ldap, $db ) {
 
 	if (TRUE === ldap_bind($ldap_connection, $ldap['user'], $ldap['pass'] )){
 
-	    	$attributes = ['givenname', 'mail', 'samaccountname', 'sn', 'telephonenumber', 'mobile'];
+		$getAttributes = ["givenname", "mail", "samaccountname", "sn", "telephonenumber", "mobile"];
 
-		$result = ldap_search($ldap_connection, $ldap['baseDN'], $ldap['query'], $attributes);
+		$result = ldap_search($ldap_connection, $ldap["baseDN"], $ldap["query"], $attributes);
 		$ldap_entries = [];
 
-    		if (FALSE !== $result){
- 
-	       		$ldap_entries = ldap_get_entries($ldap_connection, $result);
-		
+		if ( $result !== FALSE ) {
+			$ldap_entries = ldap_get_entries($ldap_connection, $result);
 		}
 	}
 
-    	ldap_unbind($ldap_connection); // Clean up after ourselves.
+	ldap_unbind($ldap_connection); // Clean up after ourselves.
 
+	$mysqli = new mysqli( $db["host"], $db["user"], $db["pass"], $db["name"] );
 
-
-	$mysqli = new mysqli( $db['host'], $db['user'], $db['pass'], $db['name'] );
-
-	# check connection
+	// check connection
 	if ( $mysqli->connect_errno ) {
-        	die( "Connect failed: %s\n" . $mysqli->connect_error ) ;
+		die( "Connect failed: %s\n" . $mysqli->connect_error ) ;
 	}
 
-	$mysqli->set_charset('utf8');
+	$mysqli->set_charset("utf8");
+ 
 
+	echo "<h1>".$orgName."</h1>";
+	echo "<table>";
+	foreach( $ldap_entries as $index => $ldap_entry ) {
 
+        // Uncomment to get an idea of the attributes you can use
+        // print_r( $ldap_entry );
+ 
 
-	echo '<h1>'.$orgName.'</h1>';
-	echo '<table>';
-	foreach( $ldap_entries as $key => $ldap_entry ) {
-
-        # Uncomment to get an idea of the attributes you can use
-        # print_r( $ldap_entry );
-
-
-	        echo '<tr>';
-
-		foreach( $attributes as $a ) {
-			echo '<td>'.@$ldap_entry[$a][0].'</td>';
-		}
-       		echo '</tr>';
-
-
-
-		# Insert / update in iTop data source
-		if( strtolower($key) != "count" && @$ldap_entry['sn'][0] != "" && @$ldap_entry['givenname'][0] != "" ) {
-				$mysqli->query("
-						INSERT INTO synchro_data_persons ( org_id, name, first_name, phone, mobile_phone, email )
+		// Valid user? Except for indexes, we also get a "Count" as name for a key. 
+		// To avoid service accounts etc, we also want a sn and givenname
+        if( strtolower($index) != "count" && @$ldap_entry["sn"][0] != "" && @$ldap_entry["givenname"][0] != "" ) {
+ 
+			/*
+				Important note: due to how iTop works, it's "forbidden" to use INSERT ... ON DUPLICATE KEY UPDATE ... 
+				The same applies for INSERT IGNORE. The before insert trigger will create a new replica whenever it is fired - it won't be when using an UPDATE query, but it will on all INSERT queries. 
+				From iTop: "We didn't came up with a solution for this - trigger are really tricky to work with."
+			*/
+			
+			// As reference, we'll use email. 
+			// There could easily be two John Smith's in a company, but they won't have the same email address.
+			$result = $mysqli->query("
+					SELECT * 
+					FROM ".$db["table"]." 
+					WHERE 
+						email = '".$mysqli->real_escape_string(@$ldap_entry["mail"][0])."';
+			");	 
+				
+			// Depending on the count:
+			switch( $result->num_rows ) {
+				
+				case 0: 
+				 
+					// Initial insert.
+					$mysqli->query("
+						INSERT INTO ".$db["table"]." ( org_id, name, first_name, phone, mobile_phone, email )
 						VALUES (
 								'".$mysqli->real_escape_string($orgName)."',
-								'".$mysqli->real_escape_string(@$ldap_entry['sn'][0])."',
-								'".$mysqli->real_escape_string(@$ldap_entry['givenname'][0])."',
-								'".$mysqli->real_escape_string(@$ldap_entry['telephonenumber'][0])."',
-								'".$mysqli->real_escape_string(@$ldap_entry['mobile'][0])."',
-								'".$mysqli->real_escape_string(@$ldap_entry['mail'][0])."'
-						)
-
-						ON DUPLICATE KEY UPDATE
-								phone = '".$mysqli->real_escape_string(@$ldap_entry['telephonenumber'][0])."',
-								mobile_phone = '".$mysqli->real_escape_string(@$ldap_entry['mobile_phone'][0])."'
-				");
+								'".$mysqli->real_escape_string(@$ldap_entry["sn"][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry["givenname"][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry["telephonenumber"][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry["mobile"][0])."',
+								'".$mysqli->real_escape_string(@$ldap_entry["mail"][0])."'
+						);								
+					");
+					 
+					echo "<tr>";
+					foreach( $getAttributes as $a ) {
+						echo "<td>".$a." = ".@$ldap_entry[$a][0]."</td>".PHP_EOL;
+					}
+					echo "<td>Inserted</td>". PHP_EOL ."</tr>"; 
+					
+					break;
+					
+				case 1: 
+				
+					// Update 
+					$mysqli->query("
+						UPDATE ".$db["table"]." 
+						SET 
+							org_id = '".$mysqli->real_escape_string($orgName)."', 
+							name = '".$mysqli->real_escape_string(@$ldap_entry["sn"][0])."',
+							first_name = '".$mysqli->real_escape_string(@$ldap_entry["givenname"][0])."', 
+							phone = '".$mysqli->real_escape_string(@$ldap_entry['telephonenumber'][0])."',
+							mobile_phone = '".$mysqli->real_escape_string(@$ldap_entry['mobile_phone'][0])."'
+						WHERE 
+							email = '".$mysqli->real_escape_string(@$ldap_entry['mail'][0])."';
+					");
+					
+					 
+					echo "<tr>";
+					foreach( $getAttributes as $a ) {
+						echo "<td>".$a." = ".@$ldap_entry[$a][0]."</td>";
+					}
+					echo "<td>Updated</td>". PHP_EOL ."</tr>"; 
+					
+					break;
+					
+					
+				default: 				
+				
+					// Error
+					foreach( $getAttributes as $a ) {
+						echo "<td>".$a." = ".@$ldap_entry[$a][0]."</td>";
+					}
+					echo "<td>Error: not unique</td>". PHP_EOL ."</tr>"; 
+					
+					 
+					
+			}
+					
 		}
 
-
 	}
-	echo '</table>';
+	echo "</table>";
 
 	$mysqli->close();
 
