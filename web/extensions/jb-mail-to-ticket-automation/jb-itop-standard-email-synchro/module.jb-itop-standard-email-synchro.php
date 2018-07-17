@@ -23,10 +23,8 @@ SetupWebPage::AddModule(
 
 		// Components
 		//
-		'datamodel' => array(
-			'stdemailsynchro.class.inc.php',
-			'model.jb-itop-standard-email-synchro.php'
-			//'mailinboxstandard.class.inc.php',
+		'datamodel' => array( 
+			'model.jb-itop-standard-email-synchro.php' 
 		),
 		'webservice' => array(
 			
