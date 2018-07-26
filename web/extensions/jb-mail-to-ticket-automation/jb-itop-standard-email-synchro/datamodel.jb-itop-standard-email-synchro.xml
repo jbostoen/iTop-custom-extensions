@@ -619,7 +619,7 @@ EOF
           <code><![CDATA[	protected function FindCaller(EmailMessage $oEmail)
 	{
 		$oCaller = null;
-		$sContactQuery = 'SELECT Contact WHERE email = :email';
+		$sContactQuery = 'SELECT Person WHERE email = :email';
 		$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
 		$sAdditionalDescription = '';
 		switch($oSet->Count())
@@ -988,7 +988,7 @@ EOF
           <code><![CDATA[	protected function FindAdditionalContact($sEmail)
 	{
 		$oContact = null;
-		$sContactQuery = 'SELECT Contact WHERE email = :email';
+		$sContactQuery = 'SELECT Person WHERE email = :email';
 		$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $sEmail));
 		switch($oSet->Count())
 		{
@@ -1963,7 +1963,7 @@ EOF
 		// ### Policy: Unknown caller
 		$this->Trace(".. Policy: unknown caller");
 		 
-			$sContactQuery = 'SELECT Contact WHERE email = :email';
+			$sContactQuery = 'SELECT Person WHERE email = :email';
 			$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
 			$sAdditionalDescription = '';
 			switch($oSet->Count())
