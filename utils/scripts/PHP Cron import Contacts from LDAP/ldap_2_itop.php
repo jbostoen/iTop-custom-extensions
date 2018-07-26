@@ -87,13 +87,9 @@ function ad_2_itop( $orgName, $ldap, $db ) {
  
 
 		// Valid user? Except for indexes, we also get a "Count" as name for a key. 
-<<<<<<< HEAD
-		// To avoid service accounts etc, we also want a sn and givenname
-        if( strtolower($index) != "count" && @$ldap_entry["sn"][0] != "" && @$ldap_entry["givenname"][0] != "" @$ldap_entry["mail"][0] != "" ) {
-=======
 		// To avoid service accounts etc, we also want a sn and givenname and a non-empty mail address
         if( strtolower($index) != "count" && @$ldap_entry["sn"][0] != "" && @$ldap_entry["givenname"][0] != "" && @$ldap_entry["sn"][0] != "" ) {
->>>>>>> cc3ed142acafca12c8ec5638303df8f9977d3684
+
  
 			/*
 				Important note: due to how iTop works, it's "forbidden" to use INSERT ... ON DUPLICATE KEY UPDATE ... 
