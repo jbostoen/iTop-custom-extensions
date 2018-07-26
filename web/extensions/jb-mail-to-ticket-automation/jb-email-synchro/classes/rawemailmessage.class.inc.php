@@ -14,7 +14,7 @@
 //   along with this program; if not, write to the Free Software
 //   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 /**
- * @copyright   Copyright (C) 2012-2016 Combodo SARL
+ * @copyright   Copyright (C) 2012-2018 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
@@ -625,7 +625,7 @@ class RawEmailMessage
 		$sHeader = $this->GetHeader('Content-Transfer-Encoding', $aHeaders);
 		if (!empty($sHeader))
 		{
-			$sContentTransferEncoding = $sHeader;
+			$sContentTransferEncoding = strtolower($sHeader);
 		}
 		
 		$sHeader = $this->GetHeader('Content-Type', $aHeaders);
@@ -654,8 +654,8 @@ class RawEmailMessage
 			$sBody = implode("\n", $aLines);
 		}
  
-		//TODO: convert to UTF-8 only if the part is some kind of text ???
-		if($sCharset != 'UTF-8')
+		// Convert to UTF-8 only if the part is some kind of text
+		if($sCharset != 'UTF-8' && preg_match('/text\//', $aHeaders['content-type']))
 		{
 			$sOriginalBody = $sBody;
 			$sBody = @iconv($sCharset, 'UTF-8//TRANSLIT//IGNORE', $sBody);
