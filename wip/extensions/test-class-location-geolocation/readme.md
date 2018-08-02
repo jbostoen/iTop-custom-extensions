@@ -1,3 +1,5 @@
+= Test: OpenLayers integration =
+
 Attempt to intregrate OpenLayers into iTop.
 
 For now, viewing of features only.
