@@ -8,9 +8,8 @@ I (jbostoen) currently maintain a few **unofficial** extensions (tweaks, extra f
 Extensions most likely work with any 2.4.x-version. 
 It's unknown if extensions work on older versions of iTop. 
 
-There's a branch available which was compatible with 2.3.x-versions, but it's no longer maintained.
-You will miss out on fixes, changes, new features ...
- 
+The repository originally started with support for iTop 2.3.x-versions, but that branch has been deleted now. We encourage people to migrate to a more recent version.
+  
  
 # Folders
 - **docs**: contains info/hints on using the extensions in this repository, but also on implementing/using iTop
