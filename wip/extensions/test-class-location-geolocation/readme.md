@@ -1,4 +1,4 @@
-= Test: OpenLayers integration =
+# Test: OpenLayers integration
 
 Attempt to intregrate OpenLayers into iTop.
 
