@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5">
+  <constants/>
+  <classes>
+	<class id="Location">
+	  <methods>
+        <method id="DisplayBareRelations" _delta="define">
+          <static>false</static>
+          <access>public</access>
+          <type>Overload-cmdbAbstractObject</type>
+          <code><![CDATA[      public function DisplayBareRelations(WebPage $oPage, $bEditMode = false)
+        {
+                parent::DisplayBareRelations($oPage, $bEditMode);
+					
+				// View only
+				
+                if (!$bEditMode)
+                {
+					$oPage->SetCurrentTab(Dict::S('Location:Geolocation'));
+					
+					/*
+					$oPage->add('<div id="geoloc" style="width:100%;height:500px;">');
+					$oPage->add('<iframe style="border:0;padding:0;margin:0;width:100%;height:500px;overflow:auto" ');
+					$oPage->add('src="https://www.openstreetmap.org/export/embed.html?bbox='.$this->Get('longitude').'%2C'.$this->Get('latitude').'%2C'.$this->Get('longitude').'%2C'.$this->Get('latitude').'&amp;layer=mapnik&amp;marker='.$this->Get('latitude').'%2C'.$this->Get('longitude').'">');
+					$oPage->add('</iframe></div>');
+					*/
+					
+					// It seems iTop just outputs a script as text if you set it in $oPage->add()? 
+					
+					$oPage->add_linked_stylesheet("https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/css/ol.css");
+					$oPage->add_linked_script("https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/build/ol.js");
+					
+					$oPage->add('<div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>');
+					
+					// 'add_script' is also a method
+					// be careful what EPSG to select!
+					$oPage->add_ready_script('
+						  
+						geoLoc = {};
+						geoLoc.oFormat = new ol.format.WKT();
+						geoLoc.oFeature = geoLoc.oFormat.readFeature("'.$this->Get('wktgeom').'", { dataProjection: "EPSG:4326", featureProjection: "EPSG:3857" });
+						geoLoc.oFeatures = [ geoLoc.oFeature ];
+						geoLoc.oVectorSource = new ol.source.Vector({ 
+							features: geoLoc.oFeatures
+						});
+						geoLoc.oVectorLayer = new ol.layer.Vector({ 
+							source: geoLoc.oVectorSource, 
+							style: new ol.style.Style({ 
+								image: new ol.style.Circle({	
+									radius: 10,
+									fill: new ol.style.Fill({
+									  color: "rgba(255, 0, 0, 0.6)"
+									}),
+									stroke: new ol.style.Stroke({
+									  color: "rgba(255, 0, 0, 1)",
+									  width: 1
+									})
+								})
+							}) 
+						});							  
+					
+						geoLoc.oMap = new ol.Map({
+							target: "ol-map",
+							layers: [
+								// OpenLayers: the last layer you add, is on top.
+								new ol.layer.Tile({
+									source: new ol.source.OSM()
+								}), 
+								geoLoc.oVectorLayer 
+							],
+							view: new ol.View({
+								center: geoLoc.oFeature.getGeometry().getCoordinates(),
+								zoom: 18,
+								projection: "EPSG:3857"
+							})
+						});
+						
+					
+						// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.
+						// Could this have to do with iTop tab behavior?						
+						// Fix. 
+						// The tab part 
+						$("ul[role=\'tablist\'] > li > a > span:contains(\''.Dict::S('Location:Geolocation').'\')").parent().parent().on("click", function(evt){ 
+							geoLoc.oMap.updateSize();
+						});
+						// The actual link-part of the tab. For some reason not triggered with code above.
+						$("ul[role=\'tablist\'] > li > a > span:contains(\''.Dict::S('Location:Geolocation').'\')").on("click", function(evt){ 
+							geoLoc.oMap.updateSize();
+						});
+
+						
+					');
+					
+                }
+				
+				
+        }  ]]></code>
+        </method>
+      </methods>
+	  <fields>
+	  
+	  </fields>
+	  <fields>
+	  
+		<!-- takes up to 64kb -->
+		<field id="wktgeom" xsi:type="AttributeText" _delta="define">
+          <sql>wktgeom</sql>
+          <default_value/>
+          <is_null_allowed>true</is_null_allowed>
+        </field>
+      </fields>
+	
+	
+      <presentation>
+        <details>
+          <items> 
+            <item id="wktgeom" _delta="define">
+              <rank>150</rank>
+            </item>
+          </items>
+        </details>
+      </presentation>
+	</class>
+  </classes>
+  <menus/>
+  <user_rights>
+    <groups/>
+    <profiles/>
+  </user_rights>
+</itop_design>

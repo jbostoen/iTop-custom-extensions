@@ -420,7 +420,7 @@
 			$iId = $this->GetKey();
 			if ($this->Get('trace') == 'yes')
 			{
-				$oPage->add('<p><button type="button" id="debug_trace_refresh">'.Dict::S(Dict::S('UI:Button:Refresh')).'</button></p>');
+				$oPage->add('<p><button type="button" id="debug_trace_refresh">'.Dict::S('UI:Button:Refresh').'</button></p>');
 				$oPage->add('<div id="debug_trace_output"></div>');
 				$oPage->add_ready_script(
 <<<EOF
