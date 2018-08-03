@@ -1,4 +1,4 @@
-Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally from version 3.0.7, but we also copied the changes Combodo's done up to version 3.0.11 so far). 
+Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally from version 3.0.7, but we also copied the changes Combodo's done up to version 3.0.14 so far). We also contributed a few fixes back.
 
 One thing is important here: we highly recommend to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
 
@@ -136,10 +136,9 @@ UIDL
 * **Bounce message**
 * **Undesired patterns in subject** - (regex, one per line)
 
-
 # Policy: Patterns to ignore/remove from title
-* Use case: another ticket system which uses IR-1234567 as format. Our format is R-123456, this would lead to issues when handling emails with a reference from the other ticket.
+* Use case: another ticket system which uses IR-1234567 as a ticket reference. If our format is R-123456, this would lead to issues when handling emails with a reference from the other ticket.
 * Fallback - Ignore: just ignores parts when handling a new e-mail, but keeps the original subject to create the ticket. 
 * Fallback - Remove, it's gone completely. 
-* **Fallback** ignore/remove 	 
+* **Fallback**: ignore, remove 	 
 * **Undesired patterns in subject** - (regex, one per line)
