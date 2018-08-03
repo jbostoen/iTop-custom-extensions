@@ -17,7 +17,8 @@
 Dict::Add('EN US', 'English', 'English', array(
 	// Dictionary entries go here
 	  
-	'Class:Location/Attribute:wktgeom' => 'WKT Geometry', 
+	'Class:Location/Attribute:geom' => 'Geometry', 
 	'Location:Geolocation' => 'Geolocation',
+	'UI:Button:ClearGeometry' => 'Clear geometry'
 	
 ));
