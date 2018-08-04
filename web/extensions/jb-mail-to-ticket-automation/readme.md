@@ -1,4 +1,4 @@
-Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally from version 3.0.7, but we also copied the changes Combodo's done up to version 3.0.14 so far). We also contributed a few fixes back.
+Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally from version 3.0.7, but we also copied the changes Combodo's done up to version 3.0.14 so far). We also contributed a few fixes back (accepted in August 2018).
 
 One thing is important here: we highly recommend to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
 

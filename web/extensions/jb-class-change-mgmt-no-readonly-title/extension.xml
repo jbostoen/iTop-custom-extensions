@@ -5,10 +5,10 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: NormalChange and RoutineChange (ITIL) - don't make title Read-Only]]></label>
 	<description><![CDATA[Allows you to change the title at any time.]]></description>
-	<version>2.4.180415</version>
+	<version>2.5.180804</version>
 	<release_date>2018-04-15</release_date>
 	<version_description><![CDATA[ ]]></version_description>
-	<itop_version_min>2.4.0</itop_version_min>
+	<itop_version_min>2.5.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>

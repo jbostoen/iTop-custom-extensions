@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-class-request-mgmt-itil-lookup-relations</extension_code>
+	<company>none</company>
+	<author><![CDATA[jbostoen]]></author>
+	<label><![CDATA[Class: User Request (ITIL) - Always lookup relations]]></label>
+	<description><![CDATA[Always lookup relations to link to a User Request. By default, iTop only shows a short list with a reference only to a parent Problem, Incident, Change if you don't have many of them yet.]]></description>
+	<version>2.5.180804</version>
+	<release_date>2018-04-15</release_date>
+	<version_description><![CDATA[ ]]></version_description>
+	<itop_version_min>2.5.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
+</extension>
+

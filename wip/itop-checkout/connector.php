@@ -8,7 +8,7 @@
 	 * @copyright  2018 jbostoen
 	 * @version    Release: @0.1.180411@
 	 * @link       https://github.com/jbostoen
-	 * @since      Class available since Release 1.2.0
+	 * @since      -
 	 */ 
  
 	class iTop_Rest {
