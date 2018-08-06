@@ -15,6 +15,7 @@ Move-Item -Path "$($extNameD)\datamodel.$($extNameS).xml" -Destination "$($extNa
 Move-Item -Path "$($extNameD)\en.dict.$($extNameS).php" -Destination "$($extNameD)\en.dict.$($extNameD).php"
 Move-Item -Path "$($extNameD)\model.$($extNameS).php" -Destination "$($extNameD)\model.$($extNameD).php"
 Move-Item -Path "$($extNameD)\module.$($extNameS).php" -Destination "$($extNameD)\module.$($extNameD).php"
+Move-Item -Path "$($extNameD)\main.$($extNameS).php" -Destination "$($extNameD)\main.$($extNameD).php"
 
 $files = Get-ChildItem -Path "$($extNameD)"
 

@@ -1,217 +1,342 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5">
-  <constants/>
+
 	<classes>
 		<class id="Location">
-		<methods>
-			<method id="DisplayBareRelations" _delta="define">
-				<static>false</static>
-				<access>public</access>
-				<type>Overload-cmdbAbstractObject</type>
-				<code><![CDATA[      public function DisplayBareRelations(WebPage $oPage, $bEditMode = false)
-				{
-					parent::DisplayBareRelations($oPage, $bEditMode);
- 
-					$sFormat = 'GeoJSON'; // accepts 'GeoJSON' (needs some more escaping implementations), 'WKT' 
-					$sCRSData = 'EPSG:3857'; 
-					$sCRSMap = 'EPSG:3857';
-					$aMapCenter = [ 358652.11242031807, 6606360.84951076 ];
-					$sGeomString = ( $sFormat == 'GeoJSON' ? addcslashes($this->Get('geom'), '"') : $this->Get('geom') ); 
-					
-					$sTabName = Dict::S('Location:Geolocation');
-					$oPage->SetCurrentTab($sTabName); 
-					
-					// It seems iTop just outputs a script as text if you set it in $oPage->add()? 
-					
-					$oPage->add_linked_stylesheet("https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/css/ol.css");
-					$oPage->add_linked_script("https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/build/ol.js");
-					
-					if( $bEditMode ) {
-						$oPage->add('<button type="button" id="geomClear">'.Dict::S('UI:Button:ClearGeometry').'</button>');
-					}
-					
-					$oPage->add('</button><br><div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>');
-
-					
-					// 'add_script' is also a method
-					// be careful what EPSG to select!
-					$oPage->add_ready_script('
-						  
-						geoLoc = {};
-						geoLoc.oFormat = new ol.format.'.$sFormat.'();
-						geoLoc.oFeatures = [];
-						geoLoc.oFeature = ( "'.$sGeomString.'" != "" ? geoLoc.oFormat.readFeature("'.$sGeomString.'", { dataProjection: "'.$sCRSData.'", featureProjection: "'.$sCRSMap.'" }) : null );
+			<methods>
+				<method id="DisplayBareRelations" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-cmdbAbstractObject</type>
+					<code><![CDATA[      public function DisplayBareRelations(WebPage $oPage, $bEditMode = false)
+					{
+						parent::DisplayBareRelations($oPage, $bEditMode);
+	 
+						// Module settings
+						$sDataFormat = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'dataformat', 'WKT'); // accepts 'GeoJSON' (needs some more escaping implementations and will take more space than WKT while it doesn't contain any attribute info), 'WKT' 
+						$sDataCRS = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'datacrs', 'EPSG:3857'); 
+						$sMapCRS = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'mapcrs', 'EPSG:3857'); 
+						$aMapCenter = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'mapcenter', [ 358652.11242031807, 6606360.84951076 ]); 						
+						$sMapZoom = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'mapzoom', 17); 
 						
-						if( typeof geoLoc.oFeature !== "undefined" ) {
-							geoLoc.oFeatures.push( geoLoc.oFeature );
+						$sGeomString = ( $sDataFormat == 'GeoJSON' ? addcslashes($this->Get('geom'), '"') : $this->Get('geom') ); 
+						
+						$sTabName = Dict::S('Location:Geometry');
+						$oPage->SetCurrentTab($sTabName); 
+						
+						// It seems iTop just outputs a script as text if you set it in $oPage->add()? 
+						
+						$oPage->add_linked_stylesheet("https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/css/ol.css");
+						$oPage->add_linked_script("https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/build/ol.js");
+						
+						if( $bEditMode ) {
+							$oPage->add('<button type="button" id="geomClear">'.Dict::S('UI:Geom:Clear').'</button> | 
+								<select id="geomType">
+									<option value="Point">'.Dict::S('UI:Geom:Point').'</option>
+									<option value="LineString">'.Dict::S('UI:Geom:LineString').'</option>
+									<option value="Polygon">'.Dict::S('UI:Geom:Polygon').'</option>
+								</select>
+
+							');
 						}
 						
-						geoLoc.oVectorSource = new ol.source.Vector({ 
-							features: geoLoc.oFeatures
-						});
-						
-						geoLoc.oVectorLayer = new ol.layer.Vector({ 
-							source: geoLoc.oVectorSource, 
-							style: new ol.style.Style({ 
-								image: new ol.style.Circle({	
-									radius: 10,
-									fill: new ol.style.Fill({
-									  color: "rgba(255, 0, 0, 0.6)"
-									}),
-									stroke: new ol.style.Stroke({
-									  color: "rgba(255, 0, 0, 1)",
-									  width: 1
-									})
-								})
-							}) 
-						});							  
-					 
-						// Center: EPSG:3857 - [ 358652.11242031807, 6606360.84951076 ]
-						geoLoc.oMap = new ol.Map({
-							target: "ol-map",
-							layers: [
-								// OpenLayers: the last layer you add, is on top.
-								new ol.layer.Tile({
-									source: new ol.source.OSM()
-								}), 
-								geoLoc.oVectorLayer 
-							],
-							view: new ol.View({
-								center: ( geoLoc.oFeature === null ? [ '.implode($aMapCenter, ',').' ] : geoLoc.oFeature.getGeometry().getCoordinates() ),
-								zoom: 18,
-								projection: "'.$sCRSMap.'"
-							})
-						});
-						
-					
-						// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.
-						// Could this have to do with iTop tab behavior? Further investigation needed, only seems to work on second click now (might just appear to do so). 
-						// Not sure if it is an iTop (or Zend) issue, or OpenLayers. 
-						// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
-						// The tab container  
-						$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){  
-							setTimeout( function(){ geoLoc.oMap.updateSize(); }, 1000);
-						});
+						$oPage->add('</button><br><div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>');
 
-					');
 						
-					// View
-					if (!$bEditMode)
-					{
-						
+						// 'add_script' is also a method
+						// be careful what EPSG to select!
+						// for testing purposes, we'll try to detect if Geometry was saved in GeoJSON or WKT and read it anyway
+						// for geom.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 						$oPage->add_ready_script('
-						
-							// Nothing else needed for OpenLayers - view mode
-							
-						');
-						
-					}
-					else {
-					 
-						$oPage->add_ready_script('
-							
-							// Editing requires extra interactions.
-							
-							geoLoc.oDeleteCondition = function(mapBrowserEvent) {
-								return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.shiftKeyOnly(mapBrowserEvent)
+							  
+							geom = {};
+							geom.oFormat = {
+								WKT: new ol.format.WKT(),
+								GeoJSON: new ol.format.GeoJSON()
 							};
+							geom.oFeatures = [];
+							geom.oFeature = ( \''.$sGeomString.'\' != \'\' ? geom.oFormat.'.( preg_match('/^{"type":"Feature",.*/', $sGeomString) == TRUE ? 'GeoJSON' : 'WKT' ).'.readFeature(\''.$sGeomString.'\', { dataProjection: "'.$sDataCRS.'", featureProjection: "'.$sMapCRS.'" }) : null );
 							
-							// Modify has a deleteCondition, but it does not work with Points. 
-							// It only works with vertex = where two lines meet.
-							geoLoc.oModify = new ol.interaction.Modify({ 
-								source: geoLoc.oVectorSource,
-								deleteCondition: geoLoc.oDeleteCondition
+							if( geom.oFeature !== null ) {
+								geom.oFeatures.push( geom.oFeature );
+							}
+							
+							geom.oVectorSource = new ol.source.Vector({ 
+								features: geom.oFeatures
 							});
 							
-							geoLoc.oDraw = new ol.interaction.Draw({
-								source: geoLoc.oVectorSource,
-								type: "Point" // For now. Change to Point, Polygon, LineString, Circle
+							geom.oVectorLayer = new ol.layer.Vector({ 
+								source: geom.oVectorSource, 
+								style: ol_style
+							});					
+
+							if( geom.oFeature === null ) {
+								geom.oCenter = [ '.$aMapCenter[0].', '.$aMapCenter[1].' ];
+							}
+							else {
+								geom.oCenter = [ 
+									( geom.oFeature.getGeometry().getExtent()[0] + geom.oFeature.getGeometry().getExtent()[2] ) / 2,
+									( geom.oFeature.getGeometry().getExtent()[1] + geom.oFeature.getGeometry().getExtent()[3] ) / 2,
+								];
+							}
+						 
+							// Center: EPSG:3857 - [ 358652.11242031807, 6606360.84951076 ]
+							geom.oMap = new ol.Map({
+								target: "ol-map",
+								layers: [
+									// OpenLayers: the last layer you add, is on top.
+									new ol.layer.Tile({
+										source: new ol.source.OSM()
+									}), 
+									geom.oVectorLayer 
+								],
+								view: new ol.View({
+									center: geom.oCenter,
+									zoom: "'.$sMapZoom.'",
+									projection: "'.$sMapCRS.'"
+								})
 							});
 							
-							geoLoc.oSnap = new ol.interaction.Snap({
-								source: geoLoc.oVectorSource
+						
+							// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.
+							// Could this have to do with iTop tab behavior? Further investigation needed, only seems to work on second click now (might just appear to do so). 
+							// Not sure if it is an iTop (or Zend) issue, or OpenLayers. 
+							// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
+							// The tab container  
+							$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){  
+								setTimeout( function(){ geom.oMap.updateSize(); }, 1000);
 							});
+											
+								 
+							// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab) 
+							$("div[data-attcode=\'geom\']").hide();
 							
-							geoLoc.oSelect = new ol.interaction.Select({
-								condition: geoLoc.oDeleteCondition
-							});
+							// Style function.
+							/* 
+								// If you want to do something with vertices, you could use:
+								geometry = feature.getGeometry();
+								geometry.forEachSegment(function(start,end){ 
+									styles.push(
+										new ol.style.Style({ 
+											geometry: new Point(end), 
+											image: new ol.style.Icon({ ... }) 
+										}) 
+									) 
+								});
+							*/
 							
-							// Add interactions 
-							geoLoc.oMap.addInteraction( geoLoc.oDraw );
-							geoLoc.oMap.addInteraction( geoLoc.oModify );
-							geoLoc.oMap.addInteraction( geoLoc.oSnap );
-							// geoLoc.oMap.addInteraction( geoLoc.oSelect );
-							
-							// Remove feature (Point) on select. Both these implementations gave an error 
-							// geoLoc.oSelect.getFeatures().on("add", function(e){ ... });
-							// geoLoc.oSelect.on("select", function(e) { var features = e.target.features;  ... });
-							
-							geoLoc.oDraw.on("drawend", function(e){
+							function ol_style(feature) {
+								switch( feature.getGeometry().getType() ) {
 								
-								var f = e.feature;
-								var features = geoLoc.oVectorSource.getFeatures();
+									case "Point": 
+									
+										return [
+											new ol.style.Style({ 
+												image: new ol.style.Circle({	
+													radius: 10,
+													fill: new ol.style.Fill({
+													  color: "rgba(255, 0, 0, 0.6)"
+													}),
+													stroke: new ol.style.Stroke({
+													  color: "rgba(255, 0, 0, 1)",
+													  width: 1
+													})
+												})
+											})
+										];
+										
+									case "Polygon": 
+									
+										return [
+											new ol.style.Style({ 
+												fill: new ol.style.Fill({
+												  color: "rgba(255, 0, 0, 0.6)"
+												}),
+												stroke: new ol.style.Stroke({
+												  color: "rgba(255, 0, 0, 1)",
+												  width: 1
+												})										 
+											})
+										];
+										
+									case "LineString": 								
+									
+										return [
+											new ol.style.Style({ 										
+												fill: new ol.style.Fill({
+												  color: "rgba(255, 0, 0, 0.6)"
+												}),
+												stroke: new ol.style.Stroke({
+												  color: "rgba(255, 0, 0, 1)",
+												  width: 1
+												}) 
+											})
+										];
+										
+									default: 
+										// Should not happen
+										break;
+								}
+							}	
+								 
+								 
+							// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
+							$(document).ready(function(){
+								setTimeout( function(){ geom.oMap.updateSize(); }, 1000 );
+							});
+
+						');
+							
+						// View
+						if (!$bEditMode)
+						{
+							
+							$oPage->add_ready_script('
+							
+								// Nothing else needed for OpenLayers - view mode
 								
-								// Save in geom field 
-								$("textarea[name=\'attr_geom\']").val( geoLoc.oFormat.writeFeature(f) );
+							');
+							
+						}
+						else {
+						 
+							$oPage->add_ready_script('
 								
-								// Remove all except last (we only want one point)
-								// No need to slide, f is not part of features yet when this event is triggered, it seems.
-								$.each( features , function(i){
-									geoLoc.oVectorSource.removeFeature( features[i] );
+								// Editing requires extra interactions.
+								
+								geom.oDeleteCondition = function(mapBrowserEvent) {
+									return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.shiftKeyOnly(mapBrowserEvent)
+								};
+								
+								// Modify has a deleteCondition, but it does not work with Points. 
+								// It only works with vertex = where two lines meet.
+								geom.oModify = new ol.interaction.Modify({ 
+									source: geom.oVectorSource,
+									deleteCondition: geom.oDeleteCondition
 								});
 								
-								geoLoc.oFeature = e.feature;
+								geom.oDraw = new ol.interaction.Draw({
+									source: geom.oVectorSource,
+									type: $("#geomType").val()
+								});
 								
-							});
-							
-							$("#geomClear").on("click", function(e){
-							
-								// Remove
-								geoLoc.oFeature = null;
-								geoLoc.oVectorSource.clear();
-																
-								// Save in geom field 
-								$("textarea[name=\'attr_geom\']").val('');
+								geom.oSnap = new ol.interaction.Snap({
+									source: geom.oVectorSource
+								});
 								
-							});
+								geom.oSelect = new ol.interaction.Select({
+									condition: geom.oDeleteCondition
+								});
+								
+								// Add interactions 
+								geom.oMap.addInteraction( geom.oDraw );
+								geom.oMap.addInteraction( geom.oModify );
+								geom.oMap.addInteraction( geom.oSnap );
+								// geom.oMap.addInteraction( geom.oSelect );
+								
+								// Remove feature (Point) on select. Both these implementations gave an error 
+								// geom.oSelect.getFeatures().on("add", function(e){ ... });
+								// geom.oSelect.on("select", function(e) { var features = e.target.features;  ... });
+								
+								  
+								$("body").on("click", "#geomClear", function(e){
+								
+									// Remove
+									geom.oFeature = null;
+									geom.oVectorSource.clear();
+																	
+									// Save in geom field 
+									$("textarea[name=\'attr_geom\']").val("");
+									
+								});
+								
+								$("#geomType").on("change", function(e){
+					
+									ol_changeDrawMode();
+									
+								});
+									 
+								// Get last drawn geometry type
+								if( geom.oFeature !== null ) {
+									$("#geomType").val( geom.oFeature.getGeometry().getType() );
+									ol_changeDrawMode();
+								}
+
 							
-							
-						');
-					
-					
-					}
-					
-					
-				}  ]]></code>
-			</method>
-		</methods>
+								function ol_changeDrawMode() {
+								
+									geom.oMap.removeInteraction( geom.oDraw );
+								
+									geom.oDraw = new ol.interaction.Draw({
+										source: geom.oVectorSource,
+										type: $("#geomType").val()
+									});
+									
+									geom.oDraw.on("drawend", function(e){
+										
+										var f = e.feature;
+										var features = geom.oVectorSource.getFeatures();
+										
+										// Save in geom field 
+										$("textarea[name=\'attr_geom\']").val( geom.oFormat.'.$sDataFormat.'.writeFeature(f) );
+										
+										// Remove all except last (we only want one point)
+										// No need to slide, f is not part of features yet when this event is triggered, it seems.
+										$.each( features , function(i){
+											geom.oVectorSource.removeFeature( features[i] );
+										});
+										
+										geom.oFeature = e.feature;
+								
+									});
+									
+									geom.oMap.addInteraction( geom.oDraw );
+									
+								}
+						
+							');
+						}
+						
+						
+					}  ]]></code>
+				</method>
+			</methods>
 
-		<fields> 
-			<!-- takes up to 64kb -->
-			<field id="geom" xsi:type="AttributeText" _delta="define">
-				<sql>geom</sql>
-				<default_value/>
-				<is_null_allowed>true</is_null_allowed>
-			</field>
-		</fields>
+			<fields> 
+				<!-- takes up to 64kb -->
+				<field id="geom" xsi:type="AttributeText" _delta="define">
+					<sql>geom</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+			</fields>
 
 
-		<presentation>
-			<details>
-				<items> 
-					<item id="geom" _delta="define">
-						<rank>150</rank>
-					</item>
-				</items>
-			</details>
-		</presentation>
+			<presentation>
+				<details>
+					<items> 
+						<item id="geom" _delta="define">
+							<rank>150</rank>
+						</item>
+					</items>
+				</details>
+			</presentation>
 
-	</class>
+		</class>
 	</classes>
-	<menus/>
-	<user_rights>
-    <groups/>
-    <profiles/>
-	</user_rights>
+	
+	<module_parameters>
+		<parameters id="jb-poc-class-location-geom" _delta="define">
+			<dataformat type="string" _delta="define">WKT</dataformat> <!-- WKT or GeoJSON -->
+			<datacrs type="string" _delta="define">EPSG:3857</datacrs>
+			<mapcrs type="string" _delta="define">EPSG:3857</mapcrs>
+			<mapcenter type="array" _delta="define">
+				<coord id="0">358652.11242031807</coord>
+				<coord id="1">6606360.84951076</coord>
+			</mapcenter>
+			<mapzoom type="int" _delta="define">17</mapzoom>
+		</parameters>
+	</module_parameters>
+	 
 </itop_design>
 

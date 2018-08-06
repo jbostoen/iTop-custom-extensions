@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-poc-class-document-subtypes</extension_code>
+	<extension_code>jb-poc-class-location-geom</extension_code>
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Class: Location - Adds a geom field (tab with OpenLayers Map) ]]></label>

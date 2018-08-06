@@ -18,8 +18,16 @@ Dict::Add('EN US', 'English', 'English', array(
 	// Dictionary entries go here
 	  
 	'Class:Location/Attribute:geom' => 'Geometry', 
-	'Location:Geolocation' => 'Geolocation',
-	'UI:Button:ClearGeometry' => 'Clear geometry'
+	'Location:Geometry' => 'Geometry',
+	
+	// Actions
+	'UI:Geom:Clear' => 'Clear geometry', 
+	
+	// Geometry types
+	'UI:Geom:Point' => 'Point',
+	'UI:Geom:LineString' => 'LineString',
+	'UI:Geom:Polygon' => 'Polygon'
+	
 	
 ));
 
