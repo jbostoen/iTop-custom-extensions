@@ -12,14 +12,29 @@
 					{
 						parent::DisplayBareRelations($oPage, $bEditMode);
 	 
-						// Module settings
-						$sDataFormat = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'dataformat', 'WKT'); // accepts 'GeoJSON' (needs some more escaping implementations and will take more space than WKT while it doesn't contain any attribute info), 'WKT' 
-						$sDataCRS = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'datacrs', 'EPSG:3857'); 
-						$sMapCRS = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'mapcrs', 'EPSG:3857'); 
-						$aMapCenter = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'mapcenter', [ 358652.11242031807, 6606360.84951076 ]); 						
-						$sMapZoom = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'mapzoom', 17); 
+						// Module settings, defaults.
+						$aGeomSettings = MetaModel::GetModuleSetting('jb-poc-class-location-geom', 'default', array( 
+							'datacrs' => 'EPSG:3857',
+							'datatypes' => Array('Point','LineString','Polygon'),
+							'mapcrs' => 'EPSG:3857',
+							'mapcenter' =>  [ 358652.11242031807, 6606360.84951076 ],
+							'mapzoom' => 17,
+							'format' => 'WKT'
+						)); 
 						
-						$sGeomString = ( $sDataFormat == 'GeoJSON' ? addcslashes($this->Get('geom'), '"') : $this->Get('geom') ); 
+						// Module settings, specifics. In XML, most nodes seem to start with a non-capital.
+						if( MetaModel::GetModuleSetting('jb-poc-class-location-geom', strtolower(get_class($this)), '') != '') {
+							
+							$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-poc-class-location-geom', strtolower(get_class($this)), array() ); 
+							
+							foreach( $aClassSpecificSettings as $k => $v ) {
+								$aGeomSettings[$k] = $v;
+							} 
+							
+						}
+						
+						
+						$sGeomString = ( $aGeomSettings["dataformat"] == 'GeoJSON' ? addcslashes($this->Get('geom'), '"') : $this->Get('geom') ); 
 						
 						$sTabName = Dict::S('Location:Geometry');
 						$oPage->SetCurrentTab($sTabName); 
@@ -32,11 +47,14 @@
 						if( $bEditMode ) {
 							$oPage->add('<button type="button" id="geomClear">'.Dict::S('UI:Geom:Clear').'</button> | 
 								<select id="geomType">
-									<option value="Point">'.Dict::S('UI:Geom:Point').'</option>
-									<option value="LineString">'.Dict::S('UI:Geom:LineString').'</option>
-									<option value="Polygon">'.Dict::S('UI:Geom:Polygon').'</option>
-								</select>
+							');
 
+							foreach( $aGeomSettings["datatypes"] as $k => $v ){
+								$oPage->add('<option value="'.$v.'">'.Dict::S('UI:Geom:'.$v).'</option>'); 
+							} 
+									
+							$oPage->add('
+								</select>
 							');
 						}
 						
@@ -55,7 +73,7 @@
 								GeoJSON: new ol.format.GeoJSON()
 							};
 							geom.oFeatures = [];
-							geom.oFeature = ( \''.$sGeomString.'\' != \'\' ? geom.oFormat.'.( preg_match('/^{"type":"Feature",.*/', $sGeomString) == TRUE ? 'GeoJSON' : 'WKT' ).'.readFeature(\''.$sGeomString.'\', { dataProjection: "'.$sDataCRS.'", featureProjection: "'.$sMapCRS.'" }) : null );
+							geom.oFeature = ( \''.$sGeomString.'\' != \'\' ? geom.oFormat.'.( preg_match('/^{"type":"Feature",.*/', $sGeomString) == TRUE ? 'GeoJSON' : 'WKT' ).'.readFeature(\''.$sGeomString.'\', { dataProjection: "'.$aGeomSettings["datacrs"].'", featureProjection: "'.$aGeomSettings["mapcrs"].'" }) : null );
 							
 							if( geom.oFeature !== null ) {
 								geom.oFeatures.push( geom.oFeature );
@@ -71,7 +89,7 @@
 							});					
 
 							if( geom.oFeature === null ) {
-								geom.oCenter = [ '.$aMapCenter[0].', '.$aMapCenter[1].' ];
+								geom.oCenter = [ '.$aGeomSettings["mapcenter"][0].', '.$aGeomSettings["mapcenter"][1].' ];
 							}
 							else {
 								geom.oCenter = [ 
@@ -92,8 +110,8 @@
 								],
 								view: new ol.View({
 									center: geom.oCenter,
-									zoom: "'.$sMapZoom.'",
-									projection: "'.$sMapCRS.'"
+									zoom: "'.$aGeomSettings["mapzoom"].'",
+									projection: "'.$aGeomSettings["mapcrs"].'"
 								})
 							});
 							
@@ -108,7 +126,8 @@
 							});
 											
 								 
-							// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab) 
+							// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
+							// Alternatively, you could do this with CSS
 							$("div[data-attcode=\'geom\']").hide();
 							
 							// Style function.
@@ -278,7 +297,7 @@
 										var features = geom.oVectorSource.getFeatures();
 										
 										// Save in geom field 
-										$("textarea[name=\'attr_geom\']").val( geom.oFormat.'.$sDataFormat.'.writeFeature(f) );
+										$("textarea[name=\'attr_geom\']").val( geom.oFormat.'.$aGeomSettings["dataformat"].'.writeFeature(f) );
 										
 										// Remove all except last (we only want one point)
 										// No need to slide, f is not part of features yet when this event is triggered, it seems.
@@ -327,14 +346,35 @@
 	
 	<module_parameters>
 		<parameters id="jb-poc-class-location-geom" _delta="define">
-			<dataformat type="string" _delta="define">WKT</dataformat> <!-- WKT or GeoJSON -->
-			<datacrs type="string" _delta="define">EPSG:3857</datacrs>
-			<mapcrs type="string" _delta="define">EPSG:3857</mapcrs>
-			<mapcenter type="array" _delta="define">
-				<coord id="0">358652.11242031807</coord>
-				<coord id="1">6606360.84951076</coord>
-			</mapcenter>
-			<mapzoom type="int" _delta="define">17</mapzoom>
+		
+			<!-- Parameters are case sensitive! -->
+			
+			<!-- Defaults -->
+			<default>
+				<dataformat type="string" _delta="define">WKT</dataformat> <!-- WKT or GeoJSON -->
+				<datacrs type="string" _delta="define">EPSG:3857</datacrs>
+				<datatypes type="array" _delta="define">
+					<datatype id="0">Point</datatype>
+					<datatype id="1">LineString</datatype>
+					<datatype id="2">Polygon</datatype>
+				</datatypes>
+				<mapcrs type="string" _delta="define">EPSG:3857</mapcrs>				
+				<mapcenter type="array" _delta="define">
+					<coord id="0">358652.11242031807</coord>
+					<coord id="1">6606360.84951076</coord>
+				</mapcenter>
+				<mapzoom type="int" _delta="define">17</mapzoom>
+			</default>
+			
+			<!-- Class specific, but write in lowercase (XML convention) -->
+			<location>
+				<datatypes type="array" _delta="define">
+					<datatype id="0">Point</datatype>
+					<datatype id="2">Polygon</datatype>
+				</datatypes>				
+			</location>
+			
+			
 		</parameters>
 	</module_parameters>
 	 
