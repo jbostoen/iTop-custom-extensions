@@ -1,0 +1,8 @@
+{
+    "require": {
+        "twig/twig": "2.0",
+        "twbs/bootstrap": "^4.1",
+        "components/jquery": "^3.3",
+        "blueimp/jquery-file-upload": "^9.22"
+    }
+}

@@ -10,17 +10,20 @@
 	 * @link       https://github.com/jbostoen
 	 * @since      -
 	 */ 
- 
+  
 	class iTop_Rest {
 		
 		/* URL of the iTop web services, including version. This is a test environment for us. */
 		private $url = "http://localhost/itop/web/webservices/rest.php?version=1.3";
 		
-		/* Credentials of an iTop user */
+		/* Credentials of an iTop user with REST profile */
 		private $user = "admin";
 		private $password = "admin";
 		
-		
+		/* For debugging only */
+		private $showRequest = false;
+		private $showResponse = false;
+		 
 		
 		/**
 		 * Sends data to the iTop REST services and returns data (decoded JSON)
@@ -30,7 +33,7 @@
 		 * @return Array containing the data obtained from the iTop REST Services
 		 */ 
 		function post( $jsonData, $params = [] ) {
-			 
+			   
 			
 			//  Initiate curl
 			$ch = curl_init();
@@ -60,10 +63,8 @@
 				"Content-Length: " . strlen($postString)                                                                       
 			]);             
 
-			if( isset($params["showRequest"]) == TRUE ) {
-				if( $params["showRequest"] == TRUE ) {
-					echo "Request:" . PHP_EOL .json_encode($jsonData, JSON_PRETTY_PRINT ); 
-				}
+			if( $this->showRequest == TRUE ) {				
+				echo "Request:" . PHP_EOL .json_encode($jsonData, JSON_PRETTY_PRINT ); 				
 			}
 			
 						
@@ -74,17 +75,15 @@
 			// Closing
 			curl_close($ch);
   
-			if( isset($params["showResponse"]) == TRUE ) {
-				if( $params["showResponse"] == TRUE ) {
-					echo "Response:" . PHP_EOL  .$result; 
-				}
+			if( $this->showResponse == TRUE ) { 
+				echo "Response:" . PHP_EOL  .$result;  
 			}
-   
+    
 			return json_decode($result, true); 
 		
 		}
 		
-		
+		 
 		/**
 		 * Shortcut to getting organizations
 		 *
@@ -127,9 +126,9 @@
 		 * 
 		 * @return Array containing data, mimetype, filename
 		 */ 
-		function prepareFile( $params = []) {
+		function prepareFile( $sFileName ) {
 			
-			$sFileName = "35071125_10214803692582541_1640894613373845504_n.jpg";
+			$sFileName = $sFileName;
 			$sType = mime_content_type($sFileName);
 			$oData = file_get_contents($sFileName);
 			//$base64 = "data:".$sType . ";base64," . base64_encode($oData);
@@ -145,11 +144,5 @@
 		 
 		
 	}
-	
-	
-
+	 
 ?>
-
-
-
-
