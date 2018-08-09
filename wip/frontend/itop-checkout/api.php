@@ -31,6 +31,62 @@
 		
 		
 		/**
+		 * Shortcut to getting a list of Organizations
+		 *
+		 * @param $params Array Reserved for future use
+		 * 
+		 * @return Array [
+		 *		[
+		 *			"Organization::<Id1>" => 	
+		 * 				[ Organization object data from iTop REST/JSON services ]
+		 * 		],
+		 *		[
+		 *			"Organization::<Id2>" => 	
+		 * 				[ Organization object data from iTop REST/JSON services ]
+		 * 		],
+		 *		...
+		 * ]
+		 */ 
+		function getOrgs( Array $params = []) {
+			
+			return $this->post([
+				"operation" => "core/get", 
+				"class" => "Organization",
+				"key" => "SELECT Organization"			
+			])["objects"];
+			
+		}
+		
+		/**
+		 * Shortcut to getting contacts for a certain organization
+		 *
+		 * @param $params Array 
+		 * 
+		 * @return Array [
+		 *		[
+		 *			"Contact::<Id1>" => 	
+		 * 				[ Contact object data from iTop REST/JSON services ]
+		 * 		],
+		 *		[
+		 *			"Contact::<Id2>" => 	
+		 * 				[ Contact object data from iTop REST/JSON services ]
+		 * 		],
+		 *		...
+		 * ]
+		 */ 
+		function getContactsByOrgId( Array $params = []) {
+			
+			return $this->post([
+				"operation" => "core/get", 
+				"class" => "Contact",
+				"key" => "SELECT Contact WHERE org_id = '".$params["org_id"]."'"			
+			])["objects"];
+			
+		}
+		
+		
+		
+		/**
 		 * Registers a lending record. Detects automatically if it's in or out.
 		 *
 		 * @param $params Array containing a key 'serialnumber' (of PhysicalDevice), org_id, contact_id 

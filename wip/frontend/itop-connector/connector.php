@@ -1,38 +1,52 @@
 <?php
 
 	/**
-	 * Short description for class
+	 * Defines a PHP Class named iTop_Rest which could be an useful parent class to build upon.
 	 *
-	 * Long description for class (if any)...
-	 *
-	 * @copyright  2018 jbostoen
-	 * @version    Release: @0.1.180411@
+	 * @copyright  © 2018 - jbostoen
+	 * @version    Release: @0.1.180809@
 	 * @link       https://github.com/jbostoen
 	 * @since      -
 	 */ 
-  
 	class iTop_Rest {
 		
-		/* URL of the iTop web services, including version. This is a test environment for us. */
+		/** 
+		 *  @var String URL of the iTop web services, including version. This is a test environment for us. 
+		 */
 		private $url = "http://localhost/itop/web/webservices/rest.php?version=1.3";
 		
-		/* Credentials of an iTop user with REST profile */
+		/**
+		 *@var String User in iTop which has the REST User Profile (in iTop)
+		 */
 		private $user = "admin";
+		/**
+		 *@var String Password of the iTop user which has the REST User Profile (in iTop)
+		 */
 		private $password = "admin";
 		
 		/* For debugging only */
+		/**
+		 *  @var Boolean Output the request sent to iTop REST/JSON
+		 */
 		private $showRequest = false;
+		
+		/**
+		 *  @var Boolean Output the response from iTop REST/JSON
+		 */
 		private $showResponse = false;
 		 
 		
 		/**
 		 * Sends data to the iTop REST services and returns data (decoded JSON)
 		 *
-		 * @param $params Array containing a key 'serialnumber' (of PhysicalDevice) and contact_id 
+		 * @param $aJSONData [
+		 *		'operation'			=> String. Required.
+		 *		( other fields, depending on the operation. Read iTop Rest/JSON documentation. )
+		 * ];
 		 * 
 		 * @return Array containing the data obtained from the iTop REST Services
 		 */ 
-		function post( $jsonData, $params = [] ) {
+		function post( Array $aJSONData ) {
 			   
 			
 			//  Initiate curl
@@ -55,7 +69,7 @@
 			$postString = "".
 				"&auth_user=".$this->user.
 				"&auth_pwd=".$this->password.
-				"&json_data=".urlencode(json_encode( $jsonData ));
+				"&json_data=".urlencode(json_encode( $aJSONData ));
 			 
 				
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $postString);                                                                  
@@ -64,7 +78,7 @@
 			]);             
 
 			if( $this->showRequest == TRUE ) {				
-				echo "Request:" . PHP_EOL .json_encode($jsonData, JSON_PRETTY_PRINT ); 				
+				echo "Request:" . PHP_EOL .json_encode($aJSONData, JSON_PRETTY_PRINT ); 				
 			}
 			
 						
@@ -83,50 +97,61 @@
 		
 		}
 		
-		 
-		/**
-		 * Shortcut to getting organizations
-		 *
-		 * @param $params Array 
-		 * 
-		 * @return Array containing a key 'error' (0/1)
-		 */ 
-		function getOrgs( $params = []) {
-			
-			return $this->post([
-				"operation" => "core/get", 
-				"class" => "Organization",
-				"key" => "SELECT Organization"			
-			])["objects"];
-			
-		}
 		
 		/**
-		 * Shortcut to getting contacts for a certain organization
+		 * Shortcut to getting data
 		 *
-		 * @param $params Array 
+		 * @param $params Array [
+		 *			'key' 			=> 	Required. Int (iTop ID) or String (OQL Query)
+		 *			'class' 		=> 	Required if key is Int. String. iTop class name (examples: Organization, Contact, Person ...)
+		 *			'fields' 		=> 	Optional. Array. List of field names you want to retrieve. 
+		 *								If not specified, it returns all fields.
+		 *		]
 		 * 
-		 * @return Array containing a key 'error' (0/1)
+		 * @return Array [
+		 *		[
+		 *			'iTopclass::<Id1>' => 	
+		 * 				[ iTop object data from iTop REST/JSON services ]
+		 * 		],
+		 *		[
+		 *			'iTopclass::<Id1>' => 	
+		 * 				[ iTop object data from iTop REST/JSON services ]
+		 * 		],
+		 *		...
+		 * ]
 		 */ 
-		function getContactsByOrgId( $params = []) {
+		function get( Array $params = [] ) {
 			
-			return $this->post([
+			$res = $this->post([
 				"operation" => "core/get", 
-				"class" => "Contact",
-				"key" => "SELECT Contact WHERE org_id = '".$params["org_id"]."'"			
-			])["objects"];
+				"class" => ( isset($params["class"]) == TRUE ? $params["class"] : explode(" ", $params["key"])[1] ),
+				"key" => ( $params["key"] ),
+				"output_fields" => ( isset($params["fields"]) == TRUE ? implode(", " , $params["fields"]) :	"*" )			
+			]);
 			
-		}
-		
+			if( $res["code"] == 0 ) {
+				return $res["objects"];
+			}
+			else {
+				return $res;
+			} 
+			
+		} 
+		  
 		
 		/**
 		 * Shortcut to getting proper encoded base64 for data
 		 *
-		 * @param $fileName filename  
+		 * @param $sFileName String Path of the file you want to prepare (already on your server)  
 		 * 
-		 * @return Array containing data, mimetype, filename
+		 * @return Array
+		 * [
+		 *		'data' 		=> base64 encoded file
+		 *		'mimetype'	=> MIME-type of the file
+		 *		'filename' 	=> Original filename
+		 * ];
 		 */ 
-		function prepareFile( $sFileName ) {
+		function prepareFile( String $sFileName ) {
 			
 			$sFileName = $sFileName;
 			$sType = mime_content_type($sFileName);
@@ -141,6 +166,8 @@
 			
 			
 		}
+
+
 		 
 		
 	}
