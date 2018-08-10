@@ -42,7 +42,7 @@
 
 		<div class="container">
 			
-			<div class="alert alert-light" role="alert">
+			<div class="alert alert-light" role="alert" style="height: 50px";>
 				
 			</div>
 			
@@ -53,26 +53,26 @@
 					<table class="table" id="physicaldevices">
 						<thead class="thead-dark">
 							<tr>
-							  <th class="col-2">Serienummer</th>
-							  <th class="col-8">Omschrijving</th>
-							  <th class="col-2">In / uit</th>
+							  <th class="col-2">{{ lang.serial_number }}</th>
+							  <th class="col-8">{{ lang.description }}</th>
+							  <th class="col-2">{{ lang.lend_in_out }}</th>
 							</tr>
 						</thead>
 						<tbody>
 					  </tbody>
 					</table>
 					
-					<button type="button" class="btn btn-block btn-default" data-action="reset">Alles wissen</button>
+					<button type="button" class="btn btn-block btn-default" data-action="reset">{{ lang.clear }}</button>
 					
 					<hr>
 					
 					<div class="form-group">
 					
-						<label for="serialnumber">Toestel toevoegen (serienummer)</label>
+						<label for="serialnumber">{{ lang.add_physical_device }}</label>
 						 
 						<div class="input-group-append">
 							<input type="text" id="serialnumber" class="form-control"> 							
-							<div class="input-group-text" data-action="lookup">Zoeken</div>
+							<div class="input-group-text" data-action="lookup">{{ lang.look_up }}</div>
 						</div>
 						 
 					</div>
@@ -85,10 +85,10 @@
 					<form class="form">
 					
 						<!-- Org id. -->
-						<input type="hidden" id="org_id" value="2">
+						<input type="hidden" id="org_id" value="{{ org_id }}">
 					
 						<div class="form-group">
-							<label for="contact_id">Uitgeleend aan</label>
+							<label for="contact_id">{{ lang.lend_to }}</label>
 							<select class="form-control" id="contact_id" size="15">
 								{% for key, c in contacts %}
 								
@@ -100,7 +100,7 @@
 						
 						<div class="form-group">
 						
-							<label for="reason">Reden uitleen</label> 
+							<label for="reason">{{ lang.lend_reason }}</label> 
 							<div class="input-group-append">
 								<input type="text" id="reason" class="form-control">  
 							</div>
@@ -108,11 +108,11 @@
 						</div>
 							
 						<div class="form-group">
-							<label for="reason">Opmerking (bv. 'kapot' bij terugname)</label> 
+							<label for="reason">{{ lang.lend_remark }}</label> 
 							<textarea id="remarks" class="form-control"></textarea>
 						</div>
 						
-						<button type="button" class="btn btn-block btn-success" data-action="register">Registreren</button>
+						<button type="button" class="btn btn-block btn-success" data-action="register">{{ lang.register }}</button>
 					
 					 
 					</form>
@@ -160,13 +160,17 @@
 				},
 				success: function(data) {
 				
-					console.log(data); 
-					test = data;
+					console.log(data);  
 					
-					if( data.code == 0 ) {
-						alerty("Registratie OK", "success");
+					if( typeof data.error !== "undefined" ) {
+						alerty("Error occurred: " + data.msg, "danger");
+					}
+					else {
+					
+						alerty("Registration OK", "success");
 						$("#physicaldevices").html("");
 					}
+				 
 					
 				
 				}
@@ -198,7 +202,7 @@
 	
 	
 		function alerty( sMsg, sClass ) {
-			$("div[role='alert'")
+			$("div[role='alert']")
 				.html( sMsg )
 				.removeClass()
 				.addClass("alert alert-" + sClass );
@@ -206,7 +210,7 @@
 			
 			// Return to default
 			if( sMsg != "" ) {
-				setTimeout( function(){ alerty("&nbsp;", "light") }, 3000);
+				setTimeout( function(){ alerty("&nbsp;", "light") }, 5000);
 			}
 		}
 		
@@ -215,8 +219,7 @@
 			if( $("#serialnumber").val().length == 0 ) {
 				
 				// Specify serial number. Otherwise you get everything.
-				alerty("Geef een serienummer op.", "danger");
-				
+				alerty("Geef een serienummer op.", "danger");				
 				
 			}
 			else {
@@ -224,9 +227,9 @@
 				// Find iTop PhysicalDevice.
 				$.getJSON("api.php", { action: "GetPhysicalDeviceBySerial", serialnumber: $("#serialnumber").val() }, function(data) {
 				 
-					if( data === null ) {
+					if( typeof data.error !== "undefined" ) {
 					
-						alerty("Fout opgetreden. Ongeldig serienummer?", "danger");
+						alerty("Fout opgetreden. " + data.msg , "danger");
 					
 					}
 					else {
@@ -236,7 +239,7 @@
 							
 							if( $("[data-id='" + v.key + "']").length > 0 ) {
 								// Device already ready to be lend out?
-								alerty("Toestel staat al het lijstje.", "danger");
+								alerty("{{ lang.err_device_already_in_list }}", "danger");
 							}
 							else {
 								
@@ -244,7 +247,7 @@
 									'<tr data-id="' + v.key + '" data-serialnumber="' + v.fields.serialnumber + '">' + 
 									'	<td>' + v.fields.serialnumber + '</td>' +
 									'	<td>' + v.fields.friendlyname + '</td>' +
-									'	<td>' + ( v.takeback == 1 ? '<span class="text-danger">Terugnemen</span>' /* Take back */ : '<span class="text-success">Uitlenen</span>' /* Lend out */ ) + '</td>' +
+									'	<td>' + ( v.takeback == 1 ? '<span class="text-danger">{{ lang.lend_take_back }}</span>' /* Take back */ : '<span class="text-success">{{ lang.lend_out }}</span>' /* Lend out */ ) + '</td>' +
 									'</tr>' 
 								);
 							

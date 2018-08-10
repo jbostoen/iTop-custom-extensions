@@ -6,7 +6,7 @@
 	 * @copyright  © 2018 - jbostoen
 	 * @version    Release: @0.1.180809@
 	 * @link       https://github.com/jbostoen
-	 * @since      -
+	 * @see        https://www.itophub.io/wiki/page?id=2_5_0%3Aadvancedtopics%3Arest_json
 	 */ 
 	class iTop_Rest {
 		
@@ -107,46 +107,44 @@
 		/**
 		 * Shortcut to getting data
 		 *
-		 * @param $params Array [
-		 *		'key' 			=> 	Required.
-		 *							Int (iTop ID) 
-		 *							String (OQL Query) 
-		 *							Array (one or more fields and their values)
-		 *		'class' 		=> 	Required if key is not an OQL Query. 
-		 * 							String. iTop class name (examples: Organization, Contact, Person ...)
-		 *		'output_fields' => 	Optional. Array. List of field names you want to retrieve. 
-		 *							If not specified, it returns all fields.
+		 * @param Array $params Array [
+		 *   'key'              => Required.
+		 *                         Int (iTop ID) 
+		 *                         String (OQL Query) 
+		 *                         Array (one or more fields and their values)
+		 *    'class'           => Required if key is not an OQL Query. 
+		 *                         String. iTop class name (examples: Organization, Contact, Person ...)
+		 *   'output_fields'    => Optional. Array. List of field names you want to retrieve. 
+		 *                         If not specified, it returns all fields.
 		 *	]
 		 * 
-		 * @return Array [
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		],
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		],
-		 *		...
+
+		 * @return Array
+		 * Array [
+		 *    iTopclass::<Id1>' => [ iTop object data ], 
+		 *    iTopclass::<Id2>' => [ iTop object data ], 
+		 * 	  ...
 		 * ]
 		 *
 		 * or 
 		 * 
-		 *		[
-		 *			'code'			=> iTop error code (see iTop REST Documentation)
-		 * 			'message'		=> iTop error message
-		 *		]
+		 * Array [
+		 *        'code'        => iTop error code (see iTop REST Documentation)
+		 *        'message'     => iTop error message
+		 * ]
+		 *
 		 */ 
 		function get( Array $params = [] ) {
 			
 			$params = $this->deriveClass( $params );
-			
+			 			
 			$res = $this->post([
 				"operation" => "core/get", 
 				"class" => $params["class"],
 				"key" => $params["key"],
 				"output_fields" => ( isset($params["output_fields"]) == TRUE ? implode(", " , $params["output_fields"]) :	"*" )			
 			]);
+			  
 			
 			if( $res["code"] == 0 ) {
 				return $res["objects"];
@@ -161,27 +159,28 @@
 		/**
 		 * Shortcut to creating data
 		 *
-		 * @param $params Array [
-		 *		'comment' 		=> 	Required. String. Describing the action.
-		 *		'fields'		=>	Required. Array. The fields and values for them that need to be updated
-		 *		'class' 		=> 	Required. String. iTop class name (examples: Organization, Contact, Person ...)
-		 *		'output_fields' => 	Optional. Array. List of field names you want to retrieve. 
-		 *							If not specified, it returns all fields.
+		 * @param Array $params Array [
+		 *    'comment'         => Required. String. Describing the action.
+		 *    'fields'          => Required. Array. The fields and values for them that need to be updated
+		 *    'class'           => Required. String. iTop class name (examples: Organization, Contact, Person ...)
+		 *    'output_fields'   => Optional. Array. List of field names you want to retrieve. 
+		 *                         If not specified, it returns all fields.
 		 *	]
 		 * 
-		 * @return Array [
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		]
+		 * @return Array
+		 * Array [
+		 *    iTopclass::<Id1>' => [ iTop object data ], 
+		 *    iTopclass::<Id2>' => [ iTop object data ], 
+		 * 	  ...
 		 * ]
 		 *
 		 * or 
 		 * 
-		 *		[
-		 *			'code'			=> iTop error code (see iTop REST Documentation)
-		 * 			'message'		=> iTop error message
-		 *		]
+		 * Array [
+		 *        'code'        => iTop error code (see iTop REST Documentation)
+		 *        'message'     => iTop error message
+		 * ]
+		 *
 		 */ 
 		function create( Array $params = [] ) {
 			
@@ -208,36 +207,32 @@
 		 * Shortcut to updating data
 		 *
 		 * @param $params Array [
-		 *		'comment' 		=> 	Required. String. Describing the action.
-		 *		'fields'		=>	Required. Array. The fields and values for them that need to be updated
-		 *		'key' 			=> 	Required.
-		 *							Int (iTop ID) 
-		 *							String (OQL Query) 
-		 *							Array (one or more fields and their values)
-		 *		'class' 		=> 	Required if key is not an OQL Query. 
-		 * 							String. iTop class name (examples: Organization, Contact, Person ...)
-		 *		'output_fields' => 	Optional. Array. List of field names you want to retrieve. 
-		 *							If not specified, it returns all fields.
-		 *	]
+		 *   'comment'          => Required. String. Describing the action.
+		 *   'fields'           => Required. Array. The fields and values for them that need to be updated
+		 *   'key'              => Required.
+		 *                         Int (iTop ID) 
+		 *                         String (OQL Query) 
+		 *                         Array (one or more fields and their values)
+		 *   'class'            => Required if key is not an OQL Query. 
+		 *                         String. iTop class name (examples: Organization, Contact, Person ...)
+		 *   'output_fields'    => Optional. Array. List of field names you want to retrieve. 
+		 *                         If not specified, it returns all fields.
+		 * ]
 		 * 
-		 * @return Array [
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		],
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		],
-		 *		...
+		 * @return Array
+		 * Array [
+		 *    iTopclass::<Id1>' => [ iTop object data ], 
+		 *    iTopclass::<Id2>' => [ iTop object data ], 
+		 * 	  ...
 		 * ]
 		 *
 		 * or 
 		 * 
-		 *		[
-		 *			'code'			=> iTop error code (see iTop REST Documentation)
-		 * 			'message'		=> iTop error message
-		 *		]
+		 * Array [
+		 *        'code'        => iTop error code (see iTop REST Documentation)
+		 *        'message'     => iTop error message
+		 * ]
+		 *
 		 */ 
 		function update( Array $params = [] ) {
 			
@@ -265,37 +260,33 @@
 		/**
 		 * Shortcut to deleting data
 		 *
-		 * @param $params Array [
-		 *		'comment' 		=> 	Required. String. Describing the action. 
-		 *		'key' 			=> 	Required.
-		 *							Int (iTop ID) 
-		 *							String (OQL Query) 
-		 *							Array (one or more fields and their values)
-		 *		'class' 		=> 	Required if key is not an OQL Query. 
-		 * 							String. iTop class name (examples: Organization, Contact, Person ...)
-		 *		'output_fields' => 	Optional. Array. List of field names you want to retrieve. 
-		 *							If not specified, it returns all fields.
-		 *		'simulate' 		=> 	Optional. Boolean. Defaults to false.
+		 * @param Array $params Array [
+		 *   'comment'          => Required. String. Describing the action. 
+		 *   'key'              => Required.
+		 *                         Int (iTop ID) 
+		 *                         String (OQL Query) 
+		 *                         Array (one or more fields and their values)
+		 *   'class'            => Required if key is not an OQL Query. 
+		 *                         String. iTop class name (examples: Organization, Contact, Person ...)
+		 *   'output_fields'    => Optional. Array. List of field names you want to retrieve. 
+		 *                         If not specified, it returns all fields.
+		 *   'simulate'         => Optional. Boolean. Defaults to false.
 		 *	]
 		 * 
-		 * @return Array [
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		],
-		 *		[
-		 *			'iTopclass::<Id1>' => 	
-		 * 				[ iTop object data ]
-		 * 		],
-		 *		...
+		 * @return Array
+		 * Array [
+		 *    iTopclass::<Id1>' => [ iTop object data ], 
+		 *    iTopclass::<Id2>' => [ iTop object data ], 
+		 * 	  ...
 		 * ]
 		 *
 		 * or 
 		 * 
-		 *		[
-		 *			'code'			=> iTop error code (see iTop REST Documentation)
-		 * 			'message'		=> iTop error message
-		 *		]
+		 * Array [
+		 *        'code'        => iTop error code (see iTop REST Documentation)
+		 *        'message'     => iTop error message
+		 * ]
+		 *
 		 */ 
 		function delete( Array $params = [] ) {
 			
@@ -323,18 +314,18 @@
 		/**
 		 *  If an OQL query is specified as a 'key', this will automatically detect 'class' if it's missing.
 		 *  
-		 *  @param Object $oInput 
-		 *  @return Object Same as $oInput, but if 'class' was missing, it will now be set if it can be derived from 'key'.
+		 *  @param Array $oInput 
+		 *  @return Array Same as $oInput, but if 'class' was missing, it will now be set if it can be derived from 'key'.
 		 */
-		private function deriveClass( Object $oInput ) {
+		private function deriveClass( Array $aInput ) {
 							
-			if( isset( $oInput["class"] ) == FALSE ) {
-				
+			if( isset( $aInput["class"] ) == FALSE ) {
+				 				
 				// Is this an OQL query? Or an Integer as String?
-				if( is_string($oInput["key"]) ) {
-					
-					if( strtolower( strpos($oInput["key"], 0, 7) ) == "select ") {
-						$oInput["class"] = explode(" ", $oInput["key"] )[1];
+				if( is_string($aInput["key"]) == TRUE ) {
+					 
+					if( strtolower( substr($aInput["key"], 0, 7) ) == "select ") {
+						$aInput["class"] = explode(" ", $aInput["key"] )[1];
 					}					
 				}
 				else {
@@ -343,22 +334,24 @@
 				}
 				
 			}
+			  
 			
-			return $oInput;
+			return $aInput;
 			
 		}
+			
 		  
 		
 		/**
 		 * Shortcut to getting proper encoded base64 for data
 		 *
-		 * @param $sFileName String Path of the file you want to prepare (already on your server)  
+		 * @param String $sFileName Path of the file you want to prepare (already on your server)  
 		 * 
 		 * @return Array
 		 * [
-		 *		'data' 		=> base64 encoded file
-		 *		'mimetype'	=> MIME-type of the file
-		 *		'filename' 	=> Original filename
+		 *   'data'            => base64 encoded file
+		 *   'mimetype'        => MIME-type of the file
+		 *   'filename'        => Original filename
 		 * ];
 		 */ 
 		function prepareFile( String $sFileName ) {
@@ -377,7 +370,7 @@
 			
 		}
 
-
+		
 		 
 		
 	}
