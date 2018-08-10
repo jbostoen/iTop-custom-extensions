@@ -15,11 +15,20 @@
 	
 	
 	// Sort by friendly name. Don't look at case, our users won't understand.
-	function cmp($a, $b) {		
+	
+	/**
+	 * Short helper function to sort by friendlyName
+	 *  
+	 * @param String $a String A
+	 * @param String $b String B
+	 * @return Returns < 0 if str1 is less than str2; > 0 if str1 is greater than str2, and 0 if they are equal. 
+	 *  
+	 */
+	function cmpFriendlyName($a, $b) {		
 		return strcmp( strtolower( $a["fields"]["friendlyname"] ), strtolower( $b["fields"]["friendlyname"] ) );
 	} 
 	
-	uasort($contacts, "cmp");
+	uasort($contacts, "cmpFriendlyName");
  
 	// Render
 	echo $twig->render("checkout.html", [

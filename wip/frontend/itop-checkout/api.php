@@ -1,6 +1,10 @@
 <?php
 
 	/**
+	 *  iTop Check Out
+	 */
+
+	/**
 	 * Basic API for a check-out system
 	 *
 	 * @copyright  © 2018 - jbostoen
@@ -24,25 +28,25 @@
 	require("../itop-connector/connector.php");
 	
 	/**
-	 *  iTop Scan builds upon iTop_Rest and contains specific methods written to keep track of an inventory of functionalCIs which are often used by different people.
+	 *  iTop Scan extends iTop_Rest and contains specific methods written to keep track of an inventory of functionalCIs which are often used by different people.
 	 */
 	class iTop_Scan extends iTop_Rest {
 		  
 		 
 		/**
-		 * Registers a lending record. Detects automatically if it's in or out.
+		 * Registers a LendingRecord. Detects automatically if it's in or out.
 		 *
-		 * @param $params Array 
+		 * @param Array $params Array 
 		 * $params = [
-		 *		'serialnumber'		=> Required. String. Serial number of a PhysicalDevice 
-		 *		'org_id' 			=> Required. Integer. ID of an Organization
-		 * 		'contact_id' 		=> Required. Integer. ID of a Conact (deliberately chosen because we want both Person and Team).
+		 *   'serialnumber'  => Required. String. Serial number of a PhysicalDevice 
+		 *   'org_id'        => Required. Integer. ID of an Organization
+		 *   'contact_id'    => Required. Integer. ID of a Conact (deliberately chosen because we want both Person and Team).
 		 * ]
 		 * 
 		 * @return Array 
 		 * $array = [
-		 * 		'error'			=> Integer or String. 0 if no error. 
-		 *		'msg' 			=> Only if an error occurred.
+		 *   'error'         => Integer or String. 0 if no error. 
+		 *   'msg'           => Only if an error occurred.
 		 */ 
 		function register( Array $params = [] ) {
 			
@@ -155,12 +159,7 @@
 				
 			} 
 			
-		} 
-		
-		
-		
-			  
- 
+		}  
 		 
 	}
 	 
@@ -316,13 +315,6 @@
 		// echo json_encode(["error" => "scan_000", "msg" => "No action specified."]);
 	}
 	
-
-	
-	 
-	
+ 
 
 ?>
-
-
-
-
