@@ -8,6 +8,10 @@ Recommended settings are already set in the datamodel.
 Out of scope:
 - adding a real Geometry field to iTop. According to a topic, it requires a lot of editing of the core code. Which makes it difficult to maintain. So let's stick to using a Text field and WKT/GeoJSON
 
+# Known issues
+* Sometimes, for a brief second, it's possible you see the geometry field (text: GeoJSON or WKT) on the properties tab. But it quickly disappears.
+* No other known issues.
+
 # What can you learn?
 This extension contains examples of:
 * PHP: adding a completely new tab to a Class ( <method id="DisplayBareRelations method"> ) with references to CSS and JavaScript files
