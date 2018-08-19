@@ -2,13 +2,13 @@ The master branch works with iTop 2.5.x .
 Everything under the **extensions** folder is considered stable.
 
 # Compatibility
-I (jbostoen) currently maintain a few **unofficial** extensions (tweaks, extra features) for iTop 2.4.1
+I (jbostoen) currently maintain a few **unofficial** extensions (tweaks, extra features) for iTop 2.5.0
 Extensions most likely work with any 2.4.x-version. 
 It's unknown if extensions work on older versions of iTop. 
 
-The repository originally started with support for iTop 2.3.x-versions, but that branch has been deleted now. We encourage people to migrate to a more recent version.
+The repository originally started with support for iTop 2.3.x-versions, but that branch has been deleted now. I encourage people to migrate to a more recent version.
 
-iTop 2.4.x-branch (no longer maintained, most of my work should still be compatible if you replace the datamodel XML version "1.5" to "1.4" in the .xml files): 
+iTop 2.4.x-branch (no longer maintained, most of my work in this master branch should still be compatible if you replace the datamodel XML version "1.5" to "1.4" in the .xml files): 
 https://github.com/jbostoen/iTop-custom-extensions/tree/itop-2.4 
 
   
