@@ -99,11 +99,12 @@ function ad_2_itop( $orgName, $ldap, $db ) {
 			
 			// As reference, we'll use email. 
 			// There could easily be two John Smith's in a company, but they won't have the same email address.
+			// Avoid issues with duplicate email in LDAPs but other capitalization
 			$result = $mysqli->query("
 					SELECT * 
 					FROM ".$db["table"]." 
 					WHERE 
-						email = '".$mysqli->real_escape_string(@$ldap_entry["mail"][0])."';
+						email LIKE '".$mysqli->real_escape_string(@$ldap_entry["mail"][0])."';
 			");	 
 				
 			// Depending on the count:
