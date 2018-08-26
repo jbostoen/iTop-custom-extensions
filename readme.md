@@ -20,6 +20,8 @@ I (jbostoen) currently maintain a few **unofficial** extensions (tweaks, extra f
 Extensions most likely work with any 2.4.x-version. 
 It's unknown if extensions work on older versions of iTop. 
 
+I am developing with PHP 7.1
+
 iTop 2.4.x-branch (no longer maintained, most of my work in this master branch should still be compatible if you replace the datamodel XML version "1.5" to "1.4" in the .xml files): 
 https://github.com/jbostoen/iTop-custom-extensions/tree/itop-2.4 
 
