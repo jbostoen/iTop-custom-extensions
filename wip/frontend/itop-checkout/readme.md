@@ -2,6 +2,8 @@
 **You need to get a copy of Twig to use this**
 
 This is a quick experiment with the iTop REST WebServices.
+Uses the itop-connector I wrote.
+
 
 Basically, it's a check-in and check-out service. 
 It relies on the LendRecord class created by my colleague jdefoort ( https://github.com/jdefoort/iTopExtensions ).
