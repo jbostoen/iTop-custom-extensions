@@ -12,7 +12,10 @@ Everything under the **extensions** folder is considered stable.
 # What is iTop?
 iTop is an open source product by Combodo. "iTop stands for IT Operational Portal. iTop is an Open Source web application for the day to day operations of an IT environment. At the heart of iTop is the CMDB (Configuration Management Data Base), this is originally the first part of iTop that was developed." 
 
-For any general support questions (issues/questions NOT caused by my [versions of] extensions): https://sourceforge.net/p/itop/discussion/
+For any general support questions (issues/questions NOT caused by my extensions):
+- https://github.com/Combodo/iTop (as of end of August, 2018)
+- https://sourceforge.net/p/itop/discussion/
+
 
 
 # Compatibility / history
