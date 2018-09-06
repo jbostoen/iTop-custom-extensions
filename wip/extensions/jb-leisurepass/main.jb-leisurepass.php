@@ -55,7 +55,7 @@ class izLeisureTime implements iApplicationObjectExtension {
 				$iMaxAmount = (int) explode("_", $oObject->Get('category'))[1]; 
 				if( $iAmount > $iMaxAmount ) {
 					return Array( 
-						Dict::S('Errors/LeisurePass/ValueOfChecksTooHigh')
+						Dict::S('Errors/LeisurePass/ValueOfChecksTooHigh')." ( ". $iAmount . " / " . $iMaxAmount . " )"
 					);
 				}
 			
@@ -69,11 +69,13 @@ class izLeisureTime implements iApplicationObjectExtension {
 			
 			// user should not be able to create a new pass ( $oObject->Value ) if the TOTAL Value of previous checks AND this new one is bigger than the category of the pass
 			
-			$sOQL = 'SELECT LeisureCheck WHERE pass_id = '. $oObject->Get('pass_id');			
+			$oCheck = $oObject; // to make it easier to read the code
+			
+			$sOQL = 'SELECT LeisureCheck WHERE pass_id = '. $oCheck->Get('pass_id');			
 			$oPassChildChecksSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 			
 			
-			$sOQL = 'SELECT LeisurePass WHERE id = '. $oObject->Get('pass_id');			
+			$sOQL = 'SELECT LeisurePass WHERE id = '. $oCheck->Get('pass_id');			
 			$oPasses = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 
 			$iAmount = 0;
@@ -85,17 +87,17 @@ class izLeisureTime implements iApplicationObjectExtension {
 			}
 			
 			// Now we should retrieve all checks for this pass
-			while($oCheck = $oPassChildChecksSet->Fetch())
+			while($oExistingCheck = $oPassChildChecksSet->Fetch())
 			{
-				$iAmount = $iAmount + $oCheck->Get('value');
+				$iAmount = $iAmount + $oExistingCheck->Get('value');
 			}
 			
 			// Amount of previous checks AND the new one must be smaller than the total value (category) of the pass
 			// Now: (might need to add backward compatibility at some point for category)
 			$iMaxAmount = (int) explode("_", $oPass->Get('category'))[1]; 
-			if( ($iAmount + $oObject->Get('value')) > $iMaxAmount ) {
+			if( ($iAmount + $oCheck->Get('value')) > $iMaxAmount ) {
 				return Array( 
-					Dict::S('Errors/LeisurePass/ValueOfChecksTooHigh')
+					Dict::S('Errors/LeisurePass/ValueOfChecksTooHigh')." ( ". ($iAmount + $oCheck->Get('value')). " / " . $iMaxAmount  . " )"
 				);
 			}
 			

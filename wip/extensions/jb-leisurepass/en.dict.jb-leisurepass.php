@@ -16,7 +16,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	
 	
 	// Actual Leisure Pass
-	'LeisurePass/info' => 'General information', 
+	'LeisurePass:info' => 'General information', 
 	
 			
 	'Class:LeisurePass' => 'Leisure Pass',
@@ -52,7 +52,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	
 	
 	// Actual Leisure Check
-	'LeisureCheck/info' => 'General information', 
+	'LeisureCheck:info' => 'General information', 
 	
 			
 	'Class:LeisureCheck' => 'Leisure Check',
