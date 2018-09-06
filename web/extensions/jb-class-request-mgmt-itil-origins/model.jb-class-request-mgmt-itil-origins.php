@@ -15,3 +15,6 @@
 // - either no new class or menu defined in the XML file
 // - or no XML file at all supplied by the module
 
+
+
+

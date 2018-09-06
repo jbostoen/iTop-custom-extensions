@@ -6,9 +6,12 @@
 				<field id="origin" xsi:type="AttributeEnum">
 					<values>
 							<value id="in_person" _delta="define">in_person</value>
+							<value id="monitoring" _delta="define">monitoring</value>
 					</values>
 				</field>
 			</fields>
 		</class>
 	</classes>
 </itop_design>
+
+
