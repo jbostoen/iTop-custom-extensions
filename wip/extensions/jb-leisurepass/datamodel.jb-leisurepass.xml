@@ -3,6 +3,100 @@
 
 	<classes>     
 
+ 
+		<class id="LeisurePassCategory" _delta="define">
+			<parent>Typology</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>leasurepasscategory</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="value"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon/>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="value"/>
+						<attribute id="from"/>
+						<attribute id="until"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields>
+				<field id="from" xsi:type="AttributeDate">
+					<sql>from</sql>
+					<is_null_allowed>false</is_null_allowed>					
+				</field>
+				<field id="until" xsi:type="AttributeDate">
+					<sql>until</sql>
+					<is_null_allowed>false</is_null_allowed>					
+				</field>
+				<field id="value" xsi:type="AttributeDecimal">
+					<sql>value</sql>
+					<is_null_allowed>false</is_null_allowed>	
+					<digits>6</digits>
+					<decimals>2</decimals>
+				</field>
+				<field id="leasurepass_list" xsi:type="AttributeLinkedSet">
+					<linked_class>LeasurePass</linked_class>
+					<ext_key_to_me>category_id</ext_key_to_me>
+					<edit_mode>add_only</edit_mode>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+					<duplicates/>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="value">
+							<rank>20</rank>
+						</item>
+						<item id="from">
+							<rank>30</rank>
+						</item>
+						<item id="until">
+							<rank>40</rank>
+						</item>
+						<item id="leasurepass_list">
+							<rank>50</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+
+
+
+
+
 		<class id="LeisurePass" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
@@ -18,7 +112,7 @@
 						<attribute id="cascade_first_name"></attribute>
 						<attribute id="created"></attribute>
 					</attributes>
-					
+
 				</naming>
 
 				<display_template/>
@@ -52,22 +146,17 @@
 						<attribute id="org_id"/>
 					</dependencies>
 				</field>
-				
-			 
-				
 
-				<field id="category" xsi:type="AttributeEnum">
-					<sql>category</sql>
-					<values>
-						<!-- year_000 -> 3 digits for sort order -->
-						<value id="2018_000">2018_000</value>
-						<value id="2018_150">2018_150</value>
-						<value id="2018_080">2018_080</value>
-					</values>
-					<is_null_allowed>false</is_null_allowed>
+
+
+
+				<field id="category_id" xsi:type="AttributeExternalKey">
+					<sql>category_id</sql>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>LeisurePassCategory</target_class>
+					<filter><![CDATA[ SELECT LeisurePassCategory WHERE from <= NOW() AND until >= NOW() ]]></filter>
 					<display_style>radio_vertical</display_style>
-					<!-- Log all changes, including modifications -->
-					<tracking_level>all</tracking_level>
+					<allow_target_creation>true</allow_target_creation>
 				</field>
 
 
@@ -83,7 +172,7 @@
 					<sql>created</sql>
 				</field>
 
-				
+
 				<!-- Try to get this for naming (makes searching in checks easier) -->
 				<field id="cascade_name" xsi:type="AttributeExternalField">
 					<extkey_attcode>person_id</extkey_attcode>
@@ -93,14 +182,14 @@
 					<extkey_attcode>person_id</extkey_attcode>
 					<target_attcode>first_name</target_attcode>
 				</field>
-				
-			<!-- This causes issues
+
+				<!-- This causes issues
 				<field id="cascade_photo" xsi:type="AttributeExternalField">
 					<extkey_attcode>person_id</extkey_attcode>
 					<target_attcode>picture</target_attcode>
 				</field>
 			-->
-				
+
 
 			</fields>
 
@@ -120,19 +209,19 @@
 										<item id="person_id">
 											<rank>10</rank>
 										</item>
-										 
-										<item id="category">
+
+										<item id="category_id">
 											<rank>20</rank>
 										</item>
 										<item id="created">
 											<rank>40</rank>
 										</item>
-										 
+
 									</items>
 								</item>
 							</items>
 						</item>
-					 
+
 
 
 						<item id="LeisureCheck_list">
@@ -152,7 +241,7 @@
 						<item id="person_id">
 							<rank>10</rank>
 						</item>
-						<item id="category">
+						<item id="category_id">
 							<rank>20</rank>
 						</item>
 						<item id="LeisureCheck_list">
@@ -171,7 +260,7 @@
 						<item id="person_id">
 							<rank>10</rank>
 						</item>
-						<item id="category">
+						<item id="category_id">
 							<rank>20</rank>
 						</item>
 						<item id="LeisureCheck_list">
@@ -184,15 +273,15 @@
 			</presentation>
 
 			<methods/>
-			 
-			 
+
+
 
 		</class>
-		
-		
-		
-		
-		
+
+
+
+
+
 		<class id="LeisureCheck" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
@@ -231,7 +320,7 @@
 					<filter>SELECT LeisurePass AS lp WHERE DATE_FORMAT(lp.created, '%Y') = DATE_FORMAT( NOW(), '%Y' )</filter>
 				</field>
 
-				 
+
 
 				<field id="value" xsi:type="AttributeDecimal">
 					<sql>value</sql>
@@ -249,29 +338,29 @@
 						<value id="youth">youth</value>
 						<value id="sports">sports</value>			 
 					</values>
-					
+
 					<is_null_allowed>false</is_null_allowed>
 					<display_style>radio_vertical</display_style>
 					<!-- Log all changes, including modifications -->
 					<tracking_level>all</tracking_level>
 				</field>
-				
-				
-				
+
+
+
 				<field id="reason" xsi:type="AttributeText">
 					<sql>reason</sql>					
 					<tracking_level>all</tracking_level>
 				</field>
-				
+
 				<field id="created" xsi:type="AttributeDate">
 					<sql>created</sql>					 
 				</field>
 
-				
-				 
-			
-			
-				
+
+
+
+
+
 				<field id="cascade_name" xsi:type="AttributeExternalField">
 					<extkey_attcode>pass_id</extkey_attcode>
 					<target_attcode>cascade_name</target_attcode>
@@ -280,9 +369,9 @@
 					<extkey_attcode>pass_id</extkey_attcode>
 					<target_attcode>cascade_first_name</target_attcode>
 				</field>
-				
-				
-				
+
+
+
 			</fields>
 
 
@@ -298,7 +387,7 @@
 										<item id="pass_id">
 											<rank>5</rank>
 										</item>
-										 
+
 										<item id="created">
 											<rank>20</rank>
 										</item>
@@ -311,24 +400,25 @@
 										<item id="reason">
 											<rank>50</rank>
 										</item>
-										
-										
-										
+
+
+										<!-- Just testing something -->
+										<!--
 										<item id="cascade_first_name">
 											<rank>150</rank>
 										</item>
 										<item id="cascade_name">
 											<rank>150</rank>
 										</item>
-										
-										
-										
-										
+										-->
+
+
+
 									</items>
 								</item>
 							</items>
 						</item>
-						  
+
 
 					</items>
 				</details>
@@ -375,7 +465,7 @@
 						<item id="reason">
 							<rank>50</rank>
 						</item>
-						
+
 
 					</items>
 				</list>
@@ -383,17 +473,17 @@
 			</presentation>
 
 			<methods/>
-			 
-			 
+
+
 
 		</class>
-		
-		
-		
-		
-		
-		
-		
+
+
+
+
+
+
+
 	</classes>
 
 	<!-- Adds a link to the ConfigManagement Overview -->
@@ -409,8 +499,8 @@
 			<parent>ConfigManagement</parent>
 			<class>LeisurePass</class> 
 		</menu> 
-		
-		
+
+
 		<menu id="NewLeisureCheck" xsi:type="NewObjectMenuNode" _delta="define">
 			<rank>901</rank>
 			<parent>ConfigManagement</parent>
@@ -421,10 +511,10 @@
 			<parent>ConfigManagement</parent>
 			<class>LeisureCheck</class> 
 		</menu> 
-		
-		
-		
-		
+
+
+
+
 	</menus>
 
 	<profiles/>

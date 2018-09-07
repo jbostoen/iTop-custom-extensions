@@ -13,7 +13,7 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	
 	
 	'Errors/LeisurePass/ValueOfChecksTooHigh' => 'Fout: de totale waarde van de cheques zou hoger liggen dan de waarde van de pas.',
-	 
+	'Errors/LeisurePass/OnePassPerYear' => 'Fout: er kan maar 1 pas per jaar per persoon uitgegeven worden.',
 	
 	// Actual Leisure Pass
 	'LeisurePass:info' => 'Algemene info', 
@@ -31,11 +31,8 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:LeisurePass/Attribute:person_id+' => 'Eigenaar van de pas',
 	
 
-	'Class:LeisurePass/Attribute:category' => 'Categorie',
-	'Class:LeisurePass/Attribute:category+' => 'Categorie (waarde)',
-	'Class:LeisurePass/Attribute:category/Value:2018_000' => 'Categorie A ( EUR 0 )',
-	'Class:LeisurePass/Attribute:category/Value:2018_150' => 'Categorie B ( EUR 150 )',
-	'Class:LeisurePass/Attribute:category/Value:2018_080' => 'Categorie C ( EUR 80 )',
+	'Class:LeisurePass/Attribute:category_id' => 'Categorie',
+	'Class:LeisurePass/Attribute:category_id+' => 'Categorie (waarde)', 
 	
 	// Plan for legacy categories: from_year_value
 		 
@@ -81,6 +78,17 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:LeisureCheck/Attribute:created' => 'Uitgegeven op',
 	'Class:LeisureCheck/Attribute:created+' => 'Uitgegeven op',
 	
+	
+	// Typology: Category
+	'Class:LeisurePassCategory' => 'Vrijetijdspas - categorie',
+	'Class:LeisurePassCategory+' => 'Verschillende categorieën voor de vrijetijdspas',
+	'Class:LeisurePassCategory/name' => 'Naam',
+	'Class:LeisurePassCategory/from' => 'Vanaf',
+	'Class:LeisurePassCategory/until' => 'tot',
+	'Class:LeisurePassCategory/value' => 'Waarde',
+	
+	
+	// Menu
 	'Menu:SearchLeisureCheck' => 'Zoek vrijetijdscheques',
 	'Menu:SearchLeisureCheck+' => 'Zoek vrijetijdscheques',
 	'Menu:NewLeisureCheck' => 'Nieuwe vrijetijdscheque',

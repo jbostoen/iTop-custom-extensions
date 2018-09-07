@@ -31,11 +31,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:LeisurePass/Attribute:person_id+' => 'Person who owns the pass',
 	
 
-	'Class:LeisurePass/Attribute:category' => 'Category',
-	'Class:LeisurePass/Attribute:category+' => 'Category (value)',
-	'Class:LeisurePass/Attribute:category/Value:2018_000' => 'Category A ( EUR 0 )',
-	'Class:LeisurePass/Attribute:category/Value:2018_150' => 'Category B ( EUR 150 )',
-	'Class:LeisurePass/Attribute:category/Value:2018_080' => 'Category C ( EUR 80 )',
+	'Class:LeisurePass/Attribute:category_id' => 'Category',
+	'Class:LeisurePass/Attribute:category_id+' => 'Category (value)', 
+	
 	// Plan for legacy categories: from_year_value
 		 
 	'Class:LeisurePass/Attribute:LeisureCheck_list' => 'Leisure Checks',
@@ -80,6 +78,15 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:LeisureCheck/Attribute:created' => 'Created',
 	'Class:LeisureCheck/Attribute:created+' => 'Creation date',
 	
+	// Typology: Category
+	'Class:LeisurePassCategory' => 'Leisure Pass - category',
+	'Class:LeisurePassCategory+' => 'Different categories for the Leisure Pass',
+	'Class:LeisurePassCategory/name' => 'Name',
+	'Class:LeisurePassCategory/from' => 'From',
+	'Class:LeisurePassCategory/until' => 'Until',
+	'Class:LeisurePassCategory/value' => 'Value',
+	
+	// Menu
 	'Menu:SearchLeisureCheck' => 'Search for leisure checks',
 	'Menu:SearchLeisureCheck+' => 'Search for leisure checks',
 	'Menu:NewLeisureCheck' => 'New leisure check',

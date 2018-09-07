@@ -22,42 +22,66 @@ class izLeisureTime implements iApplicationObjectExtension {
 	
 	// public function OnUpdate( $oObject, $aChanges ) is AFTER updating
 	
+		/**
+	 *	Invoked to determine whether an object can be written to the database 
+	 *	
+	 *	The GUI calls this verb and reports any issue.
+	 *	Anyhow, this API can be called in other contexts such as the CSV import tool.
+	 * 
+	 * @param DBObject $oObject The target object
+	 * @return string[] A list of errors message. An error message is made of one line and it can be displayed to the end-user.
+	 */	
 	public function OnCheckToWrite( $oObject ) {
-			/**
-		 *	Invoked to determine wether an object can be written to the database 
-		 *	
-		 *	The GUI calls this verb and reports any issue.
-		 *	Anyhow, this API can be called in other contexts such as the CSV import tool.
-		 * 
-		 * @param DBObject $oObject The target object
-		 * @return string[] A list of errors message. An error message is made of one line and it can be displayed to the end-user.
-		 */	
-		if( $oObject instanceof LeisurePass ) {
-			 
 		
+		if( $oObject instanceof LeisurePass ) {
+			 		
+			// For easy reference
+			$oPass = $oObject;
+			
 			// Not creating; so only on modifying a pass
-			// On creating: -1
+			// On creating in the regular way:
 			// On creating from a select box: no value.
-			if( intval( $oObject->Get('id') ) < 1 ) {
+			if( intval( $oPass->Get('id') ) > 1 ) {
 			 
 				
-				$sOQL = 'SELECT LeisureCheck WHERE pass_id = '. $oObject->Get('id');			
+				$sOQL = 'SELECT LeisureCheck WHERE pass_id = '. $oPass->Get('id');			
 				$oPassChildChecksSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 							
 				// Now we should retrieve all checks for this pass
+				$iAmount = 0;
 				while($oCheck = $oPassChildChecksSet->Fetch())
 				{
 					$iAmount = $iAmount + $oCheck->Get('value');
 				}
 				
-				// Amount of previous checks AND the new one must be smaller than the total value (category) of the pass
-				// Now: (might need to add backward compatibility at some point for category)
-				$iMaxAmount = (int) explode("_", $oObject->Get('category'))[1]; 
+				
+				$sOQL = 'SELECT LeisurePassCategory WHERE id = '. $oPass->Get('category_id');			
+				$oPassCategorySet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
+						
+				// There will only be one
+				while($oPassCategory = $oPassCategorySet->Fetch())
+				{
+					$iMaxAmount = $oPassCategory->Get('value');
+				}
+				
+				
+				// Amount of checks should NOT be higher than the value of the pass
 				if( $iAmount > $iMaxAmount ) {
 					return Array( 
 						Dict::S('Errors/LeisurePass/ValueOfChecksTooHigh')." ( ". $iAmount . " / " . $iMaxAmount . " )"
 					);
 				}
+			
+			}
+			
+			// In any case: there should only be one pass per year per person		
+			$sOQL = "SELECT LeisurePass WHERE person_id = ". $oPass->Get('person_id')." AND DATE_FORMAT(created, '%Y')";			
+			$oPassesThisYear = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
+			
+			if( $oPassesThisYear->countExceeds(0) == true ) {
+				return Array( 
+					Dict::S('Errors/LeisurePass/OnePassPerYear')." ( ". $iAmount . " / " . $iMaxAmount . " )"
+				);		
 			
 			}
 			
@@ -71,13 +95,16 @@ class izLeisureTime implements iApplicationObjectExtension {
 			
 			$oCheck = $oObject; // to make it easier to read the code
 			
+			// Get all existing checks (could include this one if it's being modified)
 			$sOQL = 'SELECT LeisureCheck WHERE pass_id = '. $oCheck->Get('pass_id');			
 			$oPassChildChecksSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 			
 			
+			// Get pass
 			$sOQL = 'SELECT LeisurePass WHERE id = '. $oCheck->Get('pass_id');			
 			$oPasses = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 
+			
 			$iAmount = 0;
 			
 			// We should retrieve 1 pass		
@@ -92,10 +119,23 @@ class izLeisureTime implements iApplicationObjectExtension {
 				$iAmount = $iAmount + $oExistingCheck->Get('value');
 			}
 			
+			// New check? If so, add it, since it won't be i nour $oPassChildChecksSet
+			if( intval($oCheck->Get('id')) < 1 ) {
+				$iAmount = $iAmount + $oCheck->Get('value');				
+			}
+			
+			// Get value of pass
+			$sOQL = 'SELECT LeisurePassCategory WHERE id = '. $oPass->Get('category_id');			
+			$oPassCategorySet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
+					
+			// There will only be one
+			while($oPassCategory = $oPassCategorySet->Fetch())
+			{
+				$iMaxAmount = $oPassCategory->Get('value');
+			}
+			
 			// Amount of previous checks AND the new one must be smaller than the total value (category) of the pass
-			// Now: (might need to add backward compatibility at some point for category)
-			$iMaxAmount = (int) explode("_", $oPass->Get('category'))[1]; 
-			if( ($iAmount + $oCheck->Get('value')) > $iMaxAmount ) {
+			if( $iAmount > $iMaxAmount ) {
 				return Array( 
 					Dict::S('Errors/LeisurePass/ValueOfChecksTooHigh')." ( ". ($iAmount + $oCheck->Get('value')). " / " . $iMaxAmount  . " )"
 				);
@@ -111,7 +151,7 @@ class izLeisureTime implements iApplicationObjectExtension {
 	
 	
 		/**
-	 *	Invoked to determine wether an object has been modified in memory
+	 *	Invoked to determine whether an object has been modified in memory
 	 *
 	 *	The GUI calls this verb to determine the message that will be displayed to the end-user.
 	 *	Anyhow, this API can be called in other contexts such as the CSV import tool.
@@ -128,7 +168,7 @@ class izLeisureTime implements iApplicationObjectExtension {
  
 
 	/**
-	 *	Invoked to determine wether an object can be deleted from the database
+	 *	Invoked to determine whether an object can be deleted from the database
 	 *	
 	 * The GUI calls this verb and stops the deletion process if any issue is reported.
 	 * 	 
