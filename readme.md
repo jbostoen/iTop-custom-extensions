@@ -28,5 +28,6 @@ I am developing with PHP 7.1
 iTop 2.4.x-branch (no longer maintained, most of my work in this master branch should still be compatible if you replace the datamodel XML version "1.5" to "1.4" in the .xml files): 
 https://github.com/jbostoen/iTop-custom-extensions/tree/itop-2.4 
 
-
 The repository originally started with support for iTop 2.3.x-versions, but that branch has been deleted now. I encourage people to migrate to a more recent version.
+
+In the meanwhile, my colleague jdefoort ( https://github.com/jdefoort ) also became an iTop enthousiast and we often collaborate.
