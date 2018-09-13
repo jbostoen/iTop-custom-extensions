@@ -20,13 +20,15 @@
 				<field id="date_of_birth" xsi:type="AttributeDate" _delta="define">		
 					<sql>date_of_birth</sql>				
 					<default_value/>			  
-					<is_null_allowed>true</is_null_allowed>					
+					<is_null_allowed>true</is_null_allowed>	
+					<tracking_level>none</tracking_level>				
 				</field>
 
 				<field id="client_id" xsi:type="AttributeString" _delta="define">			
 					<sql>client_id</sql>	
 					<is_null_allowed>true</is_null_allowed>
-					<validation_pattern>^[0-9]{11}$</validation_pattern>				
+					<validation_pattern>^[0-9]{11}$</validation_pattern>
+					<tracking_level>none</tracking_level>					
 				</field>
 
 
