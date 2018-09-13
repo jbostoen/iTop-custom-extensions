@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5">
+	<classes>
+		<class id="Person">
+
+			<fields _delta="merge">
+
+
+				<field id="gender" xsi:type="AttributeEnum" _delta="define">			
+					<sql>gender</sql>				
+					<default_value/>			  
+					<is_null_allowed>true</is_null_allowed>
+					<display_style>radio_horizontal</display_style>
+					<values>
+						<value id="m">male</value>
+						<value id="f">female</value>
+					</values>
+				</field>
+
+				<field id="date_of_birth" xsi:type="AttributeDate" _delta="define">		
+					<sql>date_of_birth</sql>				
+					<default_value/>			  
+					<is_null_allowed>true</is_null_allowed>					
+				</field>
+
+				<field id="client_id" xsi:type="AttributeString" _delta="define">			
+					<sql>client_id</sql>	
+					<is_null_allowed>true</is_null_allowed>
+					<validation_pattern>^[0-9]{11}$</validation_pattern>				
+				</field>
+
+
+			</fields>
+
+			<presentation>
+				<details>
+					<items>
+						<item id="col:col1">
+							<items>
+								<item id="fieldset:Person:info">
+									<items _delta="merge">
+
+										<item id="gender" _delta="define">
+											<rank>100</rank>
+										</item>
+										<item id="date_of_birth" _delta="define">
+											<rank>110</rank>
+										</item>
+										<item id="client_id" _delta="define">
+											<rank>120</rank>
+										</item>
+
+										<item id="employee_number">
+											<rank delta="_redefine">200</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+
+
+				<search>
+					<items _delta="merge">
+						<item id="gender" _delta="define">
+							<rank>200</rank>
+						</item>
+						
+						<item id="date_of_birth" _delta="define">
+							<rank>210</rank>
+						</item>
+						<item id="client_id" _delta="define">
+							<rank>220</rank>
+						</item>
+							
+					</items>
+				</search>
+
+				<!-- don't show in lists by default -->
+				<list>
+					<items _delta="merge">
+						<item id="gender" _delta="define">
+							<rank>200</rank>
+						</item>
+						<!-- Don't show in result lists by default -->
+						<item id="date_of_birth" _delta="define">
+							<rank>210</rank>
+						</item>
+						<item id="client_id" _delta="define">
+							<rank>220</rank>
+						</item>
+						
+					</items>
+
+				</list>
+
+			</presentation>
+
+
+
+
+
+
+
+			<methods>
+
+
+
+				<method id="GetAttributeFlags" _delta="redefine">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function GetAttributeFlags($sAttCode, &$aReasons = array(), $sTargetState = '')
+	{
+	
+		// This will overwrite the default 'GetAttributeFlags' for class Person. 
+		// The original overload contains stuff related to demo, so not useful for us.
+	
+		if ( $sAttCode === 'client_id' ) {			
+				 
+			if ($this->bHasPrivileges() == false)
+			{
+				return OPT_ATT_HIDDEN;
+			}	
+
+		}
+			 
+		return parent::GetAttributeFlags($sAttCode, $aReasons, $sTargetState);
+	}
+]]></code>
+				</method>
+				
+				
+				<!-- You need to overload this for result lists. -->
+				<method id="GetAsHTML" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function GetAsHTML($sAttCode, $bLocalize = true) 
+							{
+								if($sAttCode === 'client_id')
+								{
+									if ($this->bHasPrivileges() == false)
+									{
+										return '*';
+									}	
+								}		
+																
+								return parent::GetAsHTML($sAttCode, $bLocalize);								
+								
+							}
+
+						
+					]]></code>
+				</method>
+				<method id="GetAsCSV" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function GetAsCSV($sAttCode, $bLocalize = true) 
+							{
+								if($sAttCode === 'client_id')
+								{
+									if ($this->bHasPrivileges() == false)
+									{
+										return '*';
+									}	
+								}
+															
+								return parent::GetAsCSV($sAttCode, $bLocalize);
+								
+							}
+
+						
+					]]></code>
+				</method>
+				<method id="GetAsXML" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function GetAsXML($sAttCode, $bLocalize = true) 
+							{
+								if($sAttCode === 'client_id')
+								{
+									if ($this->bHasPrivileges() == false)
+									{
+										return '*';
+									}	
+								}
+								
+								
+								
+								return parent::GetAsXML($sAttCode, $bLocalize);
+								
+								
+							}
+
+						
+					]]></code>
+				</method>
+				
+				 
+				
+				
+				
+				
+				
+				
+				
+				
+				<method id="bHasPrivileges" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Helper</type>
+					<code><![CDATA[  	public function bHasPrivileges()
+  	{
+		static $bHasPrivileges = null;
+		if (is_null($bHasPrivileges))
+		{
+		
+			// Check privileges of currently logged on user. 
+			// If we find at least one record for a user (:currentUserId) and a profile, 
+			// viewing the field is permitted. 
+			
+			$iCurrentUserId = UserRights::GetContactId();
+			
+			
+			$oUserSet = new DBObjectSet(DBSearch::FromOQL('
+				SELECT URP_UserProfile AS up 
+				JOIN URP_Profiles AS p ON up.profileid  = p.id 
+				JOIN User AS u ON up.userid = u.id 
+				JOIN Contact AS c ON u.contactid = c.id
+				WHERE p.name = "Administrator" AND c.id = :currentUserId
+			', array('currentUserId' => $iCurrentUserId )));
+			
+			// At least one record must have been found.
+			// If not, it seems that our user does not have the required profile.
+			$bHasPrivileges = ($oUserSet->Count() > 0);
+		}
+		return $bHasPrivileges;
+  	}
+]]></code>
+				</method>
+			</methods>
+
+
+
+		</class>
+	</classes>
+</itop_design>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-class-person-additional-fields</extension_code>
+	<company><![CDATA[  ]]></company>
+	<author><![CDATA[ jbostoen ]]></author>
+	<label><![CDATA[ Class: Person - add fields ]]></label>
+	<description><![CDATA[ Adds gender, date of birth, ... ]]></description>
+	<version>2.4.180912</version>
+	<release_date>2018-09-12</release_date>
+	<version_description><![CDATA[  ]]></version_description>
+	<itop_version_min>2.4.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
+</extension>
+
+
+

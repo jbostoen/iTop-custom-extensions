@@ -183,12 +183,30 @@
 					<target_attcode>first_name</target_attcode>
 				</field>
 
-				<!-- This causes issues
-				<field id="cascade_photo" xsi:type="AttributeExternalField">
+				<!-- This causes issues, when viewing class Check, which uses an ExternalField to Pass. 
+				Also tried inheriting the "extra" fields 
+				-->
+				<!-- 
+				<field id="cascade_picture" xsi:type="AttributeExternalField">
 					<extkey_attcode>person_id</extkey_attcode>
 					<target_attcode>picture</target_attcode>
+									
 				</field>
-			-->
+				-->
+				
+				<!-- Inheriting these fields doesn't work and makes iTop block during setup-->
+				<!--
+				<field id="cascade_picture_filename" xsi:type="AttributeExternalField">
+					<extkey_attcode>person_id</extkey_attcode>
+					<target_attcode>picture_filename</target_attcode>
+									
+				</field>
+				<field id="cascade_picture_data" xsi:type="AttributeExternalField">
+					<extkey_attcode>person_id</extkey_attcode>
+					<target_attcode>picture_data</target_attcode>
+									
+				</field>
+				-->
 
 
 			</fields>
