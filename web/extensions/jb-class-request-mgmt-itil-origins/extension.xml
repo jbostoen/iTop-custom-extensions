@@ -3,8 +3,8 @@
 	<extension_code>jb-class-request-mgmt-itil-origins</extension_code>
 	<company>none</company>
 	<author><![CDATA[jbostoen]]></author>
-	<label><![CDATA[Class: User Request (ITIL) - Add origin: in person]]></label>
-	<description><![CDATA[Adds 'in person' option to the 'origin' field of a User Request.]]></description>
+	<label><![CDATA[Class: User Request (ITIL) - Add origins: 'in person', 'monitoring']]></label>
+	<description><![CDATA[Adds 'in person' and 'monitoring' option to the 'origin' field of a User Request.]]></description>
 	<version>2.5.180804</version>
 	<release_date>2018-04-15</release_date>
 	<version_description><![CDATA[ ]]></version_description>
