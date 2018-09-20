@@ -6,27 +6,25 @@ $extNameS = Read-Host "`n`nSource Internal name?`nExample: prefix-class-classNam
 $extNameD = Read-Host "`n`Destination Internal name?`nExample: prefix-class-className-what-changed`n";
 
   
-# Copy directory 
+# Rename directory 
 Move-Item -Path "$($extNameS)" -Destination "$($extNameD)" 
 
- 
-# Rename some files
-Move-Item -Path "$($extNameD)\datamodel.$($extNameS).xml" -Destination "$($extNameD)\datamodel.$($extNameD).xml"
-Move-Item -Path "$($extNameD)\en.dict.$($extNameS).php" -Destination "$($extNameD)\en.dict.$($extNameD).php"
-Move-Item -Path "$($extNameD)\model.$($extNameS).php" -Destination "$($extNameD)\model.$($extNameD).php"
-Move-Item -Path "$($extNameD)\module.$($extNameS).php" -Destination "$($extNameD)\module.$($extNameD).php"
-Move-Item -Path "$($extNameD)\main.$($extNameS).php" -Destination "$($extNameD)\main.$($extNameD).php"
+# Rename all files containing the string
+$files = Get-ChildItem -path "$($extNameD)\*" -include "*.$($extNameS).php","*.$($extNameS).xml","extension.xml"
 
-$files = Get-ChildItem -Path "$($extNameD)"
 
 $files | ForEach-Object {
 	
-    [String]$c = (Get-Content "$($extNameD)\$($_.Name)" -Raw);
-	
-	$c = $c.replace( $extNameS , $extNameD ); 
-	
+	# Replace content
+    [String]$c = (Get-Content "$($extNameD)\$($_.Name)" -Raw);	
+	$c = $c.replace( $extNameS , $extNameD ); 	
 	$c | Set-Content "$($extNameD)\$($_.Name)"
+	
+	# Rename 
+	Move-Item -Path "$($extNameD)\$($_.Name)" -Destination "$($extNameD)\$($_.Name -replace $($extNameS),$($extNameD) )"
+	
 }
+
 
 
 
