@@ -8,8 +8,8 @@
 
 Dict::Add('EN US', 'English', 'English', array(
 	// Dictionary entries go here
-	'LendRecord/otherinfo' => 'General information',
-	'LendRecord/baseinfo' => 'Other information',
+	'LendRecord/baseinfo' => 'General information',
+	'LendRecord/otherinfo' => 'Other information',
 	
 	
 	'Class:LendRecord' => 'Lend record',
