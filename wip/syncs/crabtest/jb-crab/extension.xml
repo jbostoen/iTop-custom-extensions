@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-crab</extension_code>
+	<company>none</company>
+	<author><![CDATA[jbostoen]]></author>
+	<label><![CDATA[Flemish Crab Addresses]]></label>
+	<description><![CDATA[Adds 2 classes for Flemish Crab Addresses.]]></description>
+	<version>2.5.180810</version>
+	<release_date>2018-08-10</release_date>
+	<version_description><![CDATA[ ]]></version_description>
+	<itop_version_min>2.5.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions</more_info_url>
+</extension>
+

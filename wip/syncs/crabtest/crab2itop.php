@@ -262,8 +262,9 @@
 			}
 			 
 			// For later use, to see if crab_id for street exists, without additional queries
-			// $aExistingStreetItems = array_map( function( $v ) { return $v["fields"]["crab_id"]; } , $aExistingStreetItems );
-			
+			$aExistingStreetItems = array_map( function( $v ) { return $v["fields"]["crab_id"]; } , $aExistingStreetItems );
+			 
+	
 			
 			// Select addresses
 			$aExistingAddressItems = $oRest->get([
@@ -292,7 +293,7 @@
 				// ///// Straatnaam
 				
 				// Street exists in array? (col 2 = STRAATNM)
-				if( in_array( $oAddress->sStraatnaam , $aExistingStreetItems ) == false ) {
+				if( in_array( $oAddress->fCrabIdStraatnaam , $aExistingStreetItems ) == false ) {
 				 
 					// Create new street
 					$aItems = $oRest->create([
@@ -307,6 +308,8 @@
 							
 					]); 
 					
+					
+					
 					if( count($aItems) != 1 ) {
 						throw new Exception("Unexpectd error - could not create street?");
 												
@@ -315,8 +318,9 @@
 						
 						
 						// Just created, now cache.
-						$aExistingStreetItems[] = $aItems[0]["fields"]["crab_id"];
-							
+						$aExistingStreetItems[] = $oAddress->fCrabIdStraatnaam;
+						$aStreets[$oAddress->sStraatnaam] = $aItems[0];  
+						
 					} 
 					
 				}
