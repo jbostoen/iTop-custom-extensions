@@ -13,32 +13,32 @@
 		/** 
 		 *  @var String URL of the iTop web services, including version. This is a test environment for us. 
 		 */
-		private $url = "http://localhost/itop/web/webservices/rest.php";
+		public $url = "http://localhost/itop/web/webservices/rest.php";
 		
 		/**
 		 *  @var String describing the REST API version
 		 */
-		 private $version = "1.3";
+		 public $version = "1.3";
 		
 		/**
 		 *@var String User in iTop which has the REST User Profile (in iTop)
 		 */
-		private $user = "admin";
+		public $user = "admin";
 		/**
 		 *@var String Password of the iTop user which has the REST User Profile (in iTop)
 		 */
-		private $password = "admin";
+		public $password = "admin";
 		
 		/* For debugging only */
 		/**
 		 *  @var Boolean Output the request sent to iTop REST/JSON
 		 */
-		private $showRequest = false;
+		public $showRequest = false;
 		
 		/**
 		 *  @var Boolean Output the response from iTop REST/JSON
 		 */
-		private $showResponse = false;
+		public $showResponse = false;
 		 
 		
 		/**
@@ -114,8 +114,12 @@
 		 *                         Array (one or more fields and their values)
 		 *    'class'           => Required if key is not an OQL Query. 
 		 *                         String. iTop class name (examples: Organization, Contact, Person ...)
-		 *   'output_fields'    => Optional. Array. List of field names you want to retrieve. 
+		 *    'output_fields'   => Optional. Array. List of field names you want to retrieve. 
 		 *                         If not specified, it returns all fields.
+		 *  
+		 *    'onlyValues'      => Optional. Boolean. 
+		 *                         Not related to iTop. Will return the objects without a key.
+		 *                         
 		 *	]
 		 * 
 
@@ -133,6 +137,16 @@
 		 *        'message'     => iTop error message
 		 * ]
 		 *
+		 *
+		 * or if onlyValues = true:
+		 *
+		 * @return Array
+		 * Array [
+		 *    [ iTop object data ], 
+		 *    [ iTop object data ], 
+		 * 	  ...
+		 * ]
+		 * 
 		 */ 
 		function get( Array $params = [] ) {
 			
@@ -147,7 +161,14 @@
 			  
 			
 			if( $res["code"] == 0 ) {
-				return $res["objects"];
+				
+				// Valid call, no results?
+				if( isset( $res["objects"]  ) == false ) {
+					return [];
+				}
+				else {
+					return ( isset( $params["onlyValues"]) == true ? ( $params["onlyValues"] == true ? array_values($res["objects"]) : $res["objects"] ) : $res["objects"] );
+				}
 			}
 			else {
 				return $res;
@@ -165,6 +186,9 @@
 		 *    'class'           => Required. String. iTop class name (examples: Organization, Contact, Person ...)
 		 *    'output_fields'   => Optional. Array. List of field names you want to retrieve. 
 		 *                         If not specified, it returns all fields.
+		 *  
+		 *    'onlyValues'      => Optional. Boolean. 
+		 *                         Not related to iTop. Will return the objects without a key.
 		 *	]
 		 * 
 		 * @return Array
@@ -181,6 +205,17 @@
 		 *        'message'     => iTop error message
 		 * ]
 		 *
+		 *
+		 *
+		 * or if onlyValues = true:
+		 *
+		 * @return Array
+		 * Array [
+		 *    [ iTop object data ], 
+		 *    [ iTop object data ], 
+		 * 	  ...
+		 * ]
+		 *
 		 */ 
 		function create( Array $params = [] ) {
 			
@@ -195,7 +230,7 @@
 			]);
 			
 			if( $res["code"] == 0 ) {
-				return $res["objects"];
+				return ( isset( $params["onlyValues"]) == true ? ( $params["onlyValues"] == true ? array_values($res["objects"]) : $res["objects"] ) : $res["objects"] );
 			}
 			else {
 				return $res;
