@@ -1,5 +1,5 @@
 # iTop version
-Currently maintaining this repository with iTop 2.4.x in mind and specifically the **ITIL** version.
+Currently maintaining this repository with iTop 2.5.x in mind and specifically the **ITIL** version.
 
 # Updates
 
@@ -14,7 +14,7 @@ With the release of iTop 2.5.x:
 
 
 Future:
-- currently planned version for iTop seems to be 2.6.x and 2.7.x, so not expecting major changes when it comes to compatibility. 
+- currently planned versions for iTop seems to be 2.6.x up to 2.8.x, so not expecting major changes when it comes to compatibility. 
 *IF* I move to iTop 2.6.x, the same scenario as above will be used. 
 Also, the legacy branch for 2.4.x will then be completely removed.
 
