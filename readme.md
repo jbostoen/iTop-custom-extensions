@@ -19,14 +19,14 @@ For any general support questions (issues/questions NOT caused by my extensions)
 
 
 # Compatibility
-I am developing ***unofficial*** extensions (simple tweaks, extra features) for iTop 2.5.0 using PHP 7.1 and MySQL 5.7.
+I am developing ***unofficial*** extensions (simple tweaks, extra features) for iTop 2.5.x using PHP 7.1 and MySQL 5.7.
 
 It's unknown if these extensions work on older versions of iTop. For most of them, only minor adjustments (downgrading data model version number) might suffice.
 
 iTop 2.4.x-branch (no longer maintained, most of my work in this master branch should still be compatible if you replace the datamodel XML version "1.5" to "1.4" in the .xml files): 
 https://github.com/jbostoen/iTop-custom-extensions/tree/itop-2.4 
 
-The repository originally started with support for iTop 2.3.x-versions, but that branch has been deleted now. I encourage people to migrate to a more recent version.
+Support plan: https://github.com/jbostoen/iTop-custom-extensions/blob/master/docs/support%20plan.md
 
 # History
 I (jbostoen) started using iTop in 2015. Since then, I've been using it more every day. I also stimulated others to use it.
