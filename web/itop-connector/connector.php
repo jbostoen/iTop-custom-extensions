@@ -3,6 +3,8 @@
 	/**
 	 * Defines a PHP Class named iTop_Rest which could be an useful parent class to build upon.
 	 *
+	 * Place iTop Connector under <iTopDir>/itop-connector
+	 *
 	 * @copyright  © 2018 - jbostoen
 	 * @version    Release: @0.1.180809@
 	 * @link       https://github.com/jbostoen
@@ -39,6 +41,32 @@
 		 *  @var Boolean Output the response from iTop REST/JSON
 		 */
 		public $showResponse = false;
+		
+		
+		public function __construct( ) {
+
+			// If 'itop-connector' folder is placed within iTop-directory, the url property will automatically be adjusted
+			if( file_exists("../approot.inc.php") == true ) {
+				
+				
+				
+				// Assume we're in iTop directory
+				require_once("../approot.inc.php");
+				
+				// Get iTop config file 
+				echo APPCONF . "/" . ITOP_DEFAULT_ENV . PHP_EOL;
+				if( file_exists( APPCONF . "/" . ITOP_DEFAULT_ENV . "/config-itop.php") == true ) {
+					
+					$this->url = $MySettings["app_root_url"] . "/webservices/rest.php";
+					echo "URL set to " . $this->url;
+				}
+				
+				
+			}  
+			
+			
+		}
+		
 		 
 		
 		/**

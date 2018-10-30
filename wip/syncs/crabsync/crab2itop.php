@@ -2,22 +2,34 @@
 
 
 	/*
-	* Crab Import 
+	* Crab Import. 
+	*
+	* Place under <iTopDir>/web/cron/crabsync
+	* Place iTop Connector under <iTopDir>/itop-connector
+	*
 	*/
- 
 	error_reporting(E_ALL);
+
  
-			
-	// Require iTop Connector		
-	require_once("../itop-connector/connector.php");
+
+	defined("APPDIR") or define("APPDIR",  dirname(dirname(dirname( str_replace("\\", "/", __FILE__ ) ))));
+	
+	
+	require_once( APPDIR . "/itop-connector/connector.php" );
+	
+	$a = new iTop_Rest();
+	
+	
 
 	// No time limit 
+	// First time will take long time.
 	set_time_limit(0);
-	
-	
-	 
-	
-	
+
+
+	// Increase memory limit
+	ini_set("memory_limit", "256M");
+
+		
 	
 	/**
 	 *  Class crabHuisnummer
@@ -117,7 +129,11 @@
 							$this->sBusnummer = $v; 
 							break;
 							
-							
+
+						case "STATUS": // not in GeoJSON
+							$this->iStatusHuisnummer = $v;
+							break;			
+				
 						case "GEMEENTE":
 						case "HERKOMST": 
 						case "HNRLABEL":
@@ -181,21 +197,26 @@
 			$sFileName = "CRAB_Adressenlijst_Shapefile.zip";
 			
 			
- /*			$ch = curl_init();
+ 			$ch = curl_init();
 			$downloadFile = fopen( $sFileName , "w" );
 			curl_setopt($ch, CURLOPT_URL, $sURL);
 			 
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); 
 			curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-			curl_setopt( $ch, CURLOPT_FILE, $downloadFile );
+			curl_setopt($ch, CURLOPT_FILE, $downloadFile );
 			curl_exec($ch);
 			curl_close($ch);
-	*/		
-			
+		
+
+			echo "Downloaded file... ".PHP_EOL;			
+
 			// Recursive delete everything
 			recursiveRemoveDirectory(  dirname(__FILE__). "/shapefile");
 			
+
+			echo "Unzip file..." .PHP_EOL;
+
 			$zip = new ZipArchive;
 			$res = $zip->open( $sFileName );
 			
@@ -226,21 +247,40 @@
 		
 		
 		public function importFromShapeFile() {
+
 			
-			// Where were contacts extracted (see Download())
-			$sDirProcess = dirname(__FILE__)."/shapefile/Shapefile";
+			// Where were contacts extracted (see Download()) 
+			$sDirProcess = str_replace("\\", "/", dirname(__FILE__) ) ."/shapefile/Shapefile";
+
+			if( file_exists( $sDirProcess."/CrabAdr.shp") == false ) {
+				die("No shapefile at ".$sDirProcess."/CrabAdr.shp");
+			}
+
 			
 			// Convert shapefile to GeoJSON (CSV is more compact but caused issues)
-			$sRunOGR2OGR = 'ogr2ogr.exe -f GeoJSON "'.$sDirProcess.'/output.geojson" "'.$sDirProcess.'/CrabAdr.shp" -sql "SELECT * FROM CrabAdr WHERE GEMEENTE = \'Izegem\' ORDER BY STRAATNM" '; 
-			 
-	//		shell_exec( $sRunOGR2OGR ); 
-			
+			$sRunOGR2OGR = 'ogr2ogr -f GeoJSON "'.$sDirProcess.'/output.geojson" "'.$sDirProcess.'/CrabAdr.shp" -sql "SELECT * FROM CrabAdr WHERE GEMEENTE = \'Izegem\' ORDER BY STRAATNM" '; 
+
+			echo "Convert using OGR: ". $sRunOGR2OGR . PHP_EOL;			 
+
+			shell_exec( $sRunOGR2OGR ); 
+
+			if( file_exists( $sDirProcess."/output.geojson") == false ) {
+				die("Unable to convert shapefile to GeoJSON.");
+			}
+		
+	
+		
 			ob_flush();
 			flush();
 			
 			
 			$oRest = new iTop_Rest();
+
+			// For debugging
+			// $oRest->showRequest = true;
+			// $oRest->showResponse = true;
 			 
+
 			
 			$aJsonDecoded = json_decode( file_get_contents($sDirProcess."/output.geojson"), TRUE);
 			
@@ -275,25 +315,29 @@
 			// For later use, to see if crab_id for address exists, without additional queries
 			$aExistingAddressItems = array_map( function( $v ) { return $v["fields"]["crab_id"]; } , $aExistingAddressItems );
 			
-			
-			
-			
-		 
-
-			foreach ($aJsonDecoded["features"] as $v ) {
-				 
 			 
-	
+			$iAddress = 1;
+			
+			foreach ($aJsonDecoded["features"] as $v ) {
 				
-				// Combine values, create address object 
+				  
+				// Combine values, create address object
+
+				// in list? Let's assume it's in use 
+				$v["properties"]["STATUS"] = 3; 
+ 
 				$oAddress = new crabAddress( $v["properties"] );	
 				
+				
+				echo "Process GeoJSON Feature " . sprintf("%08d" , $iAddress ) . " | " . $oAddress->fCrabId . " | " .  $oAddress->sStraatnaam. " | "  . $oAddress->sHuisnummer . " | " . $oAddress->sAppartementnummer . " | " . $oAddress->sBusnummer . PHP_EOL;
 				
 				
 				// ///// Straatnaam
 				
 				// Street exists in array? (col 2 = STRAATNM)
 				if( in_array( $oAddress->fCrabIdStraatnaam , $aExistingStreetItems ) == false ) {
+					
+					echo "-- Create street" . PHP_EOL;
 				 
 					// Create new street
 					$aItems = $oRest->create([
@@ -311,7 +355,7 @@
 					
 					
 					if( count($aItems) != 1 ) {
-						throw new Exception("Unexpectd error - could not create street?");
+						throw new Exception("Unexpected error - could not create street? ". json_encode($oAddress) );
 												
 					}
 					else {
@@ -326,7 +370,7 @@
 				}
 				else {
 					
-					// Update?
+					// Update? 
 					
 				}
 				 
@@ -338,6 +382,8 @@
 					
 					// echo "Create ". $oAddress->sStraatnaam . PHP_EOL ;
 					 
+					echo "-- Create address" . PHP_EOL;
+					
 					// Create new street
 					$oResult_Create_Address = $oRest->create([
 						"comment" => "Crab Sync",
@@ -348,7 +394,7 @@
 							"house_number" => $oAddress->sHuisnummer,
 							"appartement_number" => $oAddress->sAppartementnummer,
 							"sub_number" => $oAddress->sBusnummer,
-							"status" => 3 // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+							"status" => $oAddress->iStatusHuisnummer // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
 						],
 						"onlyValues" => true
 							
@@ -369,11 +415,17 @@
 				}
 
 				
+				$iAddress += 1;
+				
 			} 
 
+			// Above, we have unset all the $aExistingAddressItems we found. 
+			// In $aExistingAddressItems, we might have IDs (iTop) of addresses which are no longer valid.
+			// They were not processed or did not have a status we care about.
+			// We could set them to 'delete'.
 			
 			
-			echo "Done";
+			echo "Done processing GeoJSON" . PHP_EOL;
 			
 		 
 	
@@ -416,15 +468,27 @@
 	
 	$oCrabImport = new iTop_CrabImport();
 	
-	
-//	$oCrabImport->download();
-	
+
+
+	header("Content-Type: text/plain");
+
+
+	echo "Download shapefile ...".PHP_EOL;
+
+	// Download Shapefile	
+	// $oCrabImport->download();
+
+
+
+	echo "Process shapefile ..." . PHP_EOL;
+
+	// Import Crab from sync
 	$oCrabImport->importFromShapeFile();
 	
 	 
 	ob_end_flush();
 	
-	echo "Done";
+	echo "Done"  . PHP_EOL;
 	
 	
 
