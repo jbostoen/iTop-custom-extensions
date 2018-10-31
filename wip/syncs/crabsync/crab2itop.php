@@ -10,15 +10,11 @@
 	*/
 	error_reporting(E_ALL);
 
- 
 
 	defined("APPDIR") or define("APPDIR",  dirname(dirname(dirname( str_replace("\\", "/", __FILE__ ) ))));
 	
 	
 	require_once( APPDIR . "/itop-connector/connector.php" );
-	
-	$a = new iTop_Rest();
-	
 	
 
 	// No time limit 
@@ -456,29 +452,15 @@
 	}
 
 
-
-
-
- 
-
-
-
-	
-
-	
 	$oCrabImport = new iTop_CrabImport();
-	
 
 
 	header("Content-Type: text/plain");
 
-
 	echo "Download shapefile ...".PHP_EOL;
 
 	// Download Shapefile	
-	// $oCrabImport->download();
-
-
+	$oCrabImport->download();
 
 	echo "Process shapefile ..." . PHP_EOL;
 
