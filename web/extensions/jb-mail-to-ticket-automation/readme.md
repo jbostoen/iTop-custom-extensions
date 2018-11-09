@@ -4,6 +4,18 @@ One thing is important here: we highly recommend to set **use_message_id_as_uid*
 
 What is different? We noted a few situations where Combodo's implementation of Mail to Ticket Automation was not sufficient enough. We split them up in what I'll refer to as "Policies".
 
+
+For IMAP, here's a quick example on the configuration options (config-itop.php).
+Also make sure the PHP IMAP extension is enabled.
+
+	'imap_options' => array (
+	  0 => 'imap',
+	  1 => 'ssl',
+	  2 => 'novalidate-cert',
+	),
+	
+
+
 # Basics about policies
 Most of them have:
 * eMail - behavior: always 'bounce and delete', 'delete', 'mark as undesired'. Sometimes 'mark as error'. Sometimes fallbacks are possible.
