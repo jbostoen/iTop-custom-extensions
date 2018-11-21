@@ -263,12 +263,7 @@
 			if( file_exists( $sDirProcess."/output.geojson") == false ) {
 				die("Unable to convert shapefile to GeoJSON.");
 			}
-		
-	
-		
-			ob_flush();
-			flush();
-			
+		 
 			
 			$oRest = new iTop_Rest();
 
@@ -388,7 +383,7 @@
 							"crab_id" => $oAddress->fCrabId,
 							"street_id" => $aStreets[$oAddress->sStraatnaam]["key"], // This is NOT the Crab id for this street but the iTop ID!
 							"house_number" => $oAddress->sHuisnummer,
-							"appartement_number" => $oAddress->sAppartementnummer,
+							"apartment_number" => $oAddress->sAppartementnummer,
 							"sub_number" => $oAddress->sBusnummer,
 							"status" => $oAddress->iStatusHuisnummer // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
 						],
@@ -467,8 +462,7 @@
 	// Import Crab from sync
 	$oCrabImport->importFromShapeFile();
 	
-	 
-	ob_end_flush();
+	  
 	
 	echo "Done"  . PHP_EOL;
 	
