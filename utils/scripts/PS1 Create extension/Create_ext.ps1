@@ -1,3 +1,4 @@
+# Last updated: 20181205-2037
 # Will create a copy of the files in the template, replacing some stuff.
 
 $extName = Read-Host "`n`nInternal name?`nExample: prefix-class-className-what-changed`n";
@@ -24,10 +25,11 @@ Copy-Item -Path "template" -Destination "$($extName)" -Recurse  -Container
 
 
 # Rename some files
-Move-Item -Path "$($extName)\datamodel.template.xml" -Destination "$($extName)\datamodel.$($extName).xml"
-Move-Item -Path "$($extName)\en.dict.template.php" -Destination "$($extName)\en.dict.$($extName).php"
-Move-Item -Path "$($extName)\model.template.php" -Destination "$($extName)\model.$($extName).php"
-Move-Item -Path "$($extName)\module.template.php" -Destination "$($extName)\module.$($extName).php"
+$aFiles = gci -Path "$($extName)"
+$aFiles | Foreach-Object {
+	Move-Item -Path "$($extName)\$( $_.Name )" -Destination "$($extName)\$( $_.Name -replace "template", $extName )"
+}
+
 
 $files = Get-ChildItem -Path "$($extName)"
 

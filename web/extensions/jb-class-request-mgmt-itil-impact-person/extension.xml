@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-class-request-mgmt-itil-impact-person</extension_code>
+	<company><![CDATA[  ]]></company>
+	<author><![CDATA[ jbostoen ]]></author>
+	<label><![CDATA[ Class: UserRequest - change impact: default to 'person' ]]></label>
+	<description><![CDATA[ Changes default impact to 'person' rather than 'department' ]]></description>
+	<version>2.5.181205</version>
+	<release_date>2018-12-05</release_date>
+	<version_description><![CDATA[  ]]></version_description>
+	<itop_version_min>2.5.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
+</extension>
+
+
+
