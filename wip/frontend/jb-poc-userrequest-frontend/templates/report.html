@@ -9,35 +9,90 @@
     <title>Checkout example for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css" type="text/css">
 
+    <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+	
+	
     <!-- Custom styles for this template -->
     <style>
-		.container {
-		  max-width: 960px;
+		.full-width {
+			max-width: none;
+			width: 90% !important;
 		}
 
-		.border-top { border-top: 1px solid #e5e5e5; }
-		.border-bottom { border-bottom: 1px solid #e5e5e5; }
-		.border-top-gray { border-top-color: #adb5bd; }
+		.border-top { 
+			border-top: 1px solid #e5e5e5; 
+		}
+		
+		.border-bottom { 
+			border-bottom: 1px solid #e5e5e5; 
+		}
+			
+		.border-top-gray { 
+			border-top-color: #adb5bd; 
+		}
 
-		.box-shadow { box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); }
+		.box-shadow { 
+			box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); 
+		}
 
-		.lh-condensed { line-height: 1.25; }
+		.lh-condensed { 
+			line-height: 1.25; 
+		}
+		
+		#attachment {
+			height: none;
+		}
+		
+		.btn-primary {
+			background-color: rgb(6,80,140);
+		}
+		
+		.ol-zoom button {
+			height: 3rem;
+			width: 3rem;
+		}
+		
 	</style>
+	
   </head>
 
   <body class="bg-light">
 
-    <div class="container">
-      <div class="py-5 text-center">
-        <img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
-        <h2>Report problem</h2>
-        <p class="lead">Report your problem with our infrastructure.</p>
+    <div class="container full-width">
+      <div class="pt-5 row">
+	   
+              <div class="col-md-1 mb-3">
+					<img class="d-block mx-auto mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72">
+				</div>
+			
+              <div class="col-md-11 mb-3 ">
+			
+					<h2 class="mx-3">Report problem</h2>
+					<p class="mx-3 lead">Spotted a problem with our infrastructure? Let us know.</p>
+					
+		
+		 
+			
+			</div>
       </div>
+	  
+	  
+	  
+	  
+			
 
       <div class="row">
-        <div class="col-md-4 order-md-2 mb-4">
+	  
+	  
+	  
+	  
+	  
+        <div class="col-md-4 order-md-1 mb-4">
+		
+		
           <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span class="text-muted">Before you submit</span> 
           </h4>
@@ -54,7 +109,43 @@
 		  
 		  
         </div>
-        <div class="col-md-8 order-md-1">
+        <div class="col-md-8 order-md-2">
+		
+		
+		
+			
+			<div id="map" class="map" style="height: 400px;"></div>
+					
+          
+						
+			<div class="row">
+              <div class="col-md-12 mb-3">
+                <label for="geomtype">Geometry type</label>
+                <select class="custom-select d-block w-100" id="geomtype" required="">
+				<option value="Point">Point</option>
+				<option value="LineString">LineString</option>
+				<option value="Polygon">Polygon</option> 
+                </select>
+                
+              </div>
+			
+			</div>
+			<div class="row">
+			
+			  
+				<div class="col-md-12 mb-3"> 
+					<div class="custom-control custom-checkbox">
+					  <input type="checkbox" class="custom-control-input" id="geolocate-agree">
+					  <label class="custom-control-label" for="geolocate-agree">Show my GPS-location </label>
+					</div> 				
+				</div>
+				
+            </div>
+			
+			
+			
+			
+			
           <h4 class="mb-3">Contact info</h4>
           <form class="needs-validation" novalidate>
             <div class="row">
@@ -75,64 +166,57 @@
             </div>
 
             <div class="mb-3">
-              <label for="email">Email <span class="text-muted">(Optional)</span></label>
+              <label for="email">Email </label>
               <input type="email" class="form-control" id="email" placeholder="you@example.com">
               <div class="invalid-feedback">
                 Please enter a valid email address for shipping updates.
               </div>
             </div>
+			
+            <div class="mb-3">
+              <label for="phone">Phone number <span class="text-muted">(Optional)</span> </label>
+              <input type="text" class="form-control" id="phone">
+               
+            </div>
+			
 
             <div class="mb-3">
-              <label for="address">Address</label>
-              <input type="text" class="form-control" id="address" placeholder="1234 Main St" required>
+              <label for="address">Address </label>
+              <input type="text" class="form-control" id="address" placeholder="" required>
               <div class="invalid-feedback">
-                Please enter your shipping address.
+                Please enter your address.
               </div>
             </div>
-
-            <div class="mb-3">
-              <label for="address2">Address 2 <span class="text-muted">(Optional)</span></label>
-              <input type="text" class="form-control" id="address2" placeholder="Apartment or suite">
-            </div>
+ 
 
             <div class="row">
-              <div class="col-md-5 mb-3">
-                <label for="country">Country</label>
-                <select class="custom-select d-block w-100" id="country" required>
-                  <option value="">Choose...</option>
-                  <option>United States</option>
-                </select>
-                <div class="invalid-feedback">
-                  Please select a valid country.
-                </div>
-              </div>
-              <div class="col-md-4 mb-3">
-                <label for="state">State</label>
-                <select class="custom-select d-block w-100" id="state" required>
-                  <option value="">Choose...</option>
-                  <option>California</option>
-                </select>
-                <div class="invalid-feedback">
-                  Please provide a valid state.
-                </div>
-              </div>
-              <div class="col-md-3 mb-3">
+			 
+			  
+              <div class="col-md-6 mb-3">
                 <label for="zip">Zip</label>
-                <input type="text" class="form-control" id="zip" placeholder="" required>
+                <input type="text" class="form-control" id="zip" placeholder="8870" required>
                 <div class="invalid-feedback">
                   Zip code required.
                 </div>
               </div>
+			  
+              <div class="col-md-6 mb-3">
+                <label for="country">City</label>
+                <input type="text" class="form-control" id="city" placeholder="Izegem" required>
+                <div class="invalid-feedback">
+                  City required.
+                </div>
+                </div>
+          
+		  
+			  
             </div>
-            <hr class="mb-4">
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="same-address">
-              <label class="custom-control-label" for="same-address">Shipping address is the same as my billing address</label>
-            </div>
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="save-info">
-              <label class="custom-control-label" for="save-info">Save this information for next time</label>
-            </div>
+			
+			
+			
+			
+			
+			
             <hr class="mb-4">
 
             <h4 class="mb-3">My report is about ...</h4>
@@ -152,16 +236,41 @@
                 <label class="custom-control-label" for="greenZones">Green zones</label>
               </div>
             </div>
-           
+			
+			
+			
+			<hr>
+			
+			
+			
+
+            <div class="mb-3">
+              <label for="attachment">Attachment <span class="text-muted">(Optional)</span></label>
+              <input type="file" class="form-control-file" id="attachment" >
+              
+            </div>
+ 
+ 
+            <hr class="mb-4">
+			
+			
+			
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="gdpr-agree">
+              <label class="custom-control-label" for="gdpr-agree">My information may be stored and processed to handle this request (GDPR) </label>
+            </div>
+			
+			 
 			
             <hr class="mb-4">
+			
             <button class="btn btn-primary btn-lg btn-block" type="submit">Report</button>
           </form>
         </div>
       </div>
 
       <footer class="my-5 pt-5 text-muted text-center text-small">
-        <p class="mb-1">&copy; 2018-{{ "now"|date("Y") }}</p>
+        <p class="mb-1">&copy; 2018 - {{ "now"|date("Y") }}</p>
         <ul class="list-inline">
           <li class="list-inline-item"><a href="">Privacy Statement</a></li>
         </ul>
@@ -179,9 +288,9 @@
       (function() {
         'use strict';
 
-        window.addEventListener('load', function() {
+        window.addEventListener("load", function() {
           // Fetch all the forms we want to apply custom Bootstrap validation styles to
-          var forms = document.getElementsByClassName('needs-validation');
+          var forms = $(".needs-validation");
 
           // Loop over them and prevent submission
           var validation = Array.prototype.filter.call(forms, function(form) {
@@ -213,6 +322,117 @@
 			}, "json");
 		
 		}
+		
+		
+		// OpenLayers 
+		
+			var raster = new ol.layer.Tile({
+			source: new ol.source.OSM()
+		  });
+
+		  
+		  var sharedStyle = new ol.style.Style({
+			  fill: new ol.style.Fill({
+				color: 'rgb(6,80,140, 0.25)'
+			  }),
+			  stroke: new ol.style.Stroke({
+				color: 'rgb(6,80,140)',
+				width: 2
+			  }),
+			  image: new ol.style.Circle({
+				radius: 7,
+				fill: new ol.style.Fill({
+				  color: 'rgb(139,196,88)'
+				})
+			  })
+			});
+		
+		  var source = new ol.source.Vector();
+		  var vector = new ol.layer.Vector({
+			source: source,
+			style: sharedStyle 
+		  });
+
+		  var map = new ol.Map({
+			layers: [raster, vector],
+			target: 'map',
+			view: new ol.View({
+			  center: [-11000000, 4600000],
+			  zoom: 18
+			})
+		  });
+
+		  var modify = new ol.interaction.Modify({source: source});
+		  map.addInteraction(modify);
+
+		  var draw, snap; // global so we can remove them later
+		  
+
+		  function addInteractions() {
+			draw = new ol.interaction.Draw({
+			  source: source,
+			  type: $("#geomtype").val(),
+			  style: sharedStyle
+			});
+			map.addInteraction(draw);
+			snap = new ol.interaction.Snap({source: source});
+			map.addInteraction(snap);
+
+		  }
+
+		  /**
+		   * Handle change event.
+		   */
+		  $(document.body).on("change", "#geomtype", function() {
+			console.log("change!");
+			map.removeInteraction(draw);
+			map.removeInteraction(snap);
+			addInteractions();
+		  });
+
+		  addInteractions();
+		  
+		  
+		// Geolocation 
+		
+		
+			var geolocation = new ol.Geolocation({
+			// enableHighAccuracy must be set to true to have the heading value.
+			trackingOptions: {
+			  enableHighAccuracy: true
+			},
+			projection: map.getView().getProjection()
+		  });
+		   
+		  
+		  $(document.body).on("change", "#geolocate-agree", function() {
+		  
+			geolocation.setTracking( $("#geolocate-agree").prop("checked")  );
+		  
+		  });
+			
+	  
+		  // handle geolocation error.
+		  geolocation.on("error", function(error) {
+			console.log( error.message ); 
+		  });
+
+		  
+
+		  
+		  geolocation.on('change:position', function() {
+			var coordinates = geolocation.getPosition();
+			// positionFeature.setGeometry(coordinates ?  new Point(coordinates) : null);
+			
+			console.log()
+			// center map instead 
+			if( coordinates ) {
+				map.getView().setCenter( coordinates );
+			}
+			
+		  });
+		  
+		
 	  
     </script>
   </body>

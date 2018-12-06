@@ -9,17 +9,19 @@
 	 * Place iTop Connector under <iTopDir>/itop-connector
 	 *
 	 * @copyright  © 2018 - jbostoen
-	 * @version    Release: @0.1.180809@
+	 * @version    Release: 0.1.181206
 	 * @link       https://github.com/jbostoen
 	 * @see        https://www.itophub.io/wiki/page?id=2_5_0%3Aadvancedtopics%3Arest_json
 	 */ 
 
 
 
-	defined("APPDIR") or define("APPDIR", dirname(dirname( __FILE__ )) );
+	defined('JB_APPDIR_ITOP') or define('JB_APPDIR_ITOP', dirname(dirname(dirname( __FILE__ ))) );
 
 
-
+	/**
+	 *  Class iTop_Rest. A class to communicate with iTop API more efficiently in PHP implementations.
+	 */
 	class iTop_Rest {
 		
 		/** 
@@ -56,12 +58,12 @@
 		public function __construct( ) {
 
 			// If 'itop-connector' folder is placed within iTop-directory, the url property will automatically be adjusted
-			if( file_exists( APPDIR ."/approot.inc.php") == true ) {
+			if( file_exists( JB_APPDIR_ITOP ."/approot.inc.php") == true ) {
 				
 				
 				
 				// Assume we're in iTop directory
-				require_once( APPDIR . "/approot.inc.php");
+				require_once( JB_APPDIR_ITOP . "/approot.inc.php");
 				
 				// Get iTop config file 
 				if( file_exists( APPCONF . "/" . ITOP_DEFAULT_ENV . "/config-itop.php") == true ) {
@@ -450,4 +452,4 @@
 		
 	}
 	 
-?>
+	 
