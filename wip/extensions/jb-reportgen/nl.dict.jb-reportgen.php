@@ -12,7 +12,7 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
     //    'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for a tooltip',
 	
 	'UI:Menu:ReportGenerator:ShowReport' => 'Toon rapport',
-	'UI:Menu:ReportGenerator:ShowReportUnknown' => htmlspecialchars('<title>').'-tag ontbreekt'
+	'UI:Menu:ReportGenerator:ShowReportTitleMissing' => htmlspecialchars('<title>').'-tag ontbreekt'
 	
 ));
 

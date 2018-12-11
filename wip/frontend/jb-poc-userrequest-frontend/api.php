@@ -60,7 +60,7 @@
 			
 			// Post this information to iTop.
 			// Attachment info will be done in a separate POST. 
-			$aReturn["ticket"] = $this->post( array_replace_recursive($aTicket, ["fields" => $data["ticket"]] ));
+			$aReturn["ticket"] = $this->post( array_replace_recursive($aTicket, ["fields" => $aData["fields"]] ));
 						
 			// Code should be 0. = no error 
 			if( $aReturn["ticket"]["code"] != 0 ) {
@@ -78,34 +78,43 @@
 						
 			
 			// Is a file attached? (careful! include security implementation)
-			if( isset( $data["attachment"] ) == true ) {
-							
-				// Attach uploaded file to ticket
-				$aAttachment = [
-					"operation" => "core/create", 
-					"class" => "Attachment",
-					"comment" => "New maintenance request from citizen (attachment)",
-					"fields" => [
-						"expire" => NULL,
-						"temp_id" => NULL,
-						"item_class" => "UserRequest",
-						"item_id" => $iTicketId,
-						"item_org_id" => 1, 
-						"contents" => $this->prepareFile($data["attachment"]) // prepares (encodes) file
-					]
-				];
+			if( isset( $aData["attachments"] ) == true ) {
 				
-				// echo json_encode($res, JSON_PRETTY_PRINT );
-				$aReturn["attachment"] = $this->post($aAttachment);								
+				if( is_array($aData["attachments"]) == true ) {
+					
+					foreach( $aData["attachments"] as $aAttachment ) {
+							
+						// Attach uploaded file to ticket
+						$aPost_Attachment = [
+							"operation" => "core/create", 
+							"class" => "Attachment",
+							"comment" => "New maintenance request from citizen (attachment)",
+							"fields" => [
+								"expire" => NULL,
+								"temp_id" => NULL,
+								"item_class" => "UserRequest",
+								"item_id" => $iTicketId,
+								"item_org_id" => 1, 
+								"contents" => $this->prepareFile("files/thumbnail/".$aAttachment["fileName"]) // prepares (encodes) file
+							]
+						];
+						
+						// echo json_encode($res, JSON_PRETTY_PRINT );
+						$aReturn["attachment"] = $this->post($aPost_Attachment);								
 
-				if( $aReturn["attachment"]["code"] != 0 ) {
-					return [
-						"attachment" => [
-							"error" => $aReturn["attachment"]["code"],
-							"msg" => $aReturn["attachment"]["message"]
-						]
-					];
+						if( $aReturn["attachment"]["code"] != 0 ) {
+							return [
+								"attachment" => [
+									"error" => $aReturn["attachment"]["code"],
+									"msg" => $aReturn["attachment"]["message"]
+								]
+							];
+						}
+				
+					}
+					
 				}
+					
 			}
 			
 			
@@ -124,25 +133,54 @@
  	
 	$i = new iTop_Report_Issue_Public_Infrastructure(); 
 		
-	$res = $i->report([
-		"ticket" => [
-			"title" => "Suggestie voor Izegemse beeldkwaliteit", // ticket title 
-			"description" => "Ergens anders kunnen ze dat <b>wel</b> mooi oplossen!" // ticket description 
-		],
-		"attachment" => "35071125_10214803692582541_1640894613373845504_n.jpg" // filename 
-	]);
+
 	 
 	switch( @$_REQUEST["action"] ) {
 
-		case "createTicket" :
-			// Should have 'ticket' => [array of fields], 'attachment' => filename
-			// Process file first
-			echo json_encode($i->report($_REQUEST));
+		case "createTicket":
+		
+			// Should have 'fields' => [array of fields], 'attachments' => [array of attachments with fileName property]
+			  
+			/*$res = $i->report([
+				"fields" => [
+					"title" => "Suggestie voor beeldkwaliteit", // ticket title 
+					"description" => "Dit kan je <b>heel mooi</b> oplossen!" // ticket description 
+				],
+				"attachment" => "35071125_10214803692582541_1640894613373845504_n.jpg" // filename 
+			]);*/
+			
+			$aFields = $_REQUEST["fields"];
+			$aAttachments = $_REQUEST["attachments"];
+			
+			// @todo: check if we can identify caller by phone or email
+			
+			$aResult = $i->report([
+				"fields" => [
+					"title" => $aFields["title"],
+					"geom" => $aFields["geom"],
+					"description" => "".
+						"<h2>Contactinfo</h2>".
+						"<p>".
+						"	<b>Naam:</b> " . $aFields["firstName"]." ".$aFields["lastName"]."<br>".
+						"	<b>Tel:</b> " . $aFields["phone"]."<br>".
+						"	<b>E-mailadres:</b> <a href=\"mailto:".$aFields["email"]."\">".$aFields["email"]."</a>".
+						"</p>".
+						"<h2>Melding</h2>".
+						"<pre>".trim(strip_tags( $aFields["description"] ))."</pre>"						
+				],
+				"attachments" => $aAttachments 
+			]);
+			
+			
+			// @todo: less to no output			
+			echo json_encode( $aResult );
+			 
+			
 			break;
 
 		default: 
 			echo json_encode([
-				"error" => "1", 
+				"error" => 1, 
 				"msg" => "Onbekende actie"
 			]);
 			break;
