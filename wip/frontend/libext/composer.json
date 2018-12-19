@@ -1,6 +1,0 @@
-{
-    "require": {
-        "twig/twig": "2.0",
-        "blueimp/jquery-file-upload": "^9.28"
-    }
-}

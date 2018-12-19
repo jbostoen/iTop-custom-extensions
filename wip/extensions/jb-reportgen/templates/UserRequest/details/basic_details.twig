@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<title>Basisgegevens</title>
+		<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	</head>
+	<body>
+	
+		<div class="container">
+		
+			<h1>{{ item.title }}</h1>
+			
+			<p>
+				<b>Ref:</b> {{ item.ref }}<br>
+				<b>Caller:</b> {{ item.caller_id_friendlyname }}<br>
+				<b>Agent:</b> {{ item.agent_id_friendlyname }}<br>
+			</p>
+			
+			{{ item.description }}
+			
+			<hr> 
+			
+			{{ 'UI:Menu:ReportGenerator:ShowReport'|dict_s }}
+		
+		</div>
+			
+	</body>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</html>

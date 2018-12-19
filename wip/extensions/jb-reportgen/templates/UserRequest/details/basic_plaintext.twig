@@ -1,0 +1,16 @@
+<html>
+	<head>
+		<title>Plain text</title>
+	</head>
+	<body>
+	
+		<h1>{{ item.title }}</h1>
+		
+		<p>
+			<b>Ref:</b> {{ item.ref }}
+		</p>
+		
+		<pre>{{ item.description|striptags|trim }}</pre>
+			
+	</body>
+</html>
