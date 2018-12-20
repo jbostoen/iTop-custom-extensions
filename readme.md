@@ -23,8 +23,7 @@ I am developing ***unofficial*** extensions (simple tweaks, extra features) for 
 
 It's unknown if these extensions work on older versions of iTop. For most of them, only minor adjustments (downgrading data model version number) might suffice.
 
-iTop 2.4.x-branch (no longer maintained, most of my work in this master branch should still be compatible if you replace the datamodel XML version "1.5" to "1.4" in the .xml files): 
-https://github.com/jbostoen/iTop-custom-extensions/tree/itop-2.4 
+Most stuff in this repository is still compatible with older versions of iTop if you downgrade the version of the XML file. This can be done by replacing for example version 1.5 to 1.4 in the datamodel.<extension>.xml files. 
 
 Support plan: https://github.com/jbostoen/iTop-custom-extensions/blob/master/docs/support%20plan.md
 
