@@ -6,7 +6,7 @@
 	 */
  
  
-	require_once("../itop-connector/connector.php");
+	require_once("../../itop-connector/connector.php");
 	
 	
 	/**

@@ -8,9 +8,9 @@
     <title>Meld een probleem</title>
 
     <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" type="text/css" href="../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css">
-    <link rel="stylesheet" type="text/css" href="../libext/vendor/blueimp/jquery-file-upload/css/jquery.fileupload.css">
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/blueimp/jquery-file-upload/css/jquery.fileupload.css">
 	
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>	
     <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
@@ -292,12 +292,16 @@
         </ul>
       </footer>
     </div>
+	
+	
+	
+	{% include 'dialog.html' %}
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="../libext/vendor/components/jquery/jquery.js"></script>
-    <script src="../libext/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../libext/vendor/components/jquery/jquery.js"></script>
+    <script src="../../libext/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 	
     <script>
       // Example starter JavaScript for disabling form submissions if there are invalid fields
@@ -324,39 +328,39 @@
 	  
 		function createTicket() {
 		
-			$("#create-ticket").prop("disabled",true);
+			$('#create-ticket').prop('disabled',true);
 		
-			$.post("api.php", { 
-				action: "createTicket",
+			$.post('api.php', { 
+				action: 'createTicket',
 				fields: {
-					title: "A test report from the front-end",
-					description: $("#description").val(),
+					title: 'A test report from the front-end',
+					description: $('#description').val(),
 					geom: ( source.getFeatures().length == 0 ? null : format.writeFeature( source.getFeatures()[0] ) ), 
-					firstName: $("#firstName").val(),
-					lastName: $("#lastName").val(),
-					phone: $("#phone").val(), 
-					email: $("#email").val(), 
+					firstName: $('#firstName').val(),
+					lastName: $('#lastName').val(),
+					phone: $('#phone').val(), 
+					email: $('#email').val(), 
 					serviceCategoryId: $("input[name='service_category_id']:checked").val()
 					
 				},
 				attachments: [
 					{
-						fileName: $("#attachment").attr("data-filename")
+						fileName: $('#attachment-filename').attr('data-filename')
 					}
 				]
 			}, function(data){ 
 			
 				console.log(data);  
 				var ticketFields = data.ticket.objects[ Object.keys(data.ticket.objects)[0] ].fields;
-				console.log("Created a ticket with Ref " + ticketFields.ref ); 
+				console.log('Created a ticket with Ref ' + ticketFields.ref ); 
 				
-				izDialogOK("Melding ingestuurd", "Bedankt, de melding werd ingestuurd. Onze diensten verwerken die zo snel mogelijk.");
+				dialogOK('Melding ingestuurd', 'Bedankt, de melding is geregistreerd.<br>Onze diensten verwerken die zo snel mogelijk.');
 				
-				$("#create-ticket").prop("disabled",true);
+				$('#create-ticket').prop('disabled',true);
 				
 				
 				
-			}, "json");
+			}, 'json');
 		
 		}
 		
@@ -518,7 +522,8 @@
 			dataType: 'json',
 			done: function (e, data) {
 				$.each(data.result.files, function (index, file) {
-					$("#attachment-name").text(file.name).attr("data-filename", file.name ) ;
+				 
+					$("#attachment-filename").text(file.name).attr("data-filename", file.name ) ;
 				});
 			}
 		});

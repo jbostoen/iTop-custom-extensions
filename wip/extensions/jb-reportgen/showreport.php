@@ -28,6 +28,33 @@
 	require_once( JB_APPDIR_ITOP . '/core/dict.class.inc.php' );
 	
 	
+	
+	// Short validation first 
+	 
+	switch( $_REQUEST['type'] ) {
+
+		case 'details': 
+			if( isset($_REQUEST['key']) == false || isset($_REQUEST['template']) == false ) {
+				die('Type details requires <b>key</b> and <b>template</b> to be specified.');
+			}
+			break;
+			
+		case 'list':
+			if( isset($_REQUEST['keys']) == false || isset($_REQUEST['template']) == false ) {
+				die('Type details requires <b>keys</b> and <b>template</b> to be specified.');
+			}
+			break;
+			
+		default:
+			die('Invalid type. Must be: <b>details</b> , <b>list</b>');
+			break;
+			
+		
+	}
+	
+	
+	
+	
 	// Init array to be passed to Twig
 	$aObjectData = []; 
 	
@@ -35,7 +62,7 @@
 	// It's easier to pass to Twig with our implementation.
 	$oREST = new iTop_Rest();
 	
-	if( $_REQUEST['type'] == 'detail' ) {
+	if( $_REQUEST['type'] == 'details' ) {
 						  
 		// Request
 		$aReturnData = $oREST->get([
@@ -50,7 +77,6 @@
 		// Request
 		$aReturnData = $oREST->get([
 			'key' => 'SELECT '.$_REQUEST['class'].' WHERE id IN ('.$_REQUEST['keys'].')',
-			'class' => $_REQUEST['class'],
 			'onlyValues' => true
 		]);		
 		
@@ -68,7 +94,7 @@
 
 	// Valid template?
 	$sTemplateDir = dirname( __FILE__ ) . '/templates/';
-	$sTemplateFile = $sTemplateDir . $_REQUEST['class'] . '/' . $_REQUEST['template'];
+	$sTemplateFile = $sTemplateDir . $_REQUEST['class'] . '/' . $_REQUEST['type'] . '/' . $_REQUEST['template'];
 
 
 	if( file_exists($sTemplateFile) == false ) {			
@@ -82,8 +108,27 @@
 	
 	// For single and multiple items
 	foreach( $aReturnData as $aItemData ) {
-		// Only keep data from 'fields' 
+		
+		
+		// No attachments by default
+		$aItemData['attachments'] = [];
+		
+		// Attachments?		
+		$aReturnDataAttachments = $oREST->get([
+			'key' => 'SELECT Attachment WHERE item_id = '.$aItemData['key'],
+			'onlyValues' => true
+		]);
+		
+		foreach( $aReturnDataAttachments as $aAttachmentData ) {
+			// Don't repeat data from the parent. Focus on contents ( data, mimetype, filename )
+			$aItemData['attachments'][] = $aAttachmentData['fields']['contents'];			
+		}
+		
+		
+		
+		// This will expose 'key' and 'fields' (as well as some other REST data)
 		$aTwigData['items'][] = $aItemData;
+		
 	}
 	
 	
@@ -103,7 +148,7 @@
 	require JB_APPDIR_ITOP . '/libext/vendor/autoload.php';
 	
 	// Twig Loader
-	$loader = new Twig_Loader_Filesystem( dirname( __FILE__ ) . '/templates/' . $_REQUEST['class'] );
+	$loader = new Twig_Loader_Filesystem( dirname( __FILE__ ) . '/templates/' . $_REQUEST['class'] . '/' . $_REQUEST['type'] );
 	
 	// Twig environment options
 	$oTwigEnv = new Twig_Environment($loader, array(
