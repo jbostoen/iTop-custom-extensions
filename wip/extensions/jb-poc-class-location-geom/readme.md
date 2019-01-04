@@ -15,12 +15,11 @@ Out of scope:
 # What can you learn?
 This extension contains examples of:
 * PHP: adding a completely new tab to a Class ( <method id="DisplayBareRelations method"> ) with references to CSS and JavaScript files
-* PHP: determining which Class you're working with: get_class($this)
 * PHP: commented out, but present: example on how to add an item to the 'Other actions' menu when viewing details
 * XML: using default module-parameters in the XML datamodel. Also allows an easy override on Class level.
 
 # Showing this in QGis
-In QGis 3, you can visualize this (and even expose it in a WMS or WFS service! We do NOT recommend allowing editing there).
+In QGis 3, you can visualize this (and even expose it in a WMS or WFS service! The WFS should not be writable).
 Add Vector Layer -> make connection to your iTop database -> use view_location .
 Now, you'll see it's only added as an attribute table. This is because iTop doesn't natively support the Geometry type for columns.
 Create a new Virtual Layer and use this query: select *, geom_from_wkt("geom") as geometry from view_locations 
