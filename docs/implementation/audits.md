@@ -1,3 +1,4 @@
+
 # How-to: find software in Software Catalog without any instances
 Credits: vdumas
 * Create an Audit Category, with 'Definition Set' = "SELECT Software"

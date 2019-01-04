@@ -4,7 +4,7 @@
 - iTop:
 - PHP:
 - MySQL:
-- Version of extension (if applicable): 
+- Extension (if applicable): 
 
 **Description:**
 Describe issue/request here.

@@ -23,15 +23,13 @@ iTop keeps a history! So if you keep configs in iTop, you can simply edit an exi
 ### IP Phone
 The Combodo version doesn't allow you to link an IP Phone (often a switch at the same time) to network devices and clients. Either use the Network Device or use a customized data model.
 
-### Monitor
-There is (was?) an issue in the official Combodo example, where you'll be unable to create a model in the Monitor class. There's a fixed version available in this repository.
  
 
 # Linking devices
 
 **PC <=> switch:**
-* POV CI PC: downlink from switch . Network port = belongs to switch, device port = belongs to device (PC)
-* POV CI Network Device: downlink to PC. Network port = belongs to switch, device port = belongs to device (PC)
+* Point of view from PC: downlink from switch. Network port = belongs to switch, device port = belongs to device (PC)
+* Point of view from Network Device: downlink to PC. Network port = belongs to switch, device port = belongs to device (PC)
 
 **switch <=> switch:**
 * CI switch (Network Device): uplink. Network port = from regular switch, device port = belongs to other switch

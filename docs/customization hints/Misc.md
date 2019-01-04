@@ -53,8 +53,6 @@ Look for a mistake in a translation file
 In iTop 2.4.1, it seems naming isn't applied to abstract classes such as 'Change'. It must be applied to child classes.
 
 
-# Data sources and replicas
-It's forbidden to use INSERT ... ON DUPLICATE KEY UPDATE and INSERT IGNORE statements, because iTop relies on MySQL triggers for the INSERT-command. The UPDATE-command is just fine though.
 
 # Module parameters
 module_parameters in XML only define the default value of a module parameters, it is not used to set a value for your instance. You should only use it when creating your own extension. 

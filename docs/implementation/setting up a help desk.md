@@ -23,4 +23,6 @@
 * make it a policy not to accept these mails. Reason: if someone sends the initial mail with others in copy and they all start to reply, you'll have several new tickets. Also, it doesn't make sense to communicate with multiple people about a ticket.
 
 ### Notifications
-* if you create a ticket, skip the public log, the Email Reply extension won't work right away.
+* if you create a ticket, skip the public log, the Email Reply extension won't work right away. 
+* to avoid the risk of forgetting about this, there's an extension in this repository which makes it impossible to write a public log until the ticket has been created.
+

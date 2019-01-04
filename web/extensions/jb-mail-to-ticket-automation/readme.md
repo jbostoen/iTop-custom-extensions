@@ -1,8 +1,11 @@
-Our **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally from version 3.0.7, but we also copied the changes Combodo's done up to version 3.0.14 so far). We also contributed a few fixes back (accepted in August 2018).
+# What?
 
-One thing is important here: we highly recommend to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
+This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally based on their version 3.0.7, but also includes the changes up to 3.0.14 so far). Some fixes from this version were accepted by Combodo back in August 2018 and are now part of the official version.
 
-What is different? We noted a few situations where Combodo's implementation of Mail to Ticket Automation was not sufficient enough. We split them up in what I'll refer to as "Policies".
+What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. This extension offers some additional policies.
+
+One thing is important here: it's actually recommended to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
+
 
 
 For IMAP, here's a quick example on the configuration options (config-itop.php).
@@ -151,6 +154,6 @@ UIDL
 # Policy: Patterns to ignore/remove from title
 * Use case: another ticket system which uses IR-1234567 as a ticket reference. If our format is R-123456, this would lead to issues when handling emails with a reference from the other ticket.
 * Fallback - Ignore: just ignores parts when handling a new e-mail, but keeps the original subject to create the ticket. 
-* Fallback - Remove, it's gone completely. 
+* Fallback - Remove, it's gone completely in the title. 
 * **Fallback**: ignore, remove 	 
 * **Undesired patterns in subject** - (regex, one per line)
