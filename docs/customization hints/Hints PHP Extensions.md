@@ -15,7 +15,8 @@ These methods are used AFTER the action, not BEFORE.
 
 
 # Using $this->Get('id')
-Id will usually return the id, but for new objects there seem to be (at least?) two cases in iTop 2.5.0 when calling OnCheckToWrite()
+Id will usually return the id, but for new objects there seem to be (at least?) two cases in iTop 2.5.0 where the ID is different:
+- when calling OnCheckToWrite(), ID was empty
 - when creating it from a menu link ('new FunctionalCI') where you actually see the entire page with details: id is -1 for new objects
 
 
