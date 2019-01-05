@@ -1,7 +1,5 @@
 <?php
-
-
-
+ 
 
 	/**
 	 * Defines a PHP Class named iTop_Rest which could be an useful parent class to build upon.
@@ -9,12 +7,10 @@
 	 * Place iTop Connector under <iTopDir>/itop-connector
 	 *
 	 * @copyright  © 2018 - jbostoen
-	 * @version    Release: 0.1.190104
+	 * @version    Release: 0.1.190105
 	 * @link       https://github.com/jbostoen
 	 * @see        https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
-	 */ 
-
-
+	 */  
 
 	defined('JB_APPDIR_ITOP') or define('JB_APPDIR_ITOP', dirname(dirname(dirname( __FILE__ ))) );
 
@@ -25,9 +21,10 @@
 	class iTop_Rest {
 		
 		/** 
-		 * @var String URL of the iTop web services, including version. This is a test environment for us. 
+		 * @var String URL of the iTop web services, including version. Example: 'http://localhost/itop/web/webservices/rest.php'
+		 * @details If left blank, an attempt to derive this info will happen in __construct()
 		 */
-		public $url = 'http://localhost/itop/web/webservices/rest.php';
+		public $url = '';
 		
 		/**
 		 * @var String describing the REST API version. 
@@ -57,11 +54,9 @@
 		
 		public function __construct( ) {
 
-			// If 'itop-connector' folder is placed within iTop-directory, the url property will automatically be adjusted
-			if( file_exists( JB_APPDIR_ITOP .'/approot.inc.php') == true ) {
-				
-				
-				
+			// If url is unspecified by default and this 'itop-connector' folder is placed within iTop-directory as expected, the url property will automatically be adjusted
+			if( $this->url == '' && file_exists( JB_APPDIR_ITOP .'/approot.inc.php') == true ) {
+				 
 				// Assume we're in iTop directory
 				require_once( JB_APPDIR_ITOP . '/approot.inc.php');
 				
@@ -71,8 +66,7 @@
 					require_once( APPCONF . '/' . ITOP_DEFAULT_ENV . '/config-itop.php' );
 					$this->url = $MySettings['app_root_url'] . '/webservices/rest.php';
 
-				}
-				
+				} 
 				
 			} 
 			
@@ -85,15 +79,15 @@
 		 * Shortcut to create data
 		 *
 		 * @param Array $aParameters Array [
-		 *   'comment'         => Required. String. Describes the action and is stored in iTop's history tab.
-		 *   'fields'          => Required. Array. The fields and values for the object to create.
-		 *   'class'           => Required. String. iTop class name (examples: Organization, Contact, Person ...)
-		 *   'output_fields'   => Optional. Array. List of field names you want to retrieve. 
-		 *                        If not specified, all fields are returned.
+		 *  'comment'         => Required. String. Describes the action and is stored in iTop's history tab.
+		 *  'fields'          => Required. Array. The fields and values for the object to create.
+		 *  'class'           => Required. String. iTop class name (examples: Organization, Contact, Person ...)
+		 *  'output_fields'   => Optional. Array. List of field names you want to retrieve. 
+		 *                       If not specified, all fields are returned.
 		 * 
-		 *   'onlyValues'      => Optional. Boolean. 
-		 *                        Not related to iTop. Will return the objects without a key.
-		 *	]
+		 *  'onlyValues'      => Optional. Boolean. 
+		 *                       Not related to iTop. Will return the objects without a key.
+		 * ]
 		 * 
 		 * @return Array - see processResult()
 		 *
@@ -144,9 +138,9 @@
 			$sClassName = $this->getClassName( $aParameters );
 			
 			$aResult = $this->post([
-				'operation' => 'core/delete', // Action
+				'operation' => 'core/delete', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object to delete
-				'key' => $aParameters['key'], // OQL query or ID
+				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'comment' => $aParameters['comment'], // Comment in history tab
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
 				'simulate' => ( isset($aParameters['simulate']) == true ? $aParameters['simulate'] : false )
@@ -186,9 +180,9 @@
 			$sClassName = $this->getClassName( $aParameters );
 			 			
 			$aResult = $this->post([
-				'operation' => 'core/get', 
-				'class' => $sClassName,
-				'key' => $aParameters['key'],
+				'operation' => 'core/get', // iTop REST/JSON operation
+				'class' => $sClassName, // Class of object(s) to retrieve
+				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ )			
 			]);
 			
@@ -239,7 +233,7 @@
 		 * Sends data to the iTop REST services and returns data (decoded JSON)
 		 *
 		 * @param $aJSONData [
-		 *		'operation'			=> String. Required.
+		 *  'operation'       => Required. String.
 		 *		( other fields, depending on the operation. Read iTop Rest/JSON documentation. )
 		 * ];
 		 * 
@@ -309,7 +303,7 @@
 		 * [
 		 *  'data'            => base64 encoded file
 		 *  'mimetype'        => MIME-type of the file
-		 *  'filename'        => Original filename
+		 *  'filename'        => Filename (short)
 		 * ];
 		 */ 
 		public function prepareFile( String $sFileName ) {
@@ -413,9 +407,9 @@
 			$sClassName = $this->getClassName( $aParameters );
 			
 			$aResult = $this->post([
-				'operation' => 'core/update', 
+				'operation' => 'core/update', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object to update
-				'key' => $aParameters['key'], // OQL query or ID
+				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'fields' => $aParameters['fields'], // Field data to be updated
 				'comment' => $aParameters['comment'], // Comment in history tab
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
