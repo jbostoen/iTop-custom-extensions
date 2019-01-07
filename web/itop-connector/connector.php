@@ -12,7 +12,7 @@
 	 * @see        https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
 	 */  
 
-	defined('JB_APPDIR_ITOP') or define('JB_APPDIR_ITOP', dirname(dirname(dirname( __FILE__ ))) );
+	defined('JB_APPDIR_ITOP') or define('JB_APPDIR_ITOP', dirname(dirname( __FILE__ )) );
 
 
 	/**
@@ -57,14 +57,14 @@
 			// If url is unspecified by default and this 'itop-connector' folder is placed within iTop-directory as expected, the url property will automatically be adjusted
 			if( $this->url == '' && file_exists( JB_APPDIR_ITOP .'/approot.inc.php') == true ) {
 				 
-				// Assume we're in iTop directory
+				// Assume we're in iTop directory; get definitions for APPCONF and ITOP_DEFAULT_ENV
 				require_once( JB_APPDIR_ITOP . '/approot.inc.php');
 				
 				// Get iTop config file 
-				if( file_exists( APPCONF . '/' . ITOP_DEFAULT_ENV . '/config-itop.php') == true ) {
-					 
-					require_once( APPCONF . '/' . ITOP_DEFAULT_ENV . '/config-itop.php' );
-					$this->url = $MySettings['app_root_url'] . '/webservices/rest.php';
+				if( file_exists( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php') == true ) {
+					
+					require( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php' ); // lcoal scope
+					$this->url = $MySettings['app_root_url'] . 'webservices/rest.php';
 
 				} 
 				
@@ -185,7 +185,7 @@
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ )			
 			]);
-			
+			 
 			return $this->processResult( $aResult, $aParameters ); 
 			
 		} 
@@ -367,17 +367,17 @@
 			if( $aServiceResponse['code'] == 0 ) {
 				
 				// Valid call, no results? (usually after 'operation/get'
-				if( isset( $aResult['objects'] ) == false ) {
+				if( isset( $aServiceResponse['objects'] ) == false ) {
 					return [];
 				}
 				else {
-					return ( isset( $aParameters['onlyValues']) == true ? ( $aParameters['onlyValues'] == true ? array_values($aResult['objects']) : $aResult['objects'] ) : $aResult['objects'] );
+					return ( isset( $aParameters['onlyValues']) == true ? ( $aParameters['onlyValues'] == true ? array_values($aServiceResponse['objects']) : $aServiceResponse['objects'] ) : $aServiceResponse['objects'] );
 				}
 			}
 			else {
 				
 				// Service response contained an error.
-				return $aResult;
+				return $aServiceResponse;
 			} 
 			
 		}
