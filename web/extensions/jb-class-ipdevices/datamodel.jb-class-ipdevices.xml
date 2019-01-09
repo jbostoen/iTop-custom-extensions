@@ -43,7 +43,7 @@
 			<neighbours>
 				<neighbour id="connectableci">
 					<query_down _delta="redefine">SELECT ConnectableCI AS d JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
-					<query_up _delta="redefine">SELECT NetworkDevice AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
+					<query_up _delta="redefine">SELECT ConnectableCI AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
 				</neighbour>
 				</neighbours>
 			</relation>
@@ -106,7 +106,7 @@
           <type>Overload-DBObject</type>
           <code><![CDATA[	public static function GetRelationQueries($sRelCode){return parent::GetRelationQueries($sRelCode);} ]]></code>
         </method>
-      </methods>"
+      </methods>
       <relations>
         <relation id="impacts">
           <neighbours>
@@ -989,7 +989,7 @@
           <code><![CDATA[	protected function AddConnectedNetworkDevice()
 	{
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
-		if (is_object($oDevice) && ( (get_class($oDevice) =='NetworkDevice') || (get_class($oDevice) =='IPPhone') ))
+		if (is_object($oDevice) && is_subclass_of($oDevice, 'ConnectableCI') )
 		{
 			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
@@ -999,7 +999,7 @@
 								'device' => $this->Get('networkdevice_id'),
 								'devport' => $this->Get('network_port'),
 								'nwport' => $this->Get('device_port'),
-								'nwport' => $this->Get('patch_label'),
+								'patch_label' => $this->Get('patch_label'),
 								)
 			);	
 			if ($oConnectionSet->Count() == 0)
@@ -1026,7 +1026,7 @@
           <code><![CDATA[	protected function UpdateConnectedNetworkDevice()
 	{
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
-		if (is_object($oDevice) && ( (get_class($oDevice) =='NetworkDevice') || (get_class($oDevice) =='IPPhone') ))
+		if (is_object($oDevice) && is_subclass_of($oDevice, 'ConnectableCI') )
 		{
 			// Note: in case a port has been changed, search with the original values
 			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
@@ -1063,7 +1063,7 @@
 	{
 		// The device might be already deleted (reentrance in the current procedure when both device are NETWORK devices!)
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'), false);
-		if (is_object($oDevice) && ( (get_class($oDevice) =='NetworkDevice') || (get_class($oDevice) =='IPPhone') ))
+		if (is_object($oDevice) && is_subclass_of($oDevice, 'ConnectableCI') )
 		{
 			// Track and delete the counterpart link
 			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
