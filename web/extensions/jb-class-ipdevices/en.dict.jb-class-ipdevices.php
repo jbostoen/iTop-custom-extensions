@@ -74,6 +74,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:downlink+' => 'down link',
 	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:uplink' => 'up link',
 	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:uplink+' => 'up link',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:patch_label' => 'Patch label',
  
 
 ));

@@ -106,7 +106,7 @@
           <type>Overload-DBObject</type>
           <code><![CDATA[	public static function GetRelationQueries($sRelCode){return parent::GetRelationQueries($sRelCode);} ]]></code>
         </method>
-      </methods>
+      </methods>"
       <relations>
         <relation id="impacts">
           <neighbours>
@@ -975,6 +975,11 @@
           <is_null_allowed>false</is_null_allowed>
           <display_style>list</display_style>
         </field>
+		<field id="patch_label" xsi:type="AttributeString" _delta="define">
+			<sql>patch_label</sql>
+			<default_value/>
+			<is_null_allowed>true</is_null_allowed>
+		</field>
       </fields>
       <methods>  
         <method id="AddConnectedNetworkDevice">
@@ -994,6 +999,7 @@
 								'device' => $this->Get('networkdevice_id'),
 								'devport' => $this->Get('network_port'),
 								'nwport' => $this->Get('device_port'),
+								'nwport' => $this->Get('patch_label'),
 								)
 			);	
 			if ($oConnectionSet->Count() == 0)
@@ -1006,6 +1012,7 @@
 				$oNewLink->Set('connectableci_id', $this->Get('networkdevice_id'));
 				$oNewLink->Set('network_port', $this->Get('device_port'));
 				$oNewLink->Set('device_port', $this->Get('network_port'));
+				$oNewLink->Set('patch_label', $this->Get('patch_label'));
 				$oNewLink->Set('connection_type', $sConnLink);
 				$oNewLink->DBInsert();	
 			}
@@ -1030,6 +1037,7 @@
 								'device' => $this->Get('networkdevice_id'),
 								'devport' => $this->GetOriginal('network_port'),
 								'nwport' => $this->GetOriginal('device_port'),
+								'patch_label' => $this->Get('patch_label'),
 								)
 			);	
 			$sLink = $this->Get('connection_type');
@@ -1041,6 +1049,7 @@
 				$oConnection->Set('connection_type', $sConnLink);
 				$oConnection->Set('network_port', $this->Get('device_port'));
 				$oConnection->Set('device_port', $this->Get('network_port'));
+				$oConnection->Set('patch_label', $this->Get('patch_label'));
 				$oConnection->DBUpdate();	
 			}
 		}
@@ -1065,6 +1074,7 @@
 								'device' => $this->Get('networkdevice_id'),
 								'devport' => $this->Get('network_port'),
 								'nwport' => $this->Get('device_port'),
+								'patch_label' => $this->Get('patch_label'),
 								)
 			);
 			// There should be one link - do it in a safe manner anyway
@@ -1124,6 +1134,9 @@
             <item id="connection_type">
               <rank>50</rank>
             </item>
+            <item id="patch_label">
+              <rank>60</rank>
+            </item>
           </items>
         </details>
         <search>
@@ -1143,6 +1156,9 @@
             <item id="connection_type">
               <rank>50</rank>
             </item>
+            <item id="patch_label">
+              <rank>60</rank>
+            </item>
           </items>
         </search>
         <list>
@@ -1161,6 +1177,9 @@
             </item>
             <item id="connection_type">
               <rank>50</rank>
+            </item>
+            <item id="patch_label">
+              <rank>60</rank>
             </item>
           </items>
         </list>
