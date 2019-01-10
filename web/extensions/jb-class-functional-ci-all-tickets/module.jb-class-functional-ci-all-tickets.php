@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-functional-ci-all-tickets/2.5.180804',
+	'jb-class-functional-ci-all-tickets/2.6.190110',
 	array(
 		// Identification
 		//
@@ -15,7 +15,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
-			'itop-config-mgmt/2.5.0'
+			'itop-config-mgmt/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,

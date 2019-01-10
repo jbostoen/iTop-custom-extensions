@@ -5,10 +5,10 @@
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Class: Person - add fields ]]></label>
 	<description><![CDATA[ Adds gender, date of birth, ... ]]></description>
-	<version>2.4.180912</version>
-	<release_date>2018-09-12</release_date>
+	<version>2.6.190110</version>
+	<release_date>2019-01-10</release_date>
 	<version_description><![CDATA[  ]]></version_description>
-	<itop_version_min>2.4.0</itop_version_min>
+	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>

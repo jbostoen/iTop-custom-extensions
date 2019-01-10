@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jd-class-lendrecord/2.4.180215',
+	'jd-class-lendrecord/2.6.190119',
 	array(
 		// Identification
 		//
@@ -15,7 +15,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
-			'itop-request-mgmt-itil/2.4.0' 
+			'itop-request-mgmt-itil/2.6.0' 
 		),
 		'mandatory' => false,
 		'visible' => true,

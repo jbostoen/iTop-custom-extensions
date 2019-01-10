@@ -5,10 +5,10 @@
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Feature: Report generator ]]></label>
 	<description><![CDATA[ Quickly add new reports on object details in a generic way. ]]></description>
-	<version>2.5.181206</version>
-	<release_date>2018-12-06</release_date>
+	<version>2.6.190110</version>
+	<release_date>2019-01-10</release_date>
 	<version_description><![CDATA[  ]]></version_description>
-	<itop_version_min>2.5.0</itop_version_min>
+	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>

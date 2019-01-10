@@ -1,5 +1,6 @@
+# PS1 Create extension
 
-# What?
+## What?
 This PowerShell script gives you a head start. 
 It will guide you through a couple of questions and it will generate the necessary files to get started with a basic extension. 
 

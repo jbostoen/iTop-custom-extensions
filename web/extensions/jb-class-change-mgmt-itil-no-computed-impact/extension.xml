@@ -5,10 +5,10 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Class: Change (ITIL) - Don't auto-add computed CIs (on insert/update)]]></label>
 	<description><![CDATA[It's often undesired when dealing with Changes to have iTop automatically add (possibly) impacted CIs.]]></description>
-	<version>2.5.180804</version>
-	<release_date>2018-04-15</release_date>
+	<version>2.6.190110</version>
+	<release_date>2019-01-10</release_date>
 	<version_description><![CDATA[ ]]></version_description>
-	<itop_version_min>2.5.0</itop_version_min>
+	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>

@@ -1,8 +1,9 @@
+# PHP Cron Import contacts from LDAP
 
-# What?
+## What?
 This is a sample PHP script which retrieves info from an LDAP. 
 
-It's a way to import users in your Active Directory as iTop contacts. 
+It's a way to import users in your Active Directory as iTop contacts (not users!). 
 The script retrieves data from the AD and writes it to a MySQL table (created within iTop).
 Afterwards, it runs iTop's Data Synchronization.
 

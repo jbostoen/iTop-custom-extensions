@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-class-change-mgmt-itil-reject-anytime/2.5.180804',
+	'jb-class-change-mgmt-itil-reject-anytime/2.6.190110',
 	array(
 		// Identification
 		//
@@ -16,7 +16,7 @@ SetupWebPage::AddModule(
 		//
 		// Compatible with this version. Maybe higher.
 		'dependencies' => array( 
-			'itop-change-mgmt-itil/2.5.0'
+			'itop-change-mgmt-itil/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
