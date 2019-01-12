@@ -17,7 +17,7 @@
 	</class>
 	
 	<!-- 
-		Fix for PCs and other connectable CIs which wouldn't show our IPDevices 
+		Fix for PCs and other connectable CIs which wouldn't show our IPDevices (goal: make IPPhone available) 
 	-->
     <class id="ConnectableCI"> 
 		<fields>
@@ -30,7 +30,7 @@
 	<!-- 
 		lnkConnectableCIToNetworkDevice automatically adds a reversed record for a NetworkDevice. 
 		However, our IPPhone is also heavily based on NetworkDevice. It should have the same behavior. 
-		Rather than altering the code, we'll just use our custom class based in lnkConnectableCIToNetworkDevice
+		Rather than altering the code, we'll just use our custom class based on lnkConnectableCIToNetworkDevice
 	-->
     <class id="NetworkDevice"> 
 		<fields>
@@ -85,14 +85,6 @@
           <default_value/>
           <is_null_allowed>true</is_null_allowed>
         </field>
-        <field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect">
-          <linked_class>lnkConnectableCIToConnectableCI</linked_class>
-          <ext_key_to_me>networkdevice_id</ext_key_to_me>
-          <count_min>0</count_min>
-          <count_max>0</count_max>
-          <ext_key_to_remote>connectableci_id</ext_key_to_remote>
-          <duplicates>true</duplicates>
-        </field>
 	  </fields>
 
       <methods>
@@ -130,7 +122,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
-            <item id="connectablecis_list">
+            <item id="networkdevice_list">
               <rank>50</rank>
             </item>
             <item id="providercontracts_list">
@@ -328,7 +320,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
-            <item id="connectablecis_list">
+            <item id="networkdevice_list">
               <rank>50</rank>
             </item>
             <item id="providercontracts_list">
@@ -525,7 +517,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
-            <item id="connectablecis_list">
+            <item id="networkdevice_list">
               <rank>50</rank>
             </item>
             <item id="providercontracts_list">
@@ -718,6 +710,14 @@
 			<default_value/>
 			<is_null_allowed>true</is_null_allowed>
 		</field> 
+        <field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect">
+			<linked_class>lnkConnectableCIToConnectableCI</linked_class>
+			<ext_key_to_me>networkdevice_id</ext_key_to_me>
+			<count_min>0</count_min>
+			<count_max>0</count_max>
+			<ext_key_to_remote>connectableci_id</ext_key_to_remote>
+			<duplicates>true</duplicates>
+        </field>
 	  </fields>
       <methods/>
       <presentation>
@@ -732,6 +732,7 @@
             <item id="physicalinterface_list">
               <rank>40</rank>
             </item>
+			<!-- No networkdevice_list here, but connectablecis_list . Reversed ext_key_to_me <=> ext_key_to_remote; similar to NetworkDevice -->
             <item id="connectablecis_list">
               <rank>50</rank>
             </item>
@@ -988,10 +989,38 @@
           <type>Overload-cmdbAbstractObject</type>
           <code><![CDATA[	protected function AddConnectedNetworkDevice()
 	{
+		/* 
+			Explanation:
+			
+			ConnectableCI has a field 'networkdevice_list'. It's an indirect set, meaning multiple connections are possible. 
+			networkdevice_list (originally lnkConnectableCIToNetworkDevice) uses connectableci_id to refer to itself (NAS, Server, ...) and networkdevice_id to point to what's remotely connected.
+			The logic below is easier if you think from the perspective of the original lnkConnectableCIToNetworkDevice class.
+			
+			Example 1: from the details view of a PC, a link with a network device is added.
+			- AddConnectedNetworkDevice() is triggered. Type of connectableci_id = pc; networkdevice_id = NetworkDevice (switch).
+			- $oDevice is an object (pc).
+			- It should however not be of the right class ('NetworkDevice', 'IPPhone'); so the opposite link is NOT created.
+			  
+			Example 2: from the details view of a Network Device (or IP Phone = switch), a link with a network device is added.
+			- AddConnectedNetworkDevice() is triggered. Type of connectableci_id = NetworkDevice; networkdevice_id = NetworkDevice (switch).
+			- $oDevice is an object (NetworkDevice). It's of the right type (!= NAS, Server, ...).
+			- $oConnectionSet starts with a search filter (DBObjectSearch::FromOQL()), has no ordering ( Array() ). Next part are the search query parameters to be replaced in OQL query.
+			  $oConnectionSet is likely empty (unless an identical opposite link exists, which shouldn't be the case)
+			  The opposite connection is created (reversed ports, reversed IDs, opposite connection type) -> reason: change 'downlink' <-> 'uplink' for this kind of device (NetworkDevice)
+			  
+			
+			So how is this handled in the datamodel?
+			- ConnectableCI has an AttributeLinkedSetIndirect -> networkdevice_list -> ext_key_to_me = connectableci_id ; ext_key_to_remote = network_id (PCs, Server etc)
+			- NetworkDevice has an AttributeLinkedSetIndirect -> connectablecis_list -> ext_key_to_me = network_id ; ext_key_to_remote = connectableci_id
+			  NetworkDevice still has networkdevice_list, but it's hidden in presentation. (see data model viewer)
+			
+			
+		*/
+	
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
-		if (is_object($oDevice) && is_subclass_of($oDevice, 'ConnectableCI') )
+		if (is_object($oDevice) && in_array(get_class($oDevice), Array('NetworkDevice', 'IPPhone')) )
 		{
-			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$sOQL = "SELECT lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
 							array(),
 							array(
@@ -1026,10 +1055,10 @@
           <code><![CDATA[	protected function UpdateConnectedNetworkDevice()
 	{
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
-		if (is_object($oDevice) && is_subclass_of($oDevice, 'ConnectableCI') )
+		if (is_object($oDevice) && in_array(get_class($oDevice), Array('NetworkDevice', 'IPPhone')) )
 		{
 			// Note: in case a port has been changed, search with the original values
-			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$sOQL = "SELECT lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
 							array(),
 							array(
@@ -1063,10 +1092,10 @@
 	{
 		// The device might be already deleted (reentrance in the current procedure when both device are NETWORK devices!)
 		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'), false);
-		if (is_object($oDevice) && is_subclass_of($oDevice, 'ConnectableCI') )
+		if (is_object($oDevice) && in_array(get_class($oDevice), Array('NetworkDevice', 'IPPhone')) )
 		{
 			// Track and delete the counterpart link
-			$sOQL = "SELECT  lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$sOQL = "SELECT lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
 			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
 							array(),
 							array(
