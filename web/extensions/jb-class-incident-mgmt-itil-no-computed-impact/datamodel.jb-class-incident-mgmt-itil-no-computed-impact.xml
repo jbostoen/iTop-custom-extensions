@@ -5,10 +5,7 @@
 		<class id="Incident">
 			<methods>
 				<method id="OnInsert">
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function OnInsert()
+					<code _delta="redefine"><![CDATA[	protected function OnInsert()
 
 	{
         parent::OnInsert();    
@@ -19,10 +16,7 @@
 	
 				</method>
 				<method id="OnUpdate">
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function OnUpdate()
+					<code _delta="redefine"><![CDATA[	protected function OnUpdate()
 	{
         parent::OnUpdate(); 
         $aChanges = $this->ListChanges();
