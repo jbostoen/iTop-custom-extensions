@@ -284,10 +284,16 @@
 			curl_close($ch);
   
 			if( $this->showResponse == true ) { 
-				echo 'Response:' . PHP_EOL  .$sResult;  
+				echo 'Response: ' . PHP_EOL  .$sResult;  
+			}
+			
+			$aResult = json_decode($sResult, true);
+			
+			if(!is_array($aResult)){
+				throw new Exception('Invalid response from iTop API/REST. Incorrect configuration or something wrong with network or iTop?');
 			}
     
-			return json_decode($sResult, true); 
+			return $aResult; 
 		
 		}
 		
@@ -411,7 +417,7 @@
 				'class' => $sClassName, // Class of object to update
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'fields' => $aParameters['fields'], // Field data to be updated
-				'comment' => $aParameters['comment'], // Comment in history tab
+				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Update by REST-service' ), // Comment in history tab
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
 			]);
 			
