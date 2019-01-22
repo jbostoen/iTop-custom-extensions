@@ -36,7 +36,7 @@
 	/**
 	 *  iTop Scan extends iTop_Rest and contains specific methods written to keep track of an inventory of functionalCIs which are often used by different people.
 	 */
-	class iTop_Scan extends iTop_Rest {
+	class iTop_Rest_CheckOut extends iTop_Rest {
 		  
 		 
 		/**
@@ -54,7 +54,7 @@
 		 *   'error'         => Integer or String. 0 if no error. 
 		 *   'msg'           => Only if an error occurred.
 		 */ 
-		function register( Array $params = [] ) {
+		function Register( Array $params = [] ) {
 			
 			global $lang;
 					
@@ -171,7 +171,7 @@
 	 
 	 
  
-	$i = new iTop_Scan();
+	$oCheckout = new iTop_Rest_CheckOut();
 	
 	if( isset($_REQUEST["action"]) == TRUE ) {
 			
@@ -180,7 +180,7 @@
 			case "GetOrganizations":
 			
 				/* Requires nothing */ 
-				return $this->get([ 
+				return $this->Get([ 
 					"class" => "Organization",
 					"key" => "SELECT Organization"			
 				]);  
@@ -190,7 +190,7 @@
 			case "GetContactsByOrgId": 
 			
 				// Requires 'org_id'  
-				return $i->get([ 
+				return $oCheckout->Get([ 
 					"class" => "Contact",
 					"key" => "SELECT Contact WHERE org_id = '".$_REQUEST["org_id"]."'"						
 				]);   
@@ -201,7 +201,7 @@
 			
 				// Requires 'serialnumber' 
 				
-				$res = $i->get([
+				$res = $oCheckout->Get([
 					"key" => "SELECT PhysicalDevice WHERE serialnumber = '".$_REQUEST["serialnumber"]."'"			
 				]);
 				 				 
@@ -223,7 +223,7 @@
 						case 1: 
 							// Let's find out if it's already lend out? 
 							// If it is: takeback = 1 
-							$res[ array_keys($res)[0] ]["takeback"] = ( count($i->get([
+							$res[ array_keys($res)[0] ]["takeback"] = ( count($oCheckout->Get([
 								"key" => "SELECT LendRecord WHERE physicaldevice_id = '" . $res[ array_keys($res)[0] ]["key"]."' AND ISNULL( date_in ) "
 							]))  == 1 ? 1 : 0 );
 							
@@ -244,7 +244,7 @@
 			case "Register":
 			
 				// Requires 'serialnumber'
-				if( isset($_REQUEST["serialnumber"]) == FALSE ) {
+				if( isset($_REQUEST["serialnumber"]) == false ) {
 										
 					$res = [
 						"error" => "scan_reg_001", 
@@ -287,7 +287,7 @@
 								$fields["remarks"] = $_REQUEST["remarks"];
 							}							 
  
-							$registeredData = $i->register( $fields );
+							$registeredData = $oCheckout->Register( $fields );
 							 
 							
 							$res = array_merge( $res, $registeredData );

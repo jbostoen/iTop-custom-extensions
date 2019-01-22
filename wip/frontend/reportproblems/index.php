@@ -10,7 +10,7 @@
 	));
 	
 	
-	$oREST = new iTop_REST();
+	$oREST = new iTop_Rest();
 	
 	// Get certain Services
 	$aServices = $oREST->get([

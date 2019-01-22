@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-contactmethod</extension_code>
+	<company><![CDATA[  ]]></company>
+	<author><![CDATA[ jbostoen ]]></author>
+	<label><![CDATA[ Class: Contact Method ]]></label>
+	<description><![CDATA[ Adds a contact methods tab to a Contact. Can easily be extended to support all sorts of data. Dropdown to pick method (e.g. phone, email, social media) and a basic text box (255 chars) ]]></description>
+	<version>2.5.190115</version>
+	<release_date>2019-01-15</release_date>
+	<version_description><![CDATA[  ]]></version_description>
+	<itop_version_min>2.5.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
+</extension>
+
+
+

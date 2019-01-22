@@ -6,8 +6,8 @@
 	 *
 	 * Place iTop Connector under <iTopDir>/itop-connector
 	 *
-	 * @copyright  © 2018 - jbostoen
-	 * @version    Release: 0.1.190105
+	 * @copyright  © 2018 - 2019 jbostoen
+	 * @version    Release: 0.1.190122
 	 * @link       https://github.com/jbostoen
 	 * @see        https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
 	 */  
@@ -79,7 +79,7 @@
 		 * Shortcut to create data
 		 *
 		 * @param Array $aParameters Array [
-		 *  'comment'         => Required. String. Describes the action and is stored in iTop's history tab.
+		 *  'comment'         => Optional. String. Describes the action and is stored in iTop's history tab.
 		 *  'fields'          => Required. Array. The fields and values for the object to create.
 		 *  'class'           => Required. String. iTop class name (examples: Organization, Contact, Person ...)
 		 *  'output_fields'   => Optional. Array. List of field names you want to retrieve. 
@@ -92,19 +92,19 @@
 		 * @return Array - see processResult()
 		 *
 		 */ 
-		public function create( Array $aParameters = [] ) {
+		public function Create( Array $aParameters = [] ) {
 			
-			$sClassName = $this->getClassName( $aParameters );
+			$sClassName = $this->GetClassName( $aParameters );
 			
-			$aResult = $this->post([
+			$aResult = $this->Post([
 				'operation' => 'core/create', // Action
 				'class' => $sClassName, // Class of object to create
 				'fields' => $aParameters['fields'], // Field data to be saved
-				'comment' => $aParameters['comment'], // Comment in history tab
+				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Created by iTop Connector (REST)' ), // Comment in history tab
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ )
 			]);
 			
-			return $this->processResult( $aResult, $aParameters ); 
+			return $this->ProcessResult( $aResult, $aParameters ); 
 			
 		}
 		
@@ -133,20 +133,20 @@
 		 * @return Array - see processResult()
 		 *
 		 */ 
-		public function delete( Array $aParameters = [] ) {
+		public function Delete( Array $aParameters = [] ) {
 			
-			$sClassName = $this->getClassName( $aParameters );
+			$sClassName = $this->GetClassName( $aParameters );
 			
-			$aResult = $this->post([
+			$aResult = $this->Post([
 				'operation' => 'core/delete', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object to delete
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
-				'comment' => $aParameters['comment'], // Comment in history tab
+				'comment' => $aParameters['comment'], // Comment in history tab?
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
 				'simulate' => ( isset($aParameters['simulate']) == true ? $aParameters['simulate'] : false )
 			]);
 			
-			return $this->processResult( $aResult, $aParameters ); 
+			return $this->ProcessResult( $aResult, $aParameters ); 
 			
 		}
 		
@@ -175,18 +175,18 @@
 		 * @return Array - see processResult()
 		 * 
 		 */ 
-		public function get( Array $aParameters = [] ) {
+		public function Get( Array $aParameters = [] ) {
 			
-			$sClassName = $this->getClassName( $aParameters );
+			$sClassName = $this->GetClassName( $aParameters );
 			 			
-			$aResult = $this->post([
+			$aResult = $this->Post([
 				'operation' => 'core/get', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object(s) to retrieve
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ )			
 			]);
 			 
-			return $this->processResult( $aResult, $aParameters ); 
+			return $this->ProcessResult( $aResult, $aParameters ); 
 			
 		} 
 	
@@ -198,7 +198,7 @@
 		 * @return String $sInput Class name.
 		 *
 		 */
-		private function getClassName( Array $aInput = [] ) {
+		private function GetClassName( Array $aInput = [] ) {
 							
 			if( isset( $aInput['class'] ) == true ) {
 				
@@ -239,7 +239,7 @@
 		 * 
 		 * @return Array containing the data obtained from the iTop REST Services
 		 */ 
-		public function post( Array $aJSONData ) {
+		public function Post( Array $aJSONData ) {
 			   
 			
 			//  Initiate curl
@@ -312,7 +312,7 @@
 		 *  'filename'        => Filename (short)
 		 * ];
 		 */ 
-		public function prepareFile( String $sFileName ) {
+		public function PrepareFile( String $sFileName ) {
 			
 			$sFileName = $sFileName;
 			$sType = mime_content_type($sFileName);
@@ -368,7 +368,7 @@
 		 * @details Simplification happens because we only return an array of objects, either with or without key. 
 		 * If you want to check for errors, just check in the array if 'code' still exists.
 		 */
-		private function processResult( Array $aServiceResponse = [], Array $aParameters = [] ) {
+		private function ProcessResult( Array $aServiceResponse = [], Array $aParameters = [] ) {
 						
 			if( $aServiceResponse['code'] == 0 ) {
 				
@@ -393,7 +393,7 @@
 		 * Shortcut to update data
 		 *
 		 * @param $aParameters Array [
-		 *  'comment'          => Required. String. Describes the action and is stored in iTop's history tab.
+		 *  'comment'          => Optional. String. Describes the action and is stored in iTop's history tab.
 		 *  'fields'           => Required. Array. The fields and values for them that need to be updated
 		 *  'key'              => Required.
 		 *                        Int (iTop ID) 
@@ -408,20 +408,20 @@
 		 * @return Array - see processResult()
 		 *
 		 */ 
-		public function update( Array $aParameters = [] ) {
+		public function Update( Array $aParameters = [] ) {
 			
-			$sClassName = $this->getClassName( $aParameters );
+			$sClassName = $this->GetClassName( $aParameters );
 			
-			$aResult = $this->post([
+			$aResult = $this->Post([
 				'operation' => 'core/update', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object to update
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'fields' => $aParameters['fields'], // Field data to be updated
-				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Update by REST-service' ), // Comment in history tab
+				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Updated by iTop Connector (REST)' ), // Comment in history tab
 				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
 			]);
 			
-			return $this->processResult( $aResult, $aParameters ); 
+			return $this->ProcessResult( $aResult, $aParameters ); 
 			
 		}
 		

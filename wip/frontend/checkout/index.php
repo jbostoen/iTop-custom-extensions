@@ -1,16 +1,16 @@
 <?php
 
  
-	require_once("api.php");
+	require_once('api.php');
 	
-	$i = new iTop_Scan();
+	$oRest_CheckOut = new iTop_Rest_CheckOut();
 	
 	// Settings
 	$orgId_checkout = 1;
 	
 	// Get contacts
-	$contacts = $i->get([ 
-		"key" => "SELECT Contact WHERE org_id = '".$orgId_checkout."'"						
+	$contacts = $oRest_CheckOut->get([ 
+		'key' => 'SELECT Contact WHERE org_id = \''.$orgId_checkout.'\''						
 	]);   
 	
 	
@@ -25,18 +25,18 @@
 	 *  
 	 */
 	function cmpFriendlyName($a, $b) {		
-		return strcmp( strtolower( $a["fields"]["friendlyname"] ), strtolower( $b["fields"]["friendlyname"] ) );
+		return strcmp( strtolower( $a['fields']['friendlyname'] ), strtolower( $b['fields']['friendlyname'] ) );
 	} 
 	
-	uasort($contacts, "cmpFriendlyName");
+	uasort($contacts, 'cmpFriendlyName');
  
 	// Render
-	echo $twig->render("checkout.html", [
+	echo $twig->render('checkout.html', [
 		
 		// Params
-		"contacts" => $contacts,
-		"org_id" => $orgId_checkout,
-		"lang" => $lang
+		'contacts' => $contacts,
+		'org_id' => $orgId_checkout,
+		'lang' => $lang
 		
 		
 	]);

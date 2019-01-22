@@ -7,13 +7,13 @@
  
  
 	require_once("../../itop-connector/connector.php");
-	require_once("../contactfinder/contactfinder.php");
+	require_once("../framework/personfinder.php");
 	
 	
 	/**
-	 *  Class iTop_Report_Issue_Public_Infrastructure . Contains specific methods to handle citizen requests.
+	 *  Class iTop_Rest_ReportIssue_PublicInfrastructure . Contains specific methods to handle citizen requests.
 	 */
-	class iTop_Report_Issue_Public_Infrastructure extends iTop_Rest {
+	class iTop_Rest_ReportIssue_PublicInfrastructure extends iTop_Rest {
 		
 		/**
 		 * Posts data to iTop instance using the iTop. Creates a UserRequest based on 
@@ -34,7 +34,7 @@
 		 *  ]
 		 *   
 		 */
-		public function report( Array $aData = [] ) {
+		public function ReportIssue( Array $aData = [] ) {
 			
 			$aReturn['error'] = 0;
 		
@@ -44,24 +44,20 @@
 			// Create new ticket. You could specify defaults here
 			$aTicket = [
 				'operation' => 'core/create',
-				'comment' => 'Request from website',
+				'comment' => 'Created by ' . __METHOD__,
 				'class' => 'UserRequest',
 				'fields' => [
 					'org_id' => 1,
-					'title' => 'New maintenance request from citizen',
-					'description' => '<p>This is a long description about a problem. HTML allowed.</p>', 
 					'start_date' => date('Y-m-d H:i:s'),
 					'end_date' => null,
 					'last_update' => date('Y-m-d H:i:s')
 				]
 			];
-			 
-			
-			// echo json_encode($res, JSON_PRETTY_PRINT );
+			  
 			
 			// Post this information to iTop.
 			// Attachment info will be done in a separate POST. 
-			$aReturn['ticket'] = $this->post( array_replace_recursive($aTicket, ['fields' => $aData['fields']] ));
+			$aReturn['ticket'] = $this->Post( array_replace_recursive($aTicket, ['fields' => $aData['fields']] ));
 						
 			// Code should be 0. = no error 
 			if( $aReturn['ticket']['code'] != 0 ) {
@@ -96,12 +92,12 @@
 								'item_class' => 'UserRequest',
 								'item_id' => $iTicketId,
 								'item_org_id' => 1, 
-								'contents' => $this->prepareFile('files/thumbnail/'.$aAttachment['fileName']) // prepares (encodes) file
+								'contents' => $this->PrepareFile('files/thumbnail/'.$aAttachment['fileName']) // prepares (encodes) file
 							]
 						];
 						
 						// echo json_encode($res, JSON_PRETTY_PRINT );
-						$aReturn['attachment'] = $this->post($aPost_Attachment);								
+						$aReturn['attachment'] = $this->Post($aPost_Attachment);								
 
 						if( $aReturn['attachment']['code'] != 0 ) {
 							return [
@@ -132,57 +128,122 @@
 	
 	// Actually try/do something 
  	
-	$i = new iTop_Report_Issue_Public_Infrastructure(); 
+	$oRest_Report_Issue = new iTop_Rest_ReportIssue_PublicInfrastructure(); 
 		
+	header('Content-Type: application/json');
+	session_start();
 
 	 
 	switch( @$_REQUEST["action"] ) {
 
 		case "createTicket":
 		
-			// Should have 'fields' => [array of fields], 'attachments' => [array of attachments with fileName property]
-			  
-			/*$res = $i->report([
-				"fields" => [
-					"title" => "Suggestie voor beeldkwaliteit", // ticket title 
-					"description" => "Dit kan je <b>heel mooi</b> oplossen!" // ticket description 
-				],
-				"attachment" => "35071125_10214803692582541_1640894613373845504_n.jpg" // filename 
-			]);*/
-			
+			// Should have:
+			// 'fields' => [array of fields], 
+			// 'attachments' => [array of attachments with fileName property]
+			   
 			$aFields = $_REQUEST["fields"];
 			$aAttachments = ( isset($_REQUEST['attachments']) == true ? $_REQUEST['attachments'] : [] );
 			
-			// @todo: check if we can identify caller by phone or email
+			
+			// /// Validation
+			$aErrors = [];
+			
+			if( isset($aFields['name']) == false ) {
+				$aErrors[] = 'Vul een achternaam in (minstens 2 tekens).';				
+			}
+			elseif( strlen($aFields['name']) < 2 ) {
+				$aErrors[] = 'Vul een achternaam in (minstens 2 tekens).';
+			}
+			
+			if( isset($aFields['first_name']) == false ) {
+				$aErrors[] = 'Vul een voornaam in (minstens 2 tekens).';				
+			}
+			elseif( strlen($aFields['first_name']) < 2 ) {
+				$aErrors[] = 'Vul een voornaam in (minstens 2 tekens).';
+			}
+			
+			if( isset($aFields['email']) == false ) {
+				$aErrors[] = 'Vul een geldig mailadres in.';				
+			}
+			elseif( !filter_var($aFields['email'], FILTER_VALIDATE_EMAIL)) {
+				$aErrors[] = 'Vul een geldig mailadres in.';
+			}
+			
+			if( isset($aFields['name']) == false ) {
+				$aErrors[] = 'Vul een geldig telefoonnummer in.';				
+			}
+			elseif( strlen($aFields['phone']) < 9 ) {
+				$aErrors[] = 'Vul een geldig telefoonnummer in.';
+			} 
+			
+			if( isset($aFields['description']) == false ) {
+				$aErrors[] = 'Vul een korte beschrijving in (minstens 10 tekens).';
+			}
+			elseif( strlen($aFields['description']) < 10 ) {
+				$aErrors[] = 'Vul een korte beschrijving in (minstens 10 tekens).';
+			} 
+			
+			// @todo Add extent check (actually an intersect with a polygon would be better)
+			unset($aFields['geomExtent']);
+			
+			// @todo Better check if values are real 
+			
+			if( isset($aFields['service_id']) == false ) {
+				$aErrors[] = 'Kies een geldige service.';
+			}
+			
+			if( isset($aFields['servicesubcategory_id']) == false ) {
+				$aErrors[] = 'Kies een geldige subservice.';
+			}
+			
+			if( isset($aFields['phrase']) == false ) {
+				$aErrors[] = 'Ongeldige Anti-SPAM-code';
+			}
+			elseif( $_SESSION['phrase'] != $aFields['phrase'] ) {
+				$aErrors[] = 'Ongeldige Anti-SPAM-code';
+			}
+			
+			
+			if( count($aErrors) > 0 ) {
+				echo json_encode([
+					'error' => 1,
+					'msg' => $aErrors
+				]);
+				exit();
+			}
 			
 			
 			
 			
-			// Test match Person
+			// /// Match person
+			
+			// Defaults for new people
+			$aFields['org_id'] = 1; 
+			$aFields['status'] = 'active'; 
+			$aFields['notify'] = 'no';
 				
-				$oFinder = new iTop_PersonFinder();				
-				echo $oFinder->findPerson($aFields);
+			// Try to match Person
+			// Create if nothing found
+			$oFinder = new iTop_PersonFinder();				
+			$iPersonId = $oFinder->FindPerson($aFields, ['create']);
 				
-				die();
 				
-				
-			// End test
 			
-			$aResult = $i->report([
-				"fields" => [
-					"title" => $aFields["title"],
-					"geom" => $aFields["geom"],
-					"description" => "".
-						"<h2>Contactinfo</h2>".
-						"<p>".
-						"	<b>Naam:</b> " . $aFields["first_name"]." ".$aFields["name"]."<br>".
-						"	<b>Tel:</b> " . $aFields["phone"]."<br>".
-						"	<b>E-mailadres:</b> <a href=\"mailto:".$aFields["email"]."\">".$aFields["email"]."</a>".
-						"</p>".
-						"<h2>Melding</h2>".
-						"<pre>".trim(strip_tags( $aFields["description"] ))."</pre>"						
+			// /// Ticket creation
+			
+			// Ready to create ticket
+			$aResult = $oRest_Report_Issue->ReportIssue([
+				'fields' => [
+					'title' => $aFields['title'],
+					'geom' => $aFields['geom'],
+					'caller_id' => $iPersonId,
+					'service_id' => (Int)$aFields['service_id'],
+					'servicesubcategory_id' => (Int)$aFields['servicesubcategory_id'],
+					'description' => ''.
+						'<pre>'.trim(strip_tags( $aFields['description'] )).'</pre>'						
 				],
-				"attachments" => $aAttachments 
+				'attachments' => $aAttachments 
 			]);
 			
 			
@@ -192,11 +253,11 @@
 			
 			break;
 			
-		case "findAddress":
+		case 'findAddress':
   
-			$aCrabAddresses = $i->get([
-				"key" => "SELECT CrabAddress WHERE friendlyname LIKE '%" . addslashes($_REQUEST['term']) . "%'",
-				"onlyValues" => true
+			$aCrabAddresses = $oRest_Report_Issue->Get([
+				'key' => 'SELECT CrabAddress WHERE friendlyname LIKE \'%' . addslashes($_REQUEST['term']) . '%\'',
+				'onlyValues' => true
 			]);
 		
 			echo json_encode( $aCrabAddresses );
@@ -205,8 +266,8 @@
 
 		default: 
 			echo json_encode([
-				"error" => 1, 
-				"msg" => "Onbekende actie"
+				'error' => 1, 
+				'msg' => 'Onbekende actie'
 			]);
 			break;
 	}

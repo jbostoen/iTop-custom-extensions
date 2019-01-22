@@ -62,6 +62,8 @@
 			overflow-x: hidden;
 		}
 		
+		 
+		
 	</style>
 	
   </head>
@@ -79,7 +81,7 @@
 				  <div class="col-md-10 mb-3 ">
 				
 					<h2 class="mx-3">Meld een probleem</h2>
-					<p class="mx-3 lead">Heb je weet van een probleem met onze infrastructuur? Laat het ons weten.</p>
+					<p class="mx-3 lead">Heb je weet van een probleem met onze infrastructuur op Izegems grondgebied? Laat het ons weten.</p>
 					
 				
 				</div>
@@ -96,7 +98,7 @@
 	  
 	  
 	  
-        <div class="col-12 col-md-4 col-lg-3 order-md-1 mb-4">
+        <div class="col-12 col-lg-3 order-md-1 mb-4">
 		
 		
           <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -115,7 +117,7 @@
 		  
 		  
         </div>
-        <div class="col-12 col-md-8 col-lg-9 order-md-2">
+        <div class="col-12 col-lg-9 order-md-2">
 		
 		
 		
@@ -130,7 +132,7 @@
 						
 			<div class="row">
               <div class="col-md-12 mb-3">
-                <label for="geomtype">Soort vorm</label>
+                <label for="geomtype" class="font-weight-bold">Soort vorm</label>
                 <select class="custom-select d-block w-100" id="geomtype" required="">
 				<option value="Point">Punt</option>
 				<option value="LineString">Lijn (bv. oliespoor)</option>
@@ -162,14 +164,14 @@
           <h4 class="mb-3">Contactinfo</h4>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="first_name">Voornaam</label>
+                <label for="first_name" class="font-weight-bold">Voornaam</label>
                 <input type="text" class="form-control" id="firstName" placeholder="" value="" required>
                 <div class="invalid-feedback">
                  Een voornaam is vereist.
                 </div>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="name">Achternaam</label>
+                <label for="name" class="font-weight-bold">Achternaam</label>
                 <input type="text" class="form-control" id="lastName" placeholder="" value="" required>
                 <div class="invalid-feedback">
                  Een achternaam is vereist.
@@ -177,19 +179,27 @@
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="email">E-mailadres </label>
-              <input type="email" class="form-control" id="email" placeholder="jouwnaam@domein.be">
-              <div class="invalid-feedback">
-                Geef je e-mailadres zodat we je kunnen contacteren om bijkomende info te vragen of te geven.
-              </div>
+			
+			
+            <div class="row">
+              <div class="col-md-6 mb-3">
+					<label for="email" class="font-weight-bold">E-mailadres </label>
+					<input type="email" class="form-control" id="email" placeholder="jouwnaam@domein.be">
+					<div class="invalid-feedback">
+						Geef je e-mailadres zodat we je kunnen contacteren om bijkomende info te vragen of te geven.
+					</div>
+                </div>
+             
+			 
+				<div class="col-md-6 mb-3">
+              
+					<label for="phone" class="font-weight-bold">Telefoonnummer <!--<span class="text-muted">(Optioneel)</span>--> </label>
+					<input type="text" class="form-control" id="phone">
+                </div>
+				
             </div>
 			
-            <div class="mb-3">
-              <label for="phone">Telefoonnummer <span class="text-muted">(Optioneel)</span> </label>
-              <input type="text" class="form-control" id="phone">
-               
-            </div>
+			 
 			 
 			
 			 
@@ -200,23 +210,32 @@
 
             <div class="d-block my-3" id="Services">
 				<!-- Added dynamically -->
-            </div>
-			
-			<hr>
+            </div> 
 			
 			
             <div class="d-block my-3" id="ServiceSubCategories">
 				<!-- Added dynamically -->
             </div>
 			
+			 
+ 
+ 
+            <hr class="mb-4">
 			
-			<hr>
 			
 			
+            <div class="mb-3">
+				
+              <label for="description" class="font-weight-bold">Beschrijving</label><br>
+				<textarea class="form-control autoExpand" id="description"></textarea>
+			
+			</div>
+			
+					
 			
 
             <div class="mb-3">
-              <label for="attachment">Foto <span class="text-muted">(Optioneel)</span></label><br>
+              <label for="attachment" class="font-weight-bold">Foto <span class="text-muted">(Optioneel)</span></label><br>
               <!-- <button id="attachment"><input type="file" class="form-control-file d-none"> Foto uploaden</button> -->
 			  
 			  <!--  The fileinput-button span is used to style the file input field as button  --> 
@@ -228,31 +247,45 @@
 				
 				
             </div>
- 
- 
-            <hr class="mb-4">
 			
 			
 			
-            <div class="mb-3">
-              <label for="description">Beschrijving</label><br>
-				<textarea class="form-control autoExpand" id="description"></textarea>
+			<hr>
+			 
+
+					
+            <div class="row">
 			
-			</div>
 			
+              <div class="col-md-2 mb-3">	
+					
+					<label for="phrase" class="font-weight-bold">Anti-SPAM</label>
+					
+				</div>
+				
+				<div class="col-md-2 mb-3">	
+					<img src="../framework/captcha.php" class="img-thumbnail">
+				</div>
+				<div class="col-md-8 mb-3">
+              			
+					<input type="text" class="form-control" id="phrase" placeholder="Vul de code hier in">
+                </div>
+				
+            </div>
+			 
 			
 			
 			
             <div class="custom-control custom-checkbox">
               <input type="checkbox" class="custom-control-input" id="gdpr-agree">
-              <label class="custom-control-label" for="gdpr-agree">Deze gegevens mogen verwerkt worden volgens de Algemene Gegevensverordening (AGV/GDPR) </label>
+              <label class="custom-control-label" for="gdpr-agree">Deze gegevens mogen verwerkt worden volgens de Algemene Gegevensverordening (AVG/GDPR) </label>
             </div>
 			
 			 
 			
             <hr class="mb-4">
 			
-            <button class="btn btn-primary btn-lg btn-block" type="button" id="create-ticket">Melding insturen</button>
+            <button class="btn btn-primary btn-lg btn-block" type="button" id="create-ticket" disabled>Melding insturen</button>
           </form>
         </div>
       </div>
@@ -309,34 +342,51 @@
 
 		$('#create-ticket').prop('disabled', true);
 
-		$.post('api.php', {
-			action: 'createTicket',
-			fields: {
-				title: 'A test report from the front-end',
-				description: $('#description').val(),
-				geom: (source.getFeatures().length == 0 ? null : format.writeFeature(source.getFeatures()[0])),
-				first_name: $('#firstName').val(),
-				name: $('#lastName').val(),
-				phone: $('#phone').val(),
-				email: $('#email').val(),
-				serviceCategoryId: $("input[name='service_category_id']:checked").val()
-
+		$.ajax({
+			url: 'api.php', 
+			type: 'POST',
+			dataType: 'json',
+			data: {
+				action: 'createTicket',
+				fields: {
+					title: 'A test report from the front-end',
+					description: $('#description').val(),
+					geom: (source.getFeatures().length == 0 ? null : format.writeFeature(source.getFeatures()[0])),
+					geomExtent: (source.getFeatures().length == 0 ? null : source.getFeatures()[0].getGeometry().getExtent()),
+					first_name: $('#firstName').val(),
+					name: $('#lastName').val(),
+					phone: $('#phone').val(),
+					email: $('#email').val(),
+					service_id: $("input[name='services']:checked").val(),
+					servicesubcategory_id: $("input[name='servicesubcategories']:checked").val(),
+					phrase: $('#phrase').val()
+				},
+				attachments: [{
+					fileName: $('#attachment-filename').attr('data-filename')
+				}]
 			},
-			attachments: [{
-				fileName: $('#attachment-filename').attr('data-filename')
-			}]
-		}, function (data) {
+			success: function(data) {
+ 
+				if( data.error == 0 ) {
+	 
+					var ticketFields = data.ticket.objects[Object.keys(data.ticket.objects)[0]].fields;
+					console.log('Created a ticket with Ref ' + ticketFields.ref);
 
-			console.log(data);
-			var ticketFields = data.ticket.objects[Object.keys(data.ticket.objects)[0]].fields;
-			console.log('Created a ticket with Ref ' + ticketFields.ref);
+					dialogOK('Melding ingestuurd', 'De melding wordt zo snel mogelijk door onze diensten verwerkt.');
 
-			dialogOK('Melding ingestuurd', 'Bedankt, de melding is geregistreerd.<br>Onze diensten verwerken die zo snel mogelijk.');
+				}
+				else {
+					test = data;
+					dialogError('Onvoldoende informatie', '<p>We helpen je graag optimaal.<br>Daarom vragen we:</p><ul><li>' + data.msg.join('</li><li>') + '</li></ul>');
+				
+				}
+			
+			
+				$('#create-ticket').prop('disabled', false);
+				
+			} 
 
-			$('#create-ticket').prop('disabled', true);
-
-
-		}, 'json');
+		});
 
 	}
 
@@ -530,7 +580,7 @@
 
 		$('#Services').append(
 			'<div class="custom-control custom-radio">' +
-			'	<input id="service_' + s.key + '" name="services" type="radio" class="custom-control-input" required>' +
+			'	<input id="service_' + s.key + '" name="services" type="radio" class="custom-control-input" value="' + s.key + '" required>' +
 			'	<label class="custom-control-label" for="service_' + s.key + '">' + s.fields.name + '</label>' +
 			'</div>'
 		);
@@ -546,7 +596,7 @@
 
 			$('#ServiceSubCategories').append(
 				'<div class="custom-control custom-radio">' +
-				'	<input id="servicesubcategory_' + c.key + '" name="servicesubcategories" type="radio" class="custom-control-input" required>' +
+				'	<input id="servicesubcategory_' + c.key + '" name="servicesubcategories" type="radio" class="custom-control-input" value="' + c.key + '" required>' +
 				'	<label class="custom-control-label" for="servicesubcategory_' + c.key + '">' + c.fields.name + '</label>' +
 				'</div>'
 			);
@@ -564,12 +614,20 @@
 			done: function (e, data) {
 				$.each(data.result.files, function (index, file) {
 				 
-					$("#attachment-filename").text(file.name).attr("data-filename", file.name) ;
+					$('#attachment-filename').text(file.name).attr('data-filename', file.name) ;
 					
 				});
 			}
 		});
 	}); 
+	
+	
+	// Enable submit?
+	$(document.body).on('change', '#gdpr-agree', function(){
+	
+		$('#create-ticket').prop('disabled', !($('#gdpr-agree').prop('checked')) );
+	
+	});
 	 
 	
 	// Applied globally on all textareas with the "autoExpand" class
@@ -586,6 +644,8 @@
 			rows = Math.ceil((this.scrollHeight - this.baseScrollHeight) / 16);
 			this.rows = minRows + rows;
 		});
+		
+		
 	
 	</script>
 
