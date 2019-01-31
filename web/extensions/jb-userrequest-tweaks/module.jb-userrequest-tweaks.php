@@ -5,11 +5,11 @@
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-class-request-mgmt-itil-public-log-after-assign/',
+        'jb-userrequest-tweaks/',
         array(
                 // Identification
                 //
-                'label' => 'Class: User Request (ITIL) - Public log: after assign',
+                'label' => 'Class: User Request (ITIL) - Several tweaks',
                 'category' => 'business',
 
                 // Setup
@@ -24,7 +24,7 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-class-request-mgmt-itil-public-log-after-assign.php'
+                        'model.jb-userrequest-tweaks.php'
                 ),
                 'webservice' => array(
 
@@ -51,3 +51,6 @@ SetupWebPage::AddModule(
 
 
 ?>
+
+
+

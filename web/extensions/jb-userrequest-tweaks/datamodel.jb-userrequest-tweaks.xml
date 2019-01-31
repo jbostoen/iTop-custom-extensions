@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<classes>
+		<class id="UserRequest">
+			<fields>
+
+				<!-- Add phone number (derived from caller_id -> Person) -->
+				<field id="caller_phone" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>caller_id</extkey_attcode>
+					<target_attcode>phone</target_attcode>
+					<dependencies>
+						<attribute id="phone"/>
+					</dependencies>
+				</field>
+
+				<!-- Always show lookup fields for Incident, Change, Problem -->
+				<field id="parent_request_id" xsi:type="AttributeExternalKey">
+					<max_combo_length _delta="define">0</max_combo_length>
+				</field>
+				<field id="parent_change_id" xsi:type="AttributeExternalKey">
+					<max_combo_length _delta="define">0</max_combo_length>
+				</field>
+				<field id="parent_incident_id" xsi:type="AttributeExternalKey">
+					<max_combo_length _delta="define">0</max_combo_length>
+				</field>
+				<field id="parent_problem_id" xsi:type="AttributeExternalKey">
+					<max_combo_length _delta="define">0</max_combo_length>
+				</field>
+
+
+
+				<!-- Adds two extra options to 'origin' -->
+				<field id="origin" xsi:type="AttributeEnum">
+					<values>
+						<value id="in_person" _delta="define">in_person</value>
+						<value id="monitoring" _delta="define">monitoring</value>
+					</values>
+				</field>
+
+				<!-- Changes the default value to 3 (a person) instead of 1 (a department) -->
+				<field id="impact" xsi:type="AttributeEnum">
+					<default_value _delta="redefine">3</default_value>
+				</field>
+
+			</fields>
+			<lifecycle>
+				<states> 
+					<state id="new">
+						<flags>
+
+							<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. -->
+							<attribute id="public_log">
+								<hidden/>
+							</attribute>
+
+							<!-- Hide solution, solution_code. We log things in private log instead. -->
+							<attribute id="solution">
+								<hidden _delta="merge"/>
+							</attribute>
+							<attribute id="resolution_code">
+								<hidden _delta="merge"/>
+							</attribute>
+
+						</flags>
+					</state>
+					<state id="assigned">
+
+						<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. -->
+						<flags>
+							<attribute id="public_log"/>
+						</flags>
+
+					</state>             
+					<state id="resolved">
+						<flags>
+
+							<!-- Never make the caller_id read-only (default) -->							
+							<attribute id="caller_id">
+								<read_only _delta="delete"/>
+							</attribute>
+
+							<!-- Never make the title read-only -->							
+							<attribute id="title">
+								<read_only _delta="delete"/>
+							</attribute>
+
+							<!-- Hide solution, solution_code. We log things in private log instead. So it shouldn't prompt either and is definitely NOT mandatory. -->
+							<attribute id="solution">
+								<hidden _delta="merge"/>
+								<mandatory _delta="delete"/>
+								<must_prompt _delta="delete"/>
+							</attribute>
+							<attribute id="resolution_code">
+								<hidden _delta="merge"/>
+								<mandatory _delta="delete"/>
+								<must_prompt _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+				</states>
+			</lifecycle>
+
+			<presentation>
+				<details>
+					<items>
+						<item id="col:col1">
+							<items>
+								<!-- Add a field to sohw the caller's phone number -->
+								<item id="fieldset:Ticket:baseinfo">
+									<items>
+										<item id="caller_phone" _delta="define">
+											<rank>21</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+			</presentation>
+
+
+		</class>
+	</classes>
+</itop_design>
+
+
+
