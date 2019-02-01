@@ -74,7 +74,11 @@
 					<state id="resolved">
 						<flags>
 
-							<!-- Never make the caller_id read-only (default) -->							
+							<!-- Never make org_id and the caller_id read-only (default) -->					
+							<attribute id="org_id">
+								<read_only _delta="delete"/>
+							</attribute>		
+							
 							<attribute id="caller_id">
 								<read_only _delta="delete"/>
 							</attribute>
