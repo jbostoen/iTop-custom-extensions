@@ -271,6 +271,13 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	
 	
 							$oRawEmail = $oSource->GetMessage($iMessage);
+							
+							// IMAP error occurred?
+							if(is_null($oRawEmail)) 
+							{
+								return "Stopped processing due to (possible temporary) IMAP error. Message(s) read: $iTotalMessages, message(s) skipped: $iTotalSkipped, message(s) processed: $iTotalProcessed, message(s) deleted: $iTotalDeleted, message(s) marked as error: $iTotalMarkedAsError, undesired message(s): $iTotalUndesired";
+							}
+							
 							$this->Trace("UIDL of RawEmail = '" . $oRawEmail->sUIDL . "'");
 							
 							//$oRawEmail->SaveToFile(dirname(__FILE__)."/log/$sUIDL.eml"); // Uncomment the line to keep a local copy if needed

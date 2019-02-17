@@ -75,13 +75,27 @@ class IMAPEmailSource extends EmailSource
 	/**
 	 * Retrieves the message of the given index [0..Count]
 	 * @param $index integer The index between zero and count
-	 * @return EmailDecoder
+	 * @return MessageFromMailbox|null
 	 */
 	public function GetMessage($index)
 	{
+		
+		// Experiment: catch error notices.
+		// PHP Notice:  Unknown: [CLOSED] IMAP connection broken (server response) (errflg=2) in Unknown on line 0
+		// PHP Notice:  Unknown: [CLOSED] IMAP connection lost (errflg=2) in Unknown on line 0
+		// Return NULL if anything goes wrong. This reset may need tweaking; perhaps adjust this later to look for specific errors.
+		error_clear_last();
+		
 		$sRawHeaders = imap_fetchheader($this->rImapConn, 1+$index);
 		$sBody = imap_body($this->rImapConn, 1+$index, FT_PEEK);
 		$aOverviews = imap_fetch_overview($this->rImapConn, 1+$index);
+		
+		if(!is_null(error_get_last())) {
+			// Error occurred
+			$this->Trace("Error(s) occurred in " . __METHOD __ . "() -> " . json_encode(error_get_last()));
+			return null;
+		}
+		
 		$oOverview = array_pop($aOverviews);
 
 		$bUseMessageId = (bool) MetaModel::GetModuleSetting('jb-email-synchro', 'use_message_id_as_uid', false);
@@ -90,6 +104,8 @@ class IMAPEmailSource extends EmailSource
 			$oOverview->uid = $oOverview->message_id;
 		}
 
+		
+		
 		return new MessageFromMailbox($oOverview->uid, $sRawHeaders, $sBody);
 	}
 
