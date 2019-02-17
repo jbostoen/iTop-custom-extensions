@@ -240,7 +240,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 						{
 							case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 							$iTotalMarkedAsError++;
-							$this->Trace("Marking the message1 (and replica): uidl=$sUIDL index=$iMessage as in error.");
+							$this->Trace("Marking the message (and replica): uidl=$sUIDL index=$iMessage as in error.");
 							$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
 
 							break;
@@ -271,6 +271,8 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	
 	
 							$oRawEmail = $oSource->GetMessage($iMessage);
+							$this->Trace("UIDL of RawEmail = '" . $oRawEmail->sUIDL . "'");
+							
 							//$oRawEmail->SaveToFile(dirname(__FILE__)."/log/$sUIDL.eml"); // Uncomment the line to keep a local copy if needed
 							if ((self::$iMaxEmailSize > 0) && ($oRawEmail->GetSize() > self::$iMaxEmailSize))
 							{
@@ -279,7 +281,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								{
 									case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 										$iTotalMarkedAsError++;
-										$this->Trace("Email too big, marking the message4 (and replica): uidl=$sUIDL index=$iMessage as in error.");
+										$this->Trace("Email too big, marking the message (and replica): uidl=$sUIDL index=$iMessage as in error.");
 										$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
 										$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 
@@ -308,7 +310,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 									{
 										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 											$iTotalMarkedAsError++;
-											$this->Trace("Failed to decode the message, marking the message3 (and replica): uidl=$sUIDL index=$iMessage as in error.");
+											$this->Trace("Failed to decode the message, marking the message (and replica): uidl=$sUIDL index=$iMessage as in error.");
 											$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
 											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 										break;
@@ -327,7 +329,10 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								 
 								else
 								{
-									$iNextActionCode = $oProcessor->ProcessMessage($oSource, $iMessage, $oEmail, $oEmailReplica);
+									
+									$iNextActionCode = $oProcessor->ProcessMessage($oSource, $iMessage, $oEmail, $oEmailReplica);									  
+									$this->Trace("EmailReplica ID after ProcessMessage(): ".$oEmailReplica->GetKey());
+									
 									switch($iNextActionCode)
 									{
 										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
@@ -335,7 +340,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$this->Trace("Marking the valid message (and replica): uidl=$sUIDL index=$iMessage as in error.");
 											$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);							
 											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-											$this->Trace("EmailReplica ID: ".$oEmailReplica->GetKey());
 											break;
  
                                         case EmailProcessor::MARK_MESSAGE_AS_UNDESIRED:
@@ -361,7 +365,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$sMessage = $oProcessor->GetLastErrorMessage();
 											EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
 											$iTotalDeleted++;
-											$this->Trace("Deleting message (and replica): $sUIDL");
+											$this->Trace("Deleting message (and replica) due to process error: $sUIDL");
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{
@@ -371,7 +375,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											break;
 		
 										default:
-											$this->Trace("EmailReplica ID: ".$oEmailReplica->GetKey());
 											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 									}
 								}
