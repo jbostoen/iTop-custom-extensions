@@ -91,9 +91,10 @@ class IMAPEmailSource extends EmailSource
 		$sBody = imap_body($this->rImapConn, 1+$index, FT_PEEK);
 		$aOverviews = imap_fetch_overview($this->rImapConn, 1+$index);
 		
+		// No errors should have occurred
 		if(!is_null(error_get_last())) {
 			// Error occurred
-			$this->Trace("Error(s) occurred in " . __METHOD __ . "() -> " . json_encode(error_get_last()));
+			$this->Trace("Error(s) occurred in " . __METHOD__ . "() -> " . json_encode(error_get_last()));
 			return null;
 		}
 		
