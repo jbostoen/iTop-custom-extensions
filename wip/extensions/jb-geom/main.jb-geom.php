@@ -21,7 +21,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	}
 	
 	/**
-	* Not yet called by framework, but reserved. Must be implmented.
+	* Not yet called by framework, but reserved. Must be implemented.
 	*
 	* @param DBObject $oObject DB Object
 	*
@@ -70,7 +70,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	*
 	* @return void
 	*/
-	public function OnDisplayProperties($oObject, $oPage, $bEditMode = false) : void {
+	public function OnDisplayProperties($oObject, WebPage $oPage, $bEditMode = false) : void {
 		
 		 
 	}
@@ -89,14 +89,16 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	 */
 	public function OnDisplayRelations($oObject, WebPage $oPage, $bEditMode = false) {
 		
-		if( in_array( get_class($oObject), ['Location', 'UserRequest'] ) == true ) {		
+		$aAttributeList = Metamodel::GetAttributesList(get_class($oObject));
+		
+		if( in_array('geom', $aAttributeList) == true ) {		
 		
 			// Module settings, defaults.
 			$aGeomSettings = MetaModel::GetModuleSetting('jb-geom', 'default', array( 
 				'datacrs' => 'EPSG:3857',
-				'datatypes' => Array('Point','LineString','Polygon'),
+				'datatypes' => array('Point','LineString','Polygon'),
 				'mapcrs' => 'EPSG:3857',
-				'mapcenter' =>  [ 358652.11242031807, 6606360.84951076 ],
+				'mapcenter' => array( 358652.11242031807, 6606360.84951076 ),
 				'mapzoom' => 17,
 				'format' => 'WKT'
 			)); 
@@ -119,20 +121,27 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 			
 			// It seems iTop just outputs a script as text if you set it in $oPage->add()? 
 			
-			$oPage->add_linked_stylesheet('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/css/ol.css');
-			$oPage->add_linked_script('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.1.3/build/ol.js');
+			$oPage->add_linked_stylesheet('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css');
+			$oPage->add_linked_script('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js');
 			
 			if( $bEditMode ) {
 				$oPage->add('<button type="button" id="geomClear">'.Dict::S('UI:Geom:Clear').'</button> | 
 					<select id="geomType">
 				');
 
-				foreach( $aGeomSettings['datatypes'] as $k => $v ){
-					$oPage->add('<option value="'.$v.'">'.Dict::S('UI:Geom:'.$v).'</option>'); 
+				foreach( $aGeomSettings['datatypes'] as $sDataType => $sDataValue ){
+					$oPage->add('<option value="'.$sDataValue.'">'.Dict::S('UI:Geom:'.$sDataValue).'</option>'); 
 				} 
 						
 				$oPage->add('
-					</select><br>
+					</select> | 
+					
+					<select id="geomMap">
+						<option value="grb">GRB</option>
+						<option value="osm">OpenStreetMap</option>
+					</select>
+					
+					<hr>
 				');
 			}
 			
@@ -151,7 +160,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					GeoJSON: new ol.format.GeoJSON()
 				};
 				geom.oFeatures = [];
-				geom.oFeature = ( \''.$sGeomString.'\' != \'\' ? geom.oFormat.'.( preg_match('/^{"type":"Feature",.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature(\''.$sGeomString.'\', { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
+				geom.oFeature = ( "'.$sGeomString.'" != "" ? geom.oFormat.'.( preg_match('/^{"type":"Feature",.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
 				
 				if( geom.oFeature !== null ) {
 					geom.oFeatures.push( geom.oFeature );
@@ -161,30 +170,71 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					features: geom.oFeatures
 				});
 				
-				geom.oVectorLayer = new ol.layer.Vector({ 
-					source: geom.oVectorSource, 
-					style: ol_style
-				});					
 
+				geom.oSharedStyle = new ol.style.Style({
+					fill: new ol.style.Fill({
+						color: "rgb(6,80,140, 0.25)"
+					}),
+					stroke: new ol.style.Stroke({
+						color: "rgb(6,80,140)",
+						width: 2
+					}),
+					image: new ol.style.Circle({
+						radius: 7,
+						fill: new ol.style.Fill({
+							color: "rgb(139,196,88)"
+						}),
+						stroke: new ol.style.Stroke({
+							color: "rgb(0,0,0)",
+							width: 1.1
+						})
+					})
+				});
+				
+				
+				geom.aLayers = {
+					osm: new ol.layer.Tile({
+						source: new ol.source.OSM(),
+						opacity: 0.5
+					}),
+					grb: new ol.layer.Tile({
+						source: new ol.source.TileWMS({
+							url: "https://geoservices.informatievlaanderen.be/raadpleegdiensten/GRB-basiskaart/wms?",
+							params: {
+								"LAYERS": "GRB_BSK",
+								"LEGEND_OPTIONS": "forceLabels:on"
+							}
+						}),
+						opacity: 0.5
+					}),
+					vector: new ol.layer.Vector({ 
+						source: geom.oVectorSource, 
+						style: geom.oSharedStyle
+					})
+					
+				}
+				
+				
 				if( geom.oFeature === null ) {
 					geom.oCenter = [ '.$aGeomSettings['mapcenter'][0].', '.$aGeomSettings['mapcenter'][1].' ];
 				}
 				else {
+					
+					aExtent = geom.aLayers.vector.getSource().getExtent();
 					geom.oCenter = [ 
-						( geom.oFeature.getGeometry().getExtent()[0] + geom.oFeature.getGeometry().getExtent()[2] ) / 2,
-						( geom.oFeature.getGeometry().getExtent()[1] + geom.oFeature.getGeometry().getExtent()[3] ) / 2,
+						( aExtent[0] + aExtent[2] ) / 2,
+						( aExtent[1] + aExtent[3] ) / 2,
 					];
 				}
+				
 			 
 				// Center: EPSG:3857 - [ 358652.11242031807, 6606360.84951076 ]
 				geom.oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
-						// OpenLayers: the last layer you add, is on top.
-						new ol.layer.Tile({
-							source: new ol.source.OSM()
-						}), 
-						geom.oVectorLayer 
+						// the last layer you add, is on top.
+						geom.aLayers.grb,
+						geom.aLayers.vector 
 					],
 					view: new ol.View({
 						center: geom.oCenter,
@@ -193,13 +243,22 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					})
 				});
 				
+				// Auto-adjust zoom
+				if( geom.oFeature ) {
+					
+					// Workaround to keep zoom
+					oResolution = geom.oMap.getView().getResolution();
+					geom.oMap.getView().fit( aExtent, geom.oMap.getSize() );
+					geom.oMap.getView().setResolution(oResolution);
+				}
+				
 			
 				// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.
 				// Could this have to do with iTop tab behavior? Further investigation needed, only seems to work on second click now (might just appear to do so). 
 				// Not sure if it is an iTop (or Zend) issue, or OpenLayers. 
 				// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
 				// The tab container  
-				$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){  
+				$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){
 					setTimeout( function(){ geom.oMap.updateSize(); }, 1000);
 				});
 								
@@ -207,80 +266,30 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 				// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
 				// Alternatively, you could do this with CSS
 				$("div[data-attcode=\'geom\']").hide();
-				
-				// Style function.
-				/* 
-					// If you want to do something with vertices, you could use:
-					geometry = feature.getGeometry();
-					geometry.forEachSegment(function(start,end){ 
-						styles.push(
-							new ol.style.Style({ 
-								geometry: new Point(end), 
-								image: new ol.style.Icon({ ... }) 
-							}) 
-						) 
-					});
-				*/
-				
-				function ol_style(feature) {
-					switch( feature.getGeometry().getType() ) {
-					
-						case "Point": 
-						
-							return [
-								new ol.style.Style({ 
-									image: new ol.style.Circle({	
-										radius: 10,
-										fill: new ol.style.Fill({
-										  color: "rgba(255, 0, 0, 0.6)"
-										}),
-										stroke: new ol.style.Stroke({
-										  color: "rgba(255, 0, 0, 1)",
-										  width: 1
-										})
-									})
-								})
-							];
-							
-						case "Polygon": 
-						
-							return [
-								new ol.style.Style({ 
-									fill: new ol.style.Fill({
-									  color: "rgba(255, 0, 0, 0.6)"
-									}),
-									stroke: new ol.style.Stroke({
-									  color: "rgba(255, 0, 0, 1)",
-									  width: 1
-									})										 
-								})
-							];
-							
-						case "LineString": 								
-						
-							return [
-								new ol.style.Style({ 										
-									fill: new ol.style.Fill({
-									  color: "rgba(255, 0, 0, 0.6)"
-									}),
-									stroke: new ol.style.Stroke({
-									  color: "rgba(255, 0, 0, 1)",
-									  width: 1
-									}) 
-								})
-							];
-							
-						default: 
-							// Should not happen
-							break;
-					}
-				}	
-					 
-					 
+								 
 				// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
 				$(document).ready(function(){
 					setTimeout( function(){ geom.oMap.updateSize(); }, 1000 );
 				});
+				
+				// Change background map
+				$(document.body).on("change", "#geomMap", function(e) {
+					
+					geom.oMap.getLayers().clear();
+					geom.oMap.addLayer( geom.aLayers[$("#geomMap").val()] );
+					geom.oMap.addLayer( geom.aLayers.vector );
+					
+					if( typeof ol_changeDrawMode !== "undefined") {
+						// Re-add interactions
+						ol_changeDrawMode();
+					}
+					
+					
+				});
+				
+				
+				
+				
 
 			');
 				
@@ -290,7 +299,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 				
 				$oPage->add_ready_script('
 				
-					// Nothing else needed for OpenLayers - view mode
+					// OpenLayers - View mode
 					
 				');
 				
@@ -299,7 +308,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 			 
 				$oPage->add_ready_script('
 					
-					// Editing requires extra interactions.
+					// OpenLayers - Editing requires extra interactions.
 					
 					geom.oDeleteCondition = function(mapBrowserEvent) {
 						return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.shiftKeyOnly(mapBrowserEvent)
@@ -308,17 +317,18 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					// Modify has a deleteCondition, but it does not work with Points. 
 					// It only works with vertex = where two lines meet.
 					geom.oModify = new ol.interaction.Modify({ 
-						source: geom.oVectorSource,
+						source: geom.aLayers.vector.getSource(),
 						deleteCondition: geom.oDeleteCondition
 					});
 					
 					geom.oDraw = new ol.interaction.Draw({
-						source: geom.oVectorSource,
-						type: $("#geomType").val()
+						source: geom.aLayers.vector.getSource(),
+						type: $("#geomType").val(),
+						style: geom.oSharedStyle
 					});
 					
 					geom.oSnap = new ol.interaction.Snap({
-						source: geom.oVectorSource
+						source: geom.aLayers.vector.getSource()
 					});
 					
 					geom.oSelect = new ol.interaction.Select({
@@ -329,18 +339,13 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					geom.oMap.addInteraction( geom.oDraw );
 					geom.oMap.addInteraction( geom.oModify );
 					geom.oMap.addInteraction( geom.oSnap );
-					// geom.oMap.addInteraction( geom.oSelect );
-					
-					// Remove feature (Point) on select. Both these implementations gave an error 
-					// geom.oSelect.getFeatures().on("add", function(e){ ... });
-					// geom.oSelect.on("select", function(e) { var features = e.target.features;  ... });
-					
+					// geom.oMap.addInteraction( geom.oSelect );		
 					  
 					$("body").on("click", "#geomClear", function(e){
 					
 						// Remove
 						geom.oFeature = null;
-						geom.oVectorSource.clear();
+						geom.aLayers.vector.getSource().clear();
 														
 						// Save in geom field 
 						$("textarea[name=\'attr_geom\']").val("");
@@ -354,7 +359,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					});
 						 
 					// Get last drawn geometry type
-					if( geom.oFeature !== null ) {
+					if( geom.oFeature ) {
 						$("#geomType").val( geom.oFeature.getGeometry().getType() );
 						ol_changeDrawMode();
 					}
@@ -365,14 +370,21 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 						geom.oMap.removeInteraction( geom.oDraw );
 					
 						geom.oDraw = new ol.interaction.Draw({
-							source: geom.oVectorSource,
-							type: $("#geomType").val()
+							source: geom.aLayers.vector.getSource(),
+							type: $("#geomType").val(),
+							style: geom.oSharedStyle
 						});
 						
 						geom.oDraw.on("drawstart", function(e){
 							
+							// Remove modify, will cause issues when user double-clicks to set new point
+							geom.oMap.removeInteraction( geom.oModify );
+							
 							// Clear previous features
-							geom.oVectorSource.clear();
+							geom.aLayers.vector.getSource().clear();
+							
+							// Add modify again
+							geom.oMap.addInteraction( geom.oModify );
 														
 						});
 						

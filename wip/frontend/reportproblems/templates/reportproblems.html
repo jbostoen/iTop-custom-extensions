@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
 	
-    <title>Meld een probleem</title>
+    <title>Meld een probleem | Izegem</title>
 
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" type="text/css" href="../../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
@@ -15,6 +15,7 @@
 	
 	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>	
     <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script>
+	<script defer src="../../libext/vendor/fortawesome/font-awesome/js/all.js"></script>
 	
     <!-- Custom styles for this template -->
     <style>
@@ -62,240 +63,205 @@
 			overflow-x: hidden;
 		}
 		
-		 
+		#attachment2 {
+			// input doesn't accept cursor. (20/02/2019)
+			cursor: pointer;
+		}
 		
 	</style>
 	
   </head>
+<body class="bg-light">
+    <form class="needs-validation" novalidate>
 
-	<body class="bg-light">
-	<form class="needs-validation" novalidate>
+        <div class="container full-width">
+            <div class="pt-5 row">
 
-		<div class="container full-width">
-		  <div class="pt-5 row">
-		   
-				  <div class="col-md-2 mb-3">
-						<img class="d-block mx-auto mb-4 img-fluid" src="templates/logo.png" alt="Logo">
-					</div>
+                <div class="col-md-3 mb-3">
+                    <img class="d-block mx-auto mb-4 img-fluid" src="templates/logo.png" alt="Logo">
+                </div>
+
+                <div class="col-md-9 mb-3">
+
+                    <h2 class="mx-3">Meld een probleem</h2>
+                    <p class="mx-3 lead">Heb je weet van een probleem op Izegems openbaar domein? Laat het ons weten.</p>
+
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-12 col-lg-3 order-md-1 mb-4">
 				
-				  <div class="col-md-10 mb-3 ">
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Voor je stuurt ...</span>
+                    </h4>
+                    <ul class="list-group mb-3">
+                        <li class="list-group-item d-flex justify-content-between lh-condensed" id="info-streetlights">
+                            <div>
+                                <h6 class="my-0">Straatverlichting</h6>
+                                <small class="text-muted">Het onderhoud van straatverlichting gebeurt door <a href="https://www.infrax.be/nl/over-infrax/contacteer-ons/Defecte-straatverlichting">Infrax</a>. Contacteer hen rechtstreeks.</small>
+                            </div>
+                        </li>
+                    </ul>
+
+                </div>
 				
-					<h2 class="mx-3">Meld een probleem</h2>
-					<p class="mx-3 lead">Heb je weet van een probleem met onze infrastructuur op Izegems grondgebied? Laat het ons weten.</p>
+                <div class="col-12 col-lg-9 order-md-2">
+
+                    <div class="col-12 mb-3 ui-widget">
+                        <label for="findAddress" class="font-weight-bold">Locatie *</label><br>
+                        <input id="findAddress" class="form-control" placeholder="Zoek adres...">
+                    </div>
+
+
+                    <div id="map" class="map" style="height: 400px;"></div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label for="geomtype" class="font-weight-bold">Soort vorm *</label>
+                            <select class="custom-select d-block w-100" id="geomtype" required="false">
+								<option value="Point">Punt</option>
+								<option value="LineString">Lijn (bv. oliespoor)</option>
+								<option value="Polygon">Vlak (bv. een zone)</option> 
+							</select>
+                        </div>
+                    </div>
 					
-				
-				</div>
-		</div>
-		  
-	  
-	  
-	  
-			
-
-      <div class="row">
-	  
-	  
-	  
-	  
-	  
-        <div class="col-12 col-lg-3 order-md-1 mb-4">
-		
-		
-          <h4 class="d-flex justify-content-between align-items-center mb-3">
-            <span class="text-muted">Voor je stuurt ...</span> 
-          </h4>
-          <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between lh-condensed" id="info-streetlights">
-              <div>
-                <h6 class="my-0">Straatverlichting</h6>
-                <small class="text-muted">Het onderhoud van straatverlichting gebeurt door <a href="https://www.infrax.be/nl/over-infrax/contacteer-ons/Defecte-straatverlichting">Infrax</a>. Contacteer hen rechtstreeks.</small>
-              </div> 
-            </li>
-            
-          </ul>
- 
-		  
-		  
-        </div>
-        <div class="col-12 col-lg-9 order-md-2">
-		
-		
-		
-			<div class="col-12 mb-3 ui-widget">
-				<input id="findAddress" class="form-control" placeholder="Zoek adres...">
-			</div>
-		
-			
-			<div id="map" class="map" style="height: 400px;"></div>
 					
-          
-						
-			<div class="row">
-              <div class="col-md-12 mb-3">
-                <label for="geomtype" class="font-weight-bold">Soort vorm</label>
-                <select class="custom-select d-block w-100" id="geomtype" required="">
-				<option value="Point">Punt</option>
-				<option value="LineString">Lijn (bv. oliespoor)</option>
-				<option value="Polygon">Vlak (bv. een zone)</option> 
-                </select>
-                
-              </div>
-			
-			</div>
-			<div class="row">
-			
-			
-			  
-				<div class="col-md-12 mb-3"> 
-					<div class="custom-control custom-checkbox">
-						<input type="checkbox" class="custom-control-input" id="geolocate-agree">
-						<label class="custom-control-label" for="geolocate-agree">Leid mijn GPS-locatie af<br>
+                    <div class="row">
+
+                        <div class="col-md-12 mb-3">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="geolocate-agree">
+                                <label class="custom-control-label" for="geolocate-agree">Leid mijn GPS-locatie af<br>
 							<small>Werkt best met mobiele toestellen. Nauwkeurigheid hangt af van jouw apparaat en netwerkverbinding. Mogelijk wordt je toestemming nog eens expliciet gevraagd.)</small>
 						</label>
-					</div> 				
-				</div>
-				
-            </div>
-			
-			
-			
-			
-			
-          <h4 class="mb-3">Contactinfo</h4>
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="first_name" class="font-weight-bold">Voornaam</label>
-                <input type="text" class="form-control" id="firstName" placeholder="" value="" required>
-                <div class="invalid-feedback">
-                 Een voornaam is vereist.
-                </div>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="name" class="font-weight-bold">Achternaam</label>
-                <input type="text" class="form-control" id="lastName" placeholder="" value="" required>
-                <div class="invalid-feedback">
-                 Een achternaam is vereist.
-                </div>
-              </div>
-            </div>
+                            </div>
+                        </div>
 
-			
-			
-            <div class="row">
-              <div class="col-md-6 mb-3">
-					<label for="email" class="font-weight-bold">E-mailadres </label>
-					<input type="email" class="form-control" id="email" placeholder="jouwnaam@domein.be">
-					<div class="invalid-feedback">
-						Geef je e-mailadres zodat we je kunnen contacteren om bijkomende info te vragen of te geven.
-					</div>
-                </div>
-             
-			 
-				<div class="col-md-6 mb-3">
-              
-					<label for="phone" class="font-weight-bold">Telefoonnummer <!--<span class="text-muted">(Optioneel)</span>--> </label>
-					<input type="text" class="form-control" id="phone">
-                </div>
-				
-            </div>
-			
-			 
-			 
-			
-			 
-			
-            <hr class="mb-4">
+                    </div>
 
-            <h4 class="mb-3">Mijn melding gaat over ...</h4>
 
-            <div class="d-block my-3" id="Services">
-				<!-- Added dynamically -->
-            </div> 
-			
-			
-            <div class="d-block my-3" id="ServiceSubCategories">
-				<!-- Added dynamically -->
-            </div>
-			
-			 
+                    <h4 class="mb-3">Contactinfo</h4>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="font-weight-bold">Voornaam *</label>
+                            <input type="text" class="form-control" id="first_name" placeholder="" value="" required="true">
+                            <div class="invalid-feedback">
+                                Een voornaam is vereist.
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="font-weight-bold">Achternaam *</label>
+                            <input type="text" class="form-control" id="name" placeholder="" value="" required="true">
+                            <div class="invalid-feedback">
+                                Een achternaam is vereist.
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="font-weight-bold">E-mailadres *</label>
+                            <input type="email" class="form-control" id="email" placeholder="jouwnaam@domein.be" required="true">
+                            <div class="invalid-feedback">
+                                Geef je e-mailadres zodat we je kunnen contacteren om bijkomende info te vragen of te geven.
+                            </div>
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
+
+                            <label for="phone" class="font-weight-bold">Telefoonnummer * <!--<span class="text-muted">(Optioneel)</span>--> </label>
+                            <input type="text" class="form-control" id="phone" required="true">
+                        </div>
+
+                    </div>
+
+                    <hr class="mb-4">
+
+                    <h4 class="mb-3">Mijn melding gaat over ...</h4>
+
+                    <div class="d-block my-3" id="Services">
+                        <!-- Added dynamically -->
+                    </div>
+
+                    <div class="d-block my-3" id="ServiceSubCategories">
+                        <!-- Added dynamically -->
+                    </div>
+
+                    <hr class="mb-4">
+
+                    <div class="mb-3">
+                        <label for="description" class="font-weight-bold">Beschrijving *</label><br>
+                        <textarea class="form-control autoExpand" id="description" required="true"></textarea>
+                    </div>
  
- 
-            <hr class="mb-4">
-			
-			
-			
-            <div class="mb-3">
-				
-              <label for="description" class="font-weight-bold">Beschrijving</label><br>
-				<textarea class="form-control autoExpand" id="description"></textarea>
-			
-			</div>
-			
-					
-			
 
-            <div class="mb-3">
-              <label for="attachment" class="font-weight-bold">Foto <span class="text-muted">(Optioneel)</span></label><br>
-              <!-- <button id="attachment"><input type="file" class="form-control-file d-none"> Foto uploaden</button> -->
-			  
-			  <!--  The fileinput-button span is used to style the file input field as button  --> 
-			  <span class="btn btn-dark fileinput-button" id="attachment" data-filename=""> 
-                    <input type="file" id="attachment2" name="files[]">Foto toevoegen
-                </span>
-				
-				<div id="attachment-filename"></div>
-				
-				
-            </div>
-			
-			
-			
-			<hr>
-			 
+                    <div class="mb-3">
+                        <label for="attachment" class="font-weight-bold">Foto <span class="text-muted">(Optioneel)</span></label><br>
+                        <!-- <button id="attachment"><input type="file" class="form-control-file d-none"> Foto uploaden</button> -->
 
-					
-            <div class="row">
-			
-			
-              <div class="col-md-2 mb-3">	
-					
-					<label for="phrase" class="font-weight-bold">Anti-SPAM</label>
-					
-				</div>
-				
-				<div class="col-md-2 mb-3">	
-					<img src="../framework/captcha.php" class="img-thumbnail">
-				</div>
-				<div class="col-md-8 mb-3">
-              			
-					<input type="text" class="form-control" id="phrase" placeholder="Vul de code hier in">
-                </div>
-				
-            </div>
-			 
-			
-			
-			
-            <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="gdpr-agree">
-              <label class="custom-control-label" for="gdpr-agree">Deze gegevens mogen verwerkt worden volgens de Algemene Gegevensverordening (AVG/GDPR) </label>
-            </div>
-			
-			 
-			
-            <hr class="mb-4">
-			
-            <button class="btn btn-primary btn-lg btn-block" type="button" id="create-ticket" disabled>Melding insturen</button>
-          </form>
-        </div>
-      </div>
+                        <!--  The fileinput-button span is used to style the file input field as button  -->
+                        <span class="btn btn-dark fileinput-button" id="attachment" data-filename=""> 
+							<input type="file" id="attachment2" name="files[]">Foto toevoegen
+						</span>
 
-      <footer class="my-5 pt-5 text-muted text-center text-small">
+                        <div id="attachment-filename"></div>
+
+                    </div>
+
+
+
+                    <hr>
+
+
+
+                    <div class="row">
+
+                        <div class="col-md-2 mb-3">
+
+                            <label for="phrase" class="font-weight-bold">Anti-SPAM *</label>
+
+                        </div>
+
+                        <div class="col-md-2 mb-3">
+                            <img src="../framework/captcha.php" class="img-thumbnail captcha"> 
+							<i class="fas fa-sync-alt" id="refresh_captcha"></i>
+                        </div>
+                        <div class="col-md-8 mb-3">
+
+                            <input type="text" class="form-control" id="phrase" placeholder="Vul de code hier in" required="true">
+                        </div>
+
+                    </div>
+
+
+
+
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="gdpr-agree">
+                        <label class="custom-control-label" for="gdpr-agree">Deze gegevens mogen verwerkt worden volgens de Algemene Gegevensverordening (AVG/GDPR) </label>
+                    </div>
+
+
+
+                    <hr class="mb-4">
+
+                    <button class="btn btn-primary btn-lg btn-block" type="button" id="create-ticket" disabled>Melding insturen</button>
+    </form>
+    </div>
+    </div>
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
         <p class="mb-1">&copy; 2018 - {{ "now"|date("Y") }}</p>
         <ul class="list-inline">
-          <li class="list-inline-item"><a href="">Privacybeleid</a></li>
+            <li class="list-inline-item"><a href="">Privacybeleid</a></li>
         </ul>
-      </footer>
+    </footer>
     </div>
 	
 	
@@ -353,8 +319,8 @@
 					description: $('#description').val(),
 					geom: (source.getFeatures().length == 0 ? null : format.writeFeature(source.getFeatures()[0])),
 					geomExtent: (source.getFeatures().length == 0 ? null : source.getFeatures()[0].getGeometry().getExtent()),
-					first_name: $('#firstName').val(),
-					name: $('#lastName').val(),
+					first_name: $('#first_name').val(),
+					name: $('#name').val(),
 					phone: $('#phone').val(),
 					email: $('#email').val(),
 					service_id: $("input[name='services']:checked").val(),
@@ -367,17 +333,26 @@
 			},
 			success: function(data) {
  
-				if( data.error == 0 ) {
+				if( typeof data.errorMsgs === 'undefined' ) {
 	 
 					var ticketFields = data.ticket.objects[Object.keys(data.ticket.objects)[0]].fields;
 					console.log('Created a ticket with Ref ' + ticketFields.ref);
 
 					dialogOK('Melding ingestuurd', 'De melding wordt zo snel mogelijk door onze diensten verwerkt.');
+					
+					$('.is-invalid').removeClass('is-invalid');
 
 				}
 				else {
-					test = data;
-					dialogError('Onvoldoende informatie', '<p>We helpen je graag optimaal.<br>Daarom vragen we:</p><ul><li>' + data.msg.join('</li><li>') + '</li></ul>');
+				
+					dialogError('Onvoldoende informatie', '<p>We behandelen je melding graag zo snel en goed mogelijk.<br>Daarom vragen we:</p><ul><li>' + data.errorMsgs.join('</li><li>') + '</li></ul>');
+					
+					$('.is-invalid').removeClass('is-invalid');
+					
+					$.each( data.errorFields, function(i) {
+						$('#' + data.errorFields[i]).addClass('is-invalid');
+					});
+					
 				
 				}
 			
@@ -500,8 +475,14 @@
 		// On drawend: remove previous features 
 		draw.on('drawstart', function (evt) {
 
+			// Remove modify, will cause issues when user double-clicks to set new point
+			map.removeInteraction(modify)
+		
 			// Clear previous features
 			source.clear();
+			
+			// Add modify again
+			map.addInteraction(modify)
 
 		});
 
@@ -626,6 +607,13 @@
 	$(document.body).on('change', '#gdpr-agree', function(){
 	
 		$('#create-ticket').prop('disabled', !($('#gdpr-agree').prop('checked')) );
+	
+	});
+	
+	// Refresh captcha
+	$('#refresh_captcha').on('click', function(e){
+	
+		$('.captcha').attr('src') = $('.captcha').attr('src', '?t=' + new Date().getTime());
 	
 	});
 	 

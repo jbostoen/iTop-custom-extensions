@@ -1,0 +1,228 @@
+<!doctype html>
+<!-- Unfinished front end -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
+	
+    <title>Ideeënplatform | Izegem</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<script src="../../libext/vendor/components/jquery/jquery.min.js"></script>	
+	<script defer src="../../libext/vendor/fortawesome/font-awesome/js/all.js"></script>
+	
+	
+    <!-- Custom styles for this template -->
+    <style>
+		.full-width {
+			max-width: none;
+			width: 90% !important;
+		}
+
+		.border-top { 
+			border-top: 1px solid #e5e5e5; 
+		}
+		
+		.border-bottom { 
+			border-bottom: 1px solid #e5e5e5; 
+		}
+			
+		.border-top-gray { 
+			border-top-color: #adb5bd; 
+		}
+
+		.box-shadow { 
+			box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); 
+		}
+
+		.lh-condensed { 
+			line-height: 1.25; 
+		}
+		
+		#attachment {
+			height: none;
+		}
+		
+		.btn-primary {
+			background-color: rgb(6,80,140);
+		} 
+		
+	
+		.izIdea {
+		
+		
+			min-height: 600px;
+		
+		}
+		
+		.izIdea .card {
+			box-shadow:  5px 5px 5px 5px rgba(215,220,230,0.5);
+		}
+		.izIdea .card:hover {
+			box-shadow: 5px 5px 5px 5px rgba(6,80,140,0.5);
+		}
+		
+		
+		.izIdea .btn-primary, 
+		.izIdea .btn-primary:focus, 
+		.izIdea .btn-primary:visited, 
+		.izIdea .btn-primary:hover, 
+		.izIdea .btn-primary:active {
+			background-color: rgba(6,80,140,1);
+			border-color: rgba(6,80,140,1);
+		}
+		
+		.izIdea .container {
+	
+			box-shadow: 10px #adb5bd;  
+			padding-bottom: 50px;
+		}
+		
+		.izIdea .card-footer svg {
+			color: rgba(165,175,180,1);
+		}
+		.izIdea .card-footer svg:hover {
+			cursor: pointer;
+			color: rgba(6,80,140,1);
+		}
+		
+		.izIdea .fa-layers-counter {
+			background-color: rgba(6,80,140,1);
+			font-size: 1.5em;
+			top: auto;
+			transform-origin: right;
+  
+		}
+		
+		.izIdea .fa-fw {
+			width: 2em;
+		}
+		 
+		
+		.izIdea .btn {
+			// Should be bigger than fa-2x
+			padding-top: 15px;
+			padding-bottom: 15px;
+		}
+		
+		
+		</style>
+	
+	</head>
+	<body class="bg-light">
+
+
+	<div class="container ">
+	
+
+		<div class="pt-5 row">
+
+			<div class="col-md-3 mb-3">
+				<img class="d-block mx-auto mb-4 img-fluid" src="../framework/img/logo.png" alt="Logo">
+			</div>
+
+			<div class="col-md-9 mb-3">
+
+				<h2 class="mx-3">Ideeënplatform</h2>
+				<p class="mx-3 lead">Heb je een leuk idee voor onze stad? Deel het met ons.</p>
+
+			</div>
+		</div>
+		
+		
+		<div class="row">
+	
+		{% for Idea in Ideas %}
+		
+			<div class="col-12 col-md-6 col-lg-4 izIdea">
+				<div class="h-100 pb-5">
+					<div class="card h-100">
+					  <img class="card-img-top" src="https://cl2-tenants-production-benelux.s3.amazonaws.com/uploads/94774368-0e9d-406c-a765-457d58242666/idea_image/image/3a6e0557-ec89-4344-b413-c02766167cb1/large_image.jpeg" alt="Card image">
+					  <div class="card-body">
+						<h4 class="card-title">{{ Idea.fields.title }}</h4>
+						<p class="card-text">{{ Idea.fields.description }}</p>
+						</div>
+						<div class="card-footer">
+							<div class="row">
+							
+								<div class="col-8 text-center actions">
+									 <span class="fa-layers fa-fw fa-2x">
+										<i class="far fa-thumbs-up"></i> 
+										<span class="fa-layers-counter">19</span>
+									</span>
+									
+									 <span class="fa-layers fa-fw fa-2x">
+										<i class="far fa-thumbs-down"></i> 
+										<span class="fa-layers-counter">2</span>
+									</span>
+								</div>
+								<div class="col-8 text-center d-none login">
+									<button class="btn btn-secondary w-100">Inloggen</button> 
+								</div>
+								<div class="col-4">
+									<a href="#" class="btn btn-primary">Details</a> 
+								</div>
+								
+							</div>
+					  </div>
+					</div>
+				</div>			
+				
+			</div>
+		
+		
+		{% endfor %}
+	
+		</div>		
+	</div>
+	
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2018 - {{ "now"|date("Y") }}</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="">Privacybeleid</a></li>
+        </ul>
+    </footer>
+    </div>
+
+	
+	{% include 'framework/templates/dialog.html' %}
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../libext/vendor/components/jquery/jquery.js"></script>
+    <script src="../../libext/vendor/components/jqueryui/jquery-ui.js"></script>
+    <script src="../../libext/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	
+		  
+	<!-- <script src="js/jquery.iframe-transport.js"></script> -->
+	<script src="../../libext/vendor/blueimp/jquery-file-upload/js/jquery.iframe-transport.js"></script>
+	<script src="../../libext/vendor/blueimp/jquery-file-upload/js/jquery.fileupload.js"></script>
+	
+	
+	<script>
+	
+		{% if Session.userId == '' %}
+
+			$(document.body).on('mouseover', '.izIdea .actions .fa-layers', function(e) {
+				$('.actions', $(this).closest('.izIdea')).addClass('d-none');
+				$('.login', $(this).closest('.izIdea')).removeClass('d-none');
+			});
+			
+			
+			$(document.body).on('mouseout', '.izIdea .login', function(e) {
+				$('.login', $(this).closest('.izIdea')).addClass('d-none');
+				$('.actions', $(this).closest('.izIdea')).removeClass('d-none');
+			});
+			
+		
+		{% endif %}
+	
+	</script>
+	 
+
+
+  </body>
+</html>

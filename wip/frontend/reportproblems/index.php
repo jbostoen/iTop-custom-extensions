@@ -1,7 +1,6 @@
 <?php
 
 	require_once '../../libext/vendor/autoload.php';
-	require_once '../../itop-connector/connector.php';
 
 	$loader = new Twig_Loader_Filesystem('templates');
 	$twig = new Twig_Environment($loader, array(
@@ -30,5 +29,4 @@
 		'ServiceSubCategories' => $aServiceSubCategories	
 	]);
 
-
-?>
+	

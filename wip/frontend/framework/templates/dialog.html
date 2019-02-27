@@ -1,0 +1,67 @@
+
+<div class="modal" tabindex="-1" role="dialog" id="dialog-close">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Titel</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Sluiten">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Inhoud.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Sluiten</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" tabindex="-1" role="dialog" id="dialog-error">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Titel</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Sluiten">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Inhoud</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Sluiten</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+
+	function dialogOK( sTitle, sBody ) {
+	
+		$('#dialog-close .modal-title').html(sTitle);
+		$('#dialog-close .modal-body').html(sBody);
+		$('#dialog-close').modal('show');
+	
+	}
+	
+	function dialogError( sTitle, sBody ) {
+	
+		if( Array.isArray(sBody) ) {
+			sBody = '<ul><li>' + sBody.join('</li><li>') + '</li></ul>';
+		}
+	
+		$('#dialog-error .modal-title').html(sTitle);
+		$('#dialog-error .modal-body').html(sBody);
+		$('#dialog-error').modal('show');
+	
+	}
+	
+	
+	
+
+</script>

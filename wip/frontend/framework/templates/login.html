@@ -1,0 +1,144 @@
+<!doctype html>
+<!-- Unfinished front end -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
+	
+    <title>Aanmelden | Izegem</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<script src="../../libext/vendor/components/jquery/jquery.min.js"></script>	
+	<script defer src="../../libext/vendor/fortawesome/font-awesome/js/all.js"></script>
+	
+	
+    <!-- Custom styles for this template -->
+		<style>
+			 
+			.btn-primary {
+				background-color: rgb(6,80,140);
+			} 
+			
+			label {
+				font-weight: bold;
+			}
+		
+		
+		</style>
+	
+	</head>
+	<body class="bg-light">
+
+
+	<div class="container ">
+	
+
+		
+		
+		
+		<div class="row">
+				
+			<div class="d-none d-md-block col-md-3"></div>
+				
+			<div class="col-12 col-md-6 mb-3">
+			
+			
+				<div class="pt-5 row">
+
+					<div class="col-md-3 mb-3">
+						<img class="d-block mx-auto mb-4 img-fluid" src="../framework/img/logo.png" alt="Logo">
+					</div>
+
+					<div class="col-md-9 mb-3 text-center">
+
+						<h2 class="mx-3">Aanmelden</h2>
+
+					</div>
+				</div>
+				
+				<hr>
+			
+				<div class="form-group">
+					<label for="login" class="font-weight-bold">Login (e-mailadres) *</label><br>
+					<input id="login" class="form-control ui-autocomplete-input" placeholder="E-mailadres" autocomplete="off">
+				</div>
+		
+		
+				<div class="form-group">
+					<label for="password" class="font-weight-bold">Wachtwoord *</label><br>
+					<input id="password" class="form-control ui-autocomplete-input" placeholder="Zoek adres..." autocomplete="off">
+				</div>
+				
+				<button id="action-login" class="btn btn-primary w-100">Aanmelden</button>
+				
+				
+			</div>
+
+				
+			<div class="d-none d-md-block col-md-3"></div>
+
+
+		</div>		
+	</div>
+	
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2018 - {{ "now"|date("Y") }}</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="">Privacybeleid</a></li>
+        </ul>
+    </footer>
+    </div>
+
+	
+	{% include 'framework/templates/dialog.html' %}
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../libext/vendor/components/jquery/jquery.js"></script>
+    <script src="../../libext/vendor/components/jqueryui/jquery-ui.js"></script>
+    <script src="../../libext/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	
+	
+	<script>
+	
+		$(document.body).on('click', '#action-login', function(e){
+			
+		
+			$.ajax({
+				url: 'login.php',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					action: 'login',
+					login: $('#login').val(),
+					password: $('#password').val()				
+				},
+				success: function(data){
+				
+					if( typeof data.errorMsgs === 'undefined' ) {
+						
+						// Redirect. Will not work properly if not authenticated.
+						document.location.href = '{{ request.redirect }}';
+						
+					}
+					else {
+					
+						dialogError('Inloggen mislukt', data.errorMsgs)
+					
+					}
+					
+				}
+			});
+			
+		});
+	
+	
+	</script>
+	
+
+
+  </body>
+</html>
