@@ -84,7 +84,7 @@ class IMAPEmailSource extends EmailSource
 		// PHP Notice:  Unknown: [CLOSED] IMAP connection broken (server response) (errflg=2) in Unknown on line 0
 		// PHP Notice:  Unknown: [CLOSED] IMAP connection lost (errflg=2) in Unknown on line 0
 		// PHP Notice:  Unknown: Server Unavailable. 15 (errflg=2) in Unknown on line 0
-		// Return NULL if anything goes wrong. This reset may need tweaking; perhaps adjust this later to look for specific errors.
+		// Return null if anything goes wrong. This reset may need tweaking; perhaps adjust this later to look for specific errors.
 		error_clear_last();
 		
 		$sRawHeaders = imap_fetchheader($this->rImapConn, 1+$index);
@@ -94,7 +94,6 @@ class IMAPEmailSource extends EmailSource
 		// No errors should have occurred
 		if(!is_null(error_get_last())) {
 			// Error occurred
-			$this->Trace("Error(s) occurred in " . __METHOD__ . "() -> " . json_encode(error_get_last()));
 			return null;
 		}
 		

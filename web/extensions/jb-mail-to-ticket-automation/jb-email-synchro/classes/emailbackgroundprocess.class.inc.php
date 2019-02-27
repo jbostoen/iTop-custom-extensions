@@ -190,6 +190,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							$oEmailReplica->Set('uidl', $sUIDL);
 							$oEmailReplica->Set('mailbox_path', $oSource->GetMailbox());
 							$oEmailReplica->Set('message_id', $iMessage);
+							$oEmailReplica->Set('last_seen', date('Y-m-d H:i:s'));
 						}
 						else if($oEmailReplica->Get('status') == 'error')
 						{
@@ -275,6 +276,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							// IMAP error occurred?
 							if(is_null($oRawEmail)) 
 							{
+								$this->Trace("Could not get message (raw email): $sUIDL");
 								return "Stopped processing due to (possible temporary) IMAP error. Message(s) read: $iTotalMessages, message(s) skipped: $iTotalSkipped, message(s) processed: $iTotalProcessed, message(s) deleted: $iTotalDeleted, message(s) marked as error: $iTotalMarkedAsError, undesired message(s): $iTotalUndesired";
 							}
 														
@@ -356,7 +358,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
  
 										case EmailProcessor::DELETE_MESSAGE:
 											$iTotalDeleted++;
-											$this->Trace("Deleting message (and replica): $sUIDL");
+											$this->Trace("Deleting message (marked as DELETE_MESSAGE) (and replica): $sUIDL");
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{
@@ -402,19 +404,28 @@ class EmailBackgroundProcess implements iBackgroundProcess
 						{
 							if (is_object($oUsedReplica) && ($oUsedReplica->GetKey() != null))
 							{
+								// Fix IMAP: remember last seen. Aka: do not delete message because connection failed.
+								$oUsedReplica->Set('last_seen', date('Y-m-d H:i:s'));
+								$oUsedReplica->DBUpdate();
 								$aIDs[] = $oUsedReplica->GetKey();
 							}
 						}
 						
 						// Cleanup the unused replicas based on the pattern of their UIDL, unfortunately this is not possible in NON multi-source mode
-						$sOQL = "SELECT EmailReplica WHERE uidl LIKE " . CMDBSource::Quote($oSource->GetName() . '_%') . " AND mailbox_path = " . CMDBSource::Quote($oSource->GetMailbox()) . " AND id NOT IN (" . implode(',', CMDBSource::Quote($aIDs)) . ')';
+						$sOQL = "SELECT EmailReplica WHERE uidl LIKE " . CMDBSource::Quote($oSource->GetName() . '_%') . 
+							" AND mailbox_path = " . CMDBSource::Quote($oSource->GetMailbox()) . 
+							" AND id NOT IN (" . implode(',', CMDBSource::Quote($aIDs)) . ")";
 						$this->Trace("Searching for unused EmailReplicas: '$sOQL'");
 						$oUnusedReplicaSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 						$oUnusedReplicaSet->OptimizeColumnLoad(array('EmailReplica' => array('uidl')));
 						while($oReplica = $oUnusedReplicaSet->Fetch())
 						{
-							$this->Trace("Deleting unused EmailReplica (#".$oReplica->GetKey()."), UIDL: ".$oReplica->Get('uidl'));
-							$oReplica->DBDelete();
+							if( strtotime($oReplica->Get('last_seen')) < strtotime('-7 day') ) {
+								// Replica not used for at least 7 days
+								$this->Trace("Deleting unused EmailReplica (#".$oReplica->GetKey()."), UIDL: ".$oReplica->Get('uidl'));
+								$oReplica->DBDelete();
+							}
+							
 							if (time() > $iTimeLimit) break; // We'll do the rest later
 						}
 					}
