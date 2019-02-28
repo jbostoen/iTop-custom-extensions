@@ -61,7 +61,7 @@ class EmailReplica extends DBObject
 	 */
 	protected static function MakeMSThreadIndex($oObject)
 	{
-		// 'Thread-index' is a Microsoft specific heqder used by some versions (2003 / XP) of Outlook
+		// 'Thread-index' is a Microsoft specific header used by some versions (2003 / XP) of Outlook
 		// instead of relying on the 'References' header. It is made of 27 bytes (random ??) which look
 		// like a BASE64 string, and then for each new message in the thread 5 more 'base64-like' chars
 		// are added at the end
@@ -69,7 +69,7 @@ class EmailReplica extends DBObject
 		// Let's generate something that looks like a valid thread-index and can be decoded into a reference
 		// to an iTop object. Since all thread-index I've seen seem to start with Ac... let's do it. Then
 		// put iTop to sign it, then put the id of the ticket on 5 hex characters (zero padded) which allows up
-		// to 1048575 tickets, then the name of the class, right-padded with zeroes to 16 characters !!
+		// to 1048575 tickets, then the name of the class, right-padded with zeros to 16 characters !!
 		// For example: AciTop000f100000UserRequest means UserRequest ticket id = 0xf1 = 241
 		return sprintf("AciTop%05x%'0-16s", $oObject->GetKey(), get_class($oObject));
 	}

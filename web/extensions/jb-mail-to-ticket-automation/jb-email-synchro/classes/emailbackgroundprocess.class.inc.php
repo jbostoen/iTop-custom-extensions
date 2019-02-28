@@ -222,7 +222,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
                                 if (!$oEmailReplica->IsNew())
                                 {
                                     $this->Trace("Deleting replica #".$oEmailReplica->GetKey());
-                                    $oEmailReplica->DBDelete();
                                     $oEmailReplica = null;
                                 }
                                 continue;
@@ -254,7 +253,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							if (!$oEmailReplica->IsNew())
 							{
 								$this->Trace("Deleting replica #".$oEmailReplica->GetKey());
-								$oEmailReplica->DBDelete();
 								$oEmailReplica = null;
 							}
 							break;
@@ -300,7 +298,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
 										$oSource->DeleteMessage($iMessage);
 										if (!$oEmailReplica->IsNew())
 										{
-											$oEmailReplica->DBDelete();
 											$oEmailReplica = null;
 										}
 								}								
@@ -328,7 +325,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{
-												$oEmailReplica->DBDelete();
 												$oEmailReplica = null;
 											}
 									}
@@ -362,7 +358,6 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{
-												$oEmailReplica->DBDelete();
 												$oEmailReplica = null;
 											}
 											break;
@@ -375,8 +370,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$this->Trace("Deleting message (and replica) due to process error: $sUIDL");
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
-											{
-												$oEmailReplica->DBDelete();
+											{								
 												$oEmailReplica = null;
 											}
 											break;
