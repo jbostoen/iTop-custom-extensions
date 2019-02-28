@@ -71,7 +71,7 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
 				
 				// URL should give our generator the location of the report (folder/report) and the ID of the object
 				// type=Object is to allow 'showReport.php' to also include lists in the future.
-				$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/jb-reportgen/showreport.php?type=detail&class=' . get_class($oObject) . '&key=' . $oObject->Get('id') . '&template=details/' . basename(basename($sReportFile));
+				$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/jb-reportgen/showreport.php?type=details&class=' . get_class($oObject) . '&key=' . $oObject->Get('id') . '&template=' . basename(basename($sReportFile));
 				   
 				  
 				$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
@@ -138,7 +138,7 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
 					// URL should give our generator the location of the report (folder/report) and the ID of the object
 					// This will not work endlessly since there's a limit to the amount of parameters that can be posted.
 					// type=Object is to allow 'showReport.php' to also include lists in the future.
-					$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/jb-reportgen/showreport.php?type=list&class=' . $sClassName . '&keys=' . implode(',' , $aKeys) . '&template=list/' . basename(basename($sReportFile));
+					$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/jb-reportgen/showreport.php?type=list&class=' . $sClassName . '&keys=' . implode(',' , $aKeys) . '&template=' . basename(basename($sReportFile));
 					  
 					  
 					$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
