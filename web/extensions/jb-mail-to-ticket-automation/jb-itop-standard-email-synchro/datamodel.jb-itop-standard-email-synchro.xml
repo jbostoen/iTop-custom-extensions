@@ -1236,7 +1236,7 @@ EOF
 				$sStimulus = trim($aMatches[2]);
 				$aStateToStimulus[$sState] = $sStimulus;
 			}
-			else
+			elseif (!empty($sLine))
 			{
 				$this->Trace('Invalid line in the "stimuli" configuration: "'.$sLine.'". The expected format for each line is <state_code>:<stimulus_code>');
 			}

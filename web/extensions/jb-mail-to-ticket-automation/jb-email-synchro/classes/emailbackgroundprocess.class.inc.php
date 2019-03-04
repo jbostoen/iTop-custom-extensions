@@ -110,7 +110,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	/**
 	 * Call this function to set this mode to true if you want to
 	 * process several incoming mailboxes and if the mail server
-	 * does not assign unique UIDLs accross all mailboxes
+	 * does not assign unique UIDLs across all mailboxes
 	 * For example with MS Exchange the UIDL is just a sequential
 	 * number 1,2,3... inside each mailbox.
 	 */
@@ -221,8 +221,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
                                 $this->Trace("DeleteMessage($iMessage) returned $ret");
                                 if (!$oEmailReplica->IsNew())
                                 {
-                                    $this->Trace("Deleting replica #".$oEmailReplica->GetKey());
-                                    $oEmailReplica = null;
+                                   $aReplicas[$sUIDL] = $oEmailReplica;
                                 }
                                 continue;
                             }
@@ -241,8 +240,8 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 							$iTotalMarkedAsError++;
 							$this->Trace("Marking the message (and replica): uidl=$sUIDL index=$iMessage as in error.");
-							$oEmailReplica->Set('error_message', $oProcessor->GetLastErrorSubject()." - ".$oProcessor->GetLastErrorMessage());
-
+							$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+							
 							break;
 							
 							case EmailProcessor::DELETE_MESSAGE:
@@ -252,8 +251,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							$this->Trace("DeleteMessage($iMessage) returned $ret");
 							if (!$oEmailReplica->IsNew())
 							{
-								$this->Trace("Deleting replica #".$oEmailReplica->GetKey());
-								$oEmailReplica = null;
+								$aReplicas[$sUIDL] = $oEmailReplica;
 							}
 							break;
 							
@@ -298,7 +296,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 										$oSource->DeleteMessage($iMessage);
 										if (!$oEmailReplica->IsNew())
 										{
-											$oEmailReplica = null;
+											$aReplicas[$sUIDL] = $oEmailReplica;
 										}
 								}								
 							}
@@ -325,7 +323,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{
-												$oEmailReplica = null;
+												$aReplicas[$sUIDL] = $oEmailReplica;
 											}
 									}
 								}
@@ -354,11 +352,11 @@ class EmailBackgroundProcess implements iBackgroundProcess
  
 										case EmailProcessor::DELETE_MESSAGE:
 											$iTotalDeleted++;
-											$this->Trace("Deleting message (marked as DELETE_MESSAGE) (and replica): $sUIDL");
+											$this->Trace("Deleting message (marked as DELETE_MESSAGE) (but not replica): $sUIDL");
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{
-												$oEmailReplica = null;
+												$aReplicas[$sUIDL] = $oEmailReplica;
 											}
 											break;
 										
@@ -367,11 +365,11 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											$sMessage = $oProcessor->GetLastErrorMessage();
 											EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
 											$iTotalDeleted++;
-											$this->Trace("Deleting message (and replica) due to process error: $sUIDL");
+											$this->Trace("Deleting message (but not replica) due to process error: $sUIDL");
 											$oSource->DeleteMessage($iMessage);
 											if (!$oEmailReplica->IsNew())
 											{								
-												$oEmailReplica = null;
+												$aReplicas[$sUIDL] = $oEmailReplica;
 											}
 											break;
 		
@@ -416,7 +414,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 						{
 							if( strtotime($oReplica->Get('last_seen')) < strtotime('-7 day') ) {
 								// Replica not used for at least 7 days
-								$this->Trace("Deleting unused EmailReplica (#".$oReplica->GetKey()."), UIDL: ".$oReplica->Get('uidl'));
+								$this->Trace("Deleting unused and outdated EmailReplica (#".$oReplica->GetKey()."), UIDL: ".$oReplica->Get('uidl'));
 								$oReplica->DBDelete();
 							}
 							
