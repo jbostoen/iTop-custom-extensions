@@ -241,7 +241,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 						$oContactMethod = new ContactMethod();
 						$oContactMethod->Set('person_id', $oObject->Get('id'));
 						$oContactMethod->Set('contact_method', $sContactMethod);
-						$oContactMethod->Set('contact_detail', $oObject->Get($contactMethod));
+						$oContactMethod->Set('contact_detail', $oObject->Get($sContactMethod));
 						$oContactMethod->DBInsert();	
 						
 					}
