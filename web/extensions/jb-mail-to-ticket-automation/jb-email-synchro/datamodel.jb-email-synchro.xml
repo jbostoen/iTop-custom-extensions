@@ -1083,13 +1083,13 @@ EOF
 		{
 			case 'imap':
 			$aImapOptions = MetaModel::GetModuleSetting('jb-email-synchro', 'imap_options', array('imap'));
-			self::Trace("Protocol: $sProtocol Mail server: $sServer, port: $iPort, login: $sLogin, password: $sPwd, mailbox: $sMailbox, options: /".implode('/', $aImapOptions));
+			self::Trace("Protocol: $sProtocol Mail server: $sServer, port: $iPort, login: $sLogin, password: ".str_repeat("*", strlen($sPwd)).", mailbox: $sMailbox, options: /".implode('/', $aImapOptions));
 			$oSource = new IMAPEmailSource($sServer, $iPort, $sLogin, $sPwd, $sMailbox, $aImapOptions);
 			break;
 
 			case 'pop3':
 			$sPop3AuthOption = MetaModel::GetModuleSetting('jb-email-synchro', 'pop3_auth_option', 'USER');
-			self::Trace("Protocol: $sProtocol Mail server: $sServer, port: $iPort, login: $sLogin, password: $sPwd, auth_option: $sPop3AuthOption");
+			self::Trace("Protocol: $sProtocol Mail server: $sServer, port: $iPort, login: $sLogin, password: ".str_repeat("*", strlen($sPwd)).", auth_option: $sPop3AuthOption");
 			$oSource = new POP3EmailSource($sServer, $iPort, $sLogin, $sPwd, $sPop3AuthOption);
 			break;
 			
