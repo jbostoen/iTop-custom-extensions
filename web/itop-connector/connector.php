@@ -7,7 +7,7 @@
 	 * Place iTop Connector under <iTopDir>/itop-connector
 	 *
 	 * @copyright  © 2018 - 2019 jbostoen
-	 * @version    Release: 0.1.190122
+	 * @version    Release: 0.1.190319
 	 * @link       https://github.com/jbostoen
 	 * @see        https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
 	 */  
@@ -96,12 +96,14 @@
 			
 			$sClassName = $this->GetClassName( $aParameters );
 			
+			print_r($aParameters);
+			
 			$aResult = $this->Post([
 				'operation' => 'core/create', // Action
 				'class' => $sClassName, // Class of object to create
 				'fields' => $aParameters['fields'], // Field data to be saved
 				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Created by iTop Connector (REST)' ), // Comment in history tab
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ )
+				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ )
 			]);
 			
 			return $this->ProcessResult( $aResult, $aParameters ); 
@@ -142,7 +144,7 @@
 				'class' => $sClassName, // Class of object to delete
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'comment' => $aParameters['comment'], // Comment in history tab?
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
+				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ ),
 				'simulate' => ( isset($aParameters['simulate']) == true ? $aParameters['simulate'] : false )
 			]);
 			
@@ -183,7 +185,7 @@
 				'operation' => 'core/get', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object(s) to retrieve
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ )			
+				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ )			
 			]);
 			 
 			return $this->ProcessResult( $aResult, $aParameters ); 
@@ -259,16 +261,16 @@
 			curl_setopt($ch, CURLOPT_URL, $this->url );
 			
 			// You need to use URL encode here. If you don't, you might end up with issues. A base64 string easily includes plus signs which need to be escaped
-			$postString = ''.
+			$sPostString = ''.
 				'&version='.$this->version.
 				'&auth_user='.$this->user.
 				'&auth_pwd='.$this->password.
 				'&json_data='.urlencode(json_encode( $aJSONData ));
 			 
 				
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $postString);                                                                  
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $sPostString);                                                                  
 			curl_setopt($ch, CURLOPT_HTTPHEADER, [                                                                                
-				'Content-Length: ' . strlen($postString)                                                                       
+				'Content-Length: ' . strlen($sPostString)                                                                       
 			]);             
 
 			if( $this->showRequest == true ) {				
@@ -418,7 +420,7 @@
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'fields' => $aParameters['fields'], // Field data to be updated
 				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Updated by iTop Connector (REST)' ), // Comment in history tab
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? implode(', ' , $aParameters['output_fields']) :	'*' /* All fields */ ),
+				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ ),
 			]);
 			
 			return $this->ProcessResult( $aResult, $aParameters ); 
