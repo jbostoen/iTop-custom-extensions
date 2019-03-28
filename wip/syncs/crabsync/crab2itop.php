@@ -1,6 +1,5 @@
 <?php 
 
-
 	/*
 	* Crab Import. 
 	*
@@ -10,80 +9,68 @@
 	*/
 	error_reporting(E_ALL);
 
-
-	defined("APPDIR") or define("APPDIR",  dirname(dirname(dirname( str_replace("\\", "/", __FILE__ ) ))));
+	defined("APPDIR") or define("APPDIR",  dirname(dirname(dirname( str_replace("\\", "/", __FILE__ ) ))));	
 	
-	
-	require_once( APPDIR . "/itop-connector/connector.php" );
-	
+	require_once( APPDIR . "/itop-connector/connector.php" );	
 
 	// No time limit 
 	// First time will take long time.
 	set_time_limit(0);
 
-
 	// Increase memory limit
-	ini_set("memory_limit", "256M");
-
+	ini_set("memory_limit", "256M");		
+	
+	abstract class iTop_CrabImport_Address_Status {
 		
+		const proposed = 1;
+		const reserved = 2;
+		const in_use = 3;
+		const no_longer_in_use = 4;
+		const unofficial = 5;
+		
+	}	
 	
 	/**
-	 *  Class crabHuisnummer
+	 *  Class iTop_CrabImport_Address
 	 */
-	class crabAddress {
+	class iTop_CrabImport_Address {
 		
 		/** 
-		 *  @var Float $fCrabId Float. ID CRAB Adres
+		 *  @var Float $f_crab_id Float. ID CRAB Adres
 		 */
-		public $fCrabId;
-		
+		public $f_crab_id;
 		
 		/** 
-		 *  @var Float $fCrabIdStraatnaam Float. ID CRAB Straatnaam
+		 *  @var Float $f_crab_idStraatnaam Float. ID CRAB Straatnaam
 		 */
-		public $fCrabIdStraatnaam;
+		public $f_crab_idStraatnaam;
 		
 		/**
-		 * @var String $sStraatnaam String. Street name.
+		 * @var String $s_street_name String. Street name.
 		 */
-		public $sStraatnaam;
-		
+		public $s_street_name;
 		
 		
 		/**
 		 * @var String $iHuisnummer String. House number (no sub addresses) ( bis: "Meensesteenweg 376_2" )
 		 */
-		public $sHuisnummer;
-		
-		
+		public $s_house_number;
+				
 		/**
-		 * @var String $sAppartementnummer String.  
+		 * @var String $s_apartment_number String.  
 		 */
-		public $sAppartementnummer;
-		
-		
+		public $s_apartment_number;
+				
 		/**
-		 * @var String $sBusnummer String. Used for mailboxes in same building.
+		 * @var String $s_sub_number String. Used for mailboxes in same building.
 		 */
-		public $sBusnummer;
-		
-		
+		public $s_sub_number;
 		
 		/**
-		 * @var Integer $iHuisnummer Integer. Status
+		 * @var iTop_CrabImport_Address_Status $iHuisnummer Integer. Status
 	     * 
-		 * 1 proposed
-		 * 2 reserved
-		 * 3 in use
-		 * 4 no longer in use 
-		 * 5 unofficial
-		 *
 		 */
-		public $iStatusHuisnummer;
-		
-		 
-		
-		
+		public $i_status;		
 		
 		/**
 		 *  
@@ -100,70 +87,57 @@
 			
 			foreach( $aData as $k => $v ) {
 					
-					switch( $k ) {
-						
-						case "ID":
-							$this->fCrabId = $v;
-						
-						case "STRAATNM": 
-							$this->sStraatnaam = $v; 
-							break; 
-							
-						case "STRAATNMID": 
-							$this->fCrabIdStraatnaam = $v; 
-							break; 
-							
-						case "HUISNR":
-							$this->sHuisnummer = $v; 
-							break;
-							
-						case "APPTNR": 
-							$this->sAppartementnummer = $v; 
-							break;
-							
-						case "BUSNR": 
-							$this->sBusnummer = $v; 
-							break;
-							
-
-						case "STATUS": // not in GeoJSON
-							$this->iStatusHuisnummer = $v;
-							break;			
-				
-						case "GEMEENTE":
-						case "HERKOMST": 
-						case "HNRLABEL":
-						case "NISCODE":
-						case "POSTCODE":
-							break;
-							
-						default: 
-							echo "missing:" .$k;
-							break;
-					}
+				switch( $k ) {
 					
-			}
-				
-				
+					case "ID":
+						$this->f_crab_id = $v;
+					
+					case "STRAATNM": 
+						$this->s_street_name = $v; 
+						break; 
+						
+					case "STRAATNMID": 
+						$this->f_crab_idStraatnaam = $v; 
+						break; 
+						
+					case "HUISNR":
+						$this->s_house_number = $v; 
+						break;
+						
+					case "APPTNR": 
+						$this->s_apartment_number = $v; 
+						break;
+						
+					case "BUSNR": 
+						$this->s_sub_number = $v; 
+						break;
+						
+
+					case "STATUS": // not in GeoJSON
+						$this->i_status = $v;
+						break;			
 			
+					case "GEMEENTE":
+					case "HERKOMST": 
+					case "HNRLABEL":
+					case "NISCODE":
+					case "POSTCODE":
+						break;
+						
+					default: 
+						echo "missing:" .$k;
+						break;
+				}
+				
+			}
 		}
-		
-		
-		
 	}
-	
- 
-	
-	
-	 
-	
 	
 	/**
 	 *  Class iTop_CrabImport. Defines functions to import addresses.
 	 */
 	class iTop_CrabImport {
-		  
-		
+		  		
 		/**
 		 *  
 		 *  Constructor
@@ -173,10 +147,7 @@
 		 */
 		function __construct() {
 			
-			 
-			
 		}
-		
 		
 		/**
 		 *  
@@ -202,48 +173,36 @@
 			curl_setopt($ch, CURLOPT_NOPROGRESS, false);
 			curl_setopt($ch, CURLOPT_FILE, $downloadFile );
 			curl_exec($ch);
-			curl_close($ch);
-		
+			curl_close($ch);		
 
 			echo "Downloaded file... ".PHP_EOL;			
 
 			// Recursive delete everything
 			recursiveRemoveDirectory(  dirname(__FILE__). "/shapefile");
 			
-
 			echo "Unzip file..." .PHP_EOL;
 
 			$zip = new ZipArchive;
 			$res = $zip->open( $sFileName );
+					
 			
-			
-			
-			if ($res === TRUE) {
+			if ($res === true) {
 				
 			  $zip->extractTo(  dirname(__FILE__). "/shapefile");
 			  $zip->close();
-			  
-			  
+			  			  
 			} 
 			else {
 				// Fail
 				
 			}
-
-
-			 
-
-		
 			
 		}
 		 
-		
-		
-		
-		
-		
+		/**
+		* Imports the shapefile. Runs a query to only get data which we're interested in using OGR. Next, it imports this data into iTop.
+		*/
 		public function importFromShapeFile() {
-
 			
 			// Where were contacts extracted (see Download()) 
 			$sDirProcess = str_replace("\\", "/", dirname(__FILE__) ) ."/shapefile/Shapefile";
@@ -252,7 +211,6 @@
 				die("No shapefile at ".$sDirProcess."/CrabAdr.shp");
 			}
 
-			
 			// Convert shapefile to GeoJSON (CSV is more compact but caused issues)
 			$sRunOGR2OGR = 'ogr2ogr -f GeoJSON "'.$sDirProcess.'/output.geojson" "'.$sDirProcess.'/CrabAdr.shp" -sql "SELECT * FROM CrabAdr WHERE GEMEENTE = \'Izegem\' ORDER BY STRAATNM" '; 
 
@@ -263,15 +221,13 @@
 			if( file_exists( $sDirProcess."/output.geojson") == false ) {
 				die("Unable to convert shapefile to GeoJSON.");
 			}
-		 
-			
+	
+	
 			$oRest = new iTop_Rest();
 
 			// For debugging
-			// $oRest->showRequest = true;
-			// $oRest->showResponse = true;
-			 
-
+			$oRest->showRequest = true;
+			$oRest->showResponse = true;
 			
 			$aJsonDecoded = json_decode( file_get_contents($sDirProcess."/output.geojson"), TRUE);
 			
@@ -293,10 +249,10 @@
 			}
 			 
 			// For later use, to see if crab_id for street exists, without additional queries
-			$aExistingStreetItems = array_map( function( $v ) { return $v["fields"]["crab_id"]; } , $aExistingStreetItems );
-			 
-	
-			
+			$aExistingStreetItems = array_map( function( $v ) { 
+				return $v["fields"]["crab_id"]; 
+			} , $aExistingStreetItems );
+				
 			// Select addresses
 			$aExistingAddressItems = $oRest->get([
 				"key" => "SELECT CrabAddress",
@@ -304,7 +260,12 @@
 			]);
 			
 			// For later use, to see if crab_id for address exists, without additional queries
-			$aExistingAddressItems = array_map( function( $v ) { return $v["fields"]["crab_id"]; } , $aExistingAddressItems );
+			$aExistingAddressItemsByCrabId = [];
+			
+			foreach( $aExistingAddressItems as $aExistingAddressItem ) {
+				$aExistingAddressItemsByCrabId[ $aExistingAddressItem["fields"]["crab_id"] ] = $aExistingAddressItem;
+			}
+			
 			
 			 
 			$iAddress = 1;
@@ -315,18 +276,18 @@
 				// Combine values, create address object
 
 				// in list? Let's assume it's in use 
-				$v["properties"]["STATUS"] = 3; 
+				$v["properties"]["STATUS"] = iTop_CrabImport_Address_Status::in_use; 
  
-				$oAddress = new crabAddress( $v["properties"] );	
+				$oAddress = new iTop_CrabImport_Address( $v["properties"] );	
 				
 				
-				echo "Process GeoJSON Feature " . sprintf("%08d" , $iAddress ) . " | " . $oAddress->fCrabId . " | " .  $oAddress->sStraatnaam. " | "  . $oAddress->sHuisnummer . " | " . $oAddress->sAppartementnummer . " | " . $oAddress->sBusnummer . PHP_EOL;
+				echo "Process GeoJSON Feature " . sprintf("%08d" , $iAddress ) . " | " . $oAddress->f_crab_id . " | " .  $oAddress->s_street_name. " | "  . $oAddress->s_house_number . " | " . $oAddress->s_apartment_number . " | " . $oAddress->s_sub_number . PHP_EOL;
 				
 				
-				// ///// Straatnaam
+				// ///// Sync streets
 				
 				// Street exists in array? (col 2 = STRAATNM)
-				if( in_array( $oAddress->fCrabIdStraatnaam , $aExistingStreetItems ) == false ) {
+				if( in_array( $oAddress->f_crab_idStraatnaam , $aExistingStreetItems ) == false ) {
 					
 					echo "-- Create street" . PHP_EOL;
 				 
@@ -335,9 +296,9 @@
 						"comment" => "Crab Sync",
 						"class" => "CrabStreet",
 						"fields" => [
-							"crab_id" => $oAddress->fCrabIdStraatnaam,
-							"name" => $oAddress->sStraatnaam,
-							"status" => 3 // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+							"crab_id" => $oAddress->f_crab_idStraatnaam,
+							"name" => $oAddress->s_street_name,
+							"status" => iTop_CrabImport_Address_Status::in_use // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
 						],
 						"onlyValues" => true
 							
@@ -353,8 +314,8 @@
 						
 						
 						// Just created, now cache.
-						$aExistingStreetItems[] = $oAddress->fCrabIdStraatnaam;
-						$aStreets[$oAddress->sStraatnaam] = $aItems[0];  
+						$aExistingStreetItems[] = $oAddress->f_crab_idStraatnaam;
+						$aStreets[$oAddress->s_street_name] = $aItems[0];  
 						
 					} 
 					
@@ -366,12 +327,12 @@
 				}
 				 
 				
-				// ///// Adres
+				// ///// Sync address
 					
 				// Exists in iTop? 
-				if( in_array( $oAddress->fCrabId, $aExistingAddressItems ) == false ) {
+				if( in_array( $oAddress->f_crab_id, array_keys($aExistingAddressItemsByCrabId) ) == false ) {
 					
-					// echo "Create ". $oAddress->sStraatnaam . PHP_EOL ;
+					// echo "Create ". $oAddress->s_street_name . PHP_EOL ;
 					 
 					echo "-- Create address" . PHP_EOL;
 					
@@ -380,12 +341,12 @@
 						"comment" => "Crab Sync",
 						"class" => "CrabAddress",
 						"fields" => [
-							"crab_id" => $oAddress->fCrabId,
-							"street_id" => $aStreets[$oAddress->sStraatnaam]["key"], // This is NOT the Crab id for this street but the iTop ID!
-							"house_number" => $oAddress->sHuisnummer,
-							"apartment_number" => $oAddress->sAppartementnummer,
-							"sub_number" => $oAddress->sBusnummer,
-							"status" => $oAddress->iStatusHuisnummer // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+							"crab_id" => $oAddress->f_crab_id,
+							"street_id" => $aStreets[$oAddress->s_street_name]["key"], // This is NOT the Crab id for this street but the iTop ID!
+							"house_number" => $oAddress->s_house_number,
+							"apartment_number" => $oAddress->s_apartment_number,
+							"sub_number" => $oAddress->s_sub_number,
+							"status" => $oAddress->i_status // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
 						],
 						"onlyValues" => true
 							
@@ -395,12 +356,38 @@
 				}
 				else {
 					
-					// Update?
+					// Update? Only request if necessary.
+					$aCrabItem = $aExistingAddressItemsByCrabId[ $oAddress->f_crab_id ]["fields"];
 					
+					if( 
+						$aCrabItem["street_id"] != $aStreets[$oAddress->s_street_name]["key"] || 
+						$aCrabItem["house_number"] != $oAddress->s_house_number || 
+						$aCrabItem["apartment_number"] != $oAddress->s_apartment_number || 
+						$aCrabItem["sub_number"] != $oAddress->s_sub_number || 
+						$aCrabItem["status"] != $oAddress->i_status 
+					) {
+						
+						// Update required
+						$oResult_Update_Address = $oRest->update([
+							"comment" => "Crab Sync",
+							"class" => "CrabAddress",
+							"key" => $aExistingAddressItemsByCrabId[ $oAddress->f_crab_id ]["key"],
+							"fields" => [
+								"street_id" => $aStreets[$oAddress->s_street_name]["key"], // This is NOT the Crab id for this street but the iTop ID!
+								"house_number" => $oAddress->s_house_number,
+								"apartment_number" => $oAddress->s_apartment_number,
+								"sub_number" => $oAddress->s_sub_number,
+								"status" => $oAddress->i_status // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+							],
+							"onlyValues" => true
+								
+						]); 
 					
+					}
 					
 					// Unset, no longer necessary, crab_id is unique.
-					unset( $aExistingAddressItems[ $oAddress->fCrabId ] );
+					// Reduce memory, speed up.
+					unset( $aExistingAddressItemsByCrabId[ $oAddress->f_crab_id ] );
 					
 					
 				}
@@ -415,35 +402,29 @@
 			// They were not processed or did not have a status we care about.
 			// We could set them to 'delete'.
 			
+			echo "Done processing GeoJSON" . PHP_EOL;			
 			
-			echo "Done processing GeoJSON" . PHP_EOL;
-			
-		 
-	
-			
-			
-		}
-		
-		
-		
-		
+		}		
 		
 	}
 	
-	
-	
 	// Recursive remove dir
-	function recursiveRemoveDirectory($directory)
+	/**
+	* Recursively deletes a directory
+	*
+	* @param String $sDirectory Name of directory
+	*/
+	function recursiveRemoveDirectory($sDirectory)
 	{
-		foreach(glob("{$directory}/*") as $file)
+		foreach(glob("{$sDirectory}/*") as $sFile)
 		{
-			if(is_dir($file)) { 
-				recursiveRemoveDirectory($file);
+			if(is_dir($sFile)) { 
+				recursiveRemoveDirectory($sFile);
 			} else {
-				unlink($file);
+				unlink($sFile);
 			}
 		}
-		rmdir($directory);
+		rmdir($sDirectory);
 	}
 
 
@@ -455,17 +436,15 @@
 	echo "Download shapefile ...".PHP_EOL;
 
 	// Download Shapefile	
-	$oCrabImport->download();
+	// $oCrabImport->download();
 
 	echo "Process shapefile ..." . PHP_EOL;
 
 	// Import Crab from sync
 	$oCrabImport->importFromShapeFile();
 	
-	  
+	 
 	
 	echo "Done"  . PHP_EOL;
 	
 	
-
-?>
