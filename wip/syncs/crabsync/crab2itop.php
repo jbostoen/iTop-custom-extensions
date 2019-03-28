@@ -171,13 +171,13 @@
 			
 			
  			$ch = curl_init();
-			$downloadFile = fopen( $sFileName , "w" );
+			$sDownloadFile = fopen( $sFileName , "w" );
 			curl_setopt($ch, CURLOPT_URL, $sURL);
 			 
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); 
 			curl_setopt($ch, CURLOPT_NOPROGRESS, false);
-			curl_setopt($ch, CURLOPT_FILE, $downloadFile );
+			curl_setopt($ch, CURLOPT_FILE, $sDownloadFile );
 			curl_exec($ch);
 			curl_close($ch);		
 
@@ -465,7 +465,7 @@
 	echo "Download shapefile ...".PHP_EOL;
 
 	// Download Shapefile	
-	// $oCrabImport->download();
+	$oCrabImport->download();
 
 	echo "Process shapefile ..." . PHP_EOL;
 
