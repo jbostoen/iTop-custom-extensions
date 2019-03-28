@@ -6,6 +6,8 @@
 	* Place under <iTopDir>/web/cron/crabsync
 	* Place iTop Connector under <iTopDir>/itop-connector
 	*
+	* @version 2019-03-28 15:46
+	*
 	*/
 	error_reporting(E_ALL);
 
@@ -22,11 +24,15 @@
 	
 	abstract class iTop_CrabImport_Address_Status {
 		
+		// Official CRAB status
 		const proposed = 1;
 		const reserved = 2;
 		const in_use = 3;
 		const no_longer_in_use = 4;
 		const unofficial = 5;
+		
+		// Unofficial
+		const not_found = 99; 
 		
 	}	
 	
@@ -398,9 +404,32 @@
 			} 
 
 			// Above, we have unset all the $aExistingAddressItems we found. 
-			// In $aExistingAddressItems, we might have IDs (iTop) of addresses which are no longer valid.
+			// In $aExistingAddressItemsByCrabId, we might have IDs (iTop) of addresses which are no longer valid.
 			// They were not processed or did not have a status we care about.
 			// We could set them to 'delete'.
+			
+			foreach( $aExistingAddressItemsByCrabId as $fCrabId => $aExistingAddressItem ) {
+					
+				// Update required?
+				if( $aExistingAddressItem["fields"]["status"] != iTop_CrabImport_Address_Status::not_found ) {
+					
+					echo "remove";
+						
+					$oResult_Update_Address = $oRest->update([
+						"comment" => "Crab Sync",
+						"class" => "CrabAddress",
+						"key" => $fCrabId,
+						"fields" => [
+							"status" => iTop_CrabImport_Address_Status::not_found
+						],
+						"onlyValues" => true
+							
+					]);
+					
+				}
+				
+			}
+			
 			
 			echo "Done processing GeoJSON" . PHP_EOL;			
 			
