@@ -5,6 +5,10 @@
 */
 
 /**
+* Note: for compatibility with 2.5, you need to have some specific definitions ( DBObjectSet $oSet, WebPage $oPage )
+**/
+
+/**
 * Class cApplicationUIExtension_geom. Adds tab with map, makes textbox 'geom' invisible
 */
 class cApplicationUIExtension_geom implements iApplicationUIExtension
@@ -16,7 +20,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	* 
 	* @return Array
 	*/
-	public function EnumAllowedActions($oSet) {
+	public function EnumAllowedActions( DBObjectSet $oSet) {
 		return Array();
 	}
 	
@@ -124,8 +128,16 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 			$oPage->add_linked_stylesheet('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css');
 			$oPage->add_linked_script('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js');
 			
+			$oPage->add('
+					<select id="geomMap">
+						<option value="osm">OpenStreetMap</option>
+						<option value="grb">GRB</option>
+					</select>
+					
+			');
+				
 			if( $bEditMode ) {
-				$oPage->add('<button type="button" id="geomClear">'.Dict::S('UI:Geom:Clear').'</button> | 
+				$oPage->add('| <button type="button" id="geomClear">'.Dict::S('UI:Geom:Clear').'</button> | 
 					<select id="geomType">
 				');
 
@@ -134,18 +146,15 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 				} 
 						
 				$oPage->add('
-					</select> | 
-					
-					<select id="geomMap">
-						<option value="grb">GRB</option>
-						<option value="osm">OpenStreetMap</option>
-					</select>
-					
-					<hr>
+					</select> 
 				');
+					
 			}
 			
-			$oPage->add('<div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>');
+			$oPage->add(
+				'<hr>'.
+				'<div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>
+			');
 
 			
 			// 'add_script' is also a method
@@ -153,6 +162,8 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 			// for testing purposes, we'll try to detect if Geometry was saved in GeoJSON or WKT and read it anyway
 			// for geom.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 			$oPage->add_ready_script('
+				 
+				// Geom for ' . get_class($oObject) .'
 				  
 				geom = {};
 				geom.oFormat = {
@@ -233,7 +244,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					target: "ol-map",
 					layers: [
 						// the last layer you add, is on top.
-						geom.aLayers.grb,
+						geom.aLayers.osm,
 						geom.aLayers.vector 
 					],
 					view: new ol.View({
@@ -279,16 +290,13 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					geom.oMap.addLayer( geom.aLayers[$("#geomMap").val()] );
 					geom.oMap.addLayer( geom.aLayers.vector );
 					
-					if( typeof ol_changeDrawMode !== "undefined") {
+					if( typeof ol_configDrawMode !== "undefined") {
 						// Re-add interactions
-						ol_changeDrawMode();
+						ol_configDrawMode();
 					}
 					
 					
 				});
-				
-				
-				
 				
 
 			');
@@ -354,18 +362,20 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					
 					$("#geomType").on("change", function(e){
 		
-						ol_changeDrawMode();
+						ol_configDrawMode();
 						
 					});
 						 
 					// Get last drawn geometry type
 					if( geom.oFeature ) {
 						$("#geomType").val( geom.oFeature.getGeometry().getType() );
-						ol_changeDrawMode();
 					}
-
+					
+					// Always configure draw mode
+					ol_configDrawMode();
+					
 				
-					function ol_changeDrawMode() {
+					function ol_configDrawMode() {
 					
 						geom.oMap.removeInteraction( geom.oDraw );
 					

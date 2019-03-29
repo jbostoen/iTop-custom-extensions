@@ -121,7 +121,8 @@
 
 					case "STATUS": // not in GeoJSON
 						$this->i_status = $v;
-						break;			
+						break;
+
 			
 					case "GEMEENTE":
 					case "HERKOMST": 
@@ -218,8 +219,15 @@
 			}
 
 			// Convert shapefile to GeoJSON (CSV is more compact but caused issues)
-			$sRunOGR2OGR = 'ogr2ogr -f GeoJSON "'.$sDirProcess.'/output.geojson" "'.$sDirProcess.'/CrabAdr.shp" -sql "SELECT * FROM CrabAdr WHERE GEMEENTE = \'Izegem\' ORDER BY STRAATNM" '; 
+			// Source data is EPSG:31370 (Belgian Lambert 72), convert to EPSG:3857. Use definitions here, because sometimes ogr2ogr can't find the references.
+			// GeoJSON is usually EPSG:4326, but not in our case.
+			$sRunOGR2OGR = 'ogr2ogr '.
+				'-f GeoJSON "'.$sDirProcess.'/output.geojson" "'.$sDirProcess.'/CrabAdr.shp" '.
+				'-s_srs "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=-106.8686,52.2978,-103.7239,0.3366,-0.457,1.8422,-1.2747 +units=m +no_defs" '.
+				'-t_srs "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs" '.
+				'-sql "SELECT * FROM CrabAdr WHERE GEMEENTE = \'Izegem\' ORDER BY STRAATNM" '; 
 
+			
 			echo "Convert using OGR: ". $sRunOGR2OGR . PHP_EOL;			 
 
 			shell_exec( $sRunOGR2OGR ); 
@@ -412,13 +420,11 @@
 					
 				// Update required?
 				if( $aExistingAddressItem["fields"]["status"] != iTop_CrabImport_Address_Status::not_found ) {
-					
-					echo "remove";
-						
+											
 					$oResult_Update_Address = $oRest->update([
 						"comment" => "Crab Sync",
 						"class" => "CrabAddress",
-						"key" => $fCrabId,
+						"key" => $aExistingAddressItem["key"],
 						"fields" => [
 							"status" => iTop_CrabImport_Address_Status::not_found
 						],
@@ -431,7 +437,12 @@
 			}
 			
 			
-			echo "Done processing GeoJSON" . PHP_EOL;			
+			echo "Done processing GeoJSON" . PHP_EOL;
+
+			// Recursive delete everything
+			recursiveRemoveDirectory(  dirname(__FILE__). "/shapefile");
+
+			echo "Done cleaning up" . PHP_EOL;
 			
 		}		
 		
@@ -445,7 +456,7 @@
 	*/
 	function recursiveRemoveDirectory($sDirectory)
 	{
-		foreach(glob("{$sDirectory}/*") as $sFile)
+		foreach(glob( $sDirectory . "/*") as $sFile)
 		{
 			if(is_dir($sFile)) { 
 				recursiveRemoveDirectory($sFile);
@@ -465,7 +476,7 @@
 	echo "Download shapefile ...".PHP_EOL;
 
 	// Download Shapefile	
-	$oCrabImport->download();
+	// $oCrabImport->download();
 
 	echo "Process shapefile ..." . PHP_EOL;
 

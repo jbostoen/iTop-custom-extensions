@@ -76,7 +76,7 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabAddress/Attribute:status/Value:3' => 'in gebruik',
 	'Class:CrabAddress/Attribute:status/Value:4' => 'niet meer in gebruik', 
 	'Class:CrabAddress/Attribute:status/Value:5' => 'onofficieel', 
-	'Class:CrabAddress/Attribute:status/Value:99' => 'niet meer in databron', 
+	'Class:CrabAddress/Attribute:status/Value:99' => 'niet meer in dataset Vlaanderen', 
 	 
 	'Class:Location/Attribute:geom' => 'Geometrie', 
 	

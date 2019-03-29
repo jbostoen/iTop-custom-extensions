@@ -73,7 +73,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabAddress/Attribute:status/Value:3' => 'in use',
 	'Class:CrabAddress/Attribute:status/Value:4' => 'no longer in use', 
 	'Class:CrabAddress/Attribute:status/Value:5' => 'unofficially',   
-	'Class:CrabAddress/Attribute:status/Value:99' => 'no longer in data source',   
+	'Class:CrabAddress/Attribute:status/Value:99' => 'no longer in data source (Flanders)',   
 	 
 	'Class:Location/Attribute:geom' => 'Geometry', 
 	
