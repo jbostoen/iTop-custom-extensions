@@ -6,7 +6,7 @@
 	* Place under <iTopDir>/web/cron/crabsync
 	* Place iTop Connector under <iTopDir>/itop-connector
 	*
-	* @version 2019-03-28 15:46
+	* @version 2019-04-09 10:05
 	*
 	*/
 	error_reporting(E_ALL);
@@ -76,7 +76,12 @@
 		 * @var iTop_CrabImport_Address_Status $iHuisnummer Integer. Status
 	     * 
 		 */
-		public $i_status;		
+		public $i_status;
+
+		/**
+		* @var String Geometry WKT Point String.
+		*/
+		public $s_geom;
 		
 		/**
 		 *  
@@ -123,6 +128,9 @@
 						$this->i_status = $v;
 						break;
 
+					case "GEOM": // derived from GeoJSON
+						$this->s_geom = $v;
+						break;
 			
 					case "GEMEENTE":
 					case "HERKOMST": 
@@ -290,7 +298,8 @@
 				// Combine values, create address object
 
 				// in list? Let's assume it's in use 
-				$v["properties"]["STATUS"] = iTop_CrabImport_Address_Status::in_use; 
+				$v["properties"]["STATUS"] = iTop_CrabImport_Address_Status::in_use;
+				$v["properties"]["GEOM"] = "POINT(". implode(" ", $v["geometry"]["coordinates"]) .")";
  
 				$oAddress = new iTop_CrabImport_Address( $v["properties"] );	
 				
@@ -360,7 +369,8 @@
 							"house_number" => $oAddress->s_house_number,
 							"apartment_number" => $oAddress->s_apartment_number,
 							"sub_number" => $oAddress->s_sub_number,
-							"status" => $oAddress->i_status // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+							"status" => $oAddress->i_status, // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+							"geom" => $oAddress->s_geom
 						],
 						"onlyValues" => true
 							
@@ -378,7 +388,8 @@
 						$aCrabItem["house_number"] != $oAddress->s_house_number || 
 						$aCrabItem["apartment_number"] != $oAddress->s_apartment_number || 
 						$aCrabItem["sub_number"] != $oAddress->s_sub_number || 
-						$aCrabItem["status"] != $oAddress->i_status 
+						$aCrabItem["status"] != $oAddress->i_status || 
+						$aCrabItem["geom"] != $oAddress->s_geom
 					) {
 						
 						// Update required
@@ -391,7 +402,8 @@
 								"house_number" => $oAddress->s_house_number,
 								"apartment_number" => $oAddress->s_apartment_number,
 								"sub_number" => $oAddress->s_sub_number,
-								"status" => $oAddress->i_status // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+								"status" => $oAddress->i_status, // 'in gebruik' / 'in use'. Could be fetched through an API but not through this CSV.
+								"geom" => $oAddress->s_geom
 							],
 							"onlyValues" => true
 								
@@ -476,7 +488,7 @@
 	echo "Download shapefile ...".PHP_EOL;
 
 	// Download Shapefile	
-	// $oCrabImport->download();
+	$oCrabImport->download();
 
 	echo "Process shapefile ..." . PHP_EOL;
 
