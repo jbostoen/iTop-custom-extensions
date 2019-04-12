@@ -159,7 +159,32 @@
 	$oTwigEnv->addFilter(new Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
 			return Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
 		})
-	); 
+	);
+	
+	// Relies on chillerlan/php-qrcode
+	if( class_exists("chillerlan\QRCode") == true ) {
+		
+		$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
+
+				$aOptions = new chillerlan\QRCode\QROptions([
+					'version'    => 5,
+					'outputType' => chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
+					'eccLevel'   => chillerlan\QRCode\QRCode::ECC_L,
+					'scale'		 => 3
+				]);
+
+				// invoke a fresh QRCode instance
+				$oQRCode = new chillerlan\QRCode\QRCode($aOptions);
+
+				// and dump the output 
+				return $oQRCode->render($sString);		
+		
+			})
+		);
+			
+	}
+	
+	
 	
 	echo $oTwigEnv->render( $_REQUEST['template'] , $aTwigData );	 
 

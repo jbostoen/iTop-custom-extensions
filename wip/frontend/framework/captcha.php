@@ -4,7 +4,7 @@
 	session_start();
 	
 	// Including the autoload (you need to composer install in the main directory)
-	require_once __DIR__.'/../../libext/vendor/autoload.php';
+	require_once( __DIR__ . '/../../libext/vendor/autoload.php');
 	
 	use Gregwar\Captcha\CaptchaBuilder;
 	// Creating the captcha instance and setting the phrase in the session to store

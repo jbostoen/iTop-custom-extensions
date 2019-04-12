@@ -13,16 +13,12 @@
 	));
 	
 	// AttributeLinkedSetIndirect: profile	
-	 
 	
-	// Test
-	$_REQUEST['redirect'] = 'https://google.com';
-	 
+
+	
 	// Render template
-	echo $twig->render('framework/templates/login.html', [
-		'PageTitle' => 'Aanmelden',
+	echo $twig->render('framework/templates/register.html', [
+	'PageTitle' => 'Registreren',
 		'redirectURL' => 'https://google.com'
 	]);
-	
 		
-	

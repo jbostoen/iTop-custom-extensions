@@ -1,9 +1,7 @@
 {
 	"autoload": {
 		"classmap": [
-			"C:\\xampp\\htdocs\\iTop\\web\\itop-connector\\connector.php",
-			"C:\\xampp\\htdocs\\iTop\\web\\frontend\\framework\\class.iTop_PersonFinder.php",
-			"C:\\xampp\\htdocs\\iTop\\web\\frontend\\reportproblems\\class.iTop_Rest_ReportIssue_PublicInfrastructure.php"
+			"C:\\xampp\\htdocs\\iTop\\web\\libext\\classes"
 		]
 	},
     "require": {
@@ -15,6 +13,7 @@
         "components/jqueryui": "^1.12",
         "gregwar/captcha": "^1.1",
         "fortawesome/font-awesome": "^5.7",
-        "hybridauth/hybridauth": "^2.13"
+        "hybridauth/hybridauth": "^2.13",
+		"chillerlan/php-qrcode": "^3.0"
     }
 }

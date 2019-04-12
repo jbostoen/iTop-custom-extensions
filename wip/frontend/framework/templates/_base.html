@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
+	
+    <title>{{ PageTitle }} | Izegem</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+	<script src="../../libext/vendor/components/jquery/jquery.min.js"></script>	
+	<script defer src="../../libext/vendor/fortawesome/font-awesome/js/all.js"></script>
+	
+	
+    <!-- Custom styles for this template -->
+		<style>
+			 
+			.btn-primary {
+				background-color: rgb(6,80,140);
+			} 
+			
+			label {
+				font-weight: bold;
+			}
+		
+		
+		</style>
+	
+	</head>
+	<body class="bg-light">
+
+
+	<div class="container ">
+	
+		<div class="row">
+				
+			<div class="d-none d-md-block col-md-3"></div>
+				
+			<div class="col-12 col-md-6 mb-3">			
+			
+				<div class="pt-5 row">
+
+					<div class="col-md-3 mb-3">
+						<img class="d-block mx-auto mb-4 img-fluid" src="../framework/img/logo.png" alt="Logo">
+					</div>
+
+					<div class="col-md-9 mb-3 text-center">
+
+						<h2 class="mx-3">{{ PageTitle }}</h2>
+
+					</div>
+				</div>
+				
+				<hr>
+			
+				
+				{% block PageContent %}
+				{% endblock %}				
+				
+			</div>
+
+		</div>		
+	</div>
+	
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2018 - {{ "now"|date("Y") }}</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="">Privacybeleid</a></li>
+        </ul>
+    </footer>
+    </div>
+
+	
+	{% include 'framework/templates/_dialog.html' %}
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../libext/vendor/components/jquery/jquery.js"></script>
+    <script src="../../libext/vendor/components/jqueryui/jquery-ui.js"></script>
+    <script src="../../libext/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	
+
+	{% block PageScripts %}
+	{% endblock %}
+
+	
+
+
+  </body>
+</html>

@@ -1,0 +1,83 @@
+{% extends 'framework/templates/_base.html' %}
+	
+		
+{% block PageContent %}	
+			
+		<div class="form-row">
+			<div class="col">
+			
+				<div class="form-group">
+					<label for="first_name" class="font-weight-bold">Voornaam *</label><br>
+					<input type="text" id="first_name" class="form-control ui-autocomplete-input" placeholder="Voornaam" autocomplete="off">
+				</div>
+		
+			</div>
+			<div class="col">
+				
+				<div class="form-group">
+					<label for="name" class="font-weight-bold">Achternaam *</label><br>
+					<input type="text" id="name" class="form-control ui-autocomplete-input" placeholder="Achternaam" autocomplete="off">
+				</div>
+				
+			</div>
+		</div>
+			
+		<div class="form-group">
+			<label for="email" class="font-weight-bold">E-mailadres *</label><br>
+			<input type="text" id="email" class="form-control ui-autocomplete-input" placeholder="E-mailadres" autocomplete="off">
+		</div>
+
+
+		<div class="form-group">
+			<label for="password" class="font-weight-bold">Wachtwoord *</label><br>
+			<input type="password" id="password" class="form-control ui-autocomplete-input" placeholder="Wachtwoord" autocomplete="off">
+		</div>
+			
+		<button id="action-register" class="btn btn-primary w-100">Registreren</button>		
+		
+{% endblock %}
+
+	
+	
+{% block PageScripts %}
+
+	<script>
+	
+		$(document.body).on('click', '#action-register', function(e){			
+		
+			$.ajax({
+				url: 'api.php',
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					action: 'register',
+					person: {
+						first_name: $('#first_name').val(),
+						name: $('#name').val(),
+						email: $('#email').val(),
+						password: $('#password').val()
+					}
+				},
+				success: function(data){
+				
+					if( typeof data.errorMsgs === 'undefined' ) {
+						
+						// Redirect. Will not work properly if not authenticated.
+						alert('Successful registration - redirect to {{ request.redirectURL }}');
+						//document.location.href = '{{ request.redirect }}';
+						
+					}
+					else {
+					
+						dialogError('Registreren mislukt', data.errorMsgs)
+					
+					}
+					
+				}
+			});
+			
+		});	
+	
+	</script>
+
+{% endblock %}

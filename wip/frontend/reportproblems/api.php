@@ -114,9 +114,6 @@
 				exit();
 			}
 			
-			
-			
-			
 			// /// Match person
 			
 			// Defaults for new people
@@ -126,11 +123,9 @@
 				
 			// Try to match Person
 			// Create if nothing found
-			$oFinder = new iTop_PersonFinder();				
-			$iPersonId = $oFinder->FindPerson($aFields, ['create']);
+			$oPersonManager = new iTop_PersonManager();				
+			$iPersonId = $oPersonManager->GetPersonId($aFields, ['create']);
 				
-				
-			
 			// /// Ticket creation
 			
 			// Ready to create ticket
@@ -141,8 +136,7 @@
 					'caller_id' => $iPersonId,
 					'service_id' => (Int)$aFields['service_id'],
 					'servicesubcategory_id' => (Int)$aFields['servicesubcategory_id'],
-					'description' => ''.
-						'<pre>'.trim(strip_tags( $aFields['description'] )).'</pre>'						
+					'description' => trim(strip_tags( $aFields['description'] ))
 				],
 				'attachments' => $aAttachments 
 			]);

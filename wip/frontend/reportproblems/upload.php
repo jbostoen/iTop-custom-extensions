@@ -63,7 +63,7 @@
 	}
 	
 	$upload_handler = new izUploadHandler([
-	
+		'fix_file_extension' => true,
 		'image_versions' => array(
 			// The empty image version key defines options for the original image.
 			// Keep in mind: these image manipulations are inherited by all other image versions from this point onwards. 
@@ -84,11 +84,11 @@
 				// dimensions and e.g. create square thumbnails:
 				// 'auto_orient' => true,
 				// 'crop' => true,
-				'jpeg_quality' => 65,
+				'jpeg_quality' => 70,
 				// 'no_cache' => true, (there's a caching option, but this remembers thumbnail sizes from a previous action!)
 				// 'strip' => true, (this strips EXIF tags, such as geolocation)
-				'max_width' => 1000, // either specify width, or set to 0. Then width is automatically adjusted - keeping aspect ratio to a specified max_height.
-				'max_height' => 1000 // either specify height, or set to 0. Then height is automatically adjusted - keeping aspect ratio to a specified max_width.
+				'max_width' => 500, // either specify width, or set to 0. Then width is automatically adjusted - keeping aspect ratio to a specified max_height.
+				'max_height' => 500 // either specify height, or set to 0. Then height is automatically adjusted - keeping aspect ratio to a specified max_width.
 			)
 		),
 	]);

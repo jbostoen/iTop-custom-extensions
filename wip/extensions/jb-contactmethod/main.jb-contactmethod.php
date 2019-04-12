@@ -30,7 +30,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	public function OnCheckToWrite( $oObject ) {
 		
 		return $this->ValidateInput($oObject);
-		
+				
 	}
 	
 	
@@ -57,7 +57,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 *	
 	 * The GUI calls this verb and stops the deletion process if any issue is reported.
 	 * 	 
-	 * Please not that it is not possible to cascade deletion by this mean: only stopper issues can be handled. 	 
+	 * Please note that it is not possible to cascade deletion by this mean: only stopper issues can be handled. 	 
 	 * 
 	 * @param DBObject $oObject The target object
 	 * @return string[] A list of errors message. An error message is made of one line and it can be displayed to the end-user.
@@ -77,7 +77,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 * @return void
 	 */	
 	public function OnDBUpdate($oObject, $oChange = null) {
-		$this->UpdatePersonOnChange($oObject);
+		$this->OnContactMethodUpdate($oObject);
 		return;
 	}
 
@@ -91,7 +91,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 * @return void
 	 */	
 	public function OnDBInsert($oObject, $oChange = null) {
-		$this->UpdatePersonOnChange($oObject);
+		$this->OnContactMethodUpdate($oObject);
 		return;
 	}
 
@@ -105,7 +105,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 * @return void
 	 */	
 	public function OnDBDelete($oObject, $oChange = null) {
-		$this->UpdatePersonOnDelete($oObject);
+		$this->OnContactMethodDelete($oObject);
 		return;
 	}
 	
@@ -117,7 +117,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 * It checks if it's one of the default contact details (phone, mobile phone, email) and sets the info to blank or the last other known info.
 	 *  	 
 	 */
-	public function UpdatePersonOnDelete($oObject) {
+	public function OnContactMethodDelete($oObject) {
 		
 		// If a ContactMethod is deleted, the related Person object should be updated to reflect these changes 
 		
@@ -132,35 +132,30 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				case 'email':
 				
 					
-					// Write back to Person. Latest change should be primary.						
+					// Write back to Person object. Latest change should be primary.						
 					$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
-					$oSetPersons = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
+					$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 			
 					// Same person: previous/alternative ContactMethod available?
 					// Since this happens before delete: don't include this object. Might be most recent.
-					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('person_id') . ' AND contact_method = \'' . $sContactMethod . '\' AND id != \'' . $oObject->Get('id'). '\'';			
-					$oSetSimilarContactMethods = new DBObjectSet(DBObjectSearch::FromOQL($sOQL), /* Order by */ Array('id' => /* Ascending */ false), /* Arguments */ Array(), /* Extended data spec */ null, /* Amount */ 1);
+					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('person_id') . ' AND contact_method = "' . $sContactMethod . '" AND id != "' . $oObject->Get('id'). '"';			
+					$oSet_ContactMethod = new DBObjectSet(DBObjectSearch::FromOQL($sOQL), /* Order by */ Array('id' => /* Ascending */ false), /* Arguments */ Array(), /* Extended data spec */ null, /* Amount */ 1);
 		
 					// Only 1 person should be retrieved
-					$oPerson = $oSetPersons->Fetch();
+					$oPerson = $oSet_Person->Fetch();
 
-					if($oSetSimilarContactMethods->CountExceeds(0) ) {
+					// Set to empty
+					$oPerson->Set($sContactMethod, '');
 						
-						// Use last known ContactMethod.
-						// For this, simply look at 'id', not date of last change (yet)
-						// Todo: look if we can do something with the DBOBjectSet::seek() method
-						while($oContactMethod = $oSetSimilarContactMethods->Fetch()){
-							$oPerson->Set($sContactMethod, $oContactMethod->Get('contact_detail'));				
-						}
-						
-						
+					// But hey, maybe there's another last known ContactMethod.
+					// For this, simply look at 'id', not date of last change (yet)
+					// Todo: look if we can do something with the DBOBjectSet::seek() method
+					while($oContactMethod = $oSet_ContactMethod->Fetch()){
+						$oPerson->Set($sContactMethod, $oContactMethod->Get('contact_detail'));				
 					}
-					else {
-						
-						$oPerson->Set($sContactMethod, '');
-					}		
 					
 					$oPerson->DBUpdate();
+					
 					
 					break;
 				
@@ -181,41 +176,45 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	
 	/**
 	 * 
-	 * Updates related Person object each time a ContactMethod is updated.
+	 * Updates related Person object each time a ContactMethod is updated and the other way around.
 	 *
 	 */
-	public function UpdatePersonOnChange($oObject) {
+	public function OnContactMethodUpdate($oObject) {
 				
 		if( $oObject instanceof ContactMethod ) {
 			
 			$sContactMethod = $oObject->Get('contact_method');
 			
+			// Write back to Person
 			switch($sContactMethod) {
 				
+				// These properties are available in the Person class
 				case 'phone':
 				case 'mobile_phone':
 				case 'email':
 					
 					// Write back to Person. Latest change should be primary.						
 					$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
-					$oSetPersons = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
+					$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 								
 					// Only 1 person should be retrieved
-					$oPerson = $oSetPersons->Fetch();
+					$oPerson = $oSet_Person->Fetch();
 					
 					// Prevent loop: only if the Person property is not equal to this new detail: update().
 					if( $oPerson->Get($sContactMethod) != $oObject->Get('contact_detail') ) {
 						$oPerson->Set($oObject->Get('contact_method'), $oObject->Get('contact_detail'));
 						$oPerson->DBUpdate();					
-					}
+					}					
 					
 					break;
 				
+				// Other properties aer not available in Person class
 				default: 
 					break;
 				
 			}
-		
+			
+			
 			
 		}
 		
@@ -231,11 +230,11 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				if( $oObject->Get($sContactMethod) != '' ) {
 						
 					// Select ContactMethod
-					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('id').' AND contact_method = \'' . $sContactMethod . '\' AND contact_detail = \'' . $oObject->Get($sContactMethod). '\'';
-					$oSetContactMethods = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
+					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('id') .' AND contact_method = "' . $sContactMethod . '" AND contact_detail = "' . $oObject->Get($sContactMethod). '"';
+					$oSet_ContactMethods = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 					
 					// No contact method was found with these details
-					if( $oSetContactMethods->Count() == 0 ) {
+					if( $oSet_ContactMethods->Count() == 0 ) {
 						
 						// Create ContactMethod
 						$oContactMethod = new ContactMethod();
