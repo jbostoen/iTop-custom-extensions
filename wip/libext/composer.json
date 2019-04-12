@@ -1,7 +1,7 @@
 {
 	"autoload": {
 		"classmap": [
-			"C:\\xampp\\htdocs\\iTop\\web\\libext\\classes"
+			"classes"
 		]
 	},
     "require": {
