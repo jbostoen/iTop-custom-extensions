@@ -11,6 +11,11 @@
 	class iTop_Rest_ReportIssue_PublicInfrastructure extends iTop_Rest {
 		
 		/**
+		* @var Name which is used by default in REST comments
+		*/
+		public $name = 'iTop REST - Report issues (public infrastructure)';
+		
+		/**
 		 * Posts data to iTop instance using the iTop. Creates a UserRequest based on 
 		 *   		 *  
 		 *  @param Array $aData Associative array containing information which needs to be send to iTop. 

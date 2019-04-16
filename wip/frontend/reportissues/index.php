@@ -14,13 +14,13 @@
 	// Get certain Services
 	$aServices = $oREST->get([
 		'key' => 'SELECT Service',
-		'onlyValues' => true
+		'no_keyss' => true
 	]);
 	
 	// Get certain ServiceSubcategories
 	$aServiceSubCategories = $oREST->get([
 		'key' => 'SELECT ServiceSubcategory',
-		'onlyValues' => true
+		'no_keys' => true
 	]);
 	 	 
 	// Render template

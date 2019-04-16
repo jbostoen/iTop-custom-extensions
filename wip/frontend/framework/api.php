@@ -1,9 +1,16 @@
 <?php
 
+	// Default is to return JSON
 	header('Content-Type: application/json');
-
+	
+	// Loader
 	require('../../libext/vendor/autoload.php');
 	
+	// Don't cache
+	header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+	header("Cache-Control: post-check=0, pre-check=0", false);
+	header("Pragma: no-cache");
+
 	
 	if( isset($_REQUEST['action']) == true ) {
 				
@@ -38,15 +45,19 @@
 				else {
 					
 					$oAccountManager = new iTop_AccountManager();
-					
-					// Accepted contact methods
-					$aContactMethods = ['email'];
-					
+										
 					// Attempt authentication
-					if( $oAccountManager->HasValidCredentials( /* sLogin */ $_REQUEST['login'], /* sPassword */ $_REQUEST['password'], /* aContactMethods */ $aContactMethods ) == true ) {
+					$aResult_Authentication = $oAccountManager->DoLogin([
+						'authentication_methods' => ['email', 'native'], 
+						'login' => $_REQUEST['login'],
+						'password' => $_REQUEST['password'],
+						'set_cookie' => ( @$_REQUEST['rememberMe'] == 1 ? true : false )
+					]);
+					
+					if( isset($aResult_Authentication['errorMgs']) == false ) {
 					
 						// No error
-						echo json_encode([]);
+						echo json_encode($aResult_Authentication);
 						exit();
 					
 					}
@@ -70,7 +81,21 @@
 				
 			case 'register':			
 			
-				if( isset($_REQUEST['person']) == true ) {
+				// Privacy
+				if( empty( @$_REQUEST['person']['agree_gdpr']) == true ) {
+					$aErrors[] = 'Je kan slechts een account aanmaken als je akkoord gaat met onze privacyverklaring.';
+					$aErrorFields[] = 'agree_gdpr';
+				}
+				
+				
+				if( count($aErrors) > 0 ) {
+					echo json_encode([
+						'errorMsgs' => $aErrors,
+						'errorFields' => $aErrorFields
+					]);
+					exit();
+				}
+				elseif( isset($_REQUEST['person']) == true ) {
 					
 						
 					// @todo Add more validation: password complexity; valid email etc
@@ -79,17 +104,22 @@
 					// Try to create an account.
 					// If it conflicts/possibly exists, it will be handled in iTop_AccountManager::createAccount()				
 					$aPerson = $_REQUEST['person'];
-					
-					// Extend
-					$aPerson['org_id'] = 1;
-					
+														
 					// Create account
 					$aData = $oAccountManager->CreateAccount( $aPerson );				
 				
 					echo json_encode($aData);
+					exit();
 			
 				}
 			
+			
+				echo json_encode([
+					'errorMsgs' => ['Er is een probleem met de registratieprocedure.']
+				]);
+				exit();
+						
+						
 				break;
 				
 			default:

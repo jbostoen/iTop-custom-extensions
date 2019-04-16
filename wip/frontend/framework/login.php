@@ -2,26 +2,40 @@
 
 	require_once '../../libext/vendor/autoload.php';
 
-	$sDir = dirname(__DIR__);
 	
 	session_start();
 	
-	$loader = new Twig_Loader_Filesystem( $sDir );
-	$twig = new Framework_TwigEnvironment($loader, array(
+	$loader = new Twig_Loader_Filesystem( iTop_FrameWork::frameworkDir );
+	$twig = new iTop_TwigEnvironment($loader, array(
 		//'cache' => '/path/to/compilation_cache',
 		'autoescape' => false
 	));
 	
-	// AttributeLinkedSetIndirect: profile	
-	 
+	// Check if prior token exists
+	$oAccountManager = new iTop_AccountManager();
+	$aValidToken = $oAccountManager->DoLoginByToken();
+
+	// Default should not happen
+	$sRedirectURL = 'https://google.be?q=Why did someone not specify a redirect URL?';
 	
-	// Test
-	$_REQUEST['redirect'] = 'https://google.com';
+	if( isset($_REQUEST['redirect']) == true ) {
+		$sRedirectURL = $_REQUEST['redirect'];
+	}
+	
+	// Prior valid token exists
+	if( isset($aValidToken['errorMsgs']) == false ) {
+		header('Location: ' . $sRedirectURL );
+	}
+	
+	// print_r( $_SESSION );
+	// print_r( $_COOKIE );
+	
+	
 	 
 	// Render template
-	echo $twig->render('framework/templates/login.html', [
+	echo $twig->render('templates/login.html', [
 		'PageTitle' => 'Aanmelden',
-		'redirectURL' => 'https://google.com'
+		'RedirectURL' => $sRedirectURL
 	]);
 	
 		

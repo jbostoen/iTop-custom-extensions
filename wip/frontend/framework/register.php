@@ -6,19 +6,29 @@
 	
 	session_start();
 	
-	$loader = new Twig_Loader_Filesystem( $sDir );
-	$twig = new Framework_TwigEnvironment($loader, array(
+	$loader = new Twig_Loader_Filesystem( iTop_FrameWork::frameworkDir );
+	$twig = new iTop_TwigEnvironment($loader, array(
 		//'cache' => '/path/to/compilation_cache',
 		'autoescape' => false
 	));
 	
-	// AttributeLinkedSetIndirect: profile	
 	
-
+	// Default should not happen
+	$sRedirectURL = 'https://google.be?q=Why did someone not specify a redirect URL?';
+	
+	if( isset($_REQUEST['redirect']) == true ) {
+		$sRedirectURL = $_REQUEST['redirect'];
+	}
+	
+	
+	$aPrefill = [];
+	
+	
 	
 	// Render template
-	echo $twig->render('framework/templates/register.html', [
-	'PageTitle' => 'Registreren',
-		'redirectURL' => 'https://google.com'
+	echo $twig->render('templates/register.html', [
+		'PageTitle' => 'Registreren',
+		'RedirectURL' => $sRedirectURL,
+		'prefill' => $aPrefill
 	]);
 		

@@ -13,7 +13,7 @@
         "components/jqueryui": "^1.12",
         "gregwar/captcha": "^1.1",
         "fortawesome/font-awesome": "^5.7",
-        "hybridauth/hybridauth": "^2.13",
-		"chillerlan/php-qrcode": "^3.0"
+		"chillerlan/php-qrcode": "^3.0",
+		"hybridauth/hybridauth": "3.x@rc"
     }
 }

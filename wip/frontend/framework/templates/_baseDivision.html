@@ -1,0 +1,141 @@
+<!doctype html>
+<!-- Unfinished front end -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> 
+	
+    <title>{{ PageTitle }} | Izegem</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/twbs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/components/jqueryui/themes/base/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="../../libext/vendor/blueimp/jquery-file-upload/css/jquery.fileupload.css">
+	{% block PageCSS %}
+	{% endblock %}
+	
+	
+    <!-- Custom styles for this template -->
+    <style>
+		.full-width {
+			max-width: none;
+			width: 90% !important;
+		}
+
+		.border-top { 
+			border-top: 1px solid #e5e5e5; 
+		}
+		
+		.border-bottom { 
+			border-bottom: 1px solid #e5e5e5; 
+		}
+			
+		.border-top-gray { 
+			border-top-color: #adb5bd; 
+		}
+
+		.box-shadow { 
+			box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05); 
+		}
+
+		.lh-condensed { 
+			line-height: 1.25; 
+		}
+		
+		#attachment {
+			height: none;
+		}
+		
+		.btn-primary {
+			background-color: rgb(6,80,140);
+		}
+		
+		.ol-zoom button {
+			height: 3rem;
+			width: 3rem;
+		} 
+		
+		.ui-autocomplete {
+			max-height: 250px;
+			overflow-y: auto;
+			overflow-x: hidden;
+		}
+		
+		#attachment2 {
+			/* input doesn't accept cursor. (20/02/2019) */
+			cursor: pointer;
+		}
+		
+		{% block PageStyle %}
+		
+		{% endblock %}
+		
+	</style>
+	
+  </head>
+  
+<body class="bg-light">
+    <form class="needs-validation" novalidate>
+
+        <div class="container full-width">
+            <div class="pt-5 row">
+
+                <div class="col-md-3 mb-3">
+                    <img class="d-block mx-auto mb-4 img-fluid" src="../framework/img/logo.png" alt="Logo">
+                </div>
+
+                <div class="col-md-9 mb-3">
+
+                    <h2 class="mx-3">{{ PageTitle }}</h2>
+                    <p class="mx-3 lead">{{ PageIntro }}</p>
+
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-12 col-lg-3 order-md-1 mb-4">
+				
+                    {% block PageLeft %}
+
+					{% endblock %}
+					
+                </div>
+				
+                <div class="col-12 col-lg-9 order-md-2">
+
+                    {% block PageMain %}
+					
+					{% endblock %}
+				
+				</div>
+			</div>
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+        <p class="mb-1">&copy; 2018 - {{ "now"|date("Y") }}</p>
+        <ul class="list-inline">
+            <li class="list-inline-item"><a href="https://privacy.izegem.be">Privacybeleid</a></li>
+        </ul>
+    </footer>
+    </div>
+	
+	
+	
+	{% include 'templates/_dialog.html' %}
+
+	
+	
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="../../libext/vendor/components/jquery/jquery.js"></script>
+    <script src="../../libext/vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../libext/vendor/fortawesome/font-awesome/js/all.min.js"></script>
+	
+	{% block PageScripts %}
+	{% endblock %}
+	
+	 
+
+  </body>
+</html>

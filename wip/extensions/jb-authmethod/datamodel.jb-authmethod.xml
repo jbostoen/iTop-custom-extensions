@@ -37,7 +37,6 @@
 					<attributes>
 						<attribute id="user_id_friendlyname"/>
 						<attribute id="authentication_method"/>
-						<attribute id="authentication_detail"/>
 					</attributes>
 				</naming>
 				<display_template/>

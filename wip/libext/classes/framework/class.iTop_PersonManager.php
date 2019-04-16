@@ -10,11 +10,15 @@
 	 */
 	class iTop_PersonManager extends iTop_Rest {
 		
+		/**
+		* @var String $sName Name which is used by default in REST comments
+		*/
+		public $name = 'iTop REST - Person Manager';
 		
 		/**
 		* @param Array $aPerson Contains user info: first_name, name, phone, mobile_phone, mail, ...
 		*
-		* @details Creates an iTop User Account.
+		* @details Creates an iTop Person
 		*
 		* @return Array [
 		*  'errorMsgs' =>           List of error messages. Empty if no error
@@ -22,11 +26,11 @@
 		*
 		* ]
 		*
-		* @todo Finish this!
+		* @used-by \iTop_AccountManager::CreateAccount()
 		*
 		*
 		**/
-		public function CreateAccount( $aPerson = [] ) {
+		public function CreatePerson( $aPerson = [] ) {
 			
 			if( session_status() == PHP_SESSION_NONE ) {
 				session_start();
@@ -60,7 +64,7 @@
 			if( isset($aPerson['email']) == false ) {
 				
 				echo json_encode([
-					'errorMsgs' => ['Er moet minstens een e-mailadres gekoppeld worden aan een account.'],
+					'errorMsgs' => ['Er moet minstens een e-mailadres gekoppeld worden aan een persoon.'],
 					'errorFields' => ['email']
 				]);
 				exit();
@@ -80,7 +84,7 @@
 					
 					return [
 						'errorMsgs' => [
-							'Dit e-mailadres is al gekoppeld aan een account. <br>'.
+							'Dit e-mailadres is al gekoppeld aan een persoon. <br>'.
 							'Daarom hebben we je een loginlink gestuurd. <br>'.
 							'Die vind je over enkele minuten in je mailbox<br>(kijk ook bij "Ongewenste mail"/SPAM).'
 						]
@@ -90,7 +94,7 @@
 				else {
 					
 					return [
-						'errorMsgs' => ['Er bestaat al een account met gelijkaardige details.']
+						'errorMsgs' => ['Er bestaat al een persoon met gelijkaardige contactgegevens.']
 					];
 					
 				}
@@ -100,39 +104,10 @@
 			// Try again but create user.
 			// Now force function getPersonId() to create a Person object in iTop of none exists
 			$fPersonId = $this->GetPersonId( $aPerson, ['create']);
-								
-					
-			$oItop_Rest = new iTop_Rest();
-						
-			// Create iTop UserLocal
-			// The account name is rather random, it's not really used for anything
-			$aData_UserLocal = $oItop_Rest->Create([
-				'class' => 'UserLocal', // iTop User (account)
-				'comment' => 'Created by '.get_class($this),
-				'fields' => [
-				
-					// Don't store data twice. first_name, last_name should be stored in 'Person' class.
-					'contactid' => $fPersonId,
-					
-					'status' => 'enabled',
-					'allowed_org_list' => [],
-					'profile_list' => [
-						[
-							'profileid' => [ 
-								// 'finalclass' => 'URP_Profiles',
-								'name' => 'Portal user'
-							]
-						]
-					],
-					
-					'login' => 'citizen_'.date('YmdHis').'_'.session_id()
-				
-				],
-				'onlyValues' => true
-			]);
-			
-						
-			return $aData_UserLocal;			
+							
+			return [
+				'id' => $fPersonId
+			];
 			
 			
 		}
@@ -321,7 +296,7 @@
 					'comment' => 'Created by '.get_class($this),
 					'class' => 'Person',
 					'fields' => $aDataInsert,
-					'onlyValues' => true
+					'no_keys' => true
 				]);
 				
 				if( empty($aDataReturned["code"]) == false ) {
@@ -365,7 +340,7 @@
 			$sOQL = 'SELECT ContactMethod WHERE contact_method = \''.$sContactMethod.'\' AND contact_detail LIKE \''.addslashes($sContactDetailLike).'\'';
 			$aSet_ContactMethods = $this->Get([
 				'key' => $sOQL,
-				'onlyValues' => true 
+				'no_keys' => true 
 			]);
 			
 			
@@ -377,7 +352,7 @@
 				$sOQL = 'SELECT Person WHERE id = ' . $aContactMethod['fields']['person_id'];
 				$aSet_Persons = $this->Get([
 					'key' => $sOQL,
-					'onlyValues' => true
+					'no_keys' => true
 				]);
 				
 				

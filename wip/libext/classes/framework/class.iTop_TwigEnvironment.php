@@ -8,7 +8,7 @@
 	/**
 	* Class Framework_TwigEnvironment. Extends Twig with some default variables, settings
 	**/
-	class Framework_TwigEnvironment extends Twig_Environment {
+	class iTop_TwigEnvironment extends Twig_Environment {
 	
 
 		/**
@@ -21,7 +21,8 @@
 		public function render( $sFileName, $aVariables = [] ) {
 		
 			$aVariables = array_merge([
-				"request" => $_REQUEST
+				"request" => $_REQUEST,
+				"session" => $_SESSION
 			], $aVariables);
 			
 			return parent::render( $sFileName, $aVariables );

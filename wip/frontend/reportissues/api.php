@@ -151,8 +151,8 @@
 		case 'findAddress':
   
 			$aCrabAddresses = $oRest_Report_Issue->Get([
-				'key' => 'SELECT CrabAddress WHERE friendlyname LIKE \'%' . addslashes($_REQUEST['term']) . '%\'',
-				'onlyValues' => true
+				'key' => 'SELECT CrabAddress WHERE friendlyname LIKE "%' . addslashes($_REQUEST['term']) . '%"',
+				'no_keys' => true
 			]);
 		
 			echo json_encode( $aCrabAddresses );

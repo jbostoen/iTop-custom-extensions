@@ -2,13 +2,13 @@
 
 	session_start();
 	
-	require_once '../../libext/vendor/autoload.php';
-	require_once '../../itop-connector/connector.php';
+	require_once('../../libext/vendor/autoload.php');
+	
 
 	$sDir = dirname(__DIR__);
 	
 	
-	$loader = new Twig_Loader_Filesystem( $sDir );
+	$loader = new Twig_Loader_Filesystem( iTop_FrameWork::frameworkDir );
 	$twig = new Twig_Environment($loader, array(
 		//'cache' => '/path/to/compilation_cache',
 		'autoescape' => false
@@ -20,7 +20,7 @@
 	// Get certain Services
 	$aIdeas = $oREST->get([
 		'key' => 'SELECT UserRequest',
-		'onlyValues' => true
+		'no_keys' => true
 	]);
 	 
 	 	
@@ -33,7 +33,7 @@
 			
 				echo $twig->render('framework/templates/login.html', [
 					'Session' => $_SESSION,
-					'RedirectUrl' => 'citizenparticipation/?p=overview'
+					'RedirectURL' => 'citizenparticipation/?p=overview'
 				]);
 				break;
 			
@@ -52,10 +52,14 @@
 	else {
 		
 		// Render template
-		echo $twig->render('citizenparticipation/templates/citizenparticipation_overview.html', [
+		echo $twig->render('templates/citizenparticipation/overview.html', [
+			'PageTitle' => 'Ideeënplatform',
+			'PageIntro' => 'Heb je een leuk idee voor onze stad? Deel het met ons.',
 			'Session' => $_SESSION,
-			'Ideas' => $aIdeas
+			'Ideas' => $aIdeas,
+			'izIFW_token' => ''
 		]);
 		
 		
 	}
+	

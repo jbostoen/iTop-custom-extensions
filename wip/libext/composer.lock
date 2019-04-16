@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "10d318bb2274e36200fad17c29c171bf",
+    "content-hash": "6b3978f4d565b023d6c5d15b6e17e40b",
     "packages": [
         {
             "name": "blueimp/jquery-file-upload",
@@ -350,16 +350,16 @@
         },
         {
             "name": "fortawesome/font-awesome",
-            "version": "5.7.2",
+            "version": "5.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FortAwesome/Font-Awesome.git",
-                "reference": "1cf1062e0cfda5e9b5b2cac7844721b345e1a9c5"
+                "reference": "299abb1fb101f4e1cfd1d2fccc461782ff84b13d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FortAwesome/Font-Awesome/zipball/1cf1062e0cfda5e9b5b2cac7844721b345e1a9c5",
-                "reference": "1cf1062e0cfda5e9b5b2cac7844721b345e1a9c5",
+                "url": "https://api.github.com/repos/FortAwesome/Font-Awesome/zipball/299abb1fb101f4e1cfd1d2fccc461782ff84b13d",
+                "reference": "299abb1fb101f4e1cfd1d2fccc461782ff84b13d",
                 "shasum": ""
             },
             "type": "library",
@@ -409,7 +409,7 @@
                 "icon",
                 "svg"
             ],
-            "time": "2019-02-12T17:09:34+00:00"
+            "time": "2019-03-21T21:50:43+00:00"
         },
         {
             "name": "gregwar/captcha",
@@ -466,39 +466,39 @@
         },
         {
             "name": "hybridauth/hybridauth",
-            "version": "v2.13.0",
+            "version": "v3.0.0-rc.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hybridauth/hybridauth.git",
-                "reference": "e7fb724aea4822b48e6d484e58ac8e541b205086"
+                "reference": "877f0388ace7f54be48f59a9be744f1a84794338"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hybridauth/hybridauth/zipball/e7fb724aea4822b48e6d484e58ac8e541b205086",
-                "reference": "e7fb724aea4822b48e6d484e58ac8e541b205086",
+                "url": "https://api.github.com/repos/hybridauth/hybridauth/zipball/877f0388ace7f54be48f59a9be744f1a84794338",
+                "reference": "877f0388ace7f54be48f59a9be744f1a84794338",
                 "shasum": ""
             },
             "require": {
-                "ext-curl": "*",
-                "facebook/graph-sdk": "^5.4",
-                "paypal/rest-api-sdk-php": "*",
-                "php": ">=5.2.0"
+                "php": ">=5.4.0"
             },
             "require-dev": {
-                "squizlabs/php_codesniffer": "2.*"
+                "ext-curl": "*",
+                "phpunit/phpunit": "~4.8.35"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                }
+            },
             "autoload": {
-                "psr-0": {
-                    "Hybrid": "hybridauth/"
-                },
-                "classmap": [
-                    "hybridauth/Hybrid"
-                ]
+                "psr-4": {
+                    "Hybridauth\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "(MIT or GPL-3.0+)"
+                "MIT"
             ],
             "authors": [
                 {
@@ -506,20 +506,20 @@
                     "email": "hybridauth@gmail.com"
                 }
             ],
-            "description": "Open source social sign on PHP library.",
-            "homepage": "http://hybridauth.sourceforge.net",
+            "description": "PHP Social Authentication Library",
+            "homepage": "https://hybridauth.github.io",
             "keywords": [
+                "Authentication",
                 "OpenId",
+                "api",
+                "authorization",
                 "facebook",
                 "google",
-                "hybridauth",
-                "login",
                 "oauth",
                 "social",
-                "twitter",
-                "yahoo"
+                "twitter"
             ],
-            "time": "2019-01-10T10:34:15+00:00"
+            "time": "2019-03-25T21:44:58+00:00"
         },
         {
             "name": "paypal/rest-api-sdk-php",
@@ -619,16 +619,16 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v4.2.3",
+            "version": "v4.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "ef71816cbb264988bb57fe6a73f610888b9aa70c"
+                "reference": "267b7002c1b70ea80db0833c3afe05f0fbde580a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/ef71816cbb264988bb57fe6a73f610888b9aa70c",
-                "reference": "ef71816cbb264988bb57fe6a73f610888b9aa70c",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/267b7002c1b70ea80db0833c3afe05f0fbde580a",
+                "reference": "267b7002c1b70ea80db0833c3afe05f0fbde580a",
                 "shasum": ""
             },
             "require": {
@@ -664,20 +664,20 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2019-01-16T20:35:37+00:00"
+            "time": "2019-02-23T15:42:05+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.10.0",
+            "version": "v1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
+                "reference": "82ebae02209c21113908c229e9883c419720738a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
-                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/82ebae02209c21113908c229e9883c419720738a",
+                "reference": "82ebae02209c21113908c229e9883c419720738a",
                 "shasum": ""
             },
             "require": {
@@ -689,7 +689,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.11-dev"
                 }
             },
             "autoload": {
@@ -711,7 +711,7 @@
                 },
                 {
                     "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
+                    "email": "backendtea@gmail.com"
                 }
             ],
             "description": "Symfony polyfill for ctype functions",
@@ -722,20 +722,20 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-08-06T14:22:27+00:00"
+            "time": "2019-02-06T07:57:58+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.10.0",
+            "version": "v1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "c79c051f5b3a46be09205c73b80b346e4153e494"
+                "reference": "fe5e94c604826c35a32fa832f35bd036b6799609"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/c79c051f5b3a46be09205c73b80b346e4153e494",
-                "reference": "c79c051f5b3a46be09205c73b80b346e4153e494",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/fe5e94c604826c35a32fa832f35bd036b6799609",
+                "reference": "fe5e94c604826c35a32fa832f35bd036b6799609",
                 "shasum": ""
             },
             "require": {
@@ -747,7 +747,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.11-dev"
                 }
             },
             "autoload": {
@@ -781,7 +781,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-09-21T13:07:52+00:00"
+            "time": "2019-02-06T07:57:58+00:00"
         },
         {
             "name": "twbs/bootstrap",
@@ -891,16 +891,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.6.2",
+            "version": "v2.7.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "7d7342c8a4059fefb9b8d07db0cc14007021f9b7"
+                "reference": "ed9c49220e09bfaeb1ba4d48077c08a7b09908dd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/7d7342c8a4059fefb9b8d07db0cc14007021f9b7",
-                "reference": "7d7342c8a4059fefb9b8d07db0cc14007021f9b7",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ed9c49220e09bfaeb1ba4d48077c08a7b09908dd",
+                "reference": "ed9c49220e09bfaeb1ba4d48077c08a7b09908dd",
                 "shasum": ""
             },
             "require": {
@@ -916,7 +916,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.6-dev"
+                    "dev-master": "2.7-dev"
                 }
             },
             "autoload": {
@@ -954,13 +954,15 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2019-01-14T15:00:48+00:00"
+            "time": "2019-03-23T14:28:58+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "hybridauth/hybridauth": 5
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
