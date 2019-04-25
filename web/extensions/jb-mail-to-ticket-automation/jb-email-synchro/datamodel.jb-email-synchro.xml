@@ -107,7 +107,7 @@
           <type>Overload-DBObject</type>
           <code><![CDATA[	public function Get($sAttCode)
 	{
-		if (($sAttCode == 'password') && (!UserRights::IsAdministrator()))
+		if (($sAttCode == 'password') && (!UserRights::IsActionAllowed('MailInboxBase', UR_ACTION_MODIFY)))
 		{
 			return '*****';
 		}

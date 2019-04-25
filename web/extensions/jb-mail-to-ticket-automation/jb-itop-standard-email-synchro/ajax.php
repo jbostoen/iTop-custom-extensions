@@ -49,7 +49,7 @@ try
 		{
 			if ($oInbox->Get('trace') == 'yes')
 			{
-				$oPage->add('<pre>'.$oInbox->Get('debug_trace').'</pre>');					
+				$oPage->add('<pre>'.htmlentities($oInbox->Get('debug_trace'), ENT_QUOTES, 'UTF-8').'</pre>');
 			}
 			else
 			{

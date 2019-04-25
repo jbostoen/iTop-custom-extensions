@@ -565,11 +565,13 @@ class Mail_mimeDecode extends PEAR
 
             switch (strtolower($encoding)) {
                 case 'b':
+                	echo "Decoding: $text\n";
                     $text = base64_decode($text);
                     if (strtoupper($charset) != 'UTF-8')
                     {
                     	$text = iconv(strtoupper($charset), 'UTF-8//IGNORE//TRANSLIT', $text);
                     }
+                    echo "Result: $text\n";
                     break;
 
                 case 'q':

@@ -1,6 +1,6 @@
 # What?
 
-This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally based on their version 3.0.7, but also includes the changes up to 3.0.15 so far). Some fixes from this version were accepted by Combodo back in August 2018 and are now part of the official version.
+This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally based on their version 3.0.7, but also includes the changes up to 3.0.17 so far). Some fixes from this version were accepted by Combodo back in August 2018 and are now part of the official version.
 
 What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. This extension offers some additional policies.
 
@@ -25,7 +25,8 @@ Most of them have:
 * bounce subject - message subject when message is bounced back to sender (caller)
 * bounce message - message content when message is bounced back to sender (caller)
 
-In the bounce message, some variables can be used. In fact, most (all?) strings from the EmailMessage class are supported. So in the bounce subject/message, you can use $mail->Subject etc. (list below)
+In the bounce message, some variables can be used. In fact, most (all?) strings from the EmailMessage class are supported. 
+So in the bounce subject/message, you can use $mail->Subject etc. (list below)
 
 ```	
 BodyFormat
@@ -68,7 +69,6 @@ UIDL
     team_id:2
     status:assigned
 ```	 	 
-
 	 	 
 # Emails in Error
 * **Behavior** - Delete or keep the message in the mailbox 	 	 
@@ -77,14 +77,15 @@ UIDL
 
 ***
 
-# Policy: Mail Size
+# Policies
+## Mail Size
 * Use case: mail size is too big (often related to PHP, MySQL limits)
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * **Max size (MB)** - 10 	
  	 
-# Policy: Forbidden attachments
+## Forbidden attachments
 * Use case: you might not want .exe attachments
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
@@ -92,7 +93,7 @@ UIDL
 * **MIME Types** - one per line. Example: application/exe
 * Fallback: ignore forbidden attachments?
 	 	 
-# Policy: No subject
+## No subject
 * Use case: you want to enforce people to at least supply a subject.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
@@ -100,28 +101,28 @@ UIDL
 * **Default subject** - example: (no subject)
 * Fallback: use specified default subject	 	 
  	 
-# Policy: Closed tickets
+## Closed tickets
 * Use case: despite very clear warnings a ticket has been closed, user still replies.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * Fallback: reopen
  
-# Policy: Resolved tickets
+## Resolved tickets
 * Use case: despite very clear warnings a ticket has been resolved, user still replies.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * Fallback: reopen
 	 	 
-# Policy: Unknown tickets
+## Unknown tickets
 * Use case: usually if the extension misinterprets a pattern in the email header and can't find the ticket.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * No fallback
  
-# Policy: Unknown caller
+## Unknown caller
 * Use case: first time caller
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
@@ -137,23 +138,39 @@ UIDL
 
 ( creates a contact named 'Unknown Caller', belonging to first organization in iTop)
 	 	 
-# Policy: Other recipients
+## Other recipients
 * Use case: if you allow (B)CC to a helpdesk system, you might see people replying to the initial email from the caller. This would lead to multiple new tickets, since there is no ticket reference in the email header or subject.
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * fallback: ignore
 	 	 
-# Policy: Undesired patterns in title
+## Undesired patterns in title
 * Use case: out-of-office
 * **eMail** Bounce to sender and delete 	 	 
 * **Bounce subject**	 	 
 * **Bounce message**
 * **Undesired patterns in subject** - (regex, one per line)
 
-# Policy: Patterns to ignore/remove from title
+## Patterns to ignore/remove from title
 * Use case: another ticket system which uses IR-1234567 as a ticket reference. If our format is R-123456, this would lead to issues when handling emails with a reference from the other ticket.
 * Fallback - Ignore: just ignores parts when handling a new e-mail, but keeps the original subject to create the ticket. 
 * Fallback - Remove, it's gone completely in the title. 
 * **Fallback**: ignore, remove 	 
 * **Undesired patterns in subject** - (regex, one per line)
+
+# Other improvements
+
+## Minor code tweaks
+Some code was simplified.
+
+## Lost IMAP connections
+There's an attempt to fix issues with lost IMAP connections. 
+Contrary to the original extension, EmailReplicas don't immediately disappear when the mail can not be seen anymore. 
+It's stored for 7 more days after it's last seen.
+
+Benefit: if the email wasn't seen due to a lost IMAP connection, the EmailReplica got deleted with the original Combodo extension. 
+If in the next run the IMAP connection functions properly, the email would be reprocessed as 'new' - which led to new tickets being created.
+
+
+

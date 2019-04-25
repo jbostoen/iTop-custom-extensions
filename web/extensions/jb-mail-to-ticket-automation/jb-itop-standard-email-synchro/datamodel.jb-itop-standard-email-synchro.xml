@@ -457,7 +457,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', substr($sStampedText . $this->Get('debug_trace'), 0, $iMaxTraceLength));
+			$this->Set('debug_trace', substr($this->Get('debug_trace').$sStampedText, -$iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");
@@ -491,42 +491,10 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[		public function DispatchEmail(EmailReplica $oEmailReplica)
 	{
-			// original Combodo extension: 
-			return parent::DispatchEmail($oEmailReplica);
-			
-		/*	
-			// However, our implementation has a few policies to check BEFORE processing. 
-			// Seems to be obsolete
-			
-			$this->SetNextAction(EmailProcessor::NO_ACTION);
-			if ($oEmailReplica->IsNew())
-			{
-				// New (unread) message, let's process it
-				$this->SetNextAction(EmailProcessor::PROCESS_MESSAGE);
-			}
-			else
-			{
-				$iTicketId = $oEmailReplica->Get('ticket_id');
-				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false  );
-				if (is_object($oTicket))
-				{ 
-					// The eMail replica still exists, if user has 'keep on mailserver' configured. 
-					// It's only kept in the official extension until the ticket has been 'closed'.
-					if( $oTicket->Get('status') == 'closed' ) {
-						$this->SetNextAction(EmailProcessor::DELETE_MESSAGE);		  
-					}
-				}
-				else
-				{
-					// The corresponding ticket was deleted, delete the email (and the replica)
-					$this->SetNextAction(EmailProcessor::DELETE_MESSAGE);
-				}
-			}
-			return parent::GetNextAction();		
-		
-		*/
-			  
-		}
+	
+		return parent::DispatchEmail($oEmailReplica);
+						  
+	}
 		]]></code>
         </method>
         <method id="ProcessNewEmail">
@@ -629,7 +597,7 @@ EOF
 			$oCaller = $oSet->Fetch();
 			break;
 			
-			case 0: 
+			case 0:
 			switch($this->Get('policy_unknown_caller_behavior'))
 			{
 				case 'bounce_delete': 
@@ -706,7 +674,7 @@ EOF
 		// First check if there is any iTop object mentioned in the headers of the eMail
 		$oTicket = parent::GetRelatedTicket($oEmail);
 		
-		if ($oTicket === null)
+		if ( $oTicket == null )
 		{
 			// No associated ticket found by parsing the headers, check
 			// if the subject does not match a specific pattern
@@ -745,9 +713,9 @@ EOF
 	 *
 	 * @param EmailMessage $oEmail The decoded incoming email
 	 * @param Contact $oCaller The contact corresponding to the "From" email address
-	 *    
+	 *
 	 * @return Ticket the created ticket or null in case of failure
-	 * @throws \Exception if invalid target_class											  
+	 * @throws \Exception if invalid target_class
 	 */]]></comment>
           <static>false</static>
           <access>public</access>
@@ -880,7 +848,7 @@ EOF
 		$this->InitObjectFromDefaultValues($oTicket, $aDefaultValues);
 		
 		// We will only call this if additional contacts are accepted by our policy 
-		if (($this->Get('policy_other_recipients_behavior') == 'add_existing_contacts') || ($this->Get('policy_other_recipients_behavior') == 'add_all_contacts'))
+		if ( in_array($this->Get('policy_other_recipients_behavior'), ['add_existing_contacts', 'add_all_contacts'] ) == true )
 		{
 			$this->AddAdditionalContacts($oTicket, $oEmail);
 		}
@@ -1220,9 +1188,9 @@ EOF
 	
 		$sConf = $this->Get('stimuli');
 		
-		// In Combodo's version, this gave a warning?
+		// In Combodo's version, this resulted in a warning?
 		// We will reopen ticket elsewhere if needed.
-		if( trim($sConf) == "" ) {
+		if( trim($sConf) == '' ) {
 			return;
 		}
 	
@@ -1366,7 +1334,7 @@ EOF
 		}
 	}]]></code>
         </method>
-       <method id="ManageInlineImages">
+		<method id="ManageInlineImages">
           <static>false</static>
           <access>protected</access>
           <type>Overload-DBObject</type>
@@ -1475,7 +1443,7 @@ EOF
 	
 		$sTo = $this->Get('notify_errors_to');
 		$sFrom = $this->Get('notify_from');
-		// The behavior is overriden in case of undesired_message		
+		// The behavior is overriden in case of undesired_message
 		if ($this->Get('error_behavior') == 'delete')
 		{
 			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
@@ -1488,7 +1456,7 @@ EOF
 		}
 		
 		switch($sErrorCode)
-		{ 
+		{
 			case 'decode_failed':
 			
 				$sSubject = '[iTop] Failed to decode an incoming eMail';
@@ -2127,7 +2095,7 @@ EOF
       </methods>
       <presentation>
         <details>
-          <items>  
+          <items>
 				<!-- Mailbox settings -->
                 <item id="fieldset:MailInbox:Server">
                   <rank>10</rank>
@@ -2420,7 +2388,7 @@ EOF
           </items>
         </list>
       </presentation>
-    </class> 
+    </class>
   </classes>
   <menus>
     <menu id="AdminTools" xsi:type="MenuGroup" _delta="define_if_not_exists">

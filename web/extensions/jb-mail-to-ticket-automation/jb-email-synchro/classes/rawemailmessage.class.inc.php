@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2012-2016 Combodo SARL
+// Copyright (C) 2012-2019 Combodo SARL
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Lesser General Public License as published by
@@ -70,7 +70,7 @@ class RawEmailMessage
 	 * Construct a new message from the full text version of it (equivalent to the content of a .eml file)
 	 * @param string $sRawContent The full text version of the message (headers + empty line + body)
 	 */
-	public function  __construct($sRawContent)
+	public function __construct($sRawContent)
 	{
 		$this->bStopOnIconvError = false;
 		$this->iNextId = 0;
@@ -164,8 +164,14 @@ class RawEmailMessage
 	public function GetAttachments(&$aAttachments = null, $aPart = null, &$index = 1)
 	{
 		static $iAttachmentCount = 0;
-		if ($aAttachments === null) $aAttachments = array();
-		if ($aPart === null) $aPart = $this->aParts; //Init for recursion
+		if ($aAttachments === null)
+		{
+			$aAttachments = array();
+		}
+		if ($aPart === null)
+		{
+			$aPart = $this->aParts;
+		} //Init for recursion
 		
 		if ($aPart['type'] == 'simple')
 		{
@@ -241,7 +247,7 @@ class RawEmailMessage
 			}
 		}
 		
-		return $aAttachments;		
+		return $aAttachments;
 	}
 	
 	/**
@@ -300,7 +306,7 @@ class RawEmailMessage
 		else
 		{
 			return $aPart['body'];
-		}		
+		}
 	}
 	
 	/**
@@ -317,7 +323,7 @@ class RawEmailMessage
 		}
 		
 		$sHeaderContent = '';
-		if (array_key_exists(strtolower($sHeaderName),$aHeaders))
+		if (array_key_exists(strtolower($sHeaderName), $aHeaders))
 		{
 			$sHeaderContent = $aHeaders[strtolower($sHeaderName)];
 		}
@@ -341,7 +347,11 @@ class RawEmailMessage
 	public function GetStructure($aParts = null)
 	{
 		$aRet = array();
-		if ($aParts === null) $aParts = $this->aParts; //Init for recursion
+		if ($aParts === null)					 
+		{
+			$aParts = $this->aParts;
+		} //Init for recursion
+
 		
 		foreach($aParts as $sKey => $aData)
 		{
@@ -367,9 +377,11 @@ class RawEmailMessage
 	 * @return hash The 'raw' part found (i.e. the body is still an array of encoded strings), or null 
 	 */
 	public function GetPartById($sId, $aPart = null)
-	{
-		if ($aPart === null) $aPart = $this->aParts; //Init for recursion
-		
+	{			  
+		if ($aPart === null)
+		{
+			$aPart = $this->aParts;
+		} //Init for recursion		
 		if (($aPart['type'] == 'simple') && ($aPart['part_id'] == $sId))
 		{
 			return $aPart;
@@ -379,7 +391,9 @@ class RawEmailMessage
 			foreach($aPart['parts'] as $aSubPart)
 			{
 				$aPartFound = $this->GetPartById($sId, $aSubPart);
-				if ($aPartFound === null) return $aPartFound;
+				if ($aPartFound === null)
+				{
+					return $aPartFound;
 			}
 		}
 		return null;
@@ -394,7 +408,7 @@ class RawEmailMessage
 		$bPreviousValue = $this->bStopOnIconvError;
 		if ($bStrict != null)
 		{
-			$this->bStopOnIconvError = $bStrict;	
+			$this->bStopOnIconvError = $bStrict;
 		}
 		return $bPreviousValue;
 		
@@ -421,7 +435,10 @@ class RawEmailMessage
 		{
 			if (substr($sLine, 0, $iLen) == $sDelim)
 			{
-				if (count($aCurPart) > 0) $aParts[] = $aCurPart;
+				if (count($aCurPart) > 0)
+				{
+					$aParts[] = $aCurPart;
+				}
 				$aCurPart = array();
 			}
 			else
@@ -429,13 +446,15 @@ class RawEmailMessage
 				$aCurPart[] = $sLine;
 			}
 		}
-		if (count($aCurPart) > 0) $aParts[] = $aCurPart;
+		if (count($aCurPart) > 0)
+		{
+			$aParts[] = $aCurPart;
 		return $aParts;
 	}
 	
 	/**
 	 * Recursively extracts the sub parts from the given header/body depending on the type of this part (multipart or not)
-	 * @param hash $aHeaders Hash table of header => header_text
+	 * @param array $aHeaders Hash table of header => header_text
 	 * @param array $aBodyLines Array of text lines
 	 * @return array of parts. Each part is itself a hash: array(type => string, headers => hash, body => array, parts => array )
 	 */
@@ -494,7 +513,7 @@ class RawEmailMessage
 	 * The headers are returned as a hash array, with key (in lowercase) => decoded value
 	 * The body is returned as an array of strings (one per line)
 	 * @param array $aLines
-	 * @return hash array('headers' => hash, 'body' => array of strings)
+	 * @return array array('headers' => hash, 'body' => array of strings)
 	 */
 	protected function ExtractHeadersAndRawBody($aLines)
 	{
@@ -508,7 +527,7 @@ class RawEmailMessage
 			if(self::IsNewLine($sLine))
 			{
 				// end of headers
-				$aRawBody = array_slice($aLines, 1+$idx);
+				$aRawBody = array_slice($aLines, 1 + $idx);
 				break;
 			}
 
@@ -548,7 +567,8 @@ class RawEmailMessage
 	 */
 	static protected function DecodeHeaderString($sInput)
     {
-    	return iconv_mime_decode( $sInput, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8' ); // Don't be too strict, continue on errors
+		$sOutput = iconv_mime_decode($sInput, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
+		return $sOutput; // Don't be too strict, continue on errors													 
     }
 
 	/**
@@ -556,14 +576,17 @@ class RawEmailMessage
 	 * inside the (optional) part. If no part is given, scans the whole message.
 	 * @param string $sMimeType The type to look for, for example text/html (non case sensitive)
 	 * @param string $sExcludeDispositionPattern A type (as regexp) of "disposition" to exclude
-	 * @param hash $aPart The part to scan, by default (=null) scan the whole message
-	 * @return hash The given part as a hash array('headers' => hash, 'body' => binary_string); or null if not found
+	 * @param array $aPart The part to scan, by default (=null) scan the whole message
+	 * @return array The given part as a hash array('headers' => hash, 'body' => binary_string); or null if not found
 	 */
     protected function FindFirstPart($sMimeType, $sExcludeDispositionPattern = null, $aPart = null)
 	{
 		$aRetPart = null;
 		
-		if ($aPart === null) $aPart = $this->aParts; //Init for recursion
+		if ($aPart === null)
+		{
+			$aPart = $this->aParts;
+		} //Init for recursion
 
 		if ($aPart['type'] == 'simple')
 		{
@@ -637,21 +660,21 @@ class RawEmailMessage
 		switch($sContentTransferEncoding)
 		{
 			case 'base64':
-			$sBody = base64_decode(implode("\n", $aLines));
-			if ($sBody === false)
-			{
-				// Failed to decode, try as-is
-				$sBody = implode("\n", $aLines);
-			}
-			break;
+				$sBody = base64_decode(implode("\n", $aLines));
+				if ($sBody === false)
+				{
+					// Failed to decode, try as-is
+					$sBody = implode("\n", $aLines);
+				}
+				break;
 
 			case 'quoted-printable':
-			$sBody = quoted_printable_decode(implode("\n", $aLines));
-			break;
+				$sBody = quoted_printable_decode(implode("\n", $aLines));
+				break;
 
 			case '7bit':
 			default:
-			$sBody = implode("\n", $aLines);
+				$sBody = implode("\n", $aLines);
 		}
  
 		// Convert to UTF-8 only if the part is some kind of text

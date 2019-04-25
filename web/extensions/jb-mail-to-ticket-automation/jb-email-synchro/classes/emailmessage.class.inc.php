@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2016 Combodo SARL
+// Copyright (C) 2019 Combodo SARL
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Lesser General Public License as published by
@@ -84,15 +84,44 @@ class EmailMessage {
 	
 	public function IsValid()
 	{
-		$bValid = !empty($this->sUIDL) && !empty($this->sCallerEmail) && !empty($this->sCallerName);
+		return empty($this->GetInvalidReasons());
+	}
 
+	/**
+	 * @return array
+	 */
+	public function GetInvalidReasons()
+	{
+		$aErrors = array();
+		if (empty($this->sUIDL))
+		{
+			$aErrors[] = 'Empty message id';
+		}
+		if (empty($this->sCallerEmail))
+		{
+			$aErrors[] = 'No caller email';
+		}
+		if (empty($this->sCallerName))
+		{
+			$aErrors[] = 'No caller name';
+		}
 		foreach($this->aAttachments as $aAttachment)
 		{
-			$bAttachmentValid = !empty($aAttachment['mimeType']) && !empty($aAttachment['filename']) && !empty($aAttachment['content']);
-			$bValid = $bValid && $bAttachmentValid;
+			if (empty($aAttachment['mimeType']))
+			{
+				$aErrors[] = 'No attachment mime type for '.$aAttachment['filename'];
+			}
+			if (empty($aAttachment['filename']))
+			{
+				$aErrors[] = 'No attachment file name';
+			}
+			if (empty($aAttachment['content']))
+			{
+				$aErrors[] = 'No attachment content for '.$aAttachment['filename'];
+			}
 		}
-		
-		return $bValid;
+  
+		return $aErrors;
 	}
 	
 	 

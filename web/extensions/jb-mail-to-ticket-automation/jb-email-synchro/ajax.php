@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2013 Combodo SARL
+// Copyright (C) 2019 Combodo SARL
 //
 //   This file is part of iTop.
 //
@@ -69,6 +69,7 @@ function GetMailboxContent($oPage, $oInbox)
 						'status' => $oReplica->Get('status'),
 						'ticket_id' => $oReplica->Get('ticket_id'),
 						'error_message' => $oReplica->Get('error_message'),
+						'id' => $oReplica->GetKey(),
 				);
 			}
 			
@@ -80,6 +81,7 @@ function GetMailboxContent($oPage, $oInbox)
 				'subject' => array('label' => Dict::S('MailInbox:Subject'), 'description' => ''),
 				'ticket' => array('label' =>  Dict::S('MailInbox:RelatedTicket'), 'description' => ''),
 				'error' => array('label' =>  Dict::S('MailInbox:ErrorMessage'), 'description' => ''),
+				'details' => array('label' =>  Dict::S('MailInbox:MessageDetails'), 'description' => ''),																							 
 			);
 
 			$aData = array();
@@ -93,6 +95,7 @@ function GetMailboxContent($oPage, $oInbox)
 				$sStatus = Dict::S('MailInbox:Status/New');
 				$sLink = '';
 				$sErrorMsg = '';
+				$sDetailsLink = '';
 				if (array_key_exists($sUIDLs, $aProcessed))
 				{
 				    switch ($aProcessed[$sUIDLs]['status'])
@@ -117,26 +120,35 @@ function GetMailboxContent($oPage, $oInbox)
 						$sLink = '<a href="'.$sTicketUrl.'">'.$oInbox->Get('target_class').'::'.$aProcessed[$sUIDLs]['ticket_id'].'</a>';
 					}
 				}
-				$aData[] = array('checkbox' => '<input type="checkbox" class="mailbox_item" value="'.htmlentities($sUIDLs, ENT_QUOTES, 'UTF-8').'"/>', 'status' => $sStatus, 'date' => $oEmail->sDate, 'from' => $oEmail->sCallerEmail, 'subject' => $oEmail->sSubject, 'ticket' => $sLink, 'error' => $sErrorMsg);
+				$aData[] = array(
+					'checkbox' => '<input type="checkbox" class="mailbox_item" value="'.htmlentities($sUIDLs, ENT_QUOTES, 'UTF-8').'"/>',
+					'status' => $sStatus,
+					'date' => $oEmail->sDate,
+					'from' => $oEmail->sCallerEmail,
+					'subject' => $oEmail->sSubject,
+					'ticket' => $sLink,
+					'error' => $sErrorMsg,
+					'details' => $sDetailsLink,
+				);
 			}
-			$oPage->p(Dict::Format('MailInbox:Z_DisplayedThereAre_X_Msg_Y_NewInTheMailbox', $iMsgCount, $iTotalMsgCount, ($iTotalMsgCount - $iProcessedCount)));					
+			$oPage->p(Dict::Format('MailInbox:Z_DisplayedThereAre_X_Msg_Y_NewInTheMailbox', $iMsgCount, $iTotalMsgCount, ($iTotalMsgCount - $iProcessedCount)));
 			$oPage->table($aTableConfig, $aData);
 			$oPage->add('<div><img src="../images/tv-item-last.gif" style="vertical-align:bottom;margin-left:10px;"/>&nbsp;'.Dict::S('MailInbox:WithSelectedDo').'&nbsp;&nbsp<button class="mailbox_button" id="mailbox_reset_status">'.Dict::S('MailInbox:ResetStatus').'</button>&nbsp;&nbsp;<button class="mailbox_button" id="mailbox_delete_messages">'.Dict::S('MailInbox:DeleteMessage').'</button></div>');
 		}
 		else
 		{
-			$oPage->p(Dict::Format('MailInbox:EmptyMailbox'));					
+			$oPage->p(Dict::Format('MailInbox:EmptyMailbox'));
 		}
 	}
 	else
 	{
 		$oPage->P(Dict::S('UI:ObjectDoesNotExist'));
-	}	
+	}
 }
 
 /**
  * Finds the index of the message with the given UIDL identifier
- * @param Hash $aMessages The array returned by $oSource->GetListing()
+ * @param array $aMessages The array returned by $oSource->GetListing()
  * @param string $sUIDL The UIDL to find
  * @param EmailSource $oSource
  * @return integer The index of the message or false if not found
@@ -159,7 +171,6 @@ try
 {
 	require_once(APPROOT.'/application/cmdbabstract.class.inc.php');
 	require_once(APPROOT.'/application/startup.inc.php');
-	
 	require_once(APPROOT.'/application/loginwebpage.class.inc.php');
 	LoginWebPage::DoLogin(true /* bMustBeAdmin */, false /* IsAllowedToPortalUsers */); // Check user rights and prompt if needed
 	
@@ -168,8 +179,14 @@ try
 
 	$sOperation = utils::ReadParam('operation', '');
 	$iMailInboxId = utils::ReadParam('id', 0, false, 'raw_data');
-	$oInbox = MetaModel::GetObject('MailInboxBase', $iMailInboxId, false);
-	
+	if (empty($iMailInboxId))
+	{
+		$oInbox = null;
+	}
+	else
+	{
+		$oInbox = MetaModel::GetObject('MailInboxBase', $iMailInboxId, false);
+	}	
 	switch($sOperation)
 	{
 		case 'mailbox_content':
@@ -208,9 +225,9 @@ try
 					if ($idx !== false)
 					{
 						// Delete the actual email from the mailbox
-						$oSource->DeleteMessage($idx);				
+						$oSource->DeleteMessage($idx);
 					}
-				}			
+				}
 			}
 			if ($sOperation == 'mailbox_delete_messages')
 			{
@@ -223,7 +240,7 @@ try
 	$oPage->output();
 }
 catch(Exception $e)
-{	
+{
 	$oPage->SetContentType('text/html');
 	$oPage->add($e->getMessage());
 	$oPage->output();

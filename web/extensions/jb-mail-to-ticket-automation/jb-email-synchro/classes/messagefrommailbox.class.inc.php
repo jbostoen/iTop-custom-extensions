@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2012-2016 Combodo SARL
+// Copyright (C) 2012-2019 Combodo SARL
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Lesser General Public License as published by
@@ -41,6 +41,9 @@ class MessageFromMailbox extends RawEmailMessage
 	
 	/**
 	 * Decodes an email from its parts
+	 *
+	 * @param string $sPreferredDecodingOrder
+	 *
 	 * @return EmailMessage
 	 */
 	public function Decode($sPreferredDecodingOrder = 'text/plain,text/html')
@@ -50,7 +53,12 @@ class MessageFromMailbox extends RawEmailMessage
 		if (count($aCallers) > 0)
 		{
 			$sCallerEmail = $aCallers[0]['email'];
-			$sCallerName = $this->GetCallerName($aCallers[0]);
+			$sCallerName = $this->GetCallerName();
+		}
+		else
+		{
+			$sCallerEmail = '';
+			$sCallerName = '';
 		}
 		$sSubject = $this->GetSubject();
 
