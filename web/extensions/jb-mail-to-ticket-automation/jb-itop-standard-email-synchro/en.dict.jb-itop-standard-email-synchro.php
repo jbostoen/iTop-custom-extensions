@@ -1,18 +1,25 @@
 <?php
-// Copyright (C) 2010-2013 Combodo SARL
-//
-//   This program is free software; you can redistribute it and/or modify
-//   it under the terms of the GNU Lesser General Public License as published by
-//   the Free Software Foundation; version 3 of the License.
-//
-//   This program is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU General Public License for more details.
-//
-//   You should have received a copy of the GNU General Public License
-//   along with this program; if not, write to the Free Software
-//   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+/**
+ * Localized data
+ *
+ * @copyright Copyright (C) 2010-2019 Combodo SARL
+ * @license	http://opensource.org/licenses/AGPL-3.0
+ *
+ * This file is part of iTop.
+ *
+ * iTop is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * iTop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with iTop. If not, see <http://www.gnu.org/licenses/>
+ */
 
 Dict::Add('EN US', 'English', 'English', array(
 	// Dictionary entries go here
@@ -30,6 +37,18 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:target_class' => 'Ticket Class',
 	'Class:MailInboxStandard/Attribute:target_class/Value:Incident' => 'Incident',
 	'Class:MailInboxStandard/Attribute:target_class/Value:UserRequest' => 'User Request',
+	'Class:MailInboxStandard/Attribute:target_class/Value:Change' => 'Change',
+	'Class:MailInboxStandard/Attribute:target_class/Value:Change+' => '',
+	'Class:MailInboxStandard/Attribute:target_class/Value:RoutineChange' => 'RoutineChange',
+	'Class:MailInboxStandard/Attribute:target_class/Value:RoutineChange+' => '',
+	'Class:MailInboxStandard/Attribute:target_class/Value:NormalChange' => 'NormalChange',
+	'Class:MailInboxStandard/Attribute:target_class/Value:NormalChange+' => '',
+	'Class:MailInboxStandard/Attribute:target_class/Value:EmergencyChange' => 'EmergencyChange',
+	'Class:MailInboxStandard/Attribute:target_class/Value:EmergencyChange+' => '',
+	'Class:MailInboxStandard/Attribute:target_class/Value:Problem' => 'Problem',
+	'Class:MailInboxStandard/Attribute:target_class/Value:Problem+' => '',
+	'Class:MailInboxStandard/Attribute:debug_trace' => 'Debug trace',
+	'Class:MailInboxStandard/Attribute:debug_trace+' => '',
 
 	'Class:MailInboxStandard/Attribute:ticket_default_values' => 'Ticket Default Values',
 	'Class:MailInboxStandard/Attribute:ticket_default_title' => 'Default Title (if subject is empty)',
@@ -57,7 +76,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	
 	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases<br>(one per line)',
 	 
- 
 	
 	// Policy: mail size too large
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior' => 'eMail',
@@ -161,8 +179,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:ignore' => 'Ignore in subject',
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
 	
-	
-	
 	// Headers
 	'MailInbox:Server' => 'Mailbox Configuration',
 	'MailInbox:Behavior' => 'Behavior on Incoming eMails',
@@ -185,7 +201,5 @@ Dict::Add('EN US', 'English', 'English', array(
 	 
 	'MailInboxStandard:DebugTrace' => 'Debug Trace',
 	'MailInboxStandard:DebugTraceNotActive' => 'Activate the debug on this Inbox to see the debug trace here.',
-	 
-	 
 	
 ));

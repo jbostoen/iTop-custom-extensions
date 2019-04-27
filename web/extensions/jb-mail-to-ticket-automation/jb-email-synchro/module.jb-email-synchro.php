@@ -2,7 +2,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-email-synchro/2.6.190110', 
+	'jb-email-synchro/2.6.190110',
 	array(
 		// Identification
 		'label' => 'Mail to Tickets Automation (core)',
@@ -57,7 +57,7 @@ SetupWebPage::AddModule(
 				'/\\RDe : .+\\RDate d\'envoi : .+\\R/m', // Outlook French, plain text
 				'/\\R-----Message d\'origine-----\\R/m',
 			),
-			'use_message_id_as_uid' => true, // Do NOT change this unless you known what you are doing!! Despite being 'false' in the Combodo version (3.0.5), it works better if set to true.
+			'use_message_id_as_uid' => true, // Do NOT change this unless you known what you are doing!! Despite being 'false' in the Combodo version (3.0.5), it works better if set to true on IMAP connections.
 			'images_minimum_size' => '100x20', // Images smaller that these dimensions will be ignored (signatures...)
 			'images_maximum_size' => '', // Images bigger that these dimensions will be resized before uploading into iTop
 		),
@@ -95,7 +95,8 @@ if (!class_exists('EmailSynchroInstaller'))
 			$oMailboxAttDef = MetaModel::GetAttributeDef('EmailReplica', 'mailbox_path');
 			$sMailboxColName = $oMailboxAttDef->Get('sql');
 
-			$sFrienlynameAttCode = MetaModel::GetFriendlyNameAttributeCode('EmailReplica');
+			// Purpose of this line?
+			$sFriendlynameAttCode = MetaModel::GetFriendlyNameAttributeCode('EmailReplica');
 
 			// Looping on inboxes to update
 			$oSet = new DBObjectSet($oSearch);
