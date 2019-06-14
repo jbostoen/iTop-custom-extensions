@@ -9,8 +9,8 @@ $extVersionDescription = ""; 									# Version info, if used.
 
 $extAuthor = "jbostoen";										# Author
 $extCompany = "";												# Company
-$extVersionMin = "2.5.0";										# Min version of iTop
-$extVersion = "2.5.$(Get-Date -format 'yyMMdd')";				# Version of this extension
+$extVersionMin = "2.6.0";										# Min version of iTop
+$extVersion = "2.6.$(Get-Date -format 'yyMMdd')";				# Version of this extension
 $extReleaseDate = $(Get-Date -format 'yyyy-MM-dd');				# A release date 
 $extUrl = "https://github.com/jbostoen/iTop-custom-extensions/" # Some info
 

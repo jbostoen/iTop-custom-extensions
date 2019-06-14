@@ -13,5 +13,3 @@
 	<mandatory>false</mandatory>
 	<more_info_url>{{ extUrl }}</more_info_url>
 </extension>
-
-

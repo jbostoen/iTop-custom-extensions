@@ -5,16 +5,17 @@
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        '{{ extName }}/{{ extVersion }}',
+        'jb-ssid/2.6.190614',
         array(
                 // Identification
                 //
-                'label' => '{{ extLabel }}',
+                'label' => 'Class: SSID - wireless networks documentation',
                 'category' => 'business',
 
                 // Setup
                 //
-                'dependencies' => array( 
+                'dependencies' => array(
+					'itop-request-mgmt-itil/2.6.0'
                 ),
                 'mandatory' => false,
                 'visible' => true,
@@ -22,7 +23,7 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.{{ extName }}.php'
+                        'model.jb-ssid.php'
                 ),
                 'webservice' => array(
 
@@ -46,3 +47,4 @@ SetupWebPage::AddModule(
                 ),
         )
 );
+

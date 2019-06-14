@@ -2,8 +2,83 @@
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5">
 	<classes>
 		<class id="x">
-		
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>x</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<column id="name" ascending="true"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</reconciliation>
+				<icon>images/icon.png</icon>
+			</properties>
+			<fields>
+				...
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="x">
+							<rank>1</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="x">
+							<rank>1</rank>
+						</item>
+					</items>
+				</search>
+				<default_search>
+					<items>
+						<item id="x">
+							<rank>1</rank>
+						</item>
+					</items>
+				</default_search>
+				<list>
+					<items>
+						<item id="x">
+							<rank>1</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
 		</class>
-	</classes>
-</itop_design>
 
+	</classes>
+	
+	<menus>
+		<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="x" xsi:type="DashboardMenuNode">
+		  <definition>
+			<cells>
+			  <cell id="x">
+				<dashlets>
+				  <dashlet id="x" xsi:type="DashletBadge" _delta="define">
+					<rank>101</rank>
+					<class>x</class>
+				  </dashlet>
+				</dashlets>
+			  </cell>
+			</cells>
+		  </definition>
+		</menu>
+	</menus>	
+	
+</itop_design>
