@@ -49,6 +49,50 @@
 					<target_class>VLAN</target_class>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
+				<field id="security_protocol" xsi:type="AttributeEnum">
+					<sql>security_protocol</sql>
+					<default_value>wpa2</default_value>
+					<values>
+						<value id="wep">wep</value>
+						<value id="wpa">wpa</value>
+						<value id="wpa2">wpa2</value>
+						<value id="wpa3">wpa3</value>
+						<value id="open">open</value>
+					</values>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>list</display_style>
+				</field>
+				<field id="security_target" xsi:type="AttributeEnum">
+					<sql>security_target</sql>
+					<default_value>personal</default_value>
+					<values>
+						<value id="personal">personal</value>
+						<value id="enterprise">enterprise</value>
+						<value id="not_applicable">not_applicable</value>
+					</values>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>list</display_style>
+				</field>
+				<field id="security_tkip" xsi:type="AttributeEnum">
+					<sql>security_tkip</sql>
+					<default_value>no</default_value>
+					<values>
+						<value id="yes">yes</value>
+						<value id="no">no</value>
+					</values>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>radio</display_style>
+				</field>
+				<field id="security_aes" xsi:type="AttributeEnum">
+					<sql>security_aes</sql>
+					<default_value>yes</default_value>
+					<values>
+						<value id="yes">yes</value>
+						<value id="no">no</value>
+					</values>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>radio</display_style>
+				</field>
 				<field id="band_2_4_GHz" xsi:type="AttributeEnum">
 					<sql>band_2_4_GHz</sql>
 					<default_value>yes</default_value>
@@ -71,7 +115,7 @@
 				</field>
 				<field id="channel_choice" xsi:type="AttributeEnum">
 					<sql>channel_choice</sql>
-					<default_value>manual</default_value>
+					<default_value>automatic</default_value>
 					<values>
 						<value id="manual">manual</value>
 						<value id="automatic">automatic</value>
@@ -115,11 +159,28 @@
 										<item id="name">
 											<rank>111</rank>
 										</item>
-										<item id="password">
+										<item id="vlan_tag_id">
 											<rank>121</rank>
 										</item>
-										<item id="vlan_tag_id">
-											<rank>131</rank>
+									</items>
+								</item>
+								<item id="fieldset:SSID:Security">
+									<rank>11</rank>
+									<items>
+										<item id="password">
+											<rank>211</rank>
+										</item>
+										<item id="security_protocol">
+											<rank>221</rank>
+										</item>
+										<item id="security_target">
+											<rank>231</rank>
+										</item>
+										<item id="security_tkip">
+											<rank>241</rank>
+										</item>
+										<item id="security_aes">
+											<rank>251</rank>
 										</item>
 									</items>
 								</item>
@@ -180,18 +241,29 @@
 						<item id="vlan_tag_id">
 							<rank>131</rank>
 						</item>
-
-						<item id="band_2_4_GHz">
+						<item id="security_protocol">
 							<rank>211</rank>
 						</item>
-						<item id="band_5_GHz">
-							<rank>212</rank>
-						</item>
-						<item id="channel_choice">
+						<item id="security_target">
 							<rank>221</rank>
 						</item>
+						<item id="security_aes">
+							<rank>231</rank>
+						</item>
+						<item id="security_tkip">
+							<rank>232</rank>
+						</item>
+						<item id="band_2_4_GHz">
+							<rank>311</rank>
+						</item>
+						<item id="band_5_GHz">
+							<rank>312</rank>
+						</item>
+						<item id="channel_choice">
+							<rank>321</rank>
+						</item>
 						<item id="channel_number">
-							<rank>222</rank>
+							<rank>322</rank>
 						</item>
 					</items>
 				</list>
