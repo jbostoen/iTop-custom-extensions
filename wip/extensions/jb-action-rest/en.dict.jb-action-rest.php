@@ -4,6 +4,7 @@
  *
  * @copyright   Copyright (C) 2013 XXXXX
  * @license     http://opensource.org/licenses/AGPL-3.0
+ * @author		jbostoen
  */
 
 Dict::Add('EN US', 'English', 'English', array(
@@ -24,7 +25,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:ActionRest/Attribute:trigger_list' => 'Triggers',
 	'Class:ActionRest/Attribute:test_url' => 'Test URL',
 	'Class:ActionRest/Attribute:production_url' => 'Production URL',
-	'Class:ActionRest/Attribute:log_result' => 'Production URL',
+	'Class:ActionRest/Attribute:log_result' => 'Result',
 	'Class:ActionRest/Attribute:log_result/Value:http_code' => 'HTTP Code',
 	'Class:ActionRest/Attribute:log_result/Value:http_body' => 'HTTP Body',
 	

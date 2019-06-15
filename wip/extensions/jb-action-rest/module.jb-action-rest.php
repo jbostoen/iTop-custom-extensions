@@ -22,7 +22,8 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-action-rest.php'
+                        'model.jb-action-rest.php',
+						'main.jb-action-rest.php'
                 ),
                 'webservice' => array(
 
@@ -46,8 +47,4 @@ SetupWebPage::AddModule(
                 ),
         )
 );
-
-
-?>
-
 

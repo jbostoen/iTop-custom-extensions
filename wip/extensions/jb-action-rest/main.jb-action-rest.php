@@ -25,8 +25,6 @@
 			MetaModel::Init_InheritAttributes();
 
 			MetaModel::Init_AddAttribute(new AttributeURL("test_url", array("allowed_values"=>null, "sql"=>"test_url", "default_value"=>"", "is_null_allowed"=>true, "depends_on"=>array(), "target" => "_blank")));
-
-			
 			MetaModel::Init_AddAttribute(new AttributeURL("production_url", array("allowed_values"=>null, "sql"=>"production_url", "default_value"=>"", "is_null_allowed"=>true, "depends_on"=>array(), "target" => "_blank")));
 			
 			MetaModel::Init_AddAttribute(new AttributeEnum("log_result", array("allowed_values"=>new ValueSetEnum("http_code,http_body"), "sql"=>"log_result", "default_value"=>"", "is_null_allowed"=>true, "depends_on"=>array(), "target" => "_blank")));
@@ -34,12 +32,10 @@
 			// Display lists
 			MetaModel::Init_SetZListItems('details', array('name', 'description', 'status', 'test_url', 'production_url', 'trigger_list')); // Attributes to be displayed for the complete details
 			
-			
-			
 			MetaModel::Init_SetZListItems('list', array('name', 'status', 'test_url', 'production_url')); // Attributes to be displayed for a list
 			// Search criteria
 			MetaModel::Init_SetZListItems('standard_search', array('name','description', 'status', 'subject')); // Criteria of the std search form
-	//		MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
+			MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
 		}
 
 
@@ -153,12 +149,12 @@
 					break;
 			}
 			
-			// Object does NOT always contain all properties (example: Trigger On Create, On Update)
+			// Object does NOT always contain all properties (example: Trigger 'On Create', 'On Update')
 			$oObject = $aContextArgs['this->object()'];
 			
-			// Use iTop's built-in REST utils and re-use it.
+			// Use iTop's built-in REST utils and re-use it to obtain all data
 			// Autoload fails?
-			require('restservices.class.inc.php');
+			require_once( __DIR__ . '/../../core/restservices.class.inc.php');
 			
 			$aParams = json_decode(utils::ReadParam('json_data', null, false, 'raw_data'));			
 			$aShowFields = RestUtils::GetFieldList(get_class($oObject), $aParams, 'output_fields');
@@ -167,11 +163,13 @@
 			$oResult = new RestResultWithObjects();
 			$oResult->AddObject( RestResult::OK, '', $oObject, $aShowFields, $bExtendedOutput );
 			
-			// Add some more details to make it easier for third-party applications to know the trigger
-			// One ActionRest could be linked this way to multiple triggers
+			// Add some more details to make it easier for third-party applications to know which trigger was used.
+			// This way, it's possible for one ActionRest to be linked to multiple triggers
 			$oResult->trigger_id = $oTrigger->GetKey();
 			$oResult->trigger_friendly_name = $oTrigger->Get('friendlyname');
 		
+			// Currently this version simply posts the data.
+			// Future version might post JSON data instead.
 			$aPostData = (Array)$oResult;
 			
 			$oCurl = curl_init();
@@ -183,7 +181,7 @@
 
 			$sOutput = curl_exec($oCurl);
 			$sHttpCode = curl_getinfo($oCurl, CURLINFO_HTTP_CODE);
-
+			
 			curl_close($oCurl);
 
 			switch( $this->Get('log_result') ) {
@@ -195,15 +193,8 @@
 					// Should not happen:
 					return 'OK';
 			}
-				
-			
-		
 		}
 	}
-
-
-
-
 
 	class EventNotificationRest extends EventNotification
 	{
@@ -226,14 +217,13 @@
 			MetaModel::Init_InheritAttributes();
 			MetaModel::Init_AddAttribute(new AttributeUrl("url", array("allowed_values"=>null, "sql"=>"url", "default_value"=>null, "is_null_allowed"=>true, "depends_on"=>array(), "target" => "_blank")));
 			
-
 			// Display lists
 			MetaModel::Init_SetZListItems('details', array('date', 'userinfo', 'url')); // Attributes to be displayed for the complete details
 			MetaModel::Init_SetZListItems('list', array('date', 'url')); // Attributes to be displayed for a list
 
 			// Search criteria
-	//		MetaModel::Init_SetZListItems('standard_search', array('name')); // Criteria of the std search form
-	//		MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
+			MetaModel::Init_SetZListItems('standard_search', array('name')); // Criteria of the std search form
+			MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
 		}
 
 	}
