@@ -4,7 +4,7 @@
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Feature: Geometry tab - Adds a geom field (tab with OpenLayers Map) to specified classes ]]></label>
-	<description><![CDATA[ Test to integrate geographical information (geometry: Point, LineString, Polygin) using OpenLayers in iTop ]]></description>
+	<description><![CDATA[ Integrate geographical information (geometry: Point, LineString, Polygin) using OpenLayers in iTop. ]]></description>
 	<version>2.4.180804</version>
 	<release_date>2018-08-04</release_date>
 	<version_description><![CDATA[  ]]></version_description>

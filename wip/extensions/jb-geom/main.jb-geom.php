@@ -9,9 +9,9 @@
 **/
 
 /**
-* Class cApplicationUIExtension_geom. Adds tab with map, makes textbox 'geom' invisible
+* Class cApplicationUIExtension_GeometryHandler. Adds tab with map, makes textbox 'geom' invisible
 */
-class cApplicationUIExtension_geom implements iApplicationUIExtension
+class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 {
 	/**
 	* Called when building the Actions menu for a single object or a list of objects
@@ -64,7 +64,6 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 		
 	}
 	
-	
 	/**
 	* Invoked when an object is being displayed (wiew or edit)
 	*
@@ -75,10 +74,8 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	* @return void
 	*/
 	public function OnDisplayProperties($oObject, WebPage $oPage, $bEditMode = false) : void {
-		
 		 
 	}
-	
 	
 	/**
 	 * 
@@ -93,8 +90,10 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	 */
 	public function OnDisplayRelations($oObject, WebPage $oPage, $bEditMode = false) {
 		
+		// Get list of attributes
 		$aAttributeList = Metamodel::GetAttributesList(get_class($oObject));
-		
+	
+		// If attribute exists
 		if( in_array('geom', $aAttributeList) == true ) {		
 		
 			// Module settings, defaults.
@@ -123,21 +122,18 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 			$sTabName = Dict::S('Location:Geometry');
 			$oPage->SetCurrentTab($sTabName); 
 			
-			// It seems iTop just outputs a script as text if you set it in $oPage->add()? 
-			
 			$oPage->add_linked_stylesheet('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css');
 			$oPage->add_linked_script('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js');
 			
 			$oPage->add('
-					<select id="geomMap">
-						<option value="osm">OpenStreetMap</option>
-						<option value="grb">GRB</option>
-					</select>
-					
+				<select id="geomMap">
+					<option value="osm">OpenStreetMap</option>
+					<option value="grb">GRB</option>
+				</select>
 			');
 				
 			if( $bEditMode ) {
-				$oPage->add('| <button type="button" id="geomClear">'.Dict::S('UI:Geom:Clear').'</button> | 
+				$oPage->add('| 
 					<select id="geomType">
 				');
 
@@ -146,43 +142,69 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 				} 
 						
 				$oPage->add('
-					</select> 
+					</select>
+					<div class="actions_button" id="geomClear"><a href="javascript:void(0);">'.Dict::S('UI:Geom:Clear').'</a></div> | 
 				');
 					
 			}
+			
+			// Add style for fullscreen
+			$oPage->add_style(
+<<<EOF
+
+				.ol-map {
+					// Fix difference in color between regular size (slightly darker) and full screen (dark)
+					background-color: white;
+				}
+					
+				.map:-moz-full-screen {
+					\theight: 100%;
+				}
+				.map:-webkit-full-screen {
+					\theight: 100%;
+				}
+				.map:-ms-fullscreen {
+					\theight: 100%;
+				}
+				.map:fullscreen {
+					\theight: 100%;
+				}
+				.ol-rotate {
+					\ttop: 3em;
+				}
+EOF
+			);
 			
 			$oPage->add(
 				'<hr>'.
 				'<div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>
 			');
 
-			
 			// 'add_script' is also a method
-			// be careful what EPSG to select!
-			// for testing purposes, we'll try to detect if Geometry was saved in GeoJSON or WKT and read it anyway
-			// for geom.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
+			// Be careful what EPSG to select!
+			// Detect if Geometry was saved in GeoJSON or WKT
+			// for geomHandler.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 			$oPage->add_ready_script('
 				 
 				// Geom for ' . get_class($oObject) .'
 				  
-				geom = {};
-				geom.oFormat = {
+				geomHandler = {};
+				geomHandler.oFormat = {
 					WKT: new ol.format.WKT(),
 					GeoJSON: new ol.format.GeoJSON()
 				};
-				geom.oFeatures = [];
-				geom.oFeature = ( "'.$sGeomString.'" != "" ? geom.oFormat.'.( preg_match('/^{"type":"Feature",.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
+				geomHandler.oFeatures = [];
+				geomHandler.oFeature = ( "'.$sGeomString.'" != "" ? geomHandler.oFormat.'.( preg_match('/^{"type":.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
 				
-				if( geom.oFeature !== null ) {
-					geom.oFeatures.push( geom.oFeature );
+				if( geomHandler.oFeature !== null ) {
+					geomHandler.oFeatures.push( geomHandler.oFeature );
 				}
 				
-				geom.oVectorSource = new ol.source.Vector({ 
-					features: geom.oFeatures
+				geomHandler.oVectorSource = new ol.source.Vector({ 
+					features: geomHandler.oFeatures
 				});
-				
 
-				geom.oSharedStyle = new ol.style.Style({
+				geomHandler.oSharedStyle = new ol.style.Style({
 					fill: new ol.style.Fill({
 						color: "rgb(6,80,140, 0.25)"
 					}),
@@ -202,8 +224,7 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					})
 				});
 				
-				
-				geom.aLayers = {
+				geomHandler.aLayers = {
 					osm: new ol.layer.Tile({
 						source: new ol.source.OSM(),
 						opacity: 0.5
@@ -219,48 +240,49 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 						opacity: 0.5
 					}),
 					vector: new ol.layer.Vector({ 
-						source: geom.oVectorSource, 
-						style: geom.oSharedStyle
+						source: geomHandler.oVectorSource, 
+						style: geomHandler.oSharedStyle
 					})
 					
 				}
 				
-				
-				if( geom.oFeature === null ) {
-					geom.oCenter = [ '.$aGeomSettings['mapcenter'][0].', '.$aGeomSettings['mapcenter'][1].' ];
+				if( geomHandler.oFeature === null ) {
+					geomHandler.oCenter = [ '.$aGeomSettings['mapcenter'][0].', '.$aGeomSettings['mapcenter'][1].' ];
 				}
 				else {
 					
-					aExtent = geom.aLayers.vector.getSource().getExtent();
-					geom.oCenter = [ 
-						( aExtent[0] + aExtent[2] ) / 2,
-						( aExtent[1] + aExtent[3] ) / 2,
+					geomHandler.aExtent = geomHandler.aLayers.vector.getSource().getExtent();
+					geomHandler.oCenter = [ 
+						( geomHandler.aExtent[0] + geomHandler.aExtent[2] ) / 2,
+						( geomHandler.aExtent[1] + geomHandler.aExtent[3] ) / 2,
 					];
 				}
-				
-			 
 				// Center: EPSG:3857 - [ 358652.11242031807, 6606360.84951076 ]
-				geom.oMap = new ol.Map({
+				geomHandler.oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
 						// the last layer you add, is on top.
-						geom.aLayers.osm,
-						geom.aLayers.vector 
+						geomHandler.aLayers.osm,
+						geomHandler.aLayers.vector 
 					],
 					view: new ol.View({
-						center: geom.oCenter,
+						center: geomHandler.oCenter,
 						zoom: "'.$aGeomSettings['mapzoom'].'",
 						projection: "'.$aGeomSettings['mapcrs'].'"
-					})
+					}),
+					controls: ol.control.defaults().extend([ new ol.control.FullScreen() ])
 				});
 				
+				// Full screen option
+				geomHandler.oMap.addInteraction
+				
 				// Auto-adjust zoom
-				if( geom.oFeature ) {
+				if( geomHandler.oFeature ) {
 					
 					// Workaround to keep zoom
-					oResolution = geom.oMap.getView().getResolution();
-					geom.oMap.getView().fit( aExtent, geom.oMap.getSize() );
-					geom.oMap.getView().setResolution(oResolution);
+					geomHandler.oResolution = geomHandler.oMap.getView().getResolution();
+					geomHandler.oMap.getView().fit( geomHandler.aExtent, geomHandler.oMap.getSize() );
+					geomHandler.oMap.getView().setResolution(geomHandler.oResolution);
 				}
 				
 			
@@ -270,9 +292,8 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 				// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
 				// The tab container  
 				$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){
-					setTimeout( function(){ geom.oMap.updateSize(); }, 1000);
-				});
-								
+					setTimeout( function(){ geomHandler.oMap.updateSize(); }, 1000);
+				});			
 					 
 				// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
 				// Alternatively, you could do this with CSS
@@ -280,27 +301,24 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 								 
 				// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
 				$(document).ready(function(){
-					setTimeout( function(){ geom.oMap.updateSize(); }, 1000 );
+					setTimeout( function(){ geomHandler.oMap.updateSize(); }, 1000 );
 				});
 				
 				// Change background map
 				$(document.body).on("change", "#geomMap", function(e) {
 					
-					geom.oMap.getLayers().clear();
-					geom.oMap.addLayer( geom.aLayers[$("#geomMap").val()] );
-					geom.oMap.addLayer( geom.aLayers.vector );
+					geomHandler.oMap.getLayers().clear();
+					geomHandler.oMap.addLayer( geomHandler.aLayers[$("#geomMap").val()] );
+					geomHandler.oMap.addLayer( geomHandler.aLayers.vector );
 					
 					if( typeof ol_configDrawMode !== "undefined") {
 						// Re-add interactions
 						ol_configDrawMode();
 					}
 					
-					
 				});
 				
-
 			');
-				
 			// View
 			if (!$bEditMode)
 			{
@@ -316,44 +334,44 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 			 
 				$oPage->add_ready_script('
 					
-					// OpenLayers - Editing requires extra interactions.
+					// OpenLayers - Editing allows extra interactions.
 					
-					geom.oDeleteCondition = function(mapBrowserEvent) {
+					geomHandler.oDeleteCondition = function(mapBrowserEvent) {
 						return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.shiftKeyOnly(mapBrowserEvent)
 					};
 					
 					// Modify has a deleteCondition, but it does not work with Points. 
 					// It only works with vertex = where two lines meet.
-					geom.oModify = new ol.interaction.Modify({ 
-						source: geom.aLayers.vector.getSource(),
-						deleteCondition: geom.oDeleteCondition
+					geomHandler.oModify = new ol.interaction.Modify({ 
+						source: geomHandler.aLayers.vector.getSource(),
+						deleteCondition: geomHandler.oDeleteCondition
 					});
 					
-					geom.oDraw = new ol.interaction.Draw({
-						source: geom.aLayers.vector.getSource(),
+					geomHandler.oDraw = new ol.interaction.Draw({
+						source: geomHandler.aLayers.vector.getSource(),
 						type: $("#geomType").val(),
-						style: geom.oSharedStyle
+						style: geomHandler.oSharedStyle
 					});
 					
-					geom.oSnap = new ol.interaction.Snap({
-						source: geom.aLayers.vector.getSource()
+					geomHandler.oSnap = new ol.interaction.Snap({
+						source: geomHandler.aLayers.vector.getSource()
 					});
 					
-					geom.oSelect = new ol.interaction.Select({
-						condition: geom.oDeleteCondition
+					geomHandler.oSelect = new ol.interaction.Select({
+						condition: geomHandler.oDeleteCondition
 					});
 					
 					// Add interactions 
-					geom.oMap.addInteraction( geom.oDraw );
-					geom.oMap.addInteraction( geom.oModify );
-					geom.oMap.addInteraction( geom.oSnap );
-					// geom.oMap.addInteraction( geom.oSelect );		
+					geomHandler.oMap.addInteraction( geomHandler.oDraw );
+					geomHandler.oMap.addInteraction( geomHandler.oModify );
+					geomHandler.oMap.addInteraction( geomHandler.oSnap );
+					// geomHandler.oMap.addInteraction( geomHandler.oSelect );		
 					  
 					$("body").on("click", "#geomClear", function(e){
 					
 						// Remove
-						geom.oFeature = null;
-						geom.aLayers.vector.getSource().clear();
+						geomHandler.oFeature = null;
+						geomHandler.aLayers.vector.getSource().clear();
 														
 						// Save in geom field 
 						$("textarea[name=\'attr_geom\']").val("");
@@ -367,8 +385,8 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 					});
 						 
 					// Get last drawn geometry type
-					if( geom.oFeature ) {
-						$("#geomType").val( geom.oFeature.getGeometry().getType() );
+					if( geomHandler.oFeature ) {
+						$("#geomType").val( geomHandler.oFeature.getGeometry().getType() );
 					}
 					
 					// Always configure draw mode
@@ -377,47 +395,44 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 				
 					function ol_configDrawMode() {
 					
-						geom.oMap.removeInteraction( geom.oDraw );
+						geomHandler.oMap.removeInteraction( geomHandler.oDraw );
 					
-						geom.oDraw = new ol.interaction.Draw({
-							source: geom.aLayers.vector.getSource(),
+						geomHandler.oDraw = new ol.interaction.Draw({
+							source: geomHandler.aLayers.vector.getSource(),
 							type: $("#geomType").val(),
-							style: geom.oSharedStyle
+							style: geomHandler.oSharedStyle
 						});
 						
-						geom.oDraw.on("drawstart", function(e){
+						geomHandler.oDraw.on("drawstart", function(e){
 							
 							// Remove modify, will cause issues when user double-clicks to set new point
-							geom.oMap.removeInteraction( geom.oModify );
+							geomHandler.oMap.removeInteraction( geomHandler.oModify );
 							
 							// Clear previous features
-							geom.aLayers.vector.getSource().clear();
+							geomHandler.aLayers.vector.getSource().clear();
 							
 							// Add modify again
-							geom.oMap.addInteraction( geom.oModify );
+							geomHandler.oMap.addInteraction( geomHandler.oModify );
 														
 						});
 						
-						geom.oDraw.on("drawend", function(e){
+						geomHandler.oDraw.on("drawend", function(e){
 							
 							var f = e.feature;
 							
 							// Save in geom field 
-							$("textarea[name=\'attr_geom\']").val( geom.oFormat.'.$aGeomSettings['dataformat'].'.writeFeature(f) );
+							$("textarea[name=\'attr_geom\']").val( geomHandler.oFormat.'.$aGeomSettings['dataformat'].'.writeGeometry(f.getGeometry()) );
 														
 						}); 
 						
-						geom.oMap.addInteraction( geom.oDraw );
+						geomHandler.oMap.addInteraction( geomHandler.oDraw );
 						
 					}
 			
 				');
 			}
-			
 		}
-		
 	}
-	
 	
 	/**
 	* Invoked when the end-user clicks on Cancel from the object edition form.
@@ -430,8 +445,6 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
 	public function OnFormCancel( $sTempId ) : void { 
 	}
 	
-	
-
 	/**
 	* Invoked when the end-user clicks on Modify from the object edition form
 	* The method is called after the changes from the standard form have been taken into account, and before saving the changes into the database.
@@ -447,4 +460,88 @@ class cApplicationUIExtension_geom implements iApplicationUIExtension
   
 }
 
-
+class cPopupMenuExtension_GeometryHandler implements iPopupMenuExtension
+{
+        /**
+         * Get the list of items to be added to a menu.
+         *
+         * This method is called by the framework for each menu.
+         * The items will be inserted in the menu in the order of the returned array.
+         * @param int $iMenuId The identifier of the type of menu, as listed by the constants MENU_xxx
+         * @param mixed $param Depends on $iMenuId, see the constants defined above
+         * @return object[] An array of ApplicationPopupMenuItem or an empty array if no action is to be added to the menu
+         */
+        public static function EnumItems($iMenuId, $param)
+        {
+                $aResult = array();
+ 
+                switch($iMenuId) // type of menu in which to add menu items
+                {
+                        /**
+                         * Insert an item into the Actions menu of a list
+                         *
+                         * $param is a DBObjectSet containing the list of objects       
+                         */      
+                        case iPopupMenuExtension::MENU_OBJLIST_ACTIONS:
+							break;
+ 
+                        /**
+                         * Insert an item into the Toolkit menu of a list
+                         *
+                         * $param is a DBObjectSet containing the list of objects
+                         */      
+                        case iPopupMenuExtension::MENU_OBJLIST_TOOLKIT:
+							break;
+ 
+                        /**
+                         * Insert an item into the Actions menu on an object's details page
+                         *
+                         * $param is a DBObject instance: the object currently displayed
+                         */      
+                        case iPopupMenuExtension::MENU_OBJDETAILS_ACTIONS:
+							// For any object, add a menu "Google this..." that opens google search in another window
+							// with the name of the object as the text to search
+							
+							// Only for objects with features (if none specified yet, don't show menu. 'Other actions' is not shown when modifying.)
+							
+							// Get list of attributes
+							$aAttributeList = Metamodel::GetAttributesList(get_class($param));
+							
+							if( in_array('geom', $aAttributeList) == true ) {
+								if( $param->Get('geom') != '' ) {
+								
+									// Add a separator
+									$aResult[] = new SeparatorPopupMenuItem(); // Note: separator does not work in iTop 2.0 due to Trac #698, fixed in 2.0.1
+	 
+									// Add a new menu item that triggers a custom JS function defined in our own javascript file: js/sample.js
+									$sModuleDir = basename(dirname(__FILE__));
+									$sJSFileUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/js/geometry-actions.js';
+									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler_Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
+	 
+								}
+							}
+							break;
+ 
+                        /**
+                         * Insert an item into the Dashboard menu
+                         *
+                         * The dashboad menu is shown on the top right corner of the page when
+                         * a dashboard is being displayed.
+                         * 
+                         * $param is a Dashboard instance: the dashboard currently displayed
+                         */      
+                        case iPopupMenuExtension::MENU_DASHBOARD_ACTIONS:
+							break;
+ 
+                        /**
+                         * Insert an item into the User menu (upper right corner of the page)
+                         *
+                         * $param is null
+                         */
+                        case iPopupMenuExtension::MENU_USER_ACTIONS:
+							break;
+ 
+                }
+                return $aResult;
+        }
+}

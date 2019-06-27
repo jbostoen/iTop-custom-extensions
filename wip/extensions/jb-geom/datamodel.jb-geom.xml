@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5">
-
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
 	<classes>
 		<class id="Location">
-
 			<fields> 
 				<!-- takes up to 64kb -->
 				<field id="geom" xsi:type="AttributeText" _delta="define">
@@ -12,8 +10,6 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 			</fields>
-
-
 			<presentation>
 				<details>
 					<items> 
@@ -23,12 +19,8 @@
 					</items>
 				</details>
 			</presentation>
-
 		</class>
-		
-
-		<class id="UserRequest"> 
-
+		<class id="UserRequest">
 			<fields> 
 				<!-- takes up to 64kb -->
 				<field id="geom" xsi:type="AttributeText" _delta="define">
@@ -37,8 +29,6 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 			</fields>
-
-
 			<presentation>
 				<details>
 					<items> 
@@ -48,39 +38,34 @@
 					</items>
 				</details>
 			</presentation>
-
 		</class>
-		
 	</classes>
-	
 	<module_parameters>
 		<parameters id="jb-geom" _delta="define">
-		
 			<!-- Parameters are case sensitive! -->
-			
 			<!-- Defaults -->
 			<default>
-				<dataformat type="string" _delta="define">WKT</dataformat> <!-- WKT or GeoJSON -->
+				<!-- Dataformat. Features are stored in this format. WKT or GeoJSON -->
+				<dataformat type="string" _delta="define">WKT</dataformat>
+				<!-- Data CRS. Features are stored in this CRS. Often EPSG:3857 (CRS used by Google Maps, OpenStreetMap WMS) or EPSG:4326 (GeoJSON. CRS used by Google Earth, OpenStreetMap database) -->
 				<datacrs type="string" _delta="define">EPSG:3857</datacrs>
+				<!-- Currently allowed datatypes are Point, LineString and Polygon. SinglePoint versions, MultiPoint is currently unsupported. -->
 				<datatypes type="array" _delta="define">
 					<datatype id="0">Point</datatype>
 					<datatype id="1">LineString</datatype>
 					<datatype id="2">Polygon</datatype>
 				</datatypes>
-				<mapcrs type="string" _delta="define">EPSG:3857</mapcrs>				
+				<!-- CRS in which the map is displayed -->
+				<mapcrs type="string" _delta="define">EPSG:3857</mapcrs>		
+				<!-- Where the map is centered by default (when there's no feature yet) -->		
 				<mapcenter type="array" _delta="define">
 					<coord id="0">358652.11242031807</coord>
 					<coord id="1">6606360.84951076</coord>
 				</mapcenter>
+				<!-- Map zoom level -->
 				<mapzoom type="int" _delta="define">17</mapzoom>
 			</default>
-			
-			<!-- Class specific, but write in lowercase (XML convention). All parameters above can be used in a node called <classname/> -->
-			
-			
+			<!-- Class specific options can be set. All parameters above can be used in a node at this level called <classname/> -->
 		</parameters>
 	</module_parameters>
-	 
 </itop_design>
-
-

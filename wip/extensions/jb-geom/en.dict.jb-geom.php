@@ -1,5 +1,5 @@
 <?php
-// Copyright (C) 2010-2013 Combodo SARL
+// Copyright (C) 2019 Jeffrey Bostoen
 //
 //   This program is free software; you can redistribute it and/or modify
 //   it under the terms of the GNU Lesser General Public License as published by
@@ -26,8 +26,10 @@ Dict::Add('EN US', 'English', 'English', array(
 	// Geometry types
 	'UI:Geom:Point' => 'Point',
 	'UI:Geom:LineString' => 'LineString',
-	'UI:Geom:Polygon' => 'Polygon'
+	'UI:Geom:Polygon' => 'Polygon',
 	
+	'UI:Geom:Menu:ShowOpenStreetMap' => 'Show on OpenStreetMap',
+	'UI:Geom:Menu:CopyAsGeoJSON' => 'Copy object as GeoJSON',
 	
 ));
 

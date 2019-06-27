@@ -34,7 +34,7 @@
 			
 			MetaModel::Init_SetZListItems('list', array('name', 'status', 'test_url', 'production_url')); // Attributes to be displayed for a list
 			// Search criteria
-			MetaModel::Init_SetZListItems('standard_search', array('name','description', 'status', 'subject')); // Criteria of the std search form
+			MetaModel::Init_SetZListItems('standard_search', array('name','description', 'status')); // Criteria of the std search form
 			MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
 		}
 
@@ -221,9 +221,9 @@
 			MetaModel::Init_SetZListItems('details', array('date', 'userinfo', 'url')); // Attributes to be displayed for the complete details
 			MetaModel::Init_SetZListItems('list', array('date', 'url')); // Attributes to be displayed for a list
 
-			// Search criteria
-			MetaModel::Init_SetZListItems('standard_search', array('name')); // Criteria of the std search form
-			MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
+			// Search criteria. Copied from EventNotificationEmail, but 'name' is not defined.
+			// MetaModel::Init_SetZListItems('standard_search', array('name')); // Criteria of the std search form
+			// MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
 		}
 
 	}
