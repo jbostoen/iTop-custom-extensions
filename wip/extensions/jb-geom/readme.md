@@ -14,6 +14,9 @@ PHP:
 * how to add a CSS style, a CSS stylesheet, additional JavaScript libraries, JavaScript and HTML code
 * ...
 
+JS:
+* copy object with its geometry to GeoJSON (clipboard)
+
 # Configuration
 In the iTop configuration, you can find settings to adjust these options.
 It's possible to specify both defaults or class specific settings.
@@ -24,6 +27,8 @@ It's possible to specify both defaults or class specific settings.
 * mapcrs: String. Specifies the CRS in which the map is displayed. Example: 'EPSG:3857'
 * mapcenter: Array of coordinates. Centers the map to this point, if no feature has been drawn yet (otherwise it will center to the feature).
 * mapzoom: Integer. Zoom level.
+
+A cookie remembers for 30 days the last chosen basemap - per user, per class.
 
 # Limitations
 * currently 1 feature per object

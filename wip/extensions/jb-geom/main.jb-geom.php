@@ -92,14 +92,14 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 		
 		// Get list of attributes
 		$aAttributeList = Metamodel::GetAttributesList(get_class($oObject));
-	
+		
 		// If attribute exists
 		if( in_array('geom', $aAttributeList) == true ) {		
 		
 			// Module settings, defaults.
 			$aGeomSettings = MetaModel::GetModuleSetting('jb-geom', 'default', array( 
 				'datacrs' => 'EPSG:3857',
-				'datatypes' => array('Point','LineString','Polygon'),
+				'datatypes' => array('Point', 'LineString', 'Polygon'),
 				'mapcrs' => 'EPSG:3857',
 				'mapcenter' => array( 358652.11242031807, 6606360.84951076 ),
 				'mapzoom' => 17,
@@ -119,22 +119,37 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 			
 			$sGeomString = ( $aGeomSettings['dataformat'] == 'GeoJSON' ? addcslashes($oObject->Get('geom'), '"') : $oObject->Get('geom') ); 
 			
+			// Get path to ajax.handler.php
+			$sModuleDir = basename(dirname(__FILE__));
+			$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax.handler.php';
+			
+			// Does a cookie exist with a preferred basemap for this class for this user?
+			$sDefaultBaseMap = 'osm';
+			$sCookieName = 'itop_geometryHandler_basemap_used_for_'.get_class($oObject);
+			if(isset($_COOKIE[$sCookieName]) == true ) {
+				// Renew for another 30 days
+				setcookie($sCookieName, $_COOKIE[$sCookieName], time()+3600*24*30, '/');
+				$sDefaultBaseMap = $_COOKIE[$sCookieName];
+			}
+			
 			$sTabName = Dict::S('Location:Geometry');
 			$oPage->SetCurrentTab($sTabName); 
 			
 			$oPage->add_linked_stylesheet('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css');
 			$oPage->add_linked_script('https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js');
 			
+			// osm = Open Street Map
+			// grb = Grootschalig Referentiebestand, a Flemish webservice
 			$oPage->add('
-				<select id="geomMap">
-					<option value="osm">OpenStreetMap</option>
-					<option value="grb">GRB</option>
+				<select id="geometryHandlerBaseMap">
+					<option value="osm"'.($sDefaultBaseMap == 'osm' ? 'selected' : '').'>OpenStreetMap</option>
+					<option value="grb"'.($sDefaultBaseMap == 'grb' ? 'selected' : '').'>GRB</option>
 				</select>
 			');
 				
 			if( $bEditMode ) {
 				$oPage->add('| 
-					<select id="geomType">
+					<select id="geometryHandlerType">
 				');
 
 				foreach( $aGeomSettings['datatypes'] as $sDataType => $sDataValue ){
@@ -143,7 +158,7 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 						
 				$oPage->add('
 					</select>
-					<div class="actions_button" id="geomClear"><a href="javascript:void(0);">'.Dict::S('UI:Geom:Clear').'</a></div> | 
+					<div class="actions_button" id="geometryHandlerClear"><a href="javascript:void(0);">'.Dict::S('UI:Geom:Clear').'</a></div> | 
 				');
 					
 			}
@@ -153,7 +168,7 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 <<<EOF
 
 				.ol-map {
-					// Fix difference in color between regular size (slightly darker) and full screen (dark)
+					/* Fix difference in color between regular size (slightly darker) and full screen (dark) */
 					background-color: white;
 				}
 					
@@ -176,35 +191,45 @@ EOF
 			);
 			
 			$oPage->add(
-				'<hr>'.
-				'<div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>
-			');
-
+<<<EOF
+				<hr>
+				<div id="ol-map" class="ol-map" style="width: 100%; height: 500px;"></div>
+				<textarea id="geometryHandler_GeoJSON" style="height: 1px; max-height: 1px; min-height: 1px; width: 1px; max-width: 1px; min-width: 1px; display: none;"></textarea>
+EOF
+			);
+			
+			// Gather feature properties
+			$aAttributeValues = Array();
+			foreach($aAttributeList as $aAttribute) {
+				$aAttributeValues[$aAttribute] = $oObject->Get($aAttribute);
+			}
+			
 			// 'add_script' is also a method
 			// Be careful what EPSG to select!
 			// Detect if Geometry was saved in GeoJSON or WKT
-			// for geomHandler.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
+			// for geometryHandler.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 			$oPage->add_ready_script('
 				 
 				// Geom for ' . get_class($oObject) .'
 				  
-				geomHandler = {};
-				geomHandler.oFormat = {
+				geometryHandler = {};
+				geometryHandler.oFormat = {
 					WKT: new ol.format.WKT(),
 					GeoJSON: new ol.format.GeoJSON()
 				};
-				geomHandler.oFeatures = [];
-				geomHandler.oFeature = ( "'.$sGeomString.'" != "" ? geomHandler.oFormat.'.( preg_match('/^{"type":.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
+				geometryHandler.oFeatures = [];
+				geometryHandler.oFeature = ( "'.$sGeomString.'" != "" ? geometryHandler.oFormat.'.( preg_match('/^{"type":.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
+				geometryHandler.oFeature.setProperties('. json_encode($aAttributeValues).');
 				
-				if( geomHandler.oFeature !== null ) {
-					geomHandler.oFeatures.push( geomHandler.oFeature );
+				if( geometryHandler.oFeature !== null ) {
+					geometryHandler.oFeatures.push( geometryHandler.oFeature );
 				}
 				
-				geomHandler.oVectorSource = new ol.source.Vector({ 
-					features: geomHandler.oFeatures
+				geometryHandler.oVectorSource = new ol.source.Vector({ 
+					features: geometryHandler.oFeatures
 				});
 
-				geomHandler.oSharedStyle = new ol.style.Style({
+				geometryHandler.oSharedStyle = new ol.style.Style({
 					fill: new ol.style.Fill({
 						color: "rgb(6,80,140, 0.25)"
 					}),
@@ -224,7 +249,7 @@ EOF
 					})
 				});
 				
-				geomHandler.aLayers = {
+				geometryHandler.aLayers = {
 					osm: new ol.layer.Tile({
 						source: new ol.source.OSM(),
 						opacity: 0.5
@@ -240,33 +265,33 @@ EOF
 						opacity: 0.5
 					}),
 					vector: new ol.layer.Vector({ 
-						source: geomHandler.oVectorSource, 
-						style: geomHandler.oSharedStyle
+						source: geometryHandler.oVectorSource, 
+						style: geometryHandler.oSharedStyle
 					})
 					
 				}
 				
-				if( geomHandler.oFeature === null ) {
-					geomHandler.oCenter = [ '.$aGeomSettings['mapcenter'][0].', '.$aGeomSettings['mapcenter'][1].' ];
+				if( geometryHandler.oFeature === null ) {
+					geometryHandler.oCenter = [ '.$aGeomSettings['mapcenter'][0].', '.$aGeomSettings['mapcenter'][1].' ];
 				}
 				else {
 					
-					geomHandler.aExtent = geomHandler.aLayers.vector.getSource().getExtent();
-					geomHandler.oCenter = [ 
-						( geomHandler.aExtent[0] + geomHandler.aExtent[2] ) / 2,
-						( geomHandler.aExtent[1] + geomHandler.aExtent[3] ) / 2,
+					geometryHandler.aExtent = geometryHandler.aLayers.vector.getSource().getExtent();
+					geometryHandler.oCenter = [ 
+						( geometryHandler.aExtent[0] + geometryHandler.aExtent[2] ) / 2,
+						( geometryHandler.aExtent[1] + geometryHandler.aExtent[3] ) / 2,
 					];
 				}
 				// Center: EPSG:3857 - [ 358652.11242031807, 6606360.84951076 ]
-				geomHandler.oMap = new ol.Map({
+				geometryHandler.oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
 						// the last layer you add, is on top.
-						geomHandler.aLayers.osm,
-						geomHandler.aLayers.vector 
+						geometryHandler.aLayers.' . $sDefaultBaseMap . ',
+						geometryHandler.aLayers.vector 
 					],
 					view: new ol.View({
-						center: geomHandler.oCenter,
+						center: geometryHandler.oCenter,
 						zoom: "'.$aGeomSettings['mapzoom'].'",
 						projection: "'.$aGeomSettings['mapcrs'].'"
 					}),
@@ -274,17 +299,16 @@ EOF
 				});
 				
 				// Full screen option
-				geomHandler.oMap.addInteraction
+				geometryHandler.oMap.addInteraction
 				
 				// Auto-adjust zoom
-				if( geomHandler.oFeature ) {
+				if( geometryHandler.oFeature ) {
 					
 					// Workaround to keep zoom
-					geomHandler.oResolution = geomHandler.oMap.getView().getResolution();
-					geomHandler.oMap.getView().fit( geomHandler.aExtent, geomHandler.oMap.getSize() );
-					geomHandler.oMap.getView().setResolution(geomHandler.oResolution);
+					geometryHandler.oResolution = geometryHandler.oMap.getView().getResolution();
+					geometryHandler.oMap.getView().fit( geometryHandler.aExtent, geometryHandler.oMap.getSize() );
+					geometryHandler.oMap.getView().setResolution(geometryHandler.oResolution);
 				}
-				
 			
 				// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.
 				// Could this have to do with iTop tab behavior? Further investigation needed, only seems to work on second click now (might just appear to do so). 
@@ -292,7 +316,7 @@ EOF
 				// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
 				// The tab container  
 				$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){
-					setTimeout( function(){ geomHandler.oMap.updateSize(); }, 1000);
+					setTimeout( function(){ geometryHandler.oMap.updateSize(); }, 1000);
 				});			
 					 
 				// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
@@ -301,20 +325,29 @@ EOF
 								 
 				// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
 				$(document).ready(function(){
-					setTimeout( function(){ geomHandler.oMap.updateSize(); }, 1000 );
+					setTimeout( function(){ geometryHandler.oMap.updateSize(); }, 1000 );
 				});
 				
 				// Change background map
-				$(document.body).on("change", "#geomMap", function(e) {
+				$(document.body).on("change", "#geometryHandlerBaseMap", function(e) {
 					
-					geomHandler.oMap.getLayers().clear();
-					geomHandler.oMap.addLayer( geomHandler.aLayers[$("#geomMap").val()] );
-					geomHandler.oMap.addLayer( geomHandler.aLayers.vector );
+					geometryHandler.oMap.getLayers().clear();
+					geometryHandler.oMap.addLayer( geometryHandler.aLayers[$("#geometryHandlerBaseMap").val()] );
+					geometryHandler.oMap.addLayer( geometryHandler.aLayers.vector );
 					
-					if( typeof ol_configDrawMode !== "undefined") {
+					if( typeof geometryHandler.ConfigureDrawMode !== "undefined") {
 						// Re-add interactions
-						ol_configDrawMode();
+						geometryHandler.ConfigureDrawMode();
 					}
+					
+					// For user convience, save basemap
+					$.post("'.$sAjaxHandlerUrl.'", { 
+						action: "remember_last_used_basemap", 
+						data: { 
+							basemap: $("#geometryHandlerBaseMap").val(),
+							class: "' . get_class($oObject) . '"
+						}
+					});
 					
 				});
 				
@@ -336,99 +369,98 @@ EOF
 					
 					// OpenLayers - Editing allows extra interactions.
 					
-					geomHandler.oDeleteCondition = function(mapBrowserEvent) {
+					geometryHandler.oDeleteCondition = function(mapBrowserEvent) {
 						return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.shiftKeyOnly(mapBrowserEvent)
 					};
 					
 					// Modify has a deleteCondition, but it does not work with Points. 
 					// It only works with vertex = where two lines meet.
-					geomHandler.oModify = new ol.interaction.Modify({ 
-						source: geomHandler.aLayers.vector.getSource(),
-						deleteCondition: geomHandler.oDeleteCondition
+					geometryHandler.oModify = new ol.interaction.Modify({ 
+						source: geometryHandler.aLayers.vector.getSource(),
+						deleteCondition: geometryHandler.oDeleteCondition
 					});
 					
-					geomHandler.oDraw = new ol.interaction.Draw({
-						source: geomHandler.aLayers.vector.getSource(),
-						type: $("#geomType").val(),
-						style: geomHandler.oSharedStyle
+					geometryHandler.oDraw = new ol.interaction.Draw({
+						source: geometryHandler.aLayers.vector.getSource(),
+						type: $("#geometryHandlerType").val(),
+						style: geometryHandler.oSharedStyle
 					});
 					
-					geomHandler.oSnap = new ol.interaction.Snap({
-						source: geomHandler.aLayers.vector.getSource()
+					geometryHandler.oSnap = new ol.interaction.Snap({
+						source: geometryHandler.aLayers.vector.getSource()
 					});
 					
-					geomHandler.oSelect = new ol.interaction.Select({
-						condition: geomHandler.oDeleteCondition
+					geometryHandler.oSelect = new ol.interaction.Select({
+						condition: geometryHandler.oDeleteCondition
 					});
 					
 					// Add interactions 
-					geomHandler.oMap.addInteraction( geomHandler.oDraw );
-					geomHandler.oMap.addInteraction( geomHandler.oModify );
-					geomHandler.oMap.addInteraction( geomHandler.oSnap );
-					// geomHandler.oMap.addInteraction( geomHandler.oSelect );		
+					geometryHandler.oMap.addInteraction( geometryHandler.oDraw );
+					geometryHandler.oMap.addInteraction( geometryHandler.oModify );
+					geometryHandler.oMap.addInteraction( geometryHandler.oSnap );
+					// geometryHandler.oMap.addInteraction( geometryHandler.oSelect );		
 					  
-					$("body").on("click", "#geomClear", function(e){
+					$("body").on("click", "#geometryHandlerClear", function(e){
 					
 						// Remove
-						geomHandler.oFeature = null;
-						geomHandler.aLayers.vector.getSource().clear();
+						geometryHandler.oFeature = null;
+						geometryHandler.aLayers.vector.getSource().clear();
 														
 						// Save in geom field 
 						$("textarea[name=\'attr_geom\']").val("");
 						
 					});
 					
-					$("#geomType").on("change", function(e){
+					$("#geometryHandlerType").on("change", function(e){
 		
-						ol_configDrawMode();
+						geometryHandler.ConfigureDrawMode();
 						
 					});
 						 
 					// Get last drawn geometry type
-					if( geomHandler.oFeature ) {
-						$("#geomType").val( geomHandler.oFeature.getGeometry().getType() );
+					if( geometryHandler.oFeature ) {
+						$("#geometryHandlerType").val( geometryHandler.oFeature.getGeometry().getType() );
 					}
-					
-					// Always configure draw mode
-					ol_configDrawMode();
-					
 				
-					function ol_configDrawMode() {
+					geometryHandler.ConfigureDrawMode = function() {
 					
-						geomHandler.oMap.removeInteraction( geomHandler.oDraw );
+						geometryHandler.oMap.removeInteraction( geometryHandler.oDraw );
 					
-						geomHandler.oDraw = new ol.interaction.Draw({
-							source: geomHandler.aLayers.vector.getSource(),
-							type: $("#geomType").val(),
-							style: geomHandler.oSharedStyle
+						geometryHandler.oDraw = new ol.interaction.Draw({
+							source: geometryHandler.aLayers.vector.getSource(),
+							type: $("#geometryHandlerType").val(),
+							style: geometryHandler.oSharedStyle
 						});
 						
-						geomHandler.oDraw.on("drawstart", function(e){
+						geometryHandler.oDraw.on("drawstart", function(e){
 							
 							// Remove modify, will cause issues when user double-clicks to set new point
-							geomHandler.oMap.removeInteraction( geomHandler.oModify );
+							geometryHandler.oMap.removeInteraction( geometryHandler.oModify );
 							
 							// Clear previous features
-							geomHandler.aLayers.vector.getSource().clear();
+							geometryHandler.aLayers.vector.getSource().clear();
 							
 							// Add modify again
-							geomHandler.oMap.addInteraction( geomHandler.oModify );
+							geometryHandler.oMap.addInteraction( geometryHandler.oModify );
 														
 						});
 						
-						geomHandler.oDraw.on("drawend", function(e){
+						geometryHandler.oDraw.on("drawend", function(e){
 							
 							var f = e.feature;
 							
 							// Save in geom field 
-							$("textarea[name=\'attr_geom\']").val( geomHandler.oFormat.'.$aGeomSettings['dataformat'].'.writeGeometry(f.getGeometry()) );
+							$("textarea[name=\'attr_geom\']").val( geometryHandler.oFormat.'.$aGeomSettings['dataformat'].'.writeGeometry(f.getGeometry()) );
 														
 						}); 
 						
-						geomHandler.oMap.addInteraction( geomHandler.oDraw );
+						geometryHandler.oMap.addInteraction( geometryHandler.oDraw );
 						
 					}
 			
+					// Always configure draw mode
+					geometryHandler.ConfigureDrawMode();
+					
 				');
 			}
 		}
@@ -517,6 +549,7 @@ class cPopupMenuExtension_GeometryHandler implements iPopupMenuExtension
 									$sModuleDir = basename(dirname(__FILE__));
 									$sJSFileUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/js/geometry-actions.js';
 									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler_Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
+									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Copy_As_GeoJSON', /* $sLabel */ Dict::S('UI:Geom:Menu:CopyAsGeoJSON'), /* $sJSCode */ 'geometryHandler_Copy_As_GeoJSON()', /* $aIncludeJSFiles */ array($sJSFileUrl));
 	 
 								}
 							}
