@@ -68,4 +68,19 @@
 			<!-- Class specific options can be set. All parameters above can be used in a node at this level called <classname/> -->
 		</parameters>
 	</module_parameters>
+	<meta>
+		<!-- Meta is for ITSM Designer -->
+		<dashlets>
+			<dashlet id="DashletMapOverview" _delta="define">
+				<label>Map Overview</label>
+				<icon>jb-geom/images/map.png</icon>
+				<description>A map showing items of a specified class.</description>
+				<configuration>
+					<url>http://via.placeholder.com/600x300</url>
+					<width>600</width>
+					<height>300</height>
+				</configuration>
+			</dashlet>
+		</dashlets>
+	</meta>
 </itop_design>
