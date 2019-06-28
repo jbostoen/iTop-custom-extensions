@@ -31,6 +31,14 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:Geom:Menu:ShowOpenStreetMap' => 'Show on OpenStreetMap',
 	'UI:Geom:Menu:CopyAsGeoJSON' => 'Copy object as GeoJSON',
 	
+	// Dashlet
+	'UI:DashletMapOverview:Label' => 'Map Overview',
+	'UI:DashletMapOverview:Description' => 'A map showing items of a specified class',
+	'UI:DashletMapOverview:Prop-Title' => 'Title',
+	'UI:DashletMapOverview:Prop-Query' => 'Query',
+	'UI:DashletMapOverview:Prop-Height' => 'Height (px)',
+	'UI:DashletMapOverview:Prop-LabelFeature' => 'Label feature',
+	
 ));
 
 

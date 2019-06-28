@@ -31,6 +31,13 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'UI:Geom:Menu:ShowOpenStreetMap' => 'Toon op OpenStreetMap',
 	'UI:Geom:Menu:CopyAsGeoJSON' => 'Kopieer object als GeoJSON',
 	
+	// Dashlet
+	'UI:DashletMapOverview:Label' => 'Overzichtkaart',
+	'UI:DashletMapOverview:Description' => 'Een kaart die het overzicht toont van een reeks objecten',
+	'UI:DashletMapOverview:Prop-Title' => 'Titel',
+	'UI:DashletMapOverview:Prop-Query' => 'Query',
+	'UI:DashletMapOverview:Prop-Height' => 'Hoogte (px)',
+	'UI:DashletMapOverview:Prop-LabelFeature' => 'Label object',
 ));
 
 

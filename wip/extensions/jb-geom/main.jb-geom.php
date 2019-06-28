@@ -98,15 +98,15 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 		
 			// Module settings, defaults.
 			$aGeomSettings = MetaModel::GetModuleSetting('jb-geom', 'default', array( 
+				'dataformat' => 'WKT',
 				'datacrs' => 'EPSG:3857',
 				'datatypes' => array('Point', 'LineString', 'Polygon'),
 				'mapcrs' => 'EPSG:3857',
 				'mapcenter' => array( 358652.11242031807, 6606360.84951076 ),
 				'mapzoom' => 17,
-				'format' => 'WKT'
 			)); 
 			
-			// Module settings, specifics. In XML, most nodes seem to start with a non-capital.
+			// Module settings, class specifics. In XML, most nodes seem to start with a non-capital.
 			if( MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), '') != '') {
 				
 				$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), array() ); 
@@ -217,16 +217,16 @@ EOF
 					WKT: new ol.format.WKT(),
 					GeoJSON: new ol.format.GeoJSON()
 				};
-				geometryHandler.oFeatures = [];
-				geometryHandler.oFeature = ( "'.$sGeomString.'" != "" ? geometryHandler.oFormat.'.( preg_match('/^{"type":.*/', $sGeomString) == true ? 'GeoJSON' : 'WKT' ).'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
+				geometryHandler.aFeatures = [];
+				geometryHandler.oFeature = ( "'.$sGeomString.'" != "" ? geometryHandler.oFormat.'.$aGeomSettings['dataformat'].'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
 				geometryHandler.oFeature.setProperties('. json_encode($aAttributeValues).');
 				
 				if( geometryHandler.oFeature !== null ) {
-					geometryHandler.oFeatures.push( geometryHandler.oFeature );
+					geometryHandler.aFeatures.push( geometryHandler.oFeature );
 				}
 				
 				geometryHandler.oVectorSource = new ol.source.Vector({ 
-					features: geometryHandler.oFeatures
+					features: geometryHandler.aFeatures
 				});
 
 				geometryHandler.oSharedStyle = new ol.style.Style({
@@ -297,9 +297,6 @@ EOF
 					}),
 					controls: ol.control.defaults().extend([ new ol.control.FullScreen() ])
 				});
-				
-				// Full screen option
-				geometryHandler.oMap.addInteraction
 				
 				// Auto-adjust zoom
 				if( geometryHandler.oFeature ) {

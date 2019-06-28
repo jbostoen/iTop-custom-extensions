@@ -25,7 +25,8 @@ SetupWebPage::AddModule(
 		//
 		'datamodel' => array(
 			'model.jb-geom.php',
-			'main.jb-geom.php'
+			'main.jb-geom.php',
+			'dashlet.jb-geom.php',
 		),
 		'webservice' => array(
 			
