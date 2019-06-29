@@ -1,4 +1,7 @@
-# Last updated: 20181205-2037
+# copyright   Copyright (C) 2019 Jeffrey Bostoen
+# license     https://www.gnu.org/licenses/gpl-3.0.en.html
+# version     2018-12-05 20:37
+
 # Will create a copy of the files in the template, replacing some stuff.
 
 $extName = Read-Host "`n`nInternal name?`nExample: prefix-class-className-what-changed`n";
@@ -7,7 +10,7 @@ $extLabel = Read-Host "`n`nLabel?`nExamples:`n- Class: UserRequest - add origin:
 
 $extVersionDescription = ""; 									# Version info, if used.
 
-$extAuthor = "jbostoen";										# Author
+$extAuthor = "Jeffrey Bostoen";									# Author
 $extCompany = "";												# Company
 $extVersionMin = "2.6.0";										# Min version of iTop
 $extVersion = "2.6.$(Get-Date -format 'yyMMdd')";				# Version of this extension
@@ -48,6 +51,7 @@ $files | ForEach-Object {
 	$c = $c.replace('{{ extVersionMin }}', $extVersionMin);
 	$c = $c.replace('{{ extVersion }}', $extVersion);
 	$c = $c.replace('{{ extReleaseDate }}', $extReleaseDate);
+	$c = $c.replace('{{ extYear }}', $(Get-Date -Format 'yyyy') );
 	
 	$c | Set-Content "$($extName)\$($_.Name)"
 }

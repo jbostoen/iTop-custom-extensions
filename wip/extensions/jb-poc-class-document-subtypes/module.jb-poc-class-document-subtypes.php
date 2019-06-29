@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
         array(
                 // Identification
                 //
-                'label' => 'Class: Document - Makes Document abstracts, adds sub-types',
+                'label' => 'Datamodel: Document - Makes Document abstracts, adds sub-types',
                 'category' => 'business',
 
                 // Setup

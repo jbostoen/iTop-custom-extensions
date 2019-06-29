@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<classes>
+		<class id="NormalChange">
+			<lifecycle>
+				<states>
+					<state id="validated">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already validated -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="assigned">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already assigned -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="plannedscheduled">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already plannedscheduled -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="approved">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already approved -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="notapproved">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already notapproved -->
+							<!-- notapproved is different because it simply rejects the approval, not the entire change, and goes back to plannedscheduled -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="implemented">
+						<flags>
+							<!-- Prevent NormalChange's title becoming read-only when the state changes to implemented. -->
+							<attribute id="title">
+								<read_only _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+					<state id="closed">
+						<flags>
+							<!-- Prevent NormalChange's private_log becoming read-only when the state changes to closed. -->
+							<attribute id="private_log">
+								<read_only _delta="delete"/>
+							</attribute>
+						</flags>  
+					</state>
+				</states>
+			</lifecycle>
+		</class>
+		<class id="RoutineChange">
+			<lifecycle>
+				<states>
+					<state id="assigned">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already assigned -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="plannedscheduled">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already plannedscheduled -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="approved">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already approved -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="notapproved">
+						<transitions>
+							<!-- Allow transition to 'reject' even when already notapproved -->
+							<!-- notapproved is different because it simply rejects the approval, not the entire change, and goes back to planned_and_scheduled -->
+							<transition id="ev_reject" _delta="define">
+								<target>rejected</target>
+								<actions/>
+							</transition>
+						</transitions>
+					</state>
+					<state id="implemented">
+						<flags>
+							<!-- Prevent RoutineChange's title becoming read-only when the state changes to implemented. -->
+							<attribute id="title">
+								<read_only _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+					<state id="closed">
+						<flags>
+							<!-- Prevent RoutineChange's private_log becoming read-only when the state changes to closed. -->
+							<attribute id="private_log">
+								<read_only _delta="delete"/>
+							</attribute>
+						</flags>  
+					</state>
+				</states>
+			</lifecycle>
+		</class>
+		<class id="EmergencyChange">
+			<lifecycle>
+				<states>
+					<state id="implemented">
+						<flags>
+							<!-- Prevent EmergencyChange's title becoming read-only when the state changes to implemented. -->
+							<attribute id="title">
+								<read_only _delta="redefine">false</read_only>
+							</attribute>
+						</flags>
+					</state>
+					<state id="closed">
+						<flags>
+							<!-- Prevent EmergencyChange's private_log becoming read-only when the state changes to closed. -->
+							<attribute id="private_log">
+								<read_only _delta="redefine">false</read_only>
+							</attribute>
+						</flags>
+					</state>
+				</states>
+			</lifecycle>
+		</class>
+		<class id="Change">
+			<methods>
+				<!-- 
+					Prevent automatically computed impacted items from being linked to this class.
+					This does not modify the tab Impact Analysis, which will work exactly like before.
+					
+					There used to be modifications to the OnInsert() and OnUpdate() methods of a Change.
+					However, there were also some other minor changes by Combodo in between iTop versions. 
+					Nowadays it seems easier to give this class its own harmless UpdateImpactedItems() method.
+					UpdateImpactedItems() is inherited from the Ticket class.
+				-->
+				<method id="UpdateImpactedItems" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[
+						public function UpdateImpactedItems()
+						{
+							// Do nothing
+						}]]>
+					</code>
+				</method>
+			</methods> 
+		</class>
+	</classes>
+</itop_design>

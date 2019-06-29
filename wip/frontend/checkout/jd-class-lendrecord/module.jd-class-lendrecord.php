@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Class: LendRecord, a system to log who used which tools and/or vehicles and when.',
+		'label' => 'Datamodel: LendRecord, a system to log who used which tools and/or vehicles and when.',
 		'category' => 'business',
 
 		// Setup

@@ -1,6 +1,14 @@
 <?php
 	
-class DashletMapOverview extends Dashlet
+/**
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * Defines cDashletMapOverview
+ */
+ 
+class cDashletMapOverview extends Dashlet
 {
 		/**
 		* Dashlet constructor.

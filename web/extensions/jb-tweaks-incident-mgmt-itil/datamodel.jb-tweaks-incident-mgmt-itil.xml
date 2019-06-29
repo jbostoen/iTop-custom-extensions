@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<classes>
+		<class id="Incident">
+			<methods>
+				<!-- 
+					Prevent automatically computed impacted items from being linked to this class.
+					This does not modify the tab Impact Analysis, which will work exactly like before.
+					
+					There used to be modifications to the OnInsert() and OnUpdate() methods of a Change.
+					However, there were also some other minor changes by Combodo in between iTop versions. 
+					Nowadays it seems easier to give this class its own harmless UpdateImpactedItems() method.
+					UpdateImpactedItems() is inherited from the Ticket class.
+				-->
+				<method id="UpdateImpactedItems" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[
+						public function UpdateImpactedItems()
+						{
+							// Do nothing
+						}]]>
+					</code>
+				</method>
+			</methods>
+		</class>
+	</classes>
+</itop_design>

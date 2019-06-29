@@ -1,24 +1,15 @@
 <?php
+
 /**
- * Localized data
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * Localized data
  */
 
 Dict::Add('EN US', 'English', 'English', array(
 
-    //    'Class:SomeClass/Attribute:some_attribute/Value:some_value' => 'your translation',
-    //    'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for a tooltip',
-	
 	'UI:Menu:ReportGenerator:ShowReport' => 'Show report',
 	'UI:Menu:ReportGenerator:ShowReportTitleMissing' => htmlspecialchars('<title>').'-tag is missing'
 	
-	
 ));
-
-
-
-?>
-
-

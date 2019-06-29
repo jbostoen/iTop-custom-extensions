@@ -1,10 +1,12 @@
 <?php
 
 /**
- *  Defines new popup menus where applicable.
- *  This file should be under <iTop/web>/extensions/extname
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * PHP Main file
  */
- 
 
 /**
  *  Class menuExtensionReportGenerator. Adds items to popup menu of to 'Details' view, to generate reports.
@@ -12,38 +14,33 @@
 class menuExtensionReportGenerator implements iPopupMenuExtension
 {
 	
-	
 	public static function EnumItems($iMenuId, $param)
 	{
 		
 		// For easier reference: $param contains the iTop object.
 		$oObject = $param;
-	   
 	
 		// Array for items to be returend 
 		$aMenuItems = array();
 		
-		
 		// New window/popup? 
-		$sTarget = "_BLANK";
-		
+		$sTarget = '_BLANK';
+		$sModuleDir = basename(dirname(__FILE__));
 		
 		if ($iMenuId == self::MENU_OBJDETAILS_ACTIONS)
 		{
 		  
 			// The actual object of which details are displayed
 			$oObject = $param;
-			 
-			 
+			
 			// Where are reports located?		
-			$sClassReportDir = APPROOT . '/env-production/jb-reportgen/templates/'. get_class($oObject);
+			$sClassReportDir = APPROOT . '/env-production/'.$sModuleDir.'/templates/'. get_class($oObject);
 			
 			// Get HTML (Twig) template names; search for <title> tag which will be used to generate report.
 			// This also means we won't need to do an 'instanceof'. 
 			// Currently not considering abstract (parent) classes.
 			$aReportFiles = glob( $sClassReportDir . '/details/*.{html,twig}' , GLOB_BRACE );
 			
-			 
 			// For each of those classes, check which reports are available 
 			foreach( $aReportFiles as $sReportFile ) 
 			{
@@ -67,16 +64,13 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
 				}
 				
 				// UID must simply be unique. Keep alphanumerical version of filename.
-				$sUID = 'jb-reportgen-' . preg_replace('/[^\da-z]/i', '',  basename($sReportFile)) . '-' . rand(0, 10000);
+				$sUID = $sModuleDir.'-' . preg_replace('/[^\da-z]/i', '',  basename($sReportFile)) . '-' . rand(0, 10000);
 				
 				// URL should give our generator the location of the report (folder/report) and the ID of the object
 				// type=Object is to allow 'showReport.php' to also include lists in the future.
-				$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/jb-reportgen/showreport.php?type=details&class=' . get_class($oObject) . '&key=' . $oObject->Get('id') . '&template=' . basename(basename($sReportFile));
-				   
-				  
-				$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
+				$sURL = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/showreport.php?type=details&class=' . get_class($oObject) . '&key=' . $oObject->Get('id') . '&template=' . basename(basename($sReportFile));
 				
-			 
+				$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
 				
 			}
 			
@@ -88,13 +82,11 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
 		elseif($iMenuId == self::MENU_OBJLIST_ACTIONS)
 		{
 			
-			  
 			// $param in this case is a DBObjectSet
 			$aObjectSet = $param->ToArray(/* bWithId */ true);
 			
 			if( count($aObjectSet) > 0 ) {
-						
-							
+				
 				// Actually we just wanted to get the ID, so: 
 				$aKeys = array_keys($aObjectSet);
 				  
@@ -102,13 +94,12 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
 				$sClassName = get_class($aObjectSet[$aKeys[0]]);
 						
 				// Where are reports located?		
-				$sClassReportDir = APPROOT . '/env-production/jb-reportgen/templates/'. $sClassName; 
+				$sClassReportDir = APPROOT . '/env-production/' . $sModuleDir . '/templates/' . $sClassName; 
 				 
 				// Get HTML (Twig) template names; search for <title> tag which will be used to generate report.
 				// This also means we won't need to do an 'instanceof'. 
 				// Currently not considering abstract (parent) classes.
 				$aReportFiles = glob( $sClassReportDir . '/list/*.{html,twig}' , GLOB_BRACE );
-				 
 				 
 				// For each of those classes, check which reports are available 
 				foreach( $aReportFiles as $sReportFile ) 
@@ -133,14 +124,13 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
 					}
 					
 					// UID must simply be unique. Keep alphanumerical version of filename.
-					$sUID = 'jb-reportgen-' . preg_replace('/[^\da-z]/i', '',  basename($sReportFile)) . '-' . rand(0, 10000);
+					$sUID = $sModuleDir . '-' . preg_replace('/[^\da-z]/i', '', basename($sReportFile)) . '-' . rand(0, 10000);
 					
 					// URL should give our generator the location of the report (folder/report) and the ID of the object
 					// This will not work endlessly since there's a limit to the amount of parameters that can be posted.
 					// type=Object is to allow 'showReport.php' to also include lists in the future.
-					$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/jb-reportgen/showreport.php?type=list&class=' . $sClassName . '&keys=' . implode(',' , $aKeys) . '&template=' . basename(basename($sReportFile));
-					  
-					  
+					$sURL = utils::GetAbsoluteUrlAppRoot() . '/env-production/' . $sModuleDir . '/showreport.php?type=list&class=' . $sClassName . '&keys=' . implode(',' , $aKeys) . '&template=' . basename(basename($sReportFile));
+					
 					$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
 					 
 				} 
@@ -158,7 +148,3 @@ class menuExtensionReportGenerator implements iPopupMenuExtension
    
   
 }
- 
- 
-	
-	

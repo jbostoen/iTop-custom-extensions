@@ -17,7 +17,6 @@
 
 class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExtension {
 	 
-	  
 	/**
 	 * Invoked to determine whether an object can be written to the database 
 	 *	
@@ -32,8 +31,6 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 		return $this->ValidateInput($oObject);
 				
 	}
-	
-	
 	
 	/**
 	 * Invoked to determine whether an object has been modified in memory
@@ -51,7 +48,6 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 		return false;
 	}
  
-
 	/**
 	 * Invoked to determine whether an object can be deleted from the database
 	 *	
@@ -109,8 +105,6 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 		return;
 	}
 	
-	 
-	
 	/**
 	 * 
 	 * Updates related Person object each time a ContactMethod is removed.
@@ -120,7 +114,6 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	public function OnContactMethodDelete($oObject) {
 		
 		// If a ContactMethod is deleted, the related Person object should be updated to reflect these changes 
-		
 		if( $oObject instanceof ContactMethod ) {
 			
 			$sContactMethod = $oObject->Get('contact_method');
@@ -131,7 +124,6 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				case 'mobile_phone':
 				case 'email':
 				
-					
 					// Write back to Person object. Latest change should be primary.						
 					$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
 					$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
@@ -156,11 +148,8 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 					
 					$oPerson->DBUpdate();
 					
-					
 					break;
 				
-				
-					
 				default:
 					break;
 		
@@ -213,9 +202,6 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 					break;
 				
 			}
-			
-			
-			
 		}
 		
 		elseif( $oObject instanceof Person ) {
@@ -244,15 +230,9 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 						$oContactMethod->DBInsert();	
 						
 					}
-				
 				}
-				
 			}
-			
-			
 		}
-		
-		
 	}
 	
 	/**
@@ -349,17 +329,10 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 					break;
 					
 			}
-			
-			
 		}
 		 
-		
 		// No errors		
 		return Array();
 		
 	}
-	
-	
 }
-
-

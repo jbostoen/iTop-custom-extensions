@@ -1,16 +1,14 @@
 <?php
+
 /**
- * Localized data
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * Localized data
  */
 
 Dict::Add('EN US', 'English', 'English', array(
 
-
-	// Dictionary entries go here 
-	
 	// Crab Street
 	'CrabStreet:baseinfo' => 'General information',
 	 
@@ -30,7 +28,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabStreet/Attribute:status/Value:3' => 'in use',
 	'Class:CrabStreet/Attribute:status/Value:4' => 'no longer in use', 
 	 
-	
 	'Class:CrabStreet/Attribute:list_addresses' => 'Address list',
 	'Class:CrabStreet/Attribute:list_addresses+' => 'Address list',
 	
@@ -39,10 +36,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Menu:NewCrabStreet' => 'New Crab street',
 	'Menu:NewCrabStreet+' => 'Create a new Crab Street',
 	
-	
 	// Crab Address
-	
-	
 	'CrabAddress:baseinfo' => 'General information',
 	 
 	'Class:CrabAddress' => 'Crab address',
@@ -50,7 +44,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	 
 	'Class:CrabAddress/Attribute:crab_id' => 'Crab ID',
 	'Class:CrabAddress/Attribute:crab_id+' => 'Internal ID within Crab Services',
-	
 	
 	'Class:CrabAddress/Attribute:street_id' => 'Street ID',
 	'Class:CrabAddress/Attribute:street_id+' => 'Internal ID within iTop',
@@ -64,7 +57,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabAddress/Attribute:sub_number' => 'Sub number',
 	'Class:CrabAddress/Attribute:sub_number+' => 'Sub number (usually for multiple mailboxes)',
 	 
-	
 	'Class:CrabAddress/Attribute:status' => 'Status',
 	'Class:CrabAddress/Attribute:status+' => 'Status',
 	
@@ -82,17 +74,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Menu:NewCrabAddress' => 'New Crab address',
 	'Menu:NewCrabAddress+' => 'Create a new Crab Address',
 		  
-		  
-	
 	// Geometry
 	'UI:Geom:Point' => 'Point', 		
 	'Location:Geometry' => 'Geometry',
 	
 ));
-
- 
-
-
-
-?>
-

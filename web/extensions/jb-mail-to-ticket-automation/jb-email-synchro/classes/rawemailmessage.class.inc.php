@@ -394,6 +394,7 @@ class RawEmailMessage
 				if ($aPartFound === null)
 				{
 					return $aPartFound;
+				}
 			}
 		}
 		return null;
@@ -449,6 +450,7 @@ class RawEmailMessage
 		if (count($aCurPart) > 0)
 		{
 			$aParts[] = $aCurPart;
+		}
 		return $aParts;
 	}
 	

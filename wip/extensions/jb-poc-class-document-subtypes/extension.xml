@@ -3,7 +3,7 @@
 	<extension_code>jb-poc-class-document-subtypes</extension_code>
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ jbostoen ]]></author>
-	<label><![CDATA[ Class: Document - Makes Document abstracts, adds sub-types ]]></label>
+	<label><![CDATA[ Datamodel: Document - Makes Document abstracts, adds sub-types ]]></label>
 	<description><![CDATA[ Test to create new Document Classes to set specific rights ]]></description>
 	<version>2.6.190110</version>
 	<release_date>2019-01-10</release_date>

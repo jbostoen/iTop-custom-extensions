@@ -1,9 +1,10 @@
 <?php
+
 /**
- * Localized data
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * Localized data
  */
 
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(
@@ -14,21 +15,17 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value' => 'your translation for a value',
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for more info on the value',
 		
-	'Class:Person/Attribute:contact_methods' => 'Contact methods',
+	'Class:Person/Attribute:contact_methods' => 'Contactmethodes',
 	
-	'Class:ContactMethod/Attribute:person_id' => 'Person',
-	'Class:ContactMethod/Attribute:contact_method' => 'Contact method',
-	'Class:ContactMethod/Attribute:contact_method/Value:phone' => 'Phone',
-	'Class:ContactMethod/Attribute:contact_method/Value:mobile_phone' => 'Mobile phone',
-	'Class:ContactMethod/Attribute:contact_method/Value:email' => 'Email',
-	'Class:ContactMethod/Attribute:contact_detail' => 'Contact detail',
+	'Class:ContactMethod/Attribute:person_id' => 'Persoon',
+	'Class:ContactMethod/Attribute:contact_method' => 'Contactmethode',
+	'Class:ContactMethod/Attribute:contact_method/Value:phone' => 'Telefoon',
+	'Class:ContactMethod/Attribute:contact_method/Value:mobile_phone' => 'Mobiele telefoon',
+	'Class:ContactMethod/Attribute:contact_method/Value:email' => 'E-mailadres',
+	'Class:ContactMethod/Attribute:contact_detail' => 'Contactgegeven',
 	
-	'Errors/ContactMethod/InvalidPhoneNumber' => 'Invalid phone number. National numbers should consist of 9 digits. If country prefix is used, it should be 10 digits.',
-	'Errors/ContactMethod/InvalidMobilePhoneNumber' => 'Invalid mobile phone number. National numbers should consist of 10 digits. If country prefix is used, it should be 11 digits.',
-	'Errors/ContactMethod/InvalidEmail' => 'Invalid email address.',
+	'Errors/ContactMethod/InvalidPhoneNumber' => 'Ongeldig telefoonnummer. Nationale nummers bestaan uit 9 tekens (of 10 als de landprefix opgegeven werd).',
+	'Errors/ContactMethod/InvalidMobilePhoneNumber' => 'Ongeldig telefoonnummer. Nationale nummers bestaan uit 10 tekens (of 11 als de landprefix opgegeven werd).',
+	'Errors/ContactMethod/InvalidEmail' => 'Ongeldig e-mailadres.',
 	
 ));
-
-
-
-?>

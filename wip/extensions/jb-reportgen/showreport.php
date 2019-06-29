@@ -1,11 +1,11 @@
 <?php
-
-	/**
-	 *  Show report using Twig templates
-	 *  
-	 *  Last updated: 20181206-1447
-	 *  
-	 */
+/**
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * Shows report; based on available Twig templates.
+ */
 	 
 	// $_REQUEST should contain: 
 	// class:               String. Class name
@@ -18,8 +18,8 @@
 	// This file will be copied to /env-production, but the link will still point to /extensions
 	defined('JB_APPDIR_ITOP') or define('JB_APPDIR_ITOP', dirname(dirname(dirname( __FILE__ ))) );
 	
-	// Use itop-connector 
-	require_once( JB_APPDIR_ITOP . '/itop-connector/connector.php');
+	// Autoloader (Twig, iTop_Rest, ...
+	require JB_APPDIR_ITOP . '/libext/vendor/autoload.php';
 		
 	// Get iTop's Dict::S('string') so it can be exposed to Twig as well 
 	require_once( JB_APPDIR_ITOP . '/approot.inc.php' );
@@ -27,10 +27,7 @@
 	require_once( JB_APPDIR_ITOP . '/core/coreexception.class.inc.php' );
 	require_once( JB_APPDIR_ITOP . '/core/dict.class.inc.php' );
 	
-	
-	
 	// Short validation first 
-	 
 	switch( $_REQUEST['type'] ) {
 
 		case 'details': 
@@ -47,13 +44,8 @@
 			
 		default:
 			die('Invalid type. Must be: <b>details</b> , <b>list</b>');
-			break;
-			
 		
 	}
-	
-	
-	
 	
 	// Init array to be passed to Twig
 	$aObjectData = []; 
@@ -90,12 +82,10 @@
 		die('Invalid object');
 		
 	}
-		
 
 	// Valid template?
 	$sTemplateDir = dirname( __FILE__ ) . '/templates/';
 	$sTemplateFile = $sTemplateDir . $_REQUEST['class'] . '/' . $_REQUEST['type'] . '/' . $_REQUEST['template'];
-
 
 	if( file_exists($sTemplateFile) == false ) {			
 		// Do some nicer handling in the future; but this simply shouldn't happen unless something just got deleted.
@@ -103,12 +93,10 @@
 		
 	}		
 		 
-	
 	$aTwigData['items'] = [];
 	
-	// For single and multiple items
+	// For single and multiple items: fetch associated Attachments
 	foreach( $aReturnData as $aItemData ) {
-		
 		
 		// No attachments by default
 		$aItemData['attachments'] = [];
@@ -124,8 +112,6 @@
 			$aItemData['attachments'][] = $aAttachmentData['fields']['contents'];			
 		}
 		
-		
-		
 		// This will expose 'key' and 'fields' (as well as some other REST data)
 		$aTwigData['items'][] = $aItemData;
 		
@@ -137,15 +123,10 @@
 		$aTwigData['item'] = $aTwigData['items'][0];			
 	}
 	 
-		
-
-	
 	// Post both parameters to Twig.
 	// Either a single Object was requested, or multiple. 
 	
-	
 	// Pass to Twig 	
-	require JB_APPDIR_ITOP . '/libext/vendor/autoload.php';
 	
 	// Twig Loader
 	$loader = new Twig_Loader_Filesystem( dirname( __FILE__ ) . '/templates/' . $_REQUEST['class'] . '/' . $_REQUEST['type'] );
@@ -162,7 +143,7 @@
 	);
 	
 	// Relies on chillerlan/php-qrcode
-	if( class_exists("chillerlan\QRCode") == true ) {
+	if( class_exists('chillerlan\\QRCode') == true ) {
 		
 		$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
 
@@ -183,8 +164,6 @@
 		);
 			
 	}
-	
-	
 	
 	echo $oTwigEnv->render( $_REQUEST['template'] , $aTwigData );	 
 

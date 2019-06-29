@@ -1,16 +1,14 @@
 <?php
+
 /**
- * Localized data
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * Localized data
  */
 
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 
-
-	// Dictionary entries go here 
-	
 	// Crab-Street
 	'CrabStreet:baseinfo' => 'Algemene info',
 	 
@@ -30,20 +28,15 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabStreet/Attribute:status/Value:3' => 'in gebruik',
 	'Class:CrabStreet/Attribute:status/Value:4' => 'niet meer in gebruik', 
 	 
-	
 	'Class:CrabStreet/Attribute:list_addresses' => 'Adreslijst',
 	'Class:CrabStreet/Attribute:list_addresses+' => 'Adreslijst',
-	
 	
 	'Menu:SearchCrabStreet' => 'Zoek Crab-straten',
 	'Menu:SearchCrabStreet+' => 'Zoek Crab-straten',
 	'Menu:NewCrabStreet' => 'Nieuwe Crab-straat',
 	'Menu:NewCrabStreet+' => 'Nieuwe Crab-straat',
 	
-	
 	// Crab-Address
-	
-	
 	'CrabAddress:baseinfo' => 'Algemene info',
 	 
 	'Class:CrabAddress' => 'Crab-adres',
@@ -52,10 +45,8 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabAddress/Attribute:crab_id' => 'Crab-ID',
 	'Class:CrabAddress/Attribute:crab_id+' => 'Interne ID (Crab-Services)',
 	
-	
 	'Class:CrabAddress/Attribute:street_id' => 'Street ID',
 	'Class:CrabAddress/Attribute:street_id+' => 'Internal ID within iTop',
-	
 	
 	'Class:CrabAddress/Attribute:house_number' => 'Huisnummer',
 	'Class:CrabAddress/Attribute:house_number+' => 'Huisnummer (gebruik _2 voor bisnummers = apart gebouw)',
@@ -65,8 +56,6 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	
 	'Class:CrabAddress/Attribute:sub_number' => 'Subnummer',
 	'Class:CrabAddress/Attribute:sub_number+' => 'Subnummer (busnummers)',
-	
-	 
 	
 	'Class:CrabAddress/Attribute:status' => 'Status',
 	'Class:CrabAddress/Attribute:status+' => 'Status',
@@ -85,18 +74,8 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Menu:NewCrabAddress' => 'Nieuw Crab-adres',
 	'Menu:NewCrabAddress+' => 'Nieuw Crab-adres',
 	
-	
-	
 	// Geometry
 	'UI:Geom:Point' => 'Point', 		
 	'Location:Geometry' => 'Geometry',
-	
-	
+
 ));
-
- 
-
-
-
-?>
-

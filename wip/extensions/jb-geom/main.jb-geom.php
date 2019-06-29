@@ -1,8 +1,13 @@
 <?php
 
 /**
-* Generic Geometry extension
-*/
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * Defines cApplicationUIExtension_GeometryHandler, cPopupMenuExtension_GeometryHandler
+ */
+ 
 
 /**
 * Note: for compatibility with 2.5, you need to have some specific definitions ( DBObjectSet $oSet, WebPage $oPage )
@@ -212,16 +217,19 @@ EOF
 				 
 				// Geom for ' . get_class($oObject) .'
 				  
-				geometryHandler = {};
+				if( typeof geometryHandler === "undefined" ) {
+					geometryHandler = {};
+				}
+				
 				geometryHandler.oFormat = {
 					WKT: new ol.format.WKT(),
 					GeoJSON: new ol.format.GeoJSON()
 				};
 				geometryHandler.aFeatures = [];
 				geometryHandler.oFeature = ( "'.$sGeomString.'" != "" ? geometryHandler.oFormat.'.$aGeomSettings['dataformat'].'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
-				geometryHandler.oFeature.setProperties('. json_encode($aAttributeValues).');
 				
 				if( geometryHandler.oFeature !== null ) {
+					geometryHandler.oFeature.setProperties('. json_encode($aAttributeValues).');
 					geometryHandler.aFeatures.push( geometryHandler.oFeature );
 				}
 				
@@ -545,8 +553,10 @@ class cPopupMenuExtension_GeometryHandler implements iPopupMenuExtension
 									// Add a new menu item that triggers a custom JS function defined in our own javascript file: js/sample.js
 									$sModuleDir = basename(dirname(__FILE__));
 									$sJSFileUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/js/geometry-actions.js';
-									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler_Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
-									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Copy_As_GeoJSON', /* $sLabel */ Dict::S('UI:Geom:Menu:CopyAsGeoJSON'), /* $sJSCode */ 'geometryHandler_Copy_As_GeoJSON()', /* $aIncludeJSFiles */ array($sJSFileUrl));
+									
+									// It doesn't seem to be necessary to self-check if $aIncludeJSFiles should only include the JavaScript file once.
+									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler.Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
+									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Copy_As_GeoJSON', /* $sLabel */ Dict::S('UI:Geom:Menu:CopyAsGeoJSON'), /* $sJSCode */ 'geometryHandler.Copy_As_GeoJSON()', /* $aIncludeJSFiles */ array($sJSFileUrl));
 	 
 								}
 							}

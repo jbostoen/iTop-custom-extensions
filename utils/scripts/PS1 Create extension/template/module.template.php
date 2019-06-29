@@ -1,7 +1,12 @@
 <?php
-//
-// iTop module definition file
-//
+
+/**
+ * @copyright   Copyright (C) {{ extYear }} {{ extAuthor }}
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * iTop module definition file
+ */
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file

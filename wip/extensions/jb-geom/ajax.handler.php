@@ -1,9 +1,18 @@
 <?php
 
+/**
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * iTop front-end ajax handler
+ */
+ 
 	if(isset($_REQUEST['action']) == true) {
 
 		switch($_REQUEST['action']) {
 			
+			// This action will remember the last chosen basemap. Per user, per class.
 			case 'remember_last_used_basemap':
 			
 				if(isset($_REQUEST['data']['basemap']) == true && isset($_REQUEST['data']['class']) == true) {

@@ -38,6 +38,7 @@ $RECYCLE.BIN/
 .TemporaryItems
 .Trashes
 .VolumeIcon.icns
+logo.png
 
 # Directories potentially created on remote AFP share
 .AppleDB
@@ -48,4 +49,3 @@ Temporary Items
 
 # Folders
 wip/frontend/reportproblems/files/
-

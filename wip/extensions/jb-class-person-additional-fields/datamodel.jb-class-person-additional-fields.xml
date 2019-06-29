@@ -202,15 +202,6 @@
 					]]></code>
 				</method>
 				
-				 
-				
-				
-				
-				
-				
-				
-				
-				
 				<method id="bHasPrivileges" _delta="define">
 					<static>false</static>
 					<access>public</access>

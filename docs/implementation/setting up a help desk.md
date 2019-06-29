@@ -1,14 +1,10 @@
-
 # Setting up a help desk
 
 ## Steps
-
-* you need a delivery model for the organization (provider = yourself)
-* you need to configure a service (and service subcategories)
-* make your user (example: admin) part of a team (example: IT Crowd)
-* link the delivery model to a customer contract and a team 
- 
- 
+* make a contact (example: John Smith from IT Support) part of a team (example: IT Crowd)
+* create a delivery model for the organization (provider = yourself) and add the team(s) which will respond to requests (IT Crowd).
+* create a service (and service subcategories where at least one is in production and of the type service request)
+* create a customer contract for the organization you want to deliver services to (even if it's your own organization); add the services you created.
 
 ## Points to consider
 
@@ -17,10 +13,10 @@
 * just change the caller after the ticket's processed automatically
 
 ### Who's the actual caller?
-* Cut the middle persons. A boss or key user shouldn't be creating contacts for others. Direct contact makes things much more efficient.
+* Cut the middle persons. A boss or key user shouldn't be creating requests for others. Direct contact makes things much more efficient.
 
 ### No (B)CC!
-* make it a policy not to accept these mails. Reason: if someone sends the initial mail with others in copy and they all start to reply, you'll have several new tickets. Also, it doesn't make sense to communicate with multiple people about a ticket.
+* make it a policy to reject these mails. Reason: if someone sends the initial mail with others in copy and they all start to reply, you'll have several new tickets. Also, it doesn't make sense to communicate with multiple people about a ticket.
 
 ### Notifications
 * if you create a ticket, skip the public log, the Email Reply extension won't work right away. 

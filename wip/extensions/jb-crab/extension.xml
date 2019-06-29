@@ -4,7 +4,7 @@
 	<company>none</company>
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Flemish Crab Addresses]]></label>
-	<description><![CDATA[Adds 2 classes for Flemish Crab Addresses.]]></description>
+	<description><![CDATA[Adds 2 classes for Flemish Crab Addresses.  See read me of this extension.]]></description>
 	<version>2.5.180810</version>
 	<release_date>2018-08-10</release_date>
 	<version_description><![CDATA[ ]]></version_description>
@@ -13,4 +13,3 @@
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions</more_info_url>
 </extension>
-

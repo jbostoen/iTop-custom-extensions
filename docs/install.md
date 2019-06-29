@@ -23,7 +23,6 @@ I wasn't satisfied with the default IPPhone class, so I never used it and had no
 Always:
 - Delete all folders starting with 'jb-' in <itop path>/web/extensions
 
-
 Previous version number lower than 2.4.180309 ? (before 2018-03-09)?
 - make sure mailbox ***policies are NOT set to 'Mark as error'***
 

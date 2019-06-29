@@ -1,11 +1,12 @@
 <?php
-/**
- * Localized data
- *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
- */
 
+/**
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * Localized data
+ */
+ 
 Dict::Add('EN US', 'English', 'English', array(
 
 	//	'Class:SomeClass' => 'Class name',
@@ -26,7 +27,4 @@ Dict::Add('EN US', 'English', 'English', array(
 	
 	'Errors/AuthenticationMethod/InvalidEmail' => 'Invalid email address.',
 	
-	
 ));
-
-

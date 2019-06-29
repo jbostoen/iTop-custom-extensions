@@ -3,8 +3,8 @@
 	<extension_code>jb-authmethod</extension_code>
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ jbostoen ]]></author>
-	<label><![CDATA[ Class: Authentication Method ]]></label>
-	<description><![CDATA[ Adds Authentication Methods tab to UserLocal. Can easily be extended to support all sorts of data. Dropdown to pick method (e.g. email, twitter_id, facebook_id, token) and a basic text box (255 chars) ]]></description>
+	<label><![CDATA[ Datamodel: Authentication Method ]]></label>
+	<description><![CDATA[ Adds Authentication Methods tab to UserLocal. See read me of this extension.]]></description>
 	<version>2.5.190115</version>
 	<release_date>2019-01-15</release_date>
 	<version_description><![CDATA[  ]]></version_description>
@@ -13,7 +13,3 @@
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
 </extension>
-
-
-
-

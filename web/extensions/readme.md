@@ -1,1 +1,3 @@
-Place extensions modules in this directory. They will be taken into account by the setup program and safely copied in case of upgrade.
+This contains extensions used in a production environment.
+
+Each extension has it's own readme.md explaining a few things.

@@ -1,5 +1,4 @@
 
-
 # BAT Run iTop Cron 
 
 ## What?
@@ -18,4 +17,7 @@ If you're developing new extensions, you'll regularly need to run the setup wiza
 This means you have to make iTop's config file writable again. 
 If you run this PowerShell and leave it open, it will make the config file writable on a regular short interval.
 
+## License
+https://www.gnu.org/licenses/gpl-3.0.en.html
+Copyright (C) 2019 Jeffrey Bostoen
 

@@ -1,16 +1,16 @@
 <?php
+
 /**
- * Localized data
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * Localized data
  */
 
 Dict::Add('EN US', 'English', 'English', array(
 	// Dictionary entries go here
 	'Class:Intervention' => 'Intervention',
 	'Class:Intervention+' => 'Logs an intervention.',
-	
 	
 	'Class:Intervention/Attribute:ref' => 'Reference',
 	'Class:Intervention/Attribute:ref+' => 'The reference for this intervention',
@@ -25,13 +25,10 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:Intervention/Attribute:agent_name' => 'Agent name',
 	'Class:Intervention/Attribute:agent_name+' => 'The agent who did the intervention',
 	
-	
-	
 	'Class:Intervention/Attribute:org_id' => 'Client organization ID',
 	'Class:Intervention/Attribute:org_id+' => 'The organization for which you did the intervention',
 	'Class:Intervention/Attribute:org_name' => 'Client organization ID',
 	'Class:Intervention/Attribute:org_name+' => 'The organization for which you did the intervention',
-	
 	
 	'Class:Intervention/Attribute:start' => 'Start time',
 	'Class:Intervention/Attribute:start+' => 'The intervention started at ...',
@@ -51,9 +48,3 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Menu:NewIntervention' => 'New intervention',
 	'Menu:NewIntervention+' => 'Create a new intervention',
 ));
-
- 
-
-
-
-?>

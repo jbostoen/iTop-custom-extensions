@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.5">
-
-	<classes>     
-
-
+	<classes>
 		<class id="CrabStreet" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
@@ -18,7 +15,6 @@
 						<attribute id="name"></attribute>
 					</attributes>
 				</naming>
-
 				<display_template/>
 				<icon>images/crabstreet.png</icon>
 				<reconciliation>
@@ -28,8 +24,7 @@
 						<attribute id="status"/>
 					</attributes>
 				</reconciliation>
-			</properties> 
-
+			</properties>
 			<fields>
 				<field id="crab_id" xsi:type="AttributeDecimal">
 					<sql>crab_id</sql>
@@ -54,13 +49,10 @@
 						<value id="4">4</value>
 					</values>
 				</field> 
-				
-				
 				<field id="list_addresses" xsi:type="AttributeLinkedSet">
 					<linked_class>CrabAddress</linked_class>
 					<ext_key_to_me>street_id</ext_key_to_me>
 				</field>
-				
 			</fields> 
 			<presentation>
 				<details>
@@ -83,7 +75,6 @@
 										<item id="list_addresses">
 											<rank>110</rank>
 										</item>
-										
 									</items>
 								</item>
 							</items>
@@ -102,14 +93,10 @@
 						<item id="status">
 							<rank>10</rank>
 						</item>
-
-
-
 					</items>
 				</search>
 				<list>
 					<items>
-
 						<item id="crab_id">
 							<rank>5</rank>
 						</item>
@@ -119,14 +106,11 @@
 						<item id="status">
 							<rank>10</rank>
 						</item>
-
-
 					</items>
 				</list>
 			</presentation>
 			<methods/>
 		</class>
-
 		<class id="CrabAddress" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
@@ -138,14 +122,17 @@
 				<db_final_class_field/>
 				<naming>
 					<attributes> 
-						<!-- Interesting, friendlyname of other class can be used here! -->
+						<!-- 
+							Interesting, friendlyname of other class can be used here! 
+							Visually this will look okay and 'friendly' to users, but there may be too many spaces at the end.
+							iTop separates each column with a space; and the last columns are often empty.
+						-->
 						<attribute id="street_id_friendlyname"/>
 						<attribute id="house_number"/>
-						<attribute id="apartment_number"/>
 						<attribute id="sub_number"/>
+						<attribute id="apartment_number"/>
 					</attributes>
 				</naming>
-
 				<display_template/>
 				<icon>images/crabaddress.png</icon>
 				<reconciliation>
@@ -158,18 +145,13 @@
 					</attributes>
 				</reconciliation>
 			</properties>
-
-
 			<fields>
-
-
 				<field id="crab_id" xsi:type="AttributeDecimal">
 					<sql>crab_id</sql>
 					<digits>10</digits>
 					<decimals>0</decimals>
 					<is_null_allowed>false</is_null_allowed> 
 				</field>
-
 				<!-- This is iTop's internal street ID, NOT the Crab ID -->
 				<field id="street_id" xsi:type="AttributeExternalKey">
 					<sql>street_id</sql>
@@ -177,13 +159,10 @@
 					<target_class>CrabStreet</target_class>
 					<is_null_allowed>false</is_null_allowed> 
 				</field>
-
 				<field id="house_number" xsi:type="AttributeString">
 					<sql>house_number</sql>
 					<is_null_allowed>false</is_null_allowed>  
 				</field>
-
-
 				<field id="status" xsi:type="AttributeEnum">
 					<sql>status</sql>
 					<is_null_allowed>false</is_null_allowed>  
@@ -196,31 +175,23 @@
 						<value id="99">99</value>
 					</values>
 				</field>
-
-
-
 				<field id="apartment_number" xsi:type="AttributeString">
 					<sql>apartment_number</sql>
 					<digits>10</digits>
 					<decimals>0</decimals>
 					<is_null_allowed>true</is_null_allowed> 
 				</field>
-
-
 				<field id="sub_number" xsi:type="AttributeString">
 					<sql>sub_number</sql>
 					<digits>10</digits>
 					<decimals>0</decimals>
 					<is_null_allowed>true</is_null_allowed> 
 				</field>
-
-
 				<field id="geom" xsi:type="AttributeText">
 					<sql>geom</sql>
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
 			</fields> 
 			<presentation>
 				<details>
@@ -248,8 +219,6 @@
 										<item id="sub_number">
 											<rank>30</rank>
 										</item>
-
-
 									</items>
 								</item>
 							</items>
@@ -261,13 +230,9 @@
 				</details>
 				<search>
 					<items>
-
 						<item id="crab_id">
 							<rank>5</rank>
 						</item>
-
-
-
 						<item id="street_id">
 							<rank>15</rank>
 						</item>
@@ -282,51 +247,34 @@
 						<item id="sub_number">
 							<rank>30</rank>
 						</item>
-
-
 					</items>
 				</search>
 				<list>
 					<items>
-
 						<item id="crab_id">
 							<rank>5</rank>
 						</item>
-
-
-
 						<item id="street_id">
 							<rank>15</rank>
 						</item>
-
 						<item id="house_number">
 							<rank>20</rank>
 						</item>
-
 						<item id="apartment_number">
 							<rank>25</rank>
 						</item>
 						<item id="sub_number">
 							<rank>30</rank>
 						</item>
-
-
 					</items>
 				</list>
 			</presentation>
- 
 			<methods/>
-
-
 		</class>
-
-
-
 	</classes>
 
 	<!-- Adds a link to the ConfigManagement Overview -->
 	<menus>
-
 		<menu id="NewCrabStreet" xsi:type="NewObjectMenuNode" _delta="define">
 			<rank>901</rank>
 			<parent>ConfigManagement</parent>
@@ -347,45 +295,22 @@
 			<rank>902</rank>
 			<parent>ConfigManagement</parent>
 			<class>CrabAddress</class> 
-		</menu> 
-
-
-
+		</menu>
 	</menus>
 
 	<profiles/>
 	
-	 
-	
 	<module_parameters>
-		<parameters id="jb-crab" _delta="define">
-		
+		<!-- This is NOT a mistake. jb-geom is a required extension; jb-crab sets defaults here. -->
+		<parameters id="jb-geom">
 			<!-- Parameters are case sensitive! -->
-			
-			<!-- Defaults -->
-			<default>
-				<dataformat type="string" _delta="define">WKT</dataformat>
-				<datacrs type="string" _delta="define">EPSG:3857</datacrs>
-				<datatypes type="array" _delta="define">
-					<datatype id="0">Point</datatype>
-				</datatypes>
-				<mapcrs type="string" _delta="define">EPSG:3857</mapcrs>				
-				<mapcenter type="array" _delta="define">
-					<coord id="0">358652.11242031807</coord>
-					<coord id="1">6606360.84951076</coord>
-				</mapcenter>
-				<mapzoom type="int" _delta="define">17</mapzoom>
-			</default>
-			
 			<!-- Class specific, but write in lowercase (XML convention) -->
-			<crabaddress>
-				<datatypes type="array" _delta="define">
+			<crabaddress _delta="define">
+				<!-- Basically we specify that an address is always a Point; not any other type of geometry. -->
+				<datatypes type="array">
 					<datatype id="0">Point</datatype>
 				</datatypes>				
 			</crabaddress>
-			
-			
 		</parameters>
 	</module_parameters>
-	 
 </itop_design>

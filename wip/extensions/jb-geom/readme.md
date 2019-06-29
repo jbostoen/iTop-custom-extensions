@@ -37,3 +37,8 @@ A cookie remembers for 30 days the last chosen basemap - per user, per class.
 
 # Good to know
 * Using QGIS Desktop (open source and free), you can easily visualize the data and do all sorts of geospatial analyses.
+
+## License
+https://www.gnu.org/licenses/gpl-3.0.en.html
+Copyright (C) 2019 Jeffrey Bostoen
+

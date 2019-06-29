@@ -3,8 +3,8 @@
 	<extension_code>jb-class-person-additional-fields</extension_code>
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ jbostoen ]]></author>
-	<label><![CDATA[ Class: Person - add fields ]]></label>
-	<description><![CDATA[ Adds gender, date of birth, ... ]]></description>
+	<label><![CDATA[ Tweaks: Person - add fields ]]></label>
+	<description><![CDATA[ Adds gender, date of birth, ...  See read me of this extension.]]></description>
 	<version>2.6.190110</version>
 	<release_date>2019-01-10</release_date>
 	<version_description><![CDATA[  ]]></version_description>
@@ -13,6 +13,3 @@
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
 </extension>
-
-
-

@@ -1,10 +1,10 @@
 <?php
 /**
- * Localized data
+ * @copyright   Copyright (C) {{ extYear }} {{ extAuthor }}
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
  *
- * @copyright   Copyright (C) 2019
- * @license     http://opensource.org/licenses/AGPL-3.0
- * @author		jbostoen
+ * Localized data
  */
 
 Dict::Add('EN US', 'English', 'English', array(

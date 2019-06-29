@@ -269,7 +269,6 @@
 				</list>
 			</presentation>
 		</class>
-
 		<class id="lnkNetworkDeviceToSSID" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
@@ -347,10 +346,8 @@
 				</search>
 			</presentation>
 		</class>
-
 		<!-- Add SSID tab to NetworkDevice objects -->
 		<!-- Didn't do this since most NetworkDevices don't need the SSID, except wireless access points, which would need its own class -->
-
 		<!-- Add SSID tab to VLAN objects -->
 		<class id="VLAN">
 			<fields>
@@ -370,7 +367,6 @@
 				</details>
 			</presentation>
 		</class>
-
 	</classes>
 	
 	<menus>
