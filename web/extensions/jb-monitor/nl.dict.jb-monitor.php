@@ -17,7 +17,7 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:Monitor/Attribute:technology/Value:crt' => 'CRT',
 	'Class:Monitor/Attribute:technology/Value:lcd' => 'LCD', 
 	
-	'Class:Monitor/Attribute:type' => 'Type',
+	'Class:Monitor/Attribute:type' => 'Soort',
 	'Class:Monitor/Attribute:type+' => 'Het soort scherm',
 	'Class:Monitor/Attribute:type/Value:beamer' => 'Beamer',
 	'Class:Monitor/Attribute:type/Value:digital_signage' => 'Digitaal infobord',

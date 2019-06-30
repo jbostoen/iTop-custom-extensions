@@ -80,6 +80,18 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 	*/
 	public function OnDisplayProperties($oObject, WebPage $oPage, $bEditMode = false) : void {
 		 
+		// On state changes (for example going from a UserRequest's 'assigned' to 'resolved', this method is called, but not OnDisplayRelations().
+		// So geometry attribute needs to be hidden here.
+		$oPage->add_ready_script(
+<<<EOF
+			
+			// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
+			// Alternatively, you could do this with CSS
+			$("div[data-attcode='geom']").hide();
+				
+EOF
+		);
+		
 	}
 	
 	/**
@@ -114,11 +126,8 @@ class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
 			// Module settings, class specifics. In XML, most nodes seem to start with a non-capital.
 			if( MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), '') != '') {
 				
-				$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), array() ); 
-				
-				foreach( $aClassSpecificSettings as $k => $v ) {
-					$aGeomSettings[$k] = $v;
-				} 
+				$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), array() );				
+				$aGeomSettings = array_replace($aGeomSettings, $aClassSpecificSettings);
 				
 			}
 			
@@ -209,13 +218,17 @@ EOF
 				$aAttributeValues[$aAttribute] = $oObject->Get($aAttribute);
 			}
 			
+			$sClassName = get_class($oObject);
+			$sJSON_FeatureProperties = json_encode($aAttributeValues);
+			
 			// 'add_script' is also a method
 			// Be careful what EPSG to select!
 			// Detect if Geometry was saved in GeoJSON or WKT
 			// for geometryHandler.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
-			$oPage->add_ready_script('
+			$oPage->add_ready_script(
+<<<EOF
 				 
-				// Geom for ' . get_class($oObject) .'
+				// Geom for {$sClassName}
 				  
 				if( typeof geometryHandler === "undefined" ) {
 					geometryHandler = {};
@@ -226,10 +239,13 @@ EOF
 					GeoJSON: new ol.format.GeoJSON()
 				};
 				geometryHandler.aFeatures = [];
-				geometryHandler.oFeature = ( "'.$sGeomString.'" != "" ? geometryHandler.oFormat.'.$aGeomSettings['dataformat'].'.readFeature("'.$sGeomString.'", { dataProjection: "'.$aGeomSettings['datacrs'].'", featureProjection: "'.$aGeomSettings['mapcrs'].'" }) : null );
+				geometryHandler.oFeature = ( "{$sGeomString}" != "" ? geometryHandler.oFormat.{$aGeomSettings['dataformat']}.readFeature("{$sGeomString}", { 
+					dataProjection: "{$aGeomSettings['datacrs']}", 
+					featureProjection: "{$aGeomSettings['mapcrs']}" 
+				}) : null );
 				
 				if( geometryHandler.oFeature !== null ) {
-					geometryHandler.oFeature.setProperties('. json_encode($aAttributeValues).');
+					geometryHandler.oFeature.setProperties('{$sJSON_FeatureProperties}');
 					geometryHandler.aFeatures.push( geometryHandler.oFeature );
 				}
 				
@@ -280,7 +296,7 @@ EOF
 				}
 				
 				if( geometryHandler.oFeature === null ) {
-					geometryHandler.oCenter = [ '.$aGeomSettings['mapcenter'][0].', '.$aGeomSettings['mapcenter'][1].' ];
+					geometryHandler.oCenter = [ {$aGeomSettings['mapcenter'][0]}, {$aGeomSettings['mapcenter'][1]} ];
 				}
 				else {
 					
@@ -295,13 +311,13 @@ EOF
 					target: "ol-map",
 					layers: [
 						// the last layer you add, is on top.
-						geometryHandler.aLayers.' . $sDefaultBaseMap . ',
+						geometryHandler.aLayers.{$sDefaultBaseMap},
 						geometryHandler.aLayers.vector 
 					],
 					view: new ol.View({
 						center: geometryHandler.oCenter,
-						zoom: "'.$aGeomSettings['mapzoom'].'",
-						projection: "'.$aGeomSettings['mapcrs'].'"
+						zoom: "{$aGeomSettings['mapzoom']}",
+						projection: "{$aGeomSettings['mapcrs']}"
 					}),
 					controls: ol.control.defaults().extend([ new ol.control.FullScreen() ])
 				});
@@ -320,13 +336,13 @@ EOF
 				// Not sure if it is an iTop (or Zend) issue, or OpenLayers. 
 				// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
 				// The tab container  
-				$("ul[role=\'tablist\'] > li > a > span:contains(\''.$sTabName.'\')").parent().parent().on("click", function(evt){
+					$("ul[role='tablist'] > li > a > span:contains('{$sTabName}')").parent().parent().on("click", function(evt){
 					setTimeout( function(){ geometryHandler.oMap.updateSize(); }, 1000);
 				});			
 					 
 				// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
 				// Alternatively, you could do this with CSS
-				$("div[data-attcode=\'geom\']").hide();
+				$("div[data-attcode='geom']").hide();
 								 
 				// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
 				$(document).ready(function(){
@@ -346,31 +362,36 @@ EOF
 					}
 					
 					// For user convience, save basemap
-					$.post("'.$sAjaxHandlerUrl.'", { 
+					$.post("{$sAjaxHandlerUrl}", { 
 						action: "remember_last_used_basemap", 
 						data: { 
 							basemap: $("#geometryHandlerBaseMap").val(),
-							class: "' . get_class($oObject) . '"
+							class: "{$sClassName}"
 						}
 					});
 					
 				});
 				
-			');
+EOF
+			);
+			
 			// View
 			if (!$bEditMode)
 			{
 				
-				$oPage->add_ready_script('
+				$oPage->add_ready_script(
+<<<EOF
 				
 					// OpenLayers - View mode
 					
-				');
+EOF
+				);
 				
 			}
 			else {
 			 
-				$oPage->add_ready_script('
+				$oPage->add_ready_script(
+<<<EOF
 					
 					// OpenLayers - Editing allows extra interactions.
 					
@@ -412,7 +433,7 @@ EOF
 						geometryHandler.aLayers.vector.getSource().clear();
 														
 						// Save in geom field 
-						$("textarea[name=\'attr_geom\']").val("");
+						$("textarea[name='attr_geom']").val("");
 						
 					});
 					
@@ -455,7 +476,7 @@ EOF
 							var f = e.feature;
 							
 							// Save in geom field 
-							$("textarea[name=\'attr_geom\']").val( geometryHandler.oFormat.'.$aGeomSettings['dataformat'].'.writeGeometry(f.getGeometry()) );
+							$("textarea[name='attr_geom']").val( geometryHandler.oFormat.{$aGeomSettings['dataformat']}.writeGeometry(f.getGeometry()) );
 														
 						}); 
 						
@@ -466,7 +487,8 @@ EOF
 					// Always configure draw mode
 					geometryHandler.ConfigureDrawMode();
 					
-				');
+EOF
+				);
 			}
 		}
 	}
