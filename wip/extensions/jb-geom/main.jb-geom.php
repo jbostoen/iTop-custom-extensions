@@ -140,6 +140,7 @@ EOF
 			// Does a cookie exist with a preferred basemap for this class for this user?
 			$sDefaultBaseMap = 'osm';
 			$sCookieName = 'itop_geometryHandler_basemap_used_for_'.get_class($oObject);
+			
 			if(isset($_COOKIE[$sCookieName]) == true ) {
 				// Renew for another 30 days
 				setcookie($sCookieName, $_COOKIE[$sCookieName], time()+3600*24*30, '/');
@@ -310,7 +311,7 @@ EOF
 				geometryHandler.oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
-						// the last layer you add, is on top.
+						// the last layer added appears on top.
 						geometryHandler.aLayers.{$sDefaultBaseMap},
 						geometryHandler.aLayers.vector 
 					],
