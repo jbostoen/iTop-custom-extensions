@@ -140,7 +140,6 @@ EOF
 			// Does a cookie exist with a preferred basemap for this class for this user?
 			$sDefaultBaseMap = 'osm';
 			$sCookieName = 'itop_geometryHandler_basemap_used_for_'.get_class($oObject);
-			
 			if(isset($_COOKIE[$sCookieName]) == true ) {
 				// Renew for another 30 days
 				setcookie($sCookieName, $_COOKIE[$sCookieName], time()+3600*24*30, '/');
@@ -221,6 +220,46 @@ EOF
 			
 			$sClassName = get_class($oObject);
 			$sJSON_FeatureProperties = json_encode($aAttributeValues);
+			$sJSON_FeatureProperties = addcslashes($sJSON_FeatureProperties, "'"); // Escape single quotes, for example in values.
+						
+			// If not EPSG:3857 or EPSG:4326, projection needs to be added (Proj4)
+			foreach(Array($aGeomSettings['datacrs'], $aGeomSettings['mapcrs']) as $sCRS ) {
+				if(in_array($sCRS, Array('EPSG:3857', 'EPSG:4326')) == false ) {
+							
+					// Needed for projections other than EPSG:4326, EPSG:3857
+					$oPage->add_linked_script('https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.5.0/proj4.js');	
+
+					// Add definition (expects file in subfolder 'proj' of this extension.)
+					// Could be adapted to use https://epsg.io/31370.js instead
+					$sModuleDir = basename(dirname(__FILE__));
+					$sProjDefinitionFile = dirname(__FILE__).'/epsg.io/'.$sCRS.'.proj4';
+					
+					// An alternative or fallback to a local file could be using cURL operation to download the file
+					if(file_exists($sProjDefinitionFile) == true ) {
+						$sProj4_definition = file_get_contents($sProjDefinitionFile);
+						
+						$oPage->add_ready_script(
+<<<EOF
+
+							// Proj4 definition
+							proj4.defs("{{$sCRS}", "{$sProj4_definition}");
+EOF
+						);
+					}
+					else {
+						
+						$oPage->add_ready_script(
+<<<EOF
+
+							// Proj4 definition: not found. Use alert so this error is easy to spot.
+							alert('Proj4 definition unavailable: {$sProjDefinitionFile}');
+EOF
+						);
+						
+					}
+					
+				}
+			}
 			
 			// 'add_script' is also a method
 			// Be careful what EPSG to select!
@@ -311,7 +350,7 @@ EOF
 				geometryHandler.oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
-						// the last layer added appears on top.
+						// the last layer added appears on top
 						geometryHandler.aLayers.{$sDefaultBaseMap},
 						geometryHandler.aLayers.vector 
 					],

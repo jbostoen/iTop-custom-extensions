@@ -1,416 +1,414 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
-  <classes>
-    <class id="MailInboxStandard" _delta="define">
-      <parent>MailInboxBase</parent>
-      <properties>
-        <category>searchable,view_in_gui,bizmodel</category>
-        <abstract>false</abstract>
-        <key_type>autoincrement</key_type>
-        <db_table>mailinbox_standard</db_table>
-        <db_key_field>id</db_key_field>
-        <db_final_class_field>realclass</db_final_class_field>
-        <naming>
-          <format>%1$s</format>
-          <attributes>
-            <attribute id="login"/>
-          </attributes>
-        </naming>
-        <display_template/>
-        <icon>images/mailbox.png</icon>
-        <reconciliation>
-          <attributes>
-            <attribute id="server"/>
-            <attribute id="login"/>
-            <attribute id="protocol"/>
-            <attribute id="mailbox"/>
-            <attribute id="port"/>
-          </attributes>
-        </reconciliation>
-      </properties>
-      <fields>
-        <field id="behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>create_only</value>
-            <value>update_only</value>
-            <value>both</value>
-          </values>
-          <sql>behavior</sql>
-          <default_value>both</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="target_class" xsi:type="AttributeEnum">
-          <values>
-            <value>Incident</value>
-            <value>UserRequest</value>
-            <value>Change</value>
-            <value>RoutineChange</value>
-            <value>NormalChange</value>
-            <value>EmergencyChange</value>
-            <value>Problem</value>
-          </values>
-          <sql>target_class</sql>
-          <default_value>UserRequest</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="ticket_default_values" xsi:type="AttributeText">
-          <sql>ticket_default_values</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field> 
-        <field id="title_pattern" xsi:type="AttributeString">
-          <sql>title_pattern</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        
-        <field id="error_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>delete</value>
-            <value>mark_as_error</value>
-          </values>
-          <sql>error_behavior</sql>
-          <default_value>mark_as_error</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="notify_errors_to" xsi:type="AttributeEmailAddress">
-          <sql>notify_errors_to</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-       
-		<field id="notify_from" xsi:type="AttributeEmailAddress">
-          <sql>notify_from</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="mail_aliases" xsi:type="AttributeText">
-          <sql>mail_aliases</sql>
-          <default_value></default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-		
-        
-		<field id="trace" xsi:type="AttributeEnum">
-          <values>
-            <value>yes</value>
-            <value>no</value>
-          </values>
-          <sql>trace</sql>
-          <default_value>no</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="debug_trace" xsi:type="AttributeLongText">
-          <sql>debug_trace</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="email_storage" xsi:type="AttributeEnum">
-          <values>
-            <value>keep</value>
-            <value>delete</value>
-          </values>
-          <sql>email_storage</sql>
-          <default_value>keep</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-		
-        <field id="stimuli" xsi:type="AttributeText">
-          <sql>stimuli</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>		
-		
-		<!-- All policy options -->
-		
-		<!-- Mail size (attachments) too big -->
-        <field id="policy_mail_size_too_big_behavior" xsi:type="AttributeEnum">
-          <values>								
-            <value>mark_as_undesired</value> 
-            <value>delete</value> 
-            <value>bounce_delete</value> 
-            <value>bounce_mark_as_undesired</value>
-          </values>
-          <sql>policy_mail_size_too_big_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_mail_size_too_big_subject" xsi:type="AttributeString">
-          <sql>policy_mail_size_too_big_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_mail_size_too_big_notification" xsi:type="AttributeHTML">
-          <sql>policy_mail_size_too_big_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_mail_size_too_big_max_size_MB" xsi:type="AttributeString">
-          <sql>policy_mail_size_too_big_max_size_MB</sql> 
-          <default_value>10</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-		
-		
-		<!-- Forbidden mail attachments -->
-        <field id="policy_forbidden_attachments_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>fallback</value>
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value> 
-            <value>bounce_mark_as_undesired</value>
-          </values>
-          <sql>policy_forbidden_attachments_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_forbidden_attachments_subject" xsi:type="AttributeString">
-          <sql>policy_forbidden_attachments_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_forbidden_attachments_notification" xsi:type="AttributeHTML">
-          <sql>policy_forbidden_attachments_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_forbidden_attachments_mimetypes" xsi:type="AttributeText">
-          <sql>policy_forbidden_attachments_mimetypes</sql>
-          <default_value>application/exe</default_value>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		<!-- No subject. -->
-		<!-- option: create (ticket) with default title -->
-        <field id="policy_no_subject_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>fallback</value><!-- use default subject -->
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_no_subject_behavior</sql>
-          <default_value>fallback</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_no_subject_subject" xsi:type="AttributeString">
-          <sql>policy_no_subject_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_no_subject_notification" xsi:type="AttributeHTML">
-          <sql>policy_no_subject_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_no_subject_default_value" xsi:type="AttributeString">
-          <sql>policy_no_subject_default_value</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		<!-- Unknown callers -->
-		<!-- option: create (with default values) -->
-        <field id="policy_unknown_caller_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>fallback</value><!-- create contact -->
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_unknown_caller_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_unknown_caller_subject" xsi:type="AttributeString">
-          <sql>policy_unknown_caller_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_unknown_caller_notification" xsi:type="AttributeHTML">
-          <sql>policy_unknown_caller_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_unknown_caller_default_values" xsi:type="AttributeText">
-          <sql>policy_unknown_caller_default_values</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		
-		<!-- Additional contacts -->
-		<!-- Option: ignore all, create/add all -->
-        <field id="policy_other_recipients_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>add_existing_contacts</value>
-            <value>add_all_contacts</value>
-			<value>ignore_all_contacts</value>
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_other_recipients_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_other_recipients_subject" xsi:type="AttributeString">
-          <sql>policy_other_recipients_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_other_recipients_notification" xsi:type="AttributeHTML">
-          <sql>policy_other_recipients_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_other_recipients_default_values" xsi:type="AttributeText">
-          <sql>policy_other_recipients_default_values</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		<!-- Reference to closed ticket -->
-        <field id="policy_ticket_closed_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>fallback</value><!-- reopen -->
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_ticket_closed_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_ticket_closed_subject" xsi:type="AttributeString">
-          <sql>policy_ticket_closed_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_ticket_closed_notification" xsi:type="AttributeHTML">
-          <sql>policy_ticket_closed_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		 
-		<!-- Reference to resolved ticket -->
-        <field id="policy_ticket_resolved_behavior" xsi:type="AttributeEnum">
-          <values>
-            <value>fallback</value><!-- reopen -->
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_ticket_resolved_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_ticket_resolved_subject" xsi:type="AttributeString">
-          <sql>policy_ticket_resolved_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_ticket_resolved_notification" xsi:type="AttributeHTML">
-          <sql>policy_ticket_resolved_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		<!-- Reference to non-existing ticket -->
-        <field id="policy_ticket_unknown_behavior" xsi:type="AttributeEnum">
-          <values> 
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_ticket_unknown_behavior</sql>
-          <default_value>bounce_delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_ticket_unknown_subject" xsi:type="AttributeString">
-          <sql>policy_ticket_unknown_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_ticket_unknown_notification" xsi:type="AttributeHTML">
-          <sql>policy_ticket_unknown_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		<!-- Undesired pattern -->
-		<!-- option: specify undesired pattern here instead of in settings file. -->
-        <field id="policy_undesired_pattern_behavior" xsi:type="AttributeEnum">
-          <values> 
-            <value>mark_as_undesired</value>
-            <value>delete</value> 
-            <value>bounce_delete</value>
-            <value>bounce_mark_as_undesired</value> 
-          </values>
-          <sql>policy_undesired_pattern_behavior</sql>
-          <default_value>delete</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field>
-        <field id="policy_undesired_pattern_subject" xsi:type="AttributeString">
-          <sql>policy_undesired_pattern_subject</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_undesired_pattern_notification" xsi:type="AttributeHTML">
-          <sql>policy_undesired_pattern_notification</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-        <field id="policy_undesired_pattern_patterns" xsi:type="AttributeText">
-          <sql>policy_undesired_pattern_patterns</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		
-		<!-- Remove pattern -->
-		<!-- option: specify patterns to remove from the title. -->
-        <field id="policy_remove_pattern_behavior" xsi:type="AttributeEnum">
-          <values> 
-            <value>ignore</value>
-            <value>delete</value> 
-          </values>
-          <sql>policy_remove_pattern_behavior</sql>
-          <default_value>ignore</default_value>
-          <is_null_allowed>false</is_null_allowed>
-        </field> 
-        <field id="policy_remove_pattern_patterns" xsi:type="AttributeText">
-          <sql>policy_remove_pattern_patterns</sql>
-          <default_value/>
-          <is_null_allowed>true</is_null_allowed>
-        </field>
-		
-		
-		
-      </fields>
+	<classes>
+		<class id="MailInboxStandard" _delta="define">
+			<parent>MailInboxBase</parent>
+			<properties>
+				<category>searchable,view_in_gui,bizmodel</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>mailinbox_standard</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field>realclass</db_final_class_field>
+				<naming>
+					<format>%1$s</format>
+					<attributes>
+						<attribute id="login"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/mailbox.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="server"/>
+						<attribute id="login"/>
+						<attribute id="protocol"/>
+						<attribute id="mailbox"/>
+						<attribute id="port"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields>
+				<field id="behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>create_only</value>
+						<value>update_only</value>
+						<value>both</value>
+					</values>
+					<sql>behavior</sql>
+					<default_value>both</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="target_class" xsi:type="AttributeEnum">
+					<values>
+						<value>Incident</value>
+						<value>UserRequest</value>
+						<value>Change</value>
+						<value>RoutineChange</value>
+						<value>NormalChange</value>
+						<value>EmergencyChange</value>
+						<value>Problem</value>
+					</values>
+					<sql>target_class</sql>
+					<default_value>UserRequest</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="ticket_default_values" xsi:type="AttributeText">
+					<sql>ticket_default_values</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field> 
+				<field id="title_pattern" xsi:type="AttributeString">
+					<sql>title_pattern</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
 
-      <methods>
-        <method id="DisplayBareRelations">
-          <comment>/**
+				<field id="error_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>delete</value>
+						<value>mark_as_error</value>
+					</values>
+					<sql>error_behavior</sql>
+					<default_value>mark_as_error</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="notify_errors_to" xsi:type="AttributeEmailAddress">
+					<sql>notify_errors_to</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+				<field id="notify_from" xsi:type="AttributeEmailAddress">
+					<sql>notify_from</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="mail_aliases" xsi:type="AttributeText">
+					<sql>mail_aliases</sql>
+					<default_value></default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+
+
+				<field id="trace" xsi:type="AttributeEnum">
+					<values>
+						<value>yes</value>
+						<value>no</value>
+					</values>
+					<sql>trace</sql>
+					<default_value>no</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="debug_trace" xsi:type="AttributeLongText">
+					<sql>debug_trace</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="email_storage" xsi:type="AttributeEnum">
+					<values>
+						<value>keep</value>
+						<value>delete</value>
+					</values>
+					<sql>email_storage</sql>
+					<default_value>keep</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+
+				<field id="stimuli" xsi:type="AttributeText">
+					<sql>stimuli</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>		
+
+				<!-- All policy options -->
+
+				<!-- Mail size (attachments) too big -->
+				<field id="policy_mail_size_too_big_behavior" xsi:type="AttributeEnum">
+					<values>								
+						<value>mark_as_undesired</value> 
+						<value>delete</value> 
+						<value>bounce_delete</value> 
+						<value>bounce_mark_as_undesired</value>
+					</values>
+					<sql>policy_mail_size_too_big_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_mail_size_too_big_subject" xsi:type="AttributeString">
+					<sql>policy_mail_size_too_big_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_mail_size_too_big_notification" xsi:type="AttributeHTML">
+					<sql>policy_mail_size_too_big_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_mail_size_too_big_max_size_MB" xsi:type="AttributeString">
+					<sql>policy_mail_size_too_big_max_size_MB</sql> 
+					<default_value>10</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+
+
+				<!-- Forbidden mail attachments -->
+				<field id="policy_forbidden_attachments_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>fallback</value>
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value> 
+						<value>bounce_mark_as_undesired</value>
+					</values>
+					<sql>policy_forbidden_attachments_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_forbidden_attachments_subject" xsi:type="AttributeString">
+					<sql>policy_forbidden_attachments_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_forbidden_attachments_notification" xsi:type="AttributeHTML">
+					<sql>policy_forbidden_attachments_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_forbidden_attachments_mimetypes" xsi:type="AttributeText">
+					<sql>policy_forbidden_attachments_mimetypes</sql>
+					<default_value>application/exe</default_value>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+
+				<!-- No subject. -->
+				<!-- option: create (ticket) with default title -->
+				<field id="policy_no_subject_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>fallback</value><!-- use default subject -->
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_no_subject_behavior</sql>
+					<default_value>fallback</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_no_subject_subject" xsi:type="AttributeString">
+					<sql>policy_no_subject_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_no_subject_notification" xsi:type="AttributeHTML">
+					<sql>policy_no_subject_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_no_subject_default_value" xsi:type="AttributeString">
+					<sql>policy_no_subject_default_value</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+
+				<!-- Unknown callers -->
+				<!-- option: create (with default values) -->
+				<field id="policy_unknown_caller_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>fallback</value><!-- create contact -->
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_unknown_caller_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_unknown_caller_subject" xsi:type="AttributeString">
+					<sql>policy_unknown_caller_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_unknown_caller_notification" xsi:type="AttributeHTML">
+					<sql>policy_unknown_caller_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_unknown_caller_default_values" xsi:type="AttributeText">
+					<sql>policy_unknown_caller_default_values</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+
+
+				<!-- Additional contacts -->
+				<!-- Option: ignore all, create/add all -->
+				<field id="policy_other_recipients_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>add_existing_contacts</value>
+						<value>add_all_contacts</value>
+						<value>ignore_all_contacts</value>
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_other_recipients_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_other_recipients_subject" xsi:type="AttributeString">
+					<sql>policy_other_recipients_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_other_recipients_notification" xsi:type="AttributeHTML">
+					<sql>policy_other_recipients_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_other_recipients_default_values" xsi:type="AttributeText">
+					<sql>policy_other_recipients_default_values</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+
+				<!-- Reference to closed ticket -->
+				<field id="policy_ticket_closed_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>fallback</value><!-- reopen -->
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_ticket_closed_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_ticket_closed_subject" xsi:type="AttributeString">
+					<sql>policy_ticket_closed_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_ticket_closed_notification" xsi:type="AttributeHTML">
+					<sql>policy_ticket_closed_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+				<!-- Reference to resolved ticket -->
+				<field id="policy_ticket_resolved_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>fallback</value><!-- reopen -->
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_ticket_resolved_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_ticket_resolved_subject" xsi:type="AttributeString">
+					<sql>policy_ticket_resolved_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_ticket_resolved_notification" xsi:type="AttributeHTML">
+					<sql>policy_ticket_resolved_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+				<!-- Reference to non-existing ticket -->
+				<field id="policy_ticket_unknown_behavior" xsi:type="AttributeEnum">
+					<values> 
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_ticket_unknown_behavior</sql>
+					<default_value>bounce_delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_ticket_unknown_subject" xsi:type="AttributeString">
+					<sql>policy_ticket_unknown_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_ticket_unknown_notification" xsi:type="AttributeHTML">
+					<sql>policy_ticket_unknown_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+				<!-- Undesired pattern -->
+				<!-- option: specify undesired pattern here instead of in settings file. -->
+				<field id="policy_undesired_pattern_behavior" xsi:type="AttributeEnum">
+					<values> 
+						<value>mark_as_undesired</value>
+						<value>delete</value> 
+						<value>bounce_delete</value>
+						<value>bounce_mark_as_undesired</value> 
+					</values>
+					<sql>policy_undesired_pattern_behavior</sql>
+					<default_value>delete</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_undesired_pattern_subject" xsi:type="AttributeString">
+					<sql>policy_undesired_pattern_subject</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_undesired_pattern_notification" xsi:type="AttributeHTML">
+					<sql>policy_undesired_pattern_notification</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="policy_undesired_pattern_patterns" xsi:type="AttributeText">
+					<sql>policy_undesired_pattern_patterns</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+				<!-- Remove pattern -->
+				<!-- option: specify patterns to remove from the title. -->
+				<field id="policy_remove_pattern_behavior" xsi:type="AttributeEnum">
+					<values> 
+						<value>ignore</value>
+						<value>delete</value> 
+					</values>
+					<sql>policy_remove_pattern_behavior</sql>
+					<default_value>ignore</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field> 
+				<field id="policy_remove_pattern_patterns" xsi:type="AttributeText">
+					<sql>policy_remove_pattern_patterns</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+
+
+
+			</fields>
+
+			<methods>
+				<method id="DisplayBareRelations">
+					<comment>/**
 	 * Add an extra tab showing the debug trace
 	 * @see cmdbAbstractObject::DisplayBareRelations()
 	 */</comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-cmdbAbstractObject</type>
-          <code><![CDATA[	function DisplayBareRelations(WebPage $oPage, $bEditMode = false)
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-cmdbAbstractObject</type>
+					<code><![CDATA[	function DisplayBareRelations(WebPage $oPage, $bEditMode = false)
 	{
 		parent::DisplayBareRelations($oPage, $bEditMode);
 		if (!$bEditMode)
@@ -440,16 +438,16 @@ EOF
 			}
 		}
 	}]]></code>
-        </method>
-        <method id="Trace">
-          <comment>/**
+				</method>
+				<method id="Trace">
+					<comment>/**
 	 * Debug trace: activated/disabled by the configuration flag set for the base module...
 	 * @param string $sText
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-cmdbAbstractObject</type>
-          <code><![CDATA[	protected function Trace($sText)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-cmdbAbstractObject</type>
+					<code><![CDATA[	protected function Trace($sText)
 	{
 		parent::Trace($sText);
 		$iMaxTraceLength = 500*1024; // Maximum size of the Trace to keep in the database...
@@ -468,47 +466,47 @@ EOF
 			$this->DBUpdateTracked($oMyChange);
 		}
 	}]]></code>
-        </method>
-        <method id="RecordAttChanges">
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function RecordAttChanges(array $aValues, array $aOrigValues)
+				</method>
+				<method id="RecordAttChanges">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function RecordAttChanges(array $aValues, array $aOrigValues)
 	{
 		// Do NOT record the changes on the 'debug trace' attribute
 		unset($aValues['debug_trace']);
 		parent::RecordAttChanges($aValues, $aOrigValues);
 	}]]></code>
-        </method>
-        <method id="DispatchEmail">
-          <comment>/**
+				</method>
+				<method id="DispatchEmail">
+					<comment>/**
 	 * Initial dispatching of an incoming email: determines what to do with the email
 	 * @param EmailReplica $oEmailReplica The EmailReplica associated with the email. A new replica (i.e. not yet in DB) one for new emails
 	 * @return int An action code from EmailProcessor
 	 */</comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[		public function DispatchEmail(EmailReplica $oEmailReplica)
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[		public function DispatchEmail(EmailReplica $oEmailReplica)
 	{
 	
 		return parent::DispatchEmail($oEmailReplica);
 						  
 	}
 		]]></code>
-        </method>
-        <method id="ProcessNewEmail">
-          <comment>/**
+				</method>
+				<method id="ProcessNewEmail">
+					<comment>/**
 	 * Process an new (unread) incoming email
 	 * @param EmailSource $oSource The source from which this email was read
 	 * @param int $index The index of the message in the source
 	 * @param EmailMessage $oEmail The decoded email
 	 * @return Ticket The ticket created or updated in response to the email
 	 */</comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
 	{		
 		$this->Trace("Processing new eMail ( index = $index )"); 
 		$this->Trace(". UIDL ".htmlspecialchars($oEmail->sUIDL) );
@@ -573,18 +571,18 @@ EOF
 		
 		return $oTicket;
 	}]]></code>
-        </method>
-        <method id="FindCaller">
-          <comment>/**
+				</method>
+				<method id="FindCaller">
+					<comment>/**
 	 * Search if the caller email is an existing contact in iTop, if not may create it
 	 * depending on the mailinbox setting.
 	 * {@inheritDoc}
 	 * @see MailInboxBase::FindCaller()
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function FindCaller(EmailMessage $oEmail)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function FindCaller(EmailMessage $oEmail)
 	{
 		$oCaller = null;
 		$sContactQuery = 'SELECT Person WHERE email = :email';
@@ -659,17 +657,17 @@ EOF
 		
 		return $oCaller;
 	}]]></code>
-        </method>
-        <method id="GetRelatedTicket">
-          <comment>/**
+				</method>
+				<method id="GetRelatedTicket">
+					<comment>/**
 	 * 
 	 * {@inheritDoc}
 	 * @see MailInboxBase::GetRelatedTicket()
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function GetRelatedTicket(EmailMessage $oEmail)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function GetRelatedTicket(EmailMessage $oEmail)
 	{
 		// First check if there is any iTop object mentioned in the headers of the eMail
 		$oTicket = parent::GetRelatedTicket($oEmail);
@@ -687,10 +685,10 @@ EOF
 			// Patterns should be specified 1 per line	
 			$sSubject = $oEmail->sSubject;		
 			if(  $this->Get('policy_remove_pattern_patterns') != '' ) {
-				$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
+				$aRemovePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
 				
-				foreach( $aIgnorePatterns as $sIgnorePattern ) {
-					$sSubject = preg_replace($sIgnorePattern, "", $sSubject);
+				foreach( $aRemovePatterns as $sRemovePattern ) {
+					$sSubject = preg_replace($sIgnorePattern, '', $sSubject);
 				}
 			}
 			
@@ -698,16 +696,16 @@ EOF
 			{
 				$iTicketId = 0;
 				sscanf($aMatches[1], '%d', $iTicketId);
-				$this->Trace("iTop Simple Email Synchro: Retrieving ticket ".$iTicketId." (match by subject pattern)...");
+				$this->Trace('iTop Simple Email Synchro: Retrieving ticket {$iTicketId} (match by subject pattern)...');
 				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false);
 			}
 		}		
 		
 		return $oTicket;
 	}]]></code>
-        </method>
-        <method id="CreateTicketFromEmail">
-          <comment><![CDATA[/**
+				</method>
+				<method id="CreateTicketFromEmail">
+					<comment><![CDATA[/**
 	 * Actual creation of the ticket from the incoming email. Overload this method
 	 * to implement your own behavior, if needed
 	 *
@@ -717,10 +715,10 @@ EOF
 	 * @return Ticket the created ticket or null in case of failure
 	 * @throws \Exception if invalid target_class
 	 */]]></comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	public function CreateTicketFromEmail(EmailMessage $oEmail, Contact $oCaller)
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function CreateTicketFromEmail(EmailMessage $oEmail, Contact $oCaller)
 	{
 		// In case of error (exception...) set the behavior
 		if ($this->Get('error_behavior') == 'delete')
@@ -731,10 +729,10 @@ EOF
 		{
 			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 		}
-		$this->Trace("Creating a new Ticket from eMail '".$oEmail->sSubject."'");
+		$this->Trace('Creating a new Ticket from eMail {$oEmail->sSubject}');
 		if (!MetaModel::IsValidClass($this->Get('target_class')))
 		{
-			throw new Exception('Invalid "ticket_class" configured: "'.$this->Get('target_class').'" is not a valid class. Cannot create such an object.');
+			throw new Exception('Invalid "ticket_class" configured: {$this->Get('target_class')} is not a valid class. Cannot create such an object.');
 		}
 		$oTicket = MetaModel::NewObject($this->Get('target_class'));
 		$oTicket->Set('org_id', $oCaller->Get('org_id'));
@@ -751,7 +749,7 @@ EOF
 		if ($oEmail->sSubject == '')
 		{
 			$sDefaultSubject = ($this->Get('policy_no_subject_default_value') == '') ? Dict::S('MailInbox:NoSubject') : $this->Get('policy_no_subject_default_value');
-			$this->Trace("The incoming email has no subject, the ticket's title will be set to: '$sDefaultSubject'");
+			$this->Trace('The incoming email has no subject, the ticket title will be set to: "{$sDefaultSubject}"');
 			$oTicket->Set('title', $sDefaultSubject);
 		}
 		else
@@ -759,14 +757,23 @@ EOF
 			$oTicketTitleAttDef = MetaModel::GetAttributeDef(get_class($oTicket), 'title');
 			$iTitleMaxSize = $oTicketTitleAttDef->GetMaxSize();
 			 
-			// Do we want some patterns removed from the title?
+			// Remove certain patterns from the title?
 			$sSubject = $oEmail->sSubject;
 			if( $this->Get('policy_remove_pattern_patterns') != '' && $this->Get('policy_remove_pattern_behavior') == 'delete' ) {
 			
-				$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
+				$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
 				
-				foreach( $aIgnorePatterns as $sIgnorePattern ) {
-					$sSubject = preg_replace($sIgnorePattern, "", $sSubject);
+				foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
+					$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
+					
+					if( $oPregMatch === false) {
+						$this->Trace('Invalid pattern: {$sRemoveTitlePattern}');
+						break;
+					}
+					elseif( $oPregMatch != false ) {
+						$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
+					}
+					
 				}
 			}
 			
@@ -778,7 +785,7 @@ EOF
 		
 		// Get list of forbidden file types 
 		if( $this->Get('policy_forbidden_attachments_mimetypes') != '' ) {
-			$aForbiddenMimeTypes =  preg_split('/\\r\\n|\\r|\\n/' , $this->Get('policy_forbidden_attachments_mimetypes') );
+			$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_forbidden_attachments_mimetypes') );
 			
 			// Forbidden attachments? 
 			foreach($oEmail->aAttachments as $index => $aAttachment)
@@ -796,7 +803,6 @@ EOF
 			}
 			
 		}
-		
 		
 		// Insert the remaining attachments so that we know their ID and can reference them in the message's body
 		$aAddedAttachments = $this->AddAttachments($oTicket, $oEmail, true, $aIgnoredAttachments);  // Cannot insert them for real since the Ticket is not saved yet (we don't know its ID)
@@ -860,18 +866,18 @@ EOF
 						
 		return $oTicket;
 	}]]></code>
-        </method>
-        <method id="BuildDescription">
-          <comment><![CDATA[/**
+				</method>
+				<method id="BuildDescription">
+					<comment><![CDATA[/**
 	 * Build the 'description' of the ticket when creating a new ticket
 	 * @param EmailMessage $oEmail The incoming Email
 	 * @param bool $bForPlainText True if the desired output format is plain text, false if HTML
 	 * @return string
 	 */]]></comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function BuildDescription(EmailMessage $oEmail, $aAddedAttachments, $aIgnoredAttachments, $bForPlainText)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function BuildDescription(EmailMessage $oEmail, $aAddedAttachments, $aIgnoredAttachments, $bForPlainText)
 	{
 		$sTicketDescription = '';
 		if ($oEmail->sBodyFormat == 'text/html')
@@ -903,17 +909,17 @@ EOF
 		
 		return $sTicketDescription;
 	}]]></code>
-        </method>
-        <method id="AddAdditionalContacts">
-          <comment>/**
+				</method>
+				<method id="AddAdditionalContacts">
+					<comment>/**
 	 * Add the contacts in To: or CC: as additional contacts to the ticket (if they exist in the DB)
 	 * @param Ticket $oTicket
 	 * @param EmailMessage $oEmail
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function AddAdditionalContacts(Ticket $oTicket, EmailMessage $oEmail)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function AddAdditionalContacts(Ticket $oTicket, EmailMessage $oEmail)
 	{
 		$oContactsSet = $oTicket->Get('contacts_list');
 		$aExistingContacts = array();
@@ -943,17 +949,17 @@ EOF
 		}
 		$oTicket->Set('contacts_list', $oContactsSet);
 	}]]></code>
-        </method>
-        <method id="FindAdditionalContact">
-          <comment>/**
+				</method>
+				<method id="FindAdditionalContact">
+					<comment>/**
 	 * Search if the CC email is an existing contact in iTop, if so return it, otherwise ignore it
 	 * @param $sEmail string The email address to search
 	 * @return Contact | null
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function FindAdditionalContact($sEmail)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function FindAdditionalContact($sEmail)
 	{
 		$oContact = null;
 		$sContactQuery = 'SELECT Person WHERE email = :email';
@@ -977,35 +983,35 @@ EOF
 		}
 		return $oContact;
 	}]]></code>
-        </method>
-        <method id="BeforeInsertTicket">
-          <comment>/**
+				</method>
+				<method id="BeforeInsertTicket">
+					<comment>/**
 	 * Handler called just before inserting the ticket into the database
 	 * Overload this method to adjust the values of the ticket at your will
 	 * @param Ticket $oTicket
 	 * @param EmailMessage $oEmail
 	 * @param Contact $oCaller
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code>	protected function BeforeInsertTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code>	protected function BeforeInsertTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
 	{
 		// Default implementation: do nothing
 	}</code>
-        </method>
-        <method id="AfterInsertTicket">
-          <comment>/**
+				</method>
+				<method id="AfterInsertTicket">
+					<comment>/**
 	 * Finalize the processing after the insertion of the ticket in the database
 	 * @param Ticket $oTicket The ticket being written
 	 * @param EmailMessage $oEmail The source email
 	 * @param Contact $oCaller The caller for this ticket, as passed to CreateTicket
 	 * @param array $aAddedAttachments The array of attachments added to the ticket
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function AfterInsertTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller, $aAddedAttachments)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function AfterInsertTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller, $aAddedAttachments)
 	{
 		// Process attachments
 		$this->UpdateAttachments($aAddedAttachments, $oTicket); // Now update the attachments since we know the ID of the ticket
@@ -1023,9 +1029,9 @@ EOF
 			$this->SetNextAction(EmailProcessor::NO_ACTION);		
 		}		
 	}]]></code>
-        </method>
-        <method id="UpdateTicketFromEmail">
-          <comment><![CDATA[/**
+				</method>
+				<method id="UpdateTicketFromEmail">
+					<comment><![CDATA[/**
 	 * Actual update of a ticket from the incoming email. Overload this method
 	 * to implement your own behavior, if needed
 	 * @param Ticket $oTicket The ticket to update
@@ -1033,10 +1039,10 @@ EOF
 	 * @param Contact $oCaller The contact corresponding to the "From" email address
 	 * @return void
 	 */]]></comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	public function UpdateTicketFromEmail(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function UpdateTicketFromEmail(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
 	{
 		// In case of error (exception...) set the behavior
 		if ($this->Get('error_behavior') == 'delete')
@@ -1122,18 +1128,18 @@ EOF
 				
 		return $oTicket;		
 	}]]></code>
-        </method>
-        <method id="BuildCaseLogEntry">
-          <comment>/**
+				</method>
+				<method id="BuildCaseLogEntry">
+					<comment>/**
 	 * Build the text/html to be inserted in the case log when the ticket is updated
 	 * Starting with iTop 2.3.0, the format is always HTML
 	 * @param EmailMessage $oEmail
 	 * @return string The HTML text to be inserted in the case log
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function BuildCaseLogEntry(EmailMessage $oEmail, $aAddedAttachments, $aIgnoredAttachments)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function BuildCaseLogEntry(EmailMessage $oEmail, $aAddedAttachments, $aIgnoredAttachments)
 	{
 		$sCaseLogEntry = '';
 		$this->Trace("Email body format: ".$oEmail->sBodyFormat);
@@ -1157,33 +1163,33 @@ EOF
 		}
 		return $sCaseLogEntry;
 	}]]></code>
-        </method>
-        <method id="BeforeUpdateTicket">
-          <comment>/**
+				</method>
+				<method id="BeforeUpdateTicket">
+					<comment>/**
 	 * Handler called before updating a ticket in the database
 	 * Overload this method to alter the ticket at your will
 	 * @param Ticket $oTicket
 	 * @param EmailMessage $oEmail
 	 * @param Contact $oCaller
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code>	protected function BeforeUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code>	protected function BeforeUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
 	{
 		// Default implementation: do nothing
 	}</code>
-        </method>
-        <method id="ApplyConfiguredStimulus">
-          <comment><![CDATA[/**
+				</method>
+				<method id="ApplyConfiguredStimulus">
+					<comment><![CDATA[/**
 	 * Read the configuration in the 'stimuli' field (format: <state_code>:<stimulus_code>, one per line)
 	 * and apply the corresponding stimulus according to the current state of the ticket
 	 * @param ticket $oTicket
 	 */]]></comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function ApplyConfiguredStimulus(ticket $oTicket)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function ApplyConfiguredStimulus(ticket $oTicket)
 	{
 	
 		$sConf = $this->Get('stimuli');
@@ -1295,18 +1301,18 @@ EOF
 			}
 		}
 	}]]></code>
-        </method>
-        <method id="AfterUpdateTicket">
-          <comment>/**
+				</method>
+				<method id="AfterUpdateTicket">
+					<comment>/**
 	 * Finalize the processing after the update of the ticket in the database
 	 * @param Ticket $oTicket The ticket being written
 	 * @param EmailMessage $oEmail The source email
 	 * @param Contact $oCaller The caller for this ticket, as passed to UpdateTicket
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function AfterUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function AfterUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
 	{
 		// If there are any TriggerOnMailUpdate defined, let's activate them
 		$aClasses = MetaModel::EnumParentClasses(get_class($oTicket), ENUM_PARENT_CLASSES_ALL);
@@ -1333,12 +1339,12 @@ EOF
 			$this->SetNextAction(EmailProcessor::NO_ACTION);		
 		}
 	}]]></code>
-        </method>
-		<method id="ManageInlineImages">
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function ManageInlineImages($sBodyText, $aAddedAttachments, $aIgnoredAttachments, $bForPlainText = true)
+				</method>
+				<method id="ManageInlineImages">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function ManageInlineImages($sBodyText, $aAddedAttachments, $aIgnoredAttachments, $bForPlainText = true)
 	{
 		// Search for inline images: i.e. <img tags containing an src="cid:...." or without double quotes e.g. src=cid:xyzxyzx
 		// Note: (?: ... ) is used for grouping the alternative without creating a "matching group"
@@ -1427,18 +1433,18 @@ EOF
 		}
 		return $sBodyText;
 	}]]></code>
-        </method>
-		<method id="HandleError">
-          <comment>/**
+				</method>
+				<method id="HandleError">
+					<comment>/**
 	 * Error handler... what to do in case of error ??
 	 * @param EmailMessage $oEmail can be null in case of decoding error (like message too big)
 	 * @param string $sErrorCode
 	 * @return void
 	 */</comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	public function HandleError($oEmail, $sErrorCode, $oRawEmail = null, $sAdditionalErrorMessage = '')
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function HandleError($oEmail, $sErrorCode, $oRawEmail = null, $sAdditionalErrorMessage = '')
 	{
 	
 		$sTo = $this->Get('notify_errors_to');
@@ -1600,18 +1606,18 @@ EOF
 			$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 		}
 	}]]></code>
-        </method>
-		<method id="HandlePolicyViolation">
-          <comment>/**
+				</method>
+				<method id="HandlePolicyViolation">
+					<comment>/**
 	 * Policy violation handler... what to do in case of Policy violation ?
 	 * @param EmailMessage $oEmail can be null in case of decoding error (like message too big)
 	 * @param string $sPolicyViolation
 	 * @return void
 	 */</comment>
-          <static>false</static>
-          <access>public</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	public function HandlePolicyViolation($oEmail, $sPolicyViolation, $oRawEmail = null, $sAdditionalErrorMessage = '')
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public function HandlePolicyViolation($oEmail, $sPolicyViolation, $oRawEmail = null, $sAdditionalErrorMessage = '')
 	{
 	
 		// Rather than informing the admin, we need to inform the sender who doesn't follow guidelines.		
@@ -1706,22 +1712,22 @@ EOF
 		
 		 
 	}]]></code>
-        </method>
+				</method>
 
-		<!-- Start policies -->
-		
-        <method id="IsUndesired">
+				<!-- Start policies -->
 
-          <comment><![CDATA[/**
+				<method id="IsUndesired">
+
+					<comment><![CDATA[/**
 	 * Check all policies to see if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
 	 * @param $oTicket The ticket being written (Ticket or null)
 	 * @return array ( boolean 'compliant', Ticket 'ticket', string 'Caller' )
 	 */]]></comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function IsUndesired(EmailMessage $oEmail, /* Ticket or null */ $oTicket)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function IsUndesired(EmailMessage $oEmail, /* Ticket or null */ $oTicket)
 	{
 		
 
@@ -1831,11 +1837,21 @@ EOF
 				// We'll remove it elsewhere if it really needs to be gone.
 				// Patterns should be specified 1 per line		
 				$sSubject = $oEmail->sSubject;
-				if(  $this->Get('policy_remove_pattern_patterns') != '' ) {
-					$aIgnorePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
+				if( $this->Get('policy_remove_pattern_patterns') != '' && $this->Get('policy_remove_pattern_behavior') == 'delete' ) {
+				
+					$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
 					
-					foreach( $aIgnorePatterns as $sIgnorePattern ) {
-						$sSubject = preg_replace($sIgnorePattern, "", $sSubject);
+					foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
+						$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
+						
+						if( $oPregMatch === false) {
+							$this->Trace('Invalid pattern: {$sRemoveTitlePattern}');
+							break;
+						}
+						elseif( $oPregMatch != false ) {
+							$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
+						}
+						
 					}
 				}
 				
@@ -1915,11 +1931,17 @@ EOF
 			if( $this->Get('policy_undesired_pattern_patterns') != '' ) { 
 			
 				// Go over each pattern and check.
-				$aUndesiredSubjectPatterns = preg_split("/\\r\\n|\\r|\\n/", $this->Get('policy_undesired_pattern_patterns') ); 
+				$aUndesiredSubjectPatterns = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_undesired_pattern_patterns') ); 
 
 				foreach($aUndesiredSubjectPatterns as $sPattern)
 				{
-					if (preg_match($sPattern, $oEmail->sSubject))
+					$oPregMatched = @preg_match($sPattern, $oEmail->sSubject);
+					
+					if($oPregMatched === false) {
+						$this->Trace('The pattern "{$sPattern}" is an invalid undesired title pattern.');
+						break;
+					}
+					elseif (preg_match($sPattern, $oEmail->sSubject))
 					{
 						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it matches '$sPattern'."); 
 						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_undesired_pattern'];
@@ -2009,21 +2031,21 @@ EOF
 		
 		
 	}]]></code>
-        </method>
-           
-		
-		
-           <method id="FixPattern">
-          <comment>/**
+				</method>
+
+
+
+				<method id="FixPattern">
+					<comment>/**
 	 * Make sure that the given string is a proper PCRE pattern by surrounding
 	 * it with slashes, if needed
 	 * @param string $sPattern The pattern to check (can be an empty string)
 	 * @return string The valid pattern (or an empty string)
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function FixPattern($sPattern)
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function FixPattern($sPattern)
 	{
 		$sReturn = $sPattern;
 		if ($sPattern != '')
@@ -2038,19 +2060,19 @@ EOF
 		}
 		return $sReturn;
 	}]]></code>
-        </method>
-		
-        <method id="ReplaceMailVariables">
-          <comment>/**
+				</method>
+
+				<method id="ReplaceMailVariables">
+					<comment>/**
 	 * Replace variables in a string with info from incoming EmailMessage 
 	 * @param string $sString The string to work with
 	 * @param string $oEmail The Email Message to derive from
 	 * @return string The string 
 	 */</comment>
-          <static>false</static>
-          <access>protected</access>
-          <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function ReplaceMailVariables($sString, EmailMessage $oEmail )
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function ReplaceMailVariables($sString, EmailMessage $oEmail )
 	{	
 		// Could be extended with properties from EmailMessage class 
 		
@@ -2091,316 +2113,316 @@ EOF
 		return $sString; 
 		
 	}]]></code>
-        </method>
-      </methods>
-      <presentation>
-        <details>
-          <items>
-				<!-- Mailbox settings -->
-                <item id="fieldset:MailInbox:Server">
-                  <rank>10</rank>
-                  <items>
-                    <item id="server">
-                      <rank>10</rank>
-                    </item>
-                    <item id="login">
-                      <rank>20</rank>
-                    </item>
-                    <item id="password">
-                      <rank>30</rank>
-                    </item>
-                    <item id="protocol">
-                      <rank>40</rank>
-                    </item>
-                    <item id="port">
-                      <rank>50</rank>
-                    </item>
-                    <item id="mailbox">
-                      <rank>60</rank>
-                    </item>
-                    <item id="notify_from">
-                      <rank>70</rank>
-                    </item>
-                    <item id="active">
-                      <rank>80</rank>
-                    </item>
-                    <item id="trace">
-                      <rank>90</rank>
-                    </item>
-                    <item id="mail_aliases">
-                      <rank>100</rank>
-                    </item>
-                  </items>
-                </item>
+				</method>
+			</methods>
+			<presentation>
+				<details>
+					<items>
+						<!-- Mailbox settings -->
+						<item id="fieldset:MailInbox:Server">
+							<rank>10</rank>
+							<items>
+								<item id="server">
+									<rank>10</rank>
+								</item>
+								<item id="login">
+									<rank>20</rank>
+								</item>
+								<item id="password">
+									<rank>30</rank>
+								</item>
+								<item id="protocol">
+									<rank>40</rank>
+								</item>
+								<item id="port">
+									<rank>50</rank>
+								</item>
+								<item id="mailbox">
+									<rank>60</rank>
+								</item>
+								<item id="notify_from">
+									<rank>70</rank>
+								</item>
+								<item id="active">
+									<rank>80</rank>
+								</item>
+								<item id="trace">
+									<rank>90</rank>
+								</item>
+								<item id="mail_aliases">
+									<rank>100</rank>
+								</item>
+							</items>
+						</item>
 
-				<!-- Default behavior and class -->
-                <item id="fieldset:MailInbox:Behavior">
-                  <rank>20</rank>
-                  <items>
-                    <item id="behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="email_storage">
-                      <rank>20</rank>
-                    </item>
-                    <item id="target_class">
-                      <rank>30</rank>
-                    </item>
-                    <item id="ticket_default_values">
-                      <rank>40</rank>
-                    </item>
-                    <!-- <item id="ticket_default_title"> -->
-                      <!-- <rank>50</rank> -->
-                    <!-- </item> -->
-                    <item id="title_pattern">
-                      <rank>60</rank>
-                    </item>
-                    <item id="stimuli">
-                      <rank>70</rank>
-                    </item>
-                  </items>
-                </item>
-				
-				<!-- Errors in processing -->
-                <item id="fieldset:MailInbox:Errors">
-                  <rank>30</rank>
-                  <items>
-                    <item id="error_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="notify_errors_to">
-                      <rank>20</rank>
-                    </item>
-                  </items>
-                </item>
-				
-				<!-- ################################# POLICIES ####################### -->
-				
-				<!-- Mail (attachments) size too large -->
-                <item id="fieldset:MailInbox:PolicyMailSize">
-                  <rank>110</rank>
-                  <items>
-                    <item id="policy_mail_size_too_big_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_mail_size_too_big_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_mail_size_too_big_notification">
-                      <rank>20</rank>
-                    </item>
-                    <item id="policy_mail_size_too_big_max_size_MB">
-                      <rank>30</rank>
-                    </item>
-                  </items>
-                </item> 
-				
-				
-				<!-- Mail (attachments) size too large -->
-                <item id="fieldset:MailInbox:PolicyForbiddenAttachments">
-                  <rank>120</rank>
-                  <items>
-                    <item id="policy_forbidden_attachments_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_forbidden_attachments_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_forbidden_attachments_notification">
-                      <rank>20</rank>
-                    </item>
-                    <item id="policy_forbidden_attachments_mimetypes">
-                      <rank>30</rank>
-                    </item>
-                  </items>
-                </item> 
-				
-				<!-- No subject -->
-                <item id="fieldset:MailInbox:PolicyNoSubject">
-                  <rank>130</rank>
-                  <items>
-                    <item id="policy_no_subject_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_no_subject_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_no_subject_notification">
-                      <rank>20</rank>
-                    </item>
-                    <item id="policy_no_subject_default_value">
-                      <rank>30</rank>
-                    </item>
-                  </items>
-                </item> 
-				
-				<!-- Closed ticket -->
-                <item id="fieldset:MailInbox:PolicyClosedTicket">
-                  <rank>140</rank>
-                  <items>
-                    <item id="policy_ticket_closed_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_ticket_closed_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_ticket_closed_notification">
-                      <rank>20</rank>
-                    </item> 
-                  </items>
-                </item> 
-				
-				<!-- Resolved ticket -->
-                <item id="fieldset:MailInbox:PolicyResolvedTicket">
-                  <rank>141</rank>
-                  <items>
-                    <item id="policy_ticket_resolved_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_ticket_resolved_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_ticket_resolved_notification">
-                      <rank>20</rank>
-                    </item> 
-                  </items>
-                </item> 
-				
-				<!-- Unknown ticket -->
-                <item id="fieldset:MailInbox:PolicyUnknownTicket">
-                  <rank>150</rank>
-                  <items>
-                    <item id="policy_ticket_unknown_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_ticket_unknown_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_ticket_unknown_notification">
-                      <rank>20</rank>
-                    </item> 
-                  </items>
-                </item> 
-				
-				<!-- Unknown caller -->
-                <item id="fieldset:MailInbox:PolicyUnknownCaller">
-                  <rank>160</rank>
-                  <items>
-                    <item id="policy_unknown_caller_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_unknown_caller_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_unknown_caller_notification">
-                      <rank>20</rank>
-                    </item>
-                    <item id="policy_unknown_caller_default_values">
-                      <rank>30</rank>
-                    </item>
-                  </items>
-                </item> 
-				
-				<!-- Other contacts -->
-                <item id="fieldset:MailInbox:PolicyOtherRecipients">
-                  <rank>170</rank>
-                  <items>
-                    <item id="policy_other_recipients_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_other_recipients_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_other_recipients_notification">
-                      <rank>20</rank>
-                    </item> 
-                  </items>
-                </item> 
-				
-				<!-- Undesired pattern behavior -->
-                <item id="fieldset:MailInbox:PolicyUndesiredPattern">
-                  <rank>180</rank>
-                  <items>
-                    <item id="policy_undesired_pattern_behavior">
-                      <rank>10</rank>
-                    </item>
-                    <item id="policy_undesired_pattern_subject">
-                      <rank>15</rank>
-                    </item>
-                    <item id="policy_undesired_pattern_notification">
-                      <rank>20</rank>
-                    </item> 
-                    <item id="policy_undesired_pattern_patterns">
-                      <rank>30</rank>
-                    </item> 
-                  </items>
-                </item> 
-				
-				<!-- Remove/ignore pattern behavior -->
-                <item id="fieldset:MailInbox:PolicyIgnoreRemovePattern">
-                  <rank>190</rank>
-                  <items>
-                    <item id="policy_remove_pattern_behavior">
-                      <rank>10</rank>
-                    </item> 
-                    <item id="policy_remove_pattern_patterns">
-                      <rank>20</rank>
-                    </item> 
-                  </items>
-                </item> 
-				
-				
-          </items>
-        </details>
-        <search>
-          <items>
-            <item id="server">
-              <rank>10</rank>
-            </item>
-            <item id="login">
-              <rank>20</rank>
-            </item>
-            <item id="mailbox">
-              <rank>30</rank>
-            </item>
-            <item id="protocol">
-              <rank>40</rank>
-            </item>
-            <item id="active">
-              <rank>50</rank>
-            </item>
-          </items>
-        </search>
-        <list>
-          <items>
-            <item id="server">
-              <rank>10</rank>
-            </item>
-            <item id="mailbox">
-              <rank>20</rank>
-            </item>
-            <item id="protocol">
-              <rank>30</rank>
-            </item>
-            <item id="active">
-              <rank>40</rank>
-            </item>
-          </items>
-        </list>
-      </presentation>
-    </class>
-  </classes>
-  <menus>
-    <menu id="AdminTools" xsi:type="MenuGroup" _delta="define_if_not_exists">
-      <rank>80</rank>
-      <enable_admin_only>1</enable_admin_only>
-    </menu>
-    <menu id="MailInboxes" xsi:type="OQLMenuNode" _delta="define">
-      <rank>20</rank>
-      <parent>AdminTools</parent>
-      <oql><![CDATA[SELECT MailInboxStandard]]></oql>
-      <do_search>1</do_search>
-      <enable_admin_only>1</enable_admin_only>
-    </menu>
-  </menus>
+						<!-- Default behavior and class -->
+						<item id="fieldset:MailInbox:Behavior">
+							<rank>20</rank>
+							<items>
+								<item id="behavior">
+									<rank>10</rank>
+								</item>
+								<item id="email_storage">
+									<rank>20</rank>
+								</item>
+								<item id="target_class">
+									<rank>30</rank>
+								</item>
+								<item id="ticket_default_values">
+									<rank>40</rank>
+								</item>
+								<!-- <item id="ticket_default_title"> -->
+								<!-- <rank>50</rank> -->
+								<!-- </item> -->
+								<item id="title_pattern">
+									<rank>60</rank>
+								</item>
+								<item id="stimuli">
+									<rank>70</rank>
+								</item>
+							</items>
+						</item>
+
+						<!-- Errors in processing -->
+						<item id="fieldset:MailInbox:Errors">
+							<rank>30</rank>
+							<items>
+								<item id="error_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="notify_errors_to">
+									<rank>20</rank>
+								</item>
+							</items>
+						</item>
+
+						<!-- ################################# POLICIES ####################### -->
+
+						<!-- Mail (attachments) size too large -->
+						<item id="fieldset:MailInbox:PolicyMailSize">
+							<rank>110</rank>
+							<items>
+								<item id="policy_mail_size_too_big_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_mail_size_too_big_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_mail_size_too_big_notification">
+									<rank>20</rank>
+								</item>
+								<item id="policy_mail_size_too_big_max_size_MB">
+									<rank>30</rank>
+								</item>
+							</items>
+						</item> 
+
+
+						<!-- Mail (attachments) size too large -->
+						<item id="fieldset:MailInbox:PolicyForbiddenAttachments">
+							<rank>120</rank>
+							<items>
+								<item id="policy_forbidden_attachments_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_forbidden_attachments_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_forbidden_attachments_notification">
+									<rank>20</rank>
+								</item>
+								<item id="policy_forbidden_attachments_mimetypes">
+									<rank>30</rank>
+								</item>
+							</items>
+						</item> 
+
+						<!-- No subject -->
+						<item id="fieldset:MailInbox:PolicyNoSubject">
+							<rank>130</rank>
+							<items>
+								<item id="policy_no_subject_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_no_subject_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_no_subject_notification">
+									<rank>20</rank>
+								</item>
+								<item id="policy_no_subject_default_value">
+									<rank>30</rank>
+								</item>
+							</items>
+						</item> 
+
+						<!-- Closed ticket -->
+						<item id="fieldset:MailInbox:PolicyClosedTicket">
+							<rank>140</rank>
+							<items>
+								<item id="policy_ticket_closed_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_ticket_closed_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_ticket_closed_notification">
+									<rank>20</rank>
+								</item> 
+							</items>
+						</item> 
+
+						<!-- Resolved ticket -->
+						<item id="fieldset:MailInbox:PolicyResolvedTicket">
+							<rank>141</rank>
+							<items>
+								<item id="policy_ticket_resolved_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_ticket_resolved_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_ticket_resolved_notification">
+									<rank>20</rank>
+								</item> 
+							</items>
+						</item> 
+
+						<!-- Unknown ticket -->
+						<item id="fieldset:MailInbox:PolicyUnknownTicket">
+							<rank>150</rank>
+							<items>
+								<item id="policy_ticket_unknown_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_ticket_unknown_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_ticket_unknown_notification">
+									<rank>20</rank>
+								</item> 
+							</items>
+						</item> 
+
+						<!-- Unknown caller -->
+						<item id="fieldset:MailInbox:PolicyUnknownCaller">
+							<rank>160</rank>
+							<items>
+								<item id="policy_unknown_caller_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_unknown_caller_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_unknown_caller_notification">
+									<rank>20</rank>
+								</item>
+								<item id="policy_unknown_caller_default_values">
+									<rank>30</rank>
+								</item>
+							</items>
+						</item> 
+
+						<!-- Other contacts -->
+						<item id="fieldset:MailInbox:PolicyOtherRecipients">
+							<rank>170</rank>
+							<items>
+								<item id="policy_other_recipients_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_other_recipients_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_other_recipients_notification">
+									<rank>20</rank>
+								</item> 
+							</items>
+						</item> 
+
+						<!-- Undesired pattern behavior -->
+						<item id="fieldset:MailInbox:PolicyUndesiredPattern">
+							<rank>180</rank>
+							<items>
+								<item id="policy_undesired_pattern_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_undesired_pattern_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_undesired_pattern_notification">
+									<rank>20</rank>
+								</item> 
+								<item id="policy_undesired_pattern_patterns">
+									<rank>30</rank>
+								</item> 
+							</items>
+						</item> 
+
+						<!-- Remove/ignore pattern behavior -->
+						<item id="fieldset:MailInbox:PolicyIgnoreRemovePattern">
+							<rank>190</rank>
+							<items>
+								<item id="policy_remove_pattern_behavior">
+									<rank>10</rank>
+								</item> 
+								<item id="policy_remove_pattern_patterns">
+									<rank>20</rank>
+								</item> 
+							</items>
+						</item> 
+
+
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="server">
+							<rank>10</rank>
+						</item>
+						<item id="login">
+							<rank>20</rank>
+						</item>
+						<item id="mailbox">
+							<rank>30</rank>
+						</item>
+						<item id="protocol">
+							<rank>40</rank>
+						</item>
+						<item id="active">
+							<rank>50</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="server">
+							<rank>10</rank>
+						</item>
+						<item id="mailbox">
+							<rank>20</rank>
+						</item>
+						<item id="protocol">
+							<rank>30</rank>
+						</item>
+						<item id="active">
+							<rank>40</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+	</classes>
+	<menus>
+		<menu id="AdminTools" xsi:type="MenuGroup" _delta="define_if_not_exists">
+			<rank>80</rank>
+			<enable_admin_only>1</enable_admin_only>
+		</menu>
+		<menu id="MailInboxes" xsi:type="OQLMenuNode" _delta="define">
+			<rank>20</rank>
+			<parent>AdminTools</parent>
+			<oql><![CDATA[SELECT MailInboxStandard]]></oql>
+			<do_search>1</do_search>
+			<enable_admin_only>1</enable_admin_only>
+		</menu>
+	</menus>
 </itop_design>

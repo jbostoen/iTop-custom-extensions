@@ -105,6 +105,15 @@ EOF
 
 		$sId = utils::GetSafeId('dashlet_map_overview_'.($bEditMode? 'edit_' : '').$this->sId);
 		
+		// Does a cookie exist with a preferred basemap for this class for this user?
+		$sDefaultBaseMap = 'osm';
+		$sCookieName = 'itop_geometryHandler_basemap_used_for_'.get_class($oObject);
+		if(isset($_COOKIE[$sCookieName]) == true ) {
+			// Renew for another 30 days
+			setcookie($sCookieName, $_COOKIE[$sCookieName], time()+3600*24*30, '/');
+			$sDefaultBaseMap = $_COOKIE[$sCookieName];
+		}
+			
 		// Add header
 		if ($sHtmlTitle != '')
 		{
@@ -169,6 +178,7 @@ EOF
 		$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax.handler.php';
 		
 		// Does a cookie exist with a preferred basemap for this class for this user?
+		// If not, assume OpenStreetMap
 		$sDefaultBaseMap = 'osm';
 		$sCookieName = 'itop_geometryHandler_basemap_used_for_'.$sId;
 		
@@ -196,6 +206,7 @@ EOF
 		// for geometryHandler_{$sId}.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 		$aJSON_Features = json_encode($aFeatures);
 		
+		
 		// Add content
 		$oPage->add('
 			<select id="geometryHandlerBaseMap">
@@ -210,7 +221,7 @@ EOF
 			<div id="{$sId}_map" class="ol-map" style="width: 100%; height: {$iHeight}px;"></div>
 EOF
 		);
-	
+		
 		$oPage->add_ready_script(
 <<<EOF
 
@@ -294,9 +305,9 @@ EOF
 			geometryHandler_{$sId}.oMap = new ol.Map({
 				target: "{$sId}_map",
 				layers: [
-						// the last layer added appears on top.
-						geometryHandler_{$sId}.aLayers.{$sDefaultBaseMap},
-						geometryHandler_{$sId}.aLayers.vector 
+					// the last layer added appears on top.
+					geometryHandler_{$sId}.aLayers.{$sDefaultBaseMap},
+					geometryHandler_{$sId}.aLayers.vector 
 				],
 				view: new ol.View({
 					center: geometryHandler_{$sId}.oCenter,
@@ -328,7 +339,7 @@ EOF
 						dashlet: "{$sId}"
 					}
 				});
-				
+
 			});
 
 EOF

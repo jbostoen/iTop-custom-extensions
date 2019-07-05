@@ -10,7 +10,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-geom/2.5.180802',
+	'jb-geom/2.6.180802',
 	array(
 		// Identification
 		//
