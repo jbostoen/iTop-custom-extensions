@@ -30,8 +30,11 @@ SetupWebPage::AddModule(
 		//
 		'datamodel' => array(
 			'model.jb-geom.php',
-			'main.jb-geom.php',
-			'dashlet.jb-geom.php',
+			'classes/ApplicationUIExtensionGeometryHandler.php',
+			'classes/CustomSearchForm.php',
+			'classes/DashletMapOverview.php',
+			'classes/PopupMenuExtensionGeometryHandler.php',
+			// ajax.handler.php and ajax.searchform.php are not needed here.
 		),
 		'webservice' => array(
 			

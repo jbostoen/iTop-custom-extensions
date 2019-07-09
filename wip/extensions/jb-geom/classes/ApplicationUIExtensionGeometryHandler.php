@@ -5,7 +5,7 @@
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  * @version     -
  *
- * Defines cApplicationUIExtension_GeometryHandler, cPopupMenuExtension_GeometryHandler
+ * Defines ApplicationUIExtensionGeometryHandler
  */
  
 
@@ -14,9 +14,9 @@
 **/
 
 /**
-* Class cApplicationUIExtension_GeometryHandler. Adds tab with map, makes textbox 'geom' invisible
+* Class ApplicationUIExtensionGeometryHandler. Adds tab with map, makes textbox 'geom' invisible
 */
-class cApplicationUIExtension_GeometryHandler implements iApplicationUIExtension
+class ApplicationUIExtensionGeometryHandler implements iApplicationUIExtension
 {
 	/**
 	* Called when building the Actions menu for a single object or a list of objects
@@ -109,6 +109,7 @@ EOF
 		
 		// Get list of attributes
 		$aAttributeList = Metamodel::GetAttributesList(get_class($oObject));
+		$aAttributeList[] = 'id';
 		
 		// If attribute exists
 		if( in_array('geom', $aAttributeList) == true ) {		
@@ -133,13 +134,14 @@ EOF
 			
 			$sGeomString = ( $aGeomSettings['dataformat'] == 'GeoJSON' ? addcslashes($oObject->Get('geom'), '"') : $oObject->Get('geom') ); 
 			
-			// Get path to ajax.handler.php
+			// Get path to AJAX handler
 			$sModuleDir = basename(dirname(__FILE__));
-			$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax.handler.php';
+			$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax/handler.php';
 			
 			// Does a cookie exist with a preferred basemap for this class for this user?
 			$sDefaultBaseMap = 'osm';
 			$sCookieName = 'itop_geometryHandler_basemap_used_for_'.get_class($oObject);
+			
 			if(isset($_COOKIE[$sCookieName]) == true ) {
 				// Renew for another 30 days
 				setcookie($sCookieName, $_COOKIE[$sCookieName], time()+3600*24*30, '/');
@@ -220,46 +222,6 @@ EOF
 			
 			$sClassName = get_class($oObject);
 			$sJSON_FeatureProperties = json_encode($aAttributeValues);
-			$sJSON_FeatureProperties = addcslashes($sJSON_FeatureProperties, "'"); // Escape single quotes, for example in values.
-						
-			// If not EPSG:3857 or EPSG:4326, projection needs to be added (Proj4)
-			foreach(Array($aGeomSettings['datacrs'], $aGeomSettings['mapcrs']) as $sCRS ) {
-				if(in_array($sCRS, Array('EPSG:3857', 'EPSG:4326')) == false ) {
-							
-					// Needed for projections other than EPSG:4326, EPSG:3857
-					$oPage->add_linked_script('https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.5.0/proj4.js');	
-
-					// Add definition (expects file in subfolder 'proj' of this extension.)
-					// Could be adapted to use https://epsg.io/31370.js instead
-					$sModuleDir = basename(dirname(__FILE__));
-					$sProjDefinitionFile = dirname(__FILE__).'/epsg.io/'.$sCRS.'.proj4';
-					
-					// An alternative or fallback to a local file could be using cURL operation to download the file
-					if(file_exists($sProjDefinitionFile) == true ) {
-						$sProj4_definition = file_get_contents($sProjDefinitionFile);
-						
-						$oPage->add_ready_script(
-<<<EOF
-
-							// Proj4 definition
-							proj4.defs("{{$sCRS}", "{$sProj4_definition}");
-EOF
-						);
-					}
-					else {
-						
-						$oPage->add_ready_script(
-<<<EOF
-
-							// Proj4 definition: not found. Use alert so this error is easy to spot.
-							alert('Proj4 definition unavailable: {$sProjDefinitionFile}');
-EOF
-						);
-						
-					}
-					
-				}
-			}
 			
 			// 'add_script' is also a method
 			// Be careful what EPSG to select!
@@ -350,7 +312,7 @@ EOF
 				geometryHandler.oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
-						// the last layer added appears on top
+						// the last layer added appears on top.
 						geometryHandler.aLayers.{$sDefaultBaseMap},
 						geometryHandler.aLayers.vector 
 					],
@@ -555,95 +517,5 @@ EOF
 	*/
 	public function OnFormSubmit( $oObject, $sFormPrefix = '' ) : void { 
 	}
-	
   
-}
-
-class cPopupMenuExtension_GeometryHandler implements iPopupMenuExtension
-{
-        /**
-         * Get the list of items to be added to a menu.
-         *
-         * This method is called by the framework for each menu.
-         * The items will be inserted in the menu in the order of the returned array.
-         * @param int $iMenuId The identifier of the type of menu, as listed by the constants MENU_xxx
-         * @param mixed $param Depends on $iMenuId, see the constants defined above
-         * @return object[] An array of ApplicationPopupMenuItem or an empty array if no action is to be added to the menu
-         */
-        public static function EnumItems($iMenuId, $param)
-        {
-                $aResult = array();
- 
-                switch($iMenuId) // type of menu in which to add menu items
-                {
-                        /**
-                         * Insert an item into the Actions menu of a list
-                         *
-                         * $param is a DBObjectSet containing the list of objects       
-                         */      
-                        case iPopupMenuExtension::MENU_OBJLIST_ACTIONS:
-							break;
- 
-                        /**
-                         * Insert an item into the Toolkit menu of a list
-                         *
-                         * $param is a DBObjectSet containing the list of objects
-                         */      
-                        case iPopupMenuExtension::MENU_OBJLIST_TOOLKIT:
-							break;
- 
-                        /**
-                         * Insert an item into the Actions menu on an object's details page
-                         *
-                         * $param is a DBObject instance: the object currently displayed
-                         */      
-                        case iPopupMenuExtension::MENU_OBJDETAILS_ACTIONS:
-							// For any object, add a menu "Google this..." that opens google search in another window
-							// with the name of the object as the text to search
-							
-							// Only for objects with features (if none specified yet, don't show menu. 'Other actions' is not shown when modifying.)
-							
-							// Get list of attributes
-							$aAttributeList = Metamodel::GetAttributesList(get_class($param));
-							
-							if( in_array('geom', $aAttributeList) == true ) {
-								if( $param->Get('geom') != '' ) {
-								
-									// Add a separator
-									$aResult[] = new SeparatorPopupMenuItem(); // Note: separator does not work in iTop 2.0 due to Trac #698, fixed in 2.0.1
-	 
-									// Add a new menu item that triggers a custom JS function defined in our own javascript file: js/sample.js
-									$sModuleDir = basename(dirname(__FILE__));
-									$sJSFileUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/js/geometry-actions.js';
-									
-									// It doesn't seem to be necessary to self-check if $aIncludeJSFiles should only include the JavaScript file once.
-									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler.Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
-									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Copy_As_GeoJSON', /* $sLabel */ Dict::S('UI:Geom:Menu:CopyAsGeoJSON'), /* $sJSCode */ 'geometryHandler.Copy_As_GeoJSON()', /* $aIncludeJSFiles */ array($sJSFileUrl));
-	 
-								}
-							}
-							break;
- 
-                        /**
-                         * Insert an item into the Dashboard menu
-                         *
-                         * The dashboad menu is shown on the top right corner of the page when
-                         * a dashboard is being displayed.
-                         * 
-                         * $param is a Dashboard instance: the dashboard currently displayed
-                         */      
-                        case iPopupMenuExtension::MENU_DASHBOARD_ACTIONS:
-							break;
- 
-                        /**
-                         * Insert an item into the User menu (upper right corner of the page)
-                         *
-                         * $param is null
-                         */
-                        case iPopupMenuExtension::MENU_USER_ACTIONS:
-							break;
- 
-                }
-                return $aResult;
-        }
 }

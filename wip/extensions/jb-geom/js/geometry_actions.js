@@ -21,7 +21,7 @@
 		document.location = sUrl;
 	}
 	
-	geometryHandler.geometryHandler_Copy_As_GeoJSON = function (){
+	geometryHandler.Copy_As_GeoJSON = function (){
 		
 		// Should be in a selectable element.
 		$('#geometryHandler_GeoJSON').html(geometryHandler.oFormat.GeoJSON.writeFeature(geometryHandler.oFeature)).show().select();

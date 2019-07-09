@@ -1,7 +1,14 @@
 # jb-geom
 
 ## What?
-Geometry tab - Adds a geometry field (tab with OpenLayers Map) to specified classes. The field is named 'geom'.
+Adds a geometry to specified classes. The field is named 'geom'. You can change the datamodel and add it to any object.
+
+Objects with this geom field, will show an OpenStreetMap tab depicting the feature (Point, LineString, Polygon).
+
+There's also a dashlet to show all objects of a class on a map.
+
+The last used basemap is remembered per user for each class and dashlet.
+
 
 ## Cookbook
 XML: 
@@ -12,6 +19,7 @@ PHP:
 * shows how to add menus with iPopupMenuExtension::EnumItems()
 * how to obtain a list of all iTop attribute names to check if an attribute is present ('geom')
 * how to add a CSS style, a CSS stylesheet, additional JavaScript libraries, JavaScript and HTML code
+* how to create a custom dashlet
 * ...
 
 JS:
@@ -28,10 +36,10 @@ It's possible to specify both defaults or class specific settings.
 * mapcenter: Array of coordinates. Centers the map to this point, if no feature has been drawn yet (otherwise it will center to the feature).
 * mapzoom: Integer. Zoom level.
 
-A cookie remembers for 30 days the last chosen basemap - per user, per class.
+A cookie remembers for 30 days the last chosen basemap - per user, per class or dashlet.
 
 # Limitations
-* currently 1 feature per object
+* currently 1 feature per object.
 * if you have really complex features with lots of points, it may be too large to store. Probably won't happen.
 * currently stored as an AttributeString (so not a MySQL geometry field).
 
