@@ -71,12 +71,12 @@ class PopupMenuExtensionGeometryHandler implements iPopupMenuExtension
 									$aResult[] = new SeparatorPopupMenuItem(); // Note: separator does not work in iTop 2.0 due to Trac #698, fixed in 2.0.1
 	 
 									// Add a new menu item that triggers a custom JS function defined in our own javascript file: js/sample.js
-									$sModuleDir = basename(dirname(__FILE__));
+									$sModuleDir = basename(dirname(dirname(__FILE__)));
 									$sJSFileUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/js/geometry_actions.js';
 									
 									// It doesn't seem to be necessary to self-check if $aIncludeJSFiles should only include the JavaScript file once.
-									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler.Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
-									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Copy_As_GeoJSON', /* $sLabel */ Dict::S('UI:Geom:Menu:CopyAsGeoJSON'), /* $sJSCode */ 'geometryHandler.Copy_As_GeoJSON()', /* $aIncludeJSFiles */ array($sJSFileUrl));
+									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Open_OpenStreetMap', /* $sLabel */ Dict::S('UI:Geom:Menu:ShowOpenStreetMap'), /* $sJSCode */ 'geometryHandler["common"].Show_OpenStreetMap()', /* $aIncludeJSFiles */ array($sJSFileUrl));
+									$aResult[] = new JSPopupMenuItem(/* $sUUID */ 'geometryHandler_Copy_As_GeoJSON', /* $sLabel */ Dict::S('UI:Geom:Menu:CopyAsGeoJSON'), /* $sJSCode */ 'geometryHandler["common"].Copy_As_GeoJSON()', /* $aIncludeJSFiles */ array($sJSFileUrl));
 	 
 								}
 							}

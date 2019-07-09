@@ -14,7 +14,7 @@
 **/
 
 /**
-* Class ApplicationUIExtensionGeometryHandler. Adds tab with map, makes textbox 'geom' invisible
+* Class ApplicationUIExtensiongeometryHandler["common"]. Adds tab with map, makes textbox 'geom' invisible
 */
 class ApplicationUIExtensionGeometryHandler implements iApplicationUIExtension
 {
@@ -226,7 +226,7 @@ EOF
 			// 'add_script' is also a method
 			// Be careful what EPSG to select!
 			// Detect if Geometry was saved in GeoJSON or WKT
-			// for geometryHandler.oFeature, use single quotes on the outside. Inner quotes will have been escaped.
+			// for geometryHandler["common"].oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 			$oPage->add_ready_script(
 <<<EOF
 				 
@@ -235,27 +235,30 @@ EOF
 				if( typeof geometryHandler === "undefined" ) {
 					geometryHandler = {};
 				}
+				if( typeof geometryHandler["common"] === "undefined" ) {
+					geometryHandler["common"] = {};
+				}
 				
-				geometryHandler.oFormat = {
+				geometryHandler["common"].oFormat = {
 					WKT: new ol.format.WKT(),
 					GeoJSON: new ol.format.GeoJSON()
 				};
-				geometryHandler.aFeatures = [];
-				geometryHandler.oFeature = ( "{$sGeomString}" != "" ? geometryHandler.oFormat.{$aGeomSettings['dataformat']}.readFeature("{$sGeomString}", { 
+				geometryHandler["common"].aFeatures = [];
+				geometryHandler["common"].oFeature = ( "{$sGeomString}" != "" ? geometryHandler["common"].oFormat.{$aGeomSettings['dataformat']}.readFeature("{$sGeomString}", { 
 					dataProjection: "{$aGeomSettings['datacrs']}", 
 					featureProjection: "{$aGeomSettings['mapcrs']}" 
 				}) : null );
 				
-				if( geometryHandler.oFeature !== null ) {
-					geometryHandler.oFeature.setProperties('{$sJSON_FeatureProperties}');
-					geometryHandler.aFeatures.push( geometryHandler.oFeature );
+				if( geometryHandler["common"].oFeature !== null ) {
+					geometryHandler["common"].oFeature.setProperties({$sJSON_FeatureProperties});
+					geometryHandler["common"].aFeatures.push( geometryHandler["common"].oFeature );
 				}
 				
-				geometryHandler.oVectorSource = new ol.source.Vector({ 
-					features: geometryHandler.aFeatures
+				geometryHandler["common"].oVectorSource = new ol.source.Vector({ 
+					features: geometryHandler["common"].aFeatures
 				});
 
-				geometryHandler.oSharedStyle = new ol.style.Style({
+				geometryHandler["common"].oSharedStyle = new ol.style.Style({
 					fill: new ol.style.Fill({
 						color: "rgb(6,80,140, 0.25)"
 					}),
@@ -275,7 +278,7 @@ EOF
 					})
 				});
 				
-				geometryHandler.aLayers = {
+				geometryHandler["common"].aLayers = {
 					osm: new ol.layer.Tile({
 						source: new ol.source.OSM(),
 						opacity: 0.5
@@ -291,33 +294,33 @@ EOF
 						opacity: 0.5
 					}),
 					vector: new ol.layer.Vector({ 
-						source: geometryHandler.oVectorSource, 
-						style: geometryHandler.oSharedStyle
+						source: geometryHandler["common"].oVectorSource, 
+						style: geometryHandler["common"].oSharedStyle
 					})
 					
 				}
 				
-				if( geometryHandler.oFeature === null ) {
-					geometryHandler.oCenter = [ {$aGeomSettings['mapcenter'][0]}, {$aGeomSettings['mapcenter'][1]} ];
+				if( geometryHandler["common"].oFeature === null ) {
+					geometryHandler["common"].oCenter = [ {$aGeomSettings['mapcenter'][0]}, {$aGeomSettings['mapcenter'][1]} ];
 				}
 				else {
 					
-					geometryHandler.aExtent = geometryHandler.aLayers.vector.getSource().getExtent();
-					geometryHandler.oCenter = [ 
-						( geometryHandler.aExtent[0] + geometryHandler.aExtent[2] ) / 2,
-						( geometryHandler.aExtent[1] + geometryHandler.aExtent[3] ) / 2,
+					geometryHandler["common"].aExtent = geometryHandler["common"].aLayers.vector.getSource().getExtent();
+					geometryHandler["common"].oCenter = [ 
+						( geometryHandler["common"].aExtent[0] + geometryHandler["common"].aExtent[2] ) / 2,
+						( geometryHandler["common"].aExtent[1] + geometryHandler["common"].aExtent[3] ) / 2,
 					];
 				}
 				// Center: EPSG:3857 - [ 358652.11242031807, 6606360.84951076 ]
-				geometryHandler.oMap = new ol.Map({
+				geometryHandler["common"].oMap = new ol.Map({
 					target: "ol-map",
 					layers: [
 						// the last layer added appears on top.
-						geometryHandler.aLayers.{$sDefaultBaseMap},
-						geometryHandler.aLayers.vector 
+						geometryHandler["common"].aLayers.{$sDefaultBaseMap},
+						geometryHandler["common"].aLayers.vector 
 					],
 					view: new ol.View({
-						center: geometryHandler.oCenter,
+						center: geometryHandler["common"].oCenter,
 						zoom: "{$aGeomSettings['mapzoom']}",
 						projection: "{$aGeomSettings['mapcrs']}"
 					}),
@@ -325,12 +328,12 @@ EOF
 				});
 				
 				// Auto-adjust zoom
-				if( geometryHandler.oFeature ) {
+				if( geometryHandler["common"].oFeature ) {
 					
 					// Workaround to keep zoom
-					geometryHandler.oResolution = geometryHandler.oMap.getView().getResolution();
-					geometryHandler.oMap.getView().fit( geometryHandler.aExtent, geometryHandler.oMap.getSize() );
-					geometryHandler.oMap.getView().setResolution(geometryHandler.oResolution);
+					geometryHandler["common"].oResolution = geometryHandler["common"].oMap.getView().getResolution();
+					geometryHandler["common"].oMap.getView().fit( geometryHandler["common"].aExtent, geometryHandler["common"].oMap.getSize() );
+					geometryHandler["common"].oMap.getView().setResolution(geometryHandler["common"].oResolution);
 				}
 			
 				// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.
@@ -339,7 +342,7 @@ EOF
 				// Work-around seems to be to add a minor delay before executing the ol.Map.updateSize() method
 				// The tab container  
 					$("ul[role='tablist'] > li > a > span:contains('{$sTabName}')").parent().parent().on("click", function(evt){
-					setTimeout( function(){ geometryHandler.oMap.updateSize(); }, 1000);
+					setTimeout( function(){ geometryHandler["common"].oMap.updateSize(); }, 1000);
 				});			
 					 
 				// Hide or disable ( textarea in edit mode! ). Click event will not work here (to show Geometry tab)
@@ -348,19 +351,19 @@ EOF
 								 
 				// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
 				$(document).ready(function(){
-					setTimeout( function(){ geometryHandler.oMap.updateSize(); }, 1000 );
+					setTimeout( function(){ geometryHandler["common"].oMap.updateSize(); }, 1000 );
 				});
 				
 				// Change background map
 				$(document.body).on("change", "#geometryHandlerBaseMap", function(e) {
 					
-					geometryHandler.oMap.getLayers().clear();
-					geometryHandler.oMap.addLayer( geometryHandler.aLayers[$("#geometryHandlerBaseMap").val()] );
-					geometryHandler.oMap.addLayer( geometryHandler.aLayers.vector );
+					geometryHandler["common"].oMap.getLayers().clear();
+					geometryHandler["common"].oMap.addLayer( geometryHandler["common"].aLayers[$("#geometryHandlerBaseMap").val()] );
+					geometryHandler["common"].oMap.addLayer( geometryHandler["common"].aLayers.vector );
 					
-					if( typeof geometryHandler.ConfigureDrawMode !== "undefined") {
+					if( typeof geometryHandler["common"].ConfigureDrawMode !== "undefined") {
 						// Re-add interactions
-						geometryHandler.ConfigureDrawMode();
+						geometryHandler["common"].ConfigureDrawMode();
 					}
 					
 					// For user convience, save basemap
@@ -397,42 +400,42 @@ EOF
 					
 					// OpenLayers - Editing allows extra interactions.
 					
-					geometryHandler.oDeleteCondition = function(mapBrowserEvent) {
+					geometryHandler["common"].oDeleteCondition = function(mapBrowserEvent) {
 						return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.shiftKeyOnly(mapBrowserEvent)
 					};
 					
 					// Modify has a deleteCondition, but it does not work with Points. 
 					// It only works with vertex = where two lines meet.
-					geometryHandler.oModify = new ol.interaction.Modify({ 
-						source: geometryHandler.aLayers.vector.getSource(),
-						deleteCondition: geometryHandler.oDeleteCondition
+					geometryHandler["common"].oModify = new ol.interaction.Modify({ 
+						source: geometryHandler["common"].aLayers.vector.getSource(),
+						deleteCondition: geometryHandler["common"].oDeleteCondition
 					});
 					
-					geometryHandler.oDraw = new ol.interaction.Draw({
-						source: geometryHandler.aLayers.vector.getSource(),
+					geometryHandler["common"].oDraw = new ol.interaction.Draw({
+						source: geometryHandler["common"].aLayers.vector.getSource(),
 						type: $("#geometryHandlerType").val(),
-						style: geometryHandler.oSharedStyle
+						style: geometryHandler["common"].oSharedStyle
 					});
 					
-					geometryHandler.oSnap = new ol.interaction.Snap({
-						source: geometryHandler.aLayers.vector.getSource()
+					geometryHandler["common"].oSnap = new ol.interaction.Snap({
+						source: geometryHandler["common"].aLayers.vector.getSource()
 					});
 					
-					geometryHandler.oSelect = new ol.interaction.Select({
-						condition: geometryHandler.oDeleteCondition
+					geometryHandler["common"].oSelect = new ol.interaction.Select({
+						condition: geometryHandler["common"].oDeleteCondition
 					});
 					
 					// Add interactions 
-					geometryHandler.oMap.addInteraction( geometryHandler.oDraw );
-					geometryHandler.oMap.addInteraction( geometryHandler.oModify );
-					geometryHandler.oMap.addInteraction( geometryHandler.oSnap );
-					// geometryHandler.oMap.addInteraction( geometryHandler.oSelect );		
+					geometryHandler["common"].oMap.addInteraction( geometryHandler["common"].oDraw );
+					geometryHandler["common"].oMap.addInteraction( geometryHandler["common"].oModify );
+					geometryHandler["common"].oMap.addInteraction( geometryHandler["common"].oSnap );
+					// geometryHandler["common"].oMap.addInteraction( geometryHandler["common"].oSelect );		
 					  
 					$("body").on("click", "#geometryHandlerClear", function(e){
 					
 						// Remove
-						geometryHandler.oFeature = null;
-						geometryHandler.aLayers.vector.getSource().clear();
+						geometryHandler["common"].oFeature = null;
+						geometryHandler["common"].aLayers.vector.getSource().clear();
 														
 						// Save in geom field 
 						$("textarea[name='attr_geom']").val("");
@@ -441,53 +444,53 @@ EOF
 					
 					$("#geometryHandlerType").on("change", function(e){
 		
-						geometryHandler.ConfigureDrawMode();
+						geometryHandler["common"].ConfigureDrawMode();
 						
 					});
 						 
 					// Get last drawn geometry type
-					if( geometryHandler.oFeature ) {
-						$("#geometryHandlerType").val( geometryHandler.oFeature.getGeometry().getType() );
+					if( geometryHandler["common"].oFeature ) {
+						$("#geometryHandlerType").val( geometryHandler["common"].oFeature.getGeometry().getType() );
 					}
 				
-					geometryHandler.ConfigureDrawMode = function() {
+					geometryHandler["common"].ConfigureDrawMode = function() {
 					
-						geometryHandler.oMap.removeInteraction( geometryHandler.oDraw );
+						geometryHandler["common"].oMap.removeInteraction( geometryHandler["common"].oDraw );
 					
-						geometryHandler.oDraw = new ol.interaction.Draw({
-							source: geometryHandler.aLayers.vector.getSource(),
+						geometryHandler["common"].oDraw = new ol.interaction.Draw({
+							source: geometryHandler["common"].aLayers.vector.getSource(),
 							type: $("#geometryHandlerType").val(),
-							style: geometryHandler.oSharedStyle
+							style: geometryHandler["common"].oSharedStyle
 						});
 						
-						geometryHandler.oDraw.on("drawstart", function(e){
+						geometryHandler["common"].oDraw.on("drawstart", function(e){
 							
 							// Remove modify, will cause issues when user double-clicks to set new point
-							geometryHandler.oMap.removeInteraction( geometryHandler.oModify );
+							geometryHandler["common"].oMap.removeInteraction( geometryHandler["common"].oModify );
 							
 							// Clear previous features
-							geometryHandler.aLayers.vector.getSource().clear();
+							geometryHandler["common"].aLayers.vector.getSource().clear();
 							
 							// Add modify again
-							geometryHandler.oMap.addInteraction( geometryHandler.oModify );
+							geometryHandler["common"].oMap.addInteraction( geometryHandler["common"].oModify );
 														
 						});
 						
-						geometryHandler.oDraw.on("drawend", function(e){
+						geometryHandler["common"].oDraw.on("drawend", function(e){
 							
 							var f = e.feature;
 							
 							// Save in geom field 
-							$("textarea[name='attr_geom']").val( geometryHandler.oFormat.{$aGeomSettings['dataformat']}.writeGeometry(f.getGeometry()) );
+							$("textarea[name='attr_geom']").val( geometryHandler["common"].oFormat.{$aGeomSettings['dataformat']}.writeGeometry(f.getGeometry()) );
 														
 						}); 
 						
-						geometryHandler.oMap.addInteraction( geometryHandler.oDraw );
+						geometryHandler["common"].oMap.addInteraction( geometryHandler["common"].oDraw );
 						
 					}
 			
 					// Always configure draw mode
-					geometryHandler.ConfigureDrawMode();
+					geometryHandler["common"].ConfigureDrawMode();
 					
 EOF
 				);

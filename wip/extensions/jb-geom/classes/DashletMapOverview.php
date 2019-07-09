@@ -114,22 +114,21 @@ EOF
 			// @todo: Find out why DashletMapOverview_ProcessFeatures is undefined at this point if used with add_ready_script. Generated output seems fine?
 			$oPage->add_script(
 <<<EOF
-
-				geometryHandler = {};
-			
+				if(typeof geometryHandler === "undefined") {
+					geometryHandler = {};
+				}
+				
 				function DashletMapOverview_ProcessFeatures(sDashletMapOverViewId, oData) {
 					geometryHandler[sDashletMapOverViewId].oVectorSource.clear();
 					
 					$.each(oData, function(i) {
-						if(typeof oData[i].geom !== 'undefined' && oData[i].geom != '' ) {
-							var oFeature = geometryHandler[sDashletMapOverViewId].oFormat.{$aGeomSettings['dataformat']}.readFeature(oData[i].geom);
+						if(typeof oData[i].geom !== "undefined" && oData[i].geom != "" ) {
+							var oFeature = geometryHandler[sDashletMapOverViewId].oFormat.{$aGeomSettings["dataformat"]}.readFeature(oData[i].geom);
 							oFeature.setProperties(oData[i]);
 							geometryHandler[sDashletMapOverViewId].oVectorSource.addFeature(oFeature);
 						}
 					});
 				}
-				
-				console.log('test');
 			
 EOF
 			);
