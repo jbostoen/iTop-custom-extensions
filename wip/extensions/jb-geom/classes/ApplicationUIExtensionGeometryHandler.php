@@ -158,8 +158,8 @@ EOF
 			// grb = Grootschalig Referentiebestand, a Flemish webservice
 			$oPage->add('
 				<select id="geometryHandlerBaseMap">
-					<option value="osm"'.($sDefaultBaseMap == 'osm' ? 'selected' : '').'>OpenStreetMap</option>
-					<option value="grb"'.($sDefaultBaseMap == 'grb' ? 'selected' : '').'>GRB</option>
+					<option value="osm"'.($sDefaultBaseMap == 'osm' ? ' selected' : '').'>OpenStreetMap</option>
+					<option value="grb"'.($sDefaultBaseMap == 'grb' ? ' selected' : '').'>GRB</option>
 				</select>
 			');
 				

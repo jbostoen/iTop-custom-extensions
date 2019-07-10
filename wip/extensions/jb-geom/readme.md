@@ -5,7 +5,10 @@ Adds a geometry to specified classes. The field is named 'geom'. You can change 
 
 Objects with this geom field, will show an OpenStreetMap tab depicting the feature (Point, LineString, Polygon).
 
-There's also a dashlet to show all objects of a class on a map.
+There's also a dashlet to show all objects of a class on a map. 
+It offers a look similar to iTop's native search for objects. 
+A feature can be selected to see its details in a popup.
+If selected while holding the [Alt]-key, iTop immediately redirects to the object details page.
 
 The last used basemap is remembered per user for each class and dashlet.
 

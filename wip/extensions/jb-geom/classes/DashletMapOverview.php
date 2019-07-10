@@ -108,6 +108,33 @@
 				.ol-rotate {
 					\ttop: 3em;
 				}
+				
+				.geom-popup {
+					width: 600px;
+					padding: 10px;
+					background-color: rgb(250, 250, 250);
+					margin: auto;
+					border-radius: 3px;
+				}
+				
+				.geom-popup th {
+					width: 200px;
+				}
+				
+				.geom-popup td {
+					width: 400px;
+				}
+				
+				.geom-popup .mfp-close {
+					position: relative;
+					float: right;
+					padding: 10px;
+					font-weight: bold;
+					width: 0;
+					height: 0;
+					margin-right: 15px;
+				}
+				
 EOF
 			);
 			
@@ -204,6 +231,20 @@ EOF
 		$aAttributeList = Metamodel::GetAttributesList($sClassName);
 		$aAttributeList[] = 'id';
 		
+		// Get required translations
+		$aAttributeLabelList = [];
+		foreach($aAttributeList as $sAttributeCode) {
+			// List of attributes to show
+			// @todo Turn this into a parameter per dashlet
+			if( in_array($sAttributeCode, ['id', 'title', 'friendlyname', 'start_date', 'end_date', 'approver_id_friendlyname']) == false ) {
+				continue;
+			}
+			
+			$aAttributeLabelList[$sAttributeCode] = MetaModel::GetLabel($sClassName, $sAttributeCode, /* bShowMandatory */ false);
+		}
+		
+		$sAttributeLabels = json_encode($aAttributeLabelList);
+		
 		// Get path to ajax.handler.php
 		$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax.handler.php';
 		
@@ -239,8 +280,8 @@ EOF
 		// Add content
 		$oPage->add('
 			<select id="geometryHandlerBaseMap">
-				<option value="osm"'.($sDefaultBaseMap == 'osm' ? 'selected' : '').'>OpenStreetMap</option>
-				<option value="grb"'.($sDefaultBaseMap == 'grb' ? 'selected' : '').'>GRB</option>
+				<option value="osm"'.($sDefaultBaseMap == 'osm' ? ' selected' : '').'>OpenStreetMap</option>
+				<option value="grb"'.($sDefaultBaseMap == 'grb' ? ' selected' : '').'>GRB</option>
 			</select>
 		');
 		
@@ -348,22 +389,55 @@ EOF
 			
 			geometryHandler["{$sId}"].oMap.getView().fit( geometryHandler["{$sId}"].aExtent, geometryHandler["{$sId}"].oMap.getSize() );
 			
+			geometryHandler["{$sId}"].aTranslations = {$sAttributeLabels};
+			
 			// Add single click event (prevents from firing on double-click which is 'zoom' by default)
 			geometryHandler["{$sId}"].oSelect = new ol.interaction.Select();
-			
 			geometryHandler["{$sId}"].oSelect.on("select", function(e) {
 				if(e.target.getFeatures().getLength() == 1) {
 					// Single feature? Then redirect.
-					document.location = 'UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get('id');
+					// document.location = 'UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get("id");
+					
+					// Build rows
+					// @todo Images?
+					var aRows = [];
+					$.each(geometryHandler["{$sId}"].aTranslations, function(k,v) {
+						var val = e.selected[0].get(k);
+						val = (typeof val === "undefined" ? "-" : val);
+						val = (val === null ? "-" : val);
+						aRows.push("<th>" + v + "</th><td>" + val + "</td>");
+					});
+					
+					// Open Magnific Popup (natively in iTop)
+					$.magnificPopup.open({
+					  items: {
+						src: '<div class="geom-popup">' + 
+							'<div class="mfp-close">x</div>' +
+							'<h1><a href="UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get("id") + '">' + e.selected[0].get("friendlyname") + '</a></h1>' +
+							'<table><tbody><tr>' + aRows.join('</tr><tr>') + '</tr></tbody></table>' + 
+							'</div>', 
+						type: 'inline'
+					  }
+					});
 				}
 			});
 			
 			geometryHandler["{$sId}"].oMap.addInteraction(geometryHandler["{$sId}"].oSelect);
 			
-			// Fix: if you go to the Geometry tab first; then pick Modify, the map is not displayed properly either. 
-			$(document).ready(function(){
-			//	setTimeout( function(){ geometryHandler["{$sId}"].oMap.updateSize(); }, 1000);
+			geometryHandler["{$sId}"].oSelectAlt = new ol.interaction.Select({
+				condition: function(mapBrowserEvent) {
+					return ol.events.condition.click(mapBrowserEvent) && ol.events.condition.altKeyOnly(mapBrowserEvent);
+				}
 			});
+			
+			geometryHandler["{$sId}"].oSelectAlt.on("select", function(e) {
+				if(e.target.getFeatures().getLength() == 1) {
+					// Single feature? Then redirect.
+					document.location = 'UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get("id");
+				}
+			});
+			
+			geometryHandler["{$sId}"].oMap.addInteraction(geometryHandler["{$sId}"].oSelectAlt);
 			
 			// Change background map
 			$(document.body).on("change", "#geometryHandlerBaseMap", function(e) {
