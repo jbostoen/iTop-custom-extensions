@@ -377,7 +377,7 @@ EOF
 				layers: [
 						// the last layer added appears on top.
 						geometryHandler["{$sId}"].aLayers.{$sDefaultBaseMap},
-						geometryHandler["{$sId}"].aLayers.vector 
+						geometryHandler["{$sId}"].aLayers.vector
 				],
 				view: new ol.View({
 					center: geometryHandler["{$sId}"].oCenter,
@@ -392,34 +392,55 @@ EOF
 			geometryHandler["{$sId}"].aTranslations = {$sAttributeLabels};
 			
 			// Add single click event (prevents from firing on double-click which is 'zoom' by default)
+			geometryHandler["{$sId}"].oMap.on("click", function(e) {
+				
+				geometryHandler["{$sId}"].oMap.forEachFeatureAtPixel(e.pixel, function (oFeature, oLayer) {
+					
+					if(oLayer === geometryHandler["{$sId}"].aLayers.vector) {
+						
+						// Alt? 
+						if( ol.events.condition.click(e) && ol.events.condition.altKeyOnly(e) ) {
+							document.location = 'UI.php?operation=details&class={$sClassName}&id=' + oFeature.get("id");
+						}
+						else {
+							// @todo Implement dropdown list later
+								
+							// Build rows
+							// @todo Images?
+							var aRows = [];
+							$.each(geometryHandler["{$sId}"].aTranslations, function(k,v) {
+								var val = oFeature.get(k);
+								val = (typeof val === "undefined" ? "-" : val);
+								val = (val === null ? "-" : val);
+								aRows.push("<th>" + v + "</th><td>" + val + "</td>");
+							});
+							
+							// Open Magnific Popup (natively in iTop)
+							$.magnificPopup.open({
+							  items: {
+								src: '<div class="geom-popup">' + 
+									'<div class="mfp-close">x</div>' +
+									'<h1><a href="UI.php?operation=details&class={$sClassName}&id=' + oFeature.get("id") + '">' + oFeature.get("friendlyname") + '</a></h1>' +
+									'<table><tbody><tr>' + aRows.join('</tr><tr>') + '</tr></tbody></table>' + 
+									'</div>', 
+								type: 'inline'
+							  }
+							});
+							
+						}
+					}
+				});
+				
+				// @todo If no feature found, create
+				// UI.php?operation=new&class=UserRequest&c[menu]=NewUserRequest&default[origin]=portal
+				
+			});
+			
 			geometryHandler["{$sId}"].oSelect = new ol.interaction.Select();
 			geometryHandler["{$sId}"].oSelect.on("select", function(e) {
-				if(e.target.getFeatures().getLength() == 1) {
-					// Single feature? Then redirect.
-					// document.location = 'UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get("id");
-					
-					// Build rows
-					// @todo Images?
-					var aRows = [];
-					$.each(geometryHandler["{$sId}"].aTranslations, function(k,v) {
-						var val = e.selected[0].get(k);
-						val = (typeof val === "undefined" ? "-" : val);
-						val = (val === null ? "-" : val);
-						aRows.push("<th>" + v + "</th><td>" + val + "</td>");
-					});
-					
-					// Open Magnific Popup (natively in iTop)
-					$.magnificPopup.open({
-					  items: {
-						src: '<div class="geom-popup">' + 
-							'<div class="mfp-close">x</div>' +
-							'<h1><a href="UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get("id") + '">' + e.selected[0].get("friendlyname") + '</a></h1>' +
-							'<table><tbody><tr>' + aRows.join('</tr><tr>') + '</tr></tbody></table>' + 
-							'</div>', 
-						type: 'inline'
-					  }
-					});
-				}
+
+				console.log('Selection changed: ' + e.selected.length + 'selected, ' + e.deselected.length + ' deselected');
+				
 			});
 			
 			geometryHandler["{$sId}"].oMap.addInteraction(geometryHandler["{$sId}"].oSelect);
@@ -431,10 +452,7 @@ EOF
 			});
 			
 			geometryHandler["{$sId}"].oSelectAlt.on("select", function(e) {
-				if(e.target.getFeatures().getLength() == 1) {
-					// Single feature? Then redirect.
-					document.location = 'UI.php?operation=details&class={$sClassName}&id=' + e.selected[0].get("id");
-				}
+				// Unused
 			});
 			
 			geometryHandler["{$sId}"].oMap.addInteraction(geometryHandler["{$sId}"].oSelectAlt);
