@@ -30,5 +30,6 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'UI:DashletMapOverview:Prop-Title' => 'Titel',
 	'UI:DashletMapOverview:Prop-Query' => 'Query',
 	'UI:DashletMapOverview:Prop-Height' => 'Hoogte (px)',
-	'UI:DashletMapOverview:Prop-LabelFeature' => 'Label object',
+	'UI:DashletMapOverview:Prop-Attributes' => 'Attributen (door komma gescheiden)',
+	'UI:DashletMapOverview:Prop-FeatureLabel' => 'Label object',
 ));

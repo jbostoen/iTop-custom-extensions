@@ -114,19 +114,6 @@
 				$sClassesCombo = MetaModel::GetName($sClassName);
 			}
 		}
-		
-		// Custom callback on success
-		if(isset($aExtraParams['callback']) == true) {
-			$sCallback = $aExtraParams['callback'];
-		}
-		else {
-			$sCallback = 
-<<<EOF
-			function(data) {
-				console.log(data);
-			}
-EOF;
-		}
 
 		$bAutoSubmit = true;
 		$mSubmitParam = utils::GetConfig()->Get('search_manual_submit');
@@ -233,8 +220,7 @@ EOF;
 			'criterion_outer_selector' => "#fs_{$sSearchFormId}_criterion_outer",
 			'result_list_outer_selector' => "#{$aExtraParams['result_list_outer_selector']}",
 			'data_config_list_selector' => "#{$sDataConfigListSelector}",
-			// 'endpoint' => utils::GetAbsoluteUrlAppRoot().'pages/ajax.searchform.php',
-			'endpoint' => utils::GetAbsoluteUrlModulesRoot().basename(dirname(dirname(__FILE__))).'/ajax/customsearchform.php',
+			'endpoint' => utils::GetAbsoluteUrlAppRoot().'pages/ajax.searchform.php',
 			'init_opened' => $bOpen,
 			'auto_submit' => $bAutoSubmit,
 			'list_params' => $aListParams,
@@ -255,9 +241,11 @@ EOF;
 					'dateFormat' => $sDateFormat,
 					'timeFormat' => $sTimeFormat,
 				),
-			),
-			'onSubmitSuccess' => $sCallback // Will be encoded as a string. json_encode() doesn't support JavaScript functions. Handled in front-end.
+			)
 		);
+		
+		// Just add all extra parameters
+		$aSearchParams = array_replace_recursive($aSearchParams, $aExtraParams);
 
 		$oPage->add_ready_script('$("#fs_'.$sSearchFormId.'").custom_search_form_handler('.json_encode($aSearchParams).');');
 

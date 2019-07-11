@@ -24,6 +24,8 @@
 		$this->aProperties['title'] = Dict::S('UI:DashletMapOverview:Label');
 		$this->aProperties['query'] = 'SELECT UserRequest';
 		$this->aProperties['height'] = '500';
+		$this->aProperties['attributes'] = 'id,friendlyname';
+		$this->aProperties['feature_label'] = '';
 		// $this->aCSSClasses[] = 'dashlet-inline'; -> won't use 100% width
 	}
 	
@@ -54,6 +56,13 @@
 		
 		$oField = new DesignerIntegerField('height', Dict::S('UI:DashletMapOverview:Prop-Height'), $this->aProperties['height']);
 		$oForm->AddField($oField);
+		
+		// @todo Watch Combodo developments to see if there's a better solution.
+		$oField = new DesignerLongTextField('attributes', Dict::S('UI:DashletMapOverview:Prop-Attributes'), $this->aProperties['attributes']);
+		$oForm->AddField($oField);
+		
+		$oField = new DesignerTextField('feature_label', Dict::S('UI:DashletMapOverview:Prop-FeatureLabel'), $this->aProperties['feature_label']);
+		$oForm->AddField($oField);
 	}
 	
 	/**
@@ -63,8 +72,30 @@
 	public function Render($oPage, $bEditMode = false, $aExtraParams = array())
 	{
 	
+		// Get properties
+		$sQuery = $this->aProperties['query'];
+		$sTitle = $this->aProperties['title'];
+		$iHeight = (int)$this->aProperties['height'];
+		$aAttributeList_Specified = explode(',', str_replace(' ', '', $this->aProperties['attributes']));
+		$sId = utils::GetSafeId('dashlet_map_overview_'.($bEditMode? 'edit_' : '').$this->sId);
+		
+		// Always add 'id', 'geom', 'friendlyname' to specified attribute list
+		// Not necessarily displayed, but it's important to fetch this data
+		$aAttributeList_Specified = array_merge(['id', 'friendlyname', 'geom'], $aAttributeList_Specified);
+		$aAttributeList_Specified = array_unique($aAttributeList_Specified);
+		
 		// Get path to ajax.handler.php
 		$sModuleDir = basename(dirname(dirname(__FILE__)));
+		
+		// @Combodo: after reading your 'todo', this should probably change in the future. (CMDBObjectSet) :)
+		$oObjectSet = new CMDBObjectSet(DBObjectSearch::FromOQL($sQuery));
+		
+		// Get class name
+		$sClassName = $oObjectSet->GetClass();
+		
+		// Get list of attributes
+		$aAttributeList_Complete = Metamodel::GetAttributesList($sClassName);
+		$aAttributeList_Complete[] = 'id';
 		
 		// Module settings, defaults.
 		$aGeomSettings = MetaModel::GetModuleSetting('jb-geom', 'default', array( 
@@ -75,6 +106,12 @@
 			'mapcenter' => array( 358652.11242031807, 6606360.84951076 ),
 			'mapzoom' => 17,
 		));
+		
+		// Module settings, class specifics. In XML, most nodes seem to start with a non-capital.
+		if(MetaModel::GetModuleSetting('jb-geom', strtolower($sClassName), '') != '') {
+			$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower($sClassName), array() ); 
+			$aGeomSettings = array_replace_recursive($aGeomSettings, $aClassSpecificSettings);
+		}
 		
 		// Duplicates of linked stuff seems to be handled appropriately, but not for styles.
 		// Hence this boolean - defined on the Page object (NOT just the dashlet!)
@@ -159,20 +196,14 @@ EOF
 			
 EOF
 			);
-	
+			
+			// Remember not to repeat the HTML and JavaScript above
+			$oPage->bInitiatedOpenLayers = true;
+			
 		}
-		
-		// Get properties
-		$sQuery = $this->aProperties['query'];
-		$sTitle = $this->aProperties['title'];
-		$iHeight = (int)$this->aProperties['height'];
 		
 		$sHtmlTitle = htmlentities(Dict::S($sTitle), ENT_QUOTES, 'UTF-8');
 
-		$sId = utils::GetSafeId('dashlet_map_overview_'.($bEditMode? 'edit_' : '').$this->sId);
-		
-		// At Combodo: after reading your 'todo', this should probably change in the future. :)
-		$oObjectSet = new CMDBObjectSet(DBObjectSearch::FromOQL($sQuery));
 		
 		// Add header
 		if ($sHtmlTitle != '')
@@ -205,45 +236,36 @@ EOF
 		// $oBlock = new DisplayBlock($oFilter, $sType);
 		// $oBlock->Display($oPage, $sBlockId, $aExtraParams);
 		
-		
 		$sHtml = "<div id=\"ds_$sId\" class=\"search_box\">\n";
 		$aExtraParams['currentId'] = $sId;
-		$aExtraParams['callback'] = "function(oData) { DashletMapOverview_ProcessFeatures('{$sId}', oData); }";
+		
+		
+		// Change endpoint
+		$aExtraParams['endpoint'] = utils::GetAbsoluteUrlModulesRoot().basename(dirname(dirname(__FILE__))).'/ajax/customsearchform.php';
+		// Has to be put as a string to be passed to JavaScript, which will evaluate this. 
+		// Use double quotes to replace {$sId}
+		$aExtraParams['onSubmitSuccess'] = "function(oData) { 
+			DashletMapOverview_ProcessFeatures('{$sId}', oData);
+			geometryHandler['{$sId}'].oSelect.getFeatures().clear();
+			geometryHandler['{$sId}'].oSelectAlt.getFeatures().clear();
+		}"; 
+		
+		// If nothing defined: ask all
+		$aExtraParams['attributes'] = (count($aAttributeList_Specified) == 0 ? [] : $aAttributeList_Complete);
+		
 		$oSearchForm = new CustomSearchForm();
 		$sHtml .= $oSearchForm->GetSearchForm($oPage, $oObjectSet, $aExtraParams);
 		$sHtml .= "</div>\n";
 		$oPage->add($sHtml);
 		
-		$sClassName = $oObjectSet->GetClass();
-		
-		// Module settings, class specifics. In XML, most nodes seem to start with a non-capital.
-		if(MetaModel::GetModuleSetting('jb-geom', strtolower($sClassName), '') != '') {
-			
-			$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower($sClassName), array() ); 
-			
-			foreach( $aClassSpecificSettings as $k => $v ) {
-				$aGeomSettings[$k] = $v;
-			} 
-			
-		}
-		
-		// Get list of attributes
-		$aAttributeList = Metamodel::GetAttributesList($sClassName);
-		$aAttributeList[] = 'id';
 		
 		// Get required translations
-		$aAttributeLabelList = [];
-		foreach($aAttributeList as $sAttributeCode) {
-			// List of attributes to show
-			// @todo Turn this into a parameter per dashlet
-			if( in_array($sAttributeCode, ['id', 'title', 'friendlyname', 'start_date', 'end_date', 'approver_id_friendlyname']) == false ) {
-				continue;
-			}
-			
-			$aAttributeLabelList[$sAttributeCode] = MetaModel::GetLabel($sClassName, $sAttributeCode, /* bShowMandatory */ false);
+		$aAttributes_Labels = [];
+		foreach((count($aAttributeList_Specified) == 0 ? $aAttributeList_Complete : $aAttributeList_Specified) as $sAttributeCode) {
+			$aAttributes_Labels[$sAttributeCode] = MetaModel::GetLabel($sClassName, $sAttributeCode, /* bShowMandatory */ false);
 		}
 		
-		$sAttributeLabels = json_encode($aAttributeLabelList);
+		$sAttributeLabels = json_encode($aAttributes_Labels);
 		
 		// Get path to ajax.handler.php
 		$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax.handler.php';
@@ -258,11 +280,11 @@ EOF
 			$sDefaultBaseMap = $_COOKIE[$sCookieName];
 		}
 		
-		// Push all features into array
+		// Push all features with all properties into array
 		$aFeatures = Array();
 		while ($oObject = $oObjectSet->Fetch()) {
 			$aFeature = [];
-			foreach($aAttributeList as $aAttribute) {
+			foreach($aAttributeList_Specified as $aAttribute) {
 				if($aAttribute == 'geom') {
 					$aFeature['geometry'] = $oObject->Get('geom');
 				}
@@ -276,6 +298,9 @@ EOF
 
 		// for geometryHandler["{$sId}"].oFeature, use single quotes on the outside. Inner quotes will have been escaped.
 		$aJSON_Features = json_encode($aFeatures);
+		
+		// Optional feature label
+		$sFeatureLabel = ($this->aProperties['feature_label'] == '' ? '""' : 'oFeature.get("'.$this->aProperties['feature_label'].'")');
 		
 		// Add content
 		$oPage->add('
@@ -318,25 +343,34 @@ EOF
 				features: geometryHandler["{$sId}"].aFeatures
 			});
 
-			geometryHandler["{$sId}"].oSharedStyle = new ol.style.Style({
-				fill: new ol.style.Fill({
-					color: "rgb(6,80,140, 0.25)"
-				}),
-				stroke: new ol.style.Stroke({
-					color: "rgb(6,80,140)",
-					width: 2
-				}),
-				image: new ol.style.Circle({
-					radius: 7,
+			geometryHandler["{$sId}"].oSharedStyle = function(oFeature) {
+				var oStyle = new ol.style.Style({
 					fill: new ol.style.Fill({
-						color: "rgb(139,196,88)"
+						color: "rgb(6,80,140, 0.25)"
 					}),
 					stroke: new ol.style.Stroke({
-						color: "rgb(0,0,0)",
-						width: 1.1
+						color: "rgb(6,80,140)",
+						width: 2
+					}),
+					image: new ol.style.Circle({
+						radius: 7,
+						fill: new ol.style.Fill({
+							color: "rgb(139,196,88)"
+						}),
+						stroke: new ol.style.Stroke({
+							color: "rgb(0,0,0)",
+							width: 1.1
+						})
+					}),
+					text: new ol.style.Text({
+						text: {$sFeatureLabel},
+						textAlign: ( oFeature.getGeometry().getType() == 'Point' ? 'left' : 'center' ),
+						offsetX: ( oFeature.getGeometry().getType() == 'Point' ? 10 : 0 )
 					})
-				})
-			});
+				});
+				
+				return [ oStyle ];
+			}
 			
 			geometryHandler["{$sId}"].aLayers = {
 				osm: new ol.layer.Tile({
@@ -394,6 +428,16 @@ EOF
 			// Add single click event (prevents from firing on double-click which is 'zoom' by default)
 			geometryHandler["{$sId}"].oMap.on("click", function(e) {
 				
+				// If no feature found, create new one.
+				// @todo Check if reprojection is needed
+				var aFeatures = geometryHandler["{$sId}"].oMap.getFeaturesAtPixel(e.pixel);
+				if(aFeatures === null) {
+					var oNewFeature = new ol.Feature(new ol.geom.Point(e.coordinate));
+					var sGeometry = geometryHandler["{$sId}"].oFormat.{$aGeomSettings['dataformat']}.writeFeature(oNewFeature);
+					document.location = 'UI.php?operation=new&class={$sClassName}&c[menu]=New{$sClassName}&default[geom]=' + sGeometry;
+					return;
+				}
+				
 				geometryHandler["{$sId}"].oMap.forEachFeatureAtPixel(e.pixel, function (oFeature, oLayer) {
 					
 					if(oLayer === geometryHandler["{$sId}"].aLayers.vector) {
@@ -409,6 +453,9 @@ EOF
 							// @todo Images?
 							var aRows = [];
 							$.each(geometryHandler["{$sId}"].aTranslations, function(k,v) {
+								if(k == 'geom') {
+									return;
+								}
 								var val = oFeature.get(k);
 								val = (typeof val === "undefined" ? "-" : val);
 								val = (val === null ? "-" : val);
@@ -431,15 +478,12 @@ EOF
 					}
 				});
 				
-				// @todo If no feature found, create
-				// UI.php?operation=new&class=UserRequest&c[menu]=NewUserRequest&default[origin]=portal
-				
 			});
 			
 			geometryHandler["{$sId}"].oSelect = new ol.interaction.Select();
 			geometryHandler["{$sId}"].oSelect.on("select", function(e) {
 
-				console.log('Selection changed: ' + e.selected.length + 'selected, ' + e.deselected.length + ' deselected');
+				console.log('Selection changed: ' + e.selected.length + ' selected, ' + e.deselected.length + ' deselected');
 				
 			});
 			
@@ -478,15 +522,12 @@ EOF
 EOF
 		);
 
-
 		if($bEditMode)
 		{
 			$oPage->add('<div class="dashlet-blocker"></div>');
 		}
  
 		$oPage->add('</div>');
-			
-		$oPage->bInitiatedOpenLayers = true;
 	
 	}
 	

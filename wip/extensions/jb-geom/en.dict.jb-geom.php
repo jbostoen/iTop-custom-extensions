@@ -30,6 +30,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'UI:DashletMapOverview:Prop-Title' => 'Title',
 	'UI:DashletMapOverview:Prop-Query' => 'Query',
 	'UI:DashletMapOverview:Prop-Height' => 'Height (px)',
-	'UI:DashletMapOverview:Prop-LabelFeature' => 'Label feature',
+	'UI:DashletMapOverview:Prop-Attributes' => 'Attributes (comma-separated)',
+	'UI:DashletMapOverview:Prop-FeatureLabel' => 'Label feature',
 	
 ));

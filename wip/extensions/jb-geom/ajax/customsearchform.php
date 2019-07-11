@@ -58,7 +58,9 @@ try
 	// @todo Implement 'output_fields' or something similar in name to iTop REST/JSON
 	foreach($aResults as &$aResult) {
 		foreach($aResult as $sAttribute => $sAttributeValue) {
-			$aResult[preg_replace('/^'.$aParams['class'].'\./', '', $sAttribute)] = $sAttributeValue;
+			if(isset($aParams['attributes']) == false || (isset($aParams['attributes']) == true && in_array($sAttribute, $aParams['attributes']) == true)) {
+				$aResult[preg_replace('/^'.$aParams['class'].'\./', '', $sAttribute)] = $sAttributeValue;
+			}
 			unset($aResult[$sAttribute]);
 		}
 	}

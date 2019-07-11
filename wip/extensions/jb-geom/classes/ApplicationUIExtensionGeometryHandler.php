@@ -126,10 +126,8 @@ EOF
 			
 			// Module settings, class specifics. In XML, most nodes seem to start with a non-capital.
 			if( MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), '') != '') {
-				
-				$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), array() );				
-				$aGeomSettings = array_replace($aGeomSettings, $aClassSpecificSettings);
-				
+				$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower(get_class($oObject)), array() );
+				$aGeomSettings = array_replace_recursive($aGeomSettings, $aClassSpecificSettings);
 			}
 			
 			$sGeomString = ( $aGeomSettings['dataformat'] == 'GeoJSON' ? addcslashes($oObject->Get('geom'), '"') : $oObject->Get('geom') ); 
