@@ -268,7 +268,7 @@ EOF
 		$sAttributeLabels = json_encode($aAttributes_Labels);
 		
 		// Get path to ajax.handler.php
-		$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax.handler.php';
+		$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax/handler.php';
 		
 		// Does a cookie exist with a preferred basemap for this class for this user?
 		$sDefaultBaseMap = 'osm';

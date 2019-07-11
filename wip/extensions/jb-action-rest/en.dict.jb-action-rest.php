@@ -1,10 +1,11 @@
 <?php
+
 /**
- * Localized data
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
  *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
- * @author		jbostoen
+ * PHP Data Model definition file
  */
 
 Dict::Add('EN US', 'English', 'English', array(
