@@ -465,6 +465,7 @@ EOF
 							// Open Magnific Popup (natively in iTop)
 							$.magnificPopup.open({
 							  items: {
+								prependTo: $(( document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement ? "#{$sId}_map" : "body")),
 								src: '<div class="geom-popup">' + 
 									'<div class="mfp-close">x</div>' +
 									'<h1><a href="UI.php?operation=details&class={$sClassName}&id=' + oFeature.get("id") + '">' + oFeature.get("friendlyname") + '</a></h1>' +
