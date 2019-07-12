@@ -41,12 +41,12 @@
 					<state id="new">
 						<flags>
 
-							<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. -->
+							<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. So disable this at first. -->
 							<attribute id="public_log">
-								<hidden/>
+								<read_only>true</read_only>
 							</attribute>
 
-							<!-- Hide solution, solution_code. We log things in private log instead. -->
+							<!-- Hide solution, solution_code. Often trouble shooting and final solution are in the private log instead. -->
 							<attribute id="solution">
 								<hidden _delta="merge"/>
 							</attribute>
@@ -58,7 +58,7 @@
 					</state>
 					<state id="assigned">
 
-						<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. -->
+						<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. Disabled at first, enabled again here. -->
 						<flags>
 							<attribute id="public_log"/>
 						</flags>
