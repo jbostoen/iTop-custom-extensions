@@ -2,6 +2,8 @@
 
 Can't be used for now. Very early development stage.
 
+If you are interested in a quick development of this extension or a specific feature, consider getting in touch and sponsor it.
+
 ## What?
 Merges objects (primarily meant for any subclass of Ticket)
 

@@ -14,6 +14,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	//	'Class:SomeClass/Attribute:some_attribute' => 'your translation for the label',
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value' => 'your translation for a value',
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for more info on the value',
+	'UI:ObjectMerge:Title' => 'Merge to one %1$s',
 	
 ));
 

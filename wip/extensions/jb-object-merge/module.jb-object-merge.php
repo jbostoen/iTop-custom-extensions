@@ -27,7 +27,8 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-object-merge.php'
+					'model.jb-object-merge.php',
+					// 'ui.jb-object-merge.php' - do not include here
                 ),
                 'webservice' => array(
 

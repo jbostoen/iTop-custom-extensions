@@ -27,16 +27,16 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.{{ extName }}.php'
+					'model.{{ extName }}.php'
                 ),
                 'webservice' => array(
 
                 ),
                 'data.struct' => array(
-                        // add your 'structure' definition XML files here,
+					// add your 'structure' definition XML files here,
                 ),
                 'data.sample' => array(
-                        // add your sample data XML files here,
+					// add your sample data XML files here,
                 ),
 
                 // Documentation
