@@ -22,8 +22,8 @@ SetupWebPage::AddModule(
 		'dependencies' => array(
 			'itop-config-mgmt/2.6.0',
 			'itop-endusers-devices/2.6.0',
-			'teemip-endusers-devices-adaptor/2.3.0', // @todo Verify if this is 2.4.0 already or higher and still compatible.
-			'jb-class-ipdevices/2.6.190110'
+			'teemip-endusers-devices-adaptor/2.2.0', // TeemIP module version is 2.4.0; but this particular XML is 2.2.0
+			'jb-ipdevices/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,

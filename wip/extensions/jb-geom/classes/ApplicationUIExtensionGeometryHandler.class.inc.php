@@ -133,7 +133,7 @@ EOF
 			$sGeomString = ( $aGeomSettings['dataformat'] == 'GeoJSON' ? addcslashes($oObject->Get('geom'), '"') : $oObject->Get('geom') ); 
 			
 			// Get path to AJAX handler
-			$sModuleDir = basename(dirname(dirname(__FILE__)));
+			$sModuleDir = basename(dirname(__FILE__));
 			$sAjaxHandlerUrl = utils::GetAbsoluteUrlModulesRoot().$sModuleDir.'/ajax/handler.php';
 			
 			// Does a cookie exist with a preferred basemap for this class for this user?

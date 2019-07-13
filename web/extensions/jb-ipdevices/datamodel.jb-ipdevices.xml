@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-	Special note: this is highly experimental. It completely redefines the default datamodel's IPPhone and you may lose data using this.
-	I didn't get the logic of an IPPhone where you could link nothing to; while our IP Phones are actually intermediate devices (switch <- IP Phone also acting as small switch -> PC).
-	Also, I wanted to add a generic IP Device class, because we often discuss whether some technical device is actually a server (or some sort of client but not really a workstation either).
-	That's why there's an IPDevice (parent) class, an IPDeviceGeneric (all sorts of IP devices), an alternative take on the IPPhone class and an IPCamera class
--->
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+<!-- 
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ 
+ Special note: this is highly experimental. It completely redefines the default datamodel's IPPhone and you may lose data using this.
+ I didn't get the logic of an IPPhone where you could link nothing to; while our IP Phones are actually intermediate devices (switch <- IP Phone also acting as small switch -> PC).
+ Also, I wanted to add a generic IP Device class, because we often discuss whether some technical device is actually a server (or some sort of client but not really a workstation either).
+ That's why there's an IPDevice (parent) class, an IPDeviceGeneric (all sorts of IP devices), an alternative take on the IPPhone class and an IPCamera class
+-->
 	<classes>
 		<!-- 
-			Add proper models. IPPhone already exists. 
+			Add proper Model for each new non-abstract class. IPPhone already exists. 
 		-->
 		<class id="Model"> 
 			<fields>
