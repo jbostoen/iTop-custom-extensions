@@ -1,25 +1,14 @@
 <?php
-// Copyright (C) 2014 TeemIp
-//
-//   This file is part of TeemIp.
-//
-//   TeemIp is free software; you can redistribute it and/or modify	
-//   it under the terms of the GNU Affero General Public License as published by
-//   the Free Software Foundation, either version 3 of the License, or
-//   (at your option) any later version.
-//
-//   TeemIp is distributed in the hope that it will be useful,
-//   but WITHOUT ANY WARRANTY; without even the implied warranty of
-//   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//   GNU Affero General Public License for more details.
-//
-//   You should have received a copy of the GNU Affero General Public License
-//   along with TeemIp. If not, see <http://www.gnu.org/licenses/>
 
 /**
- * @copyright   Copyright (C) 2014 TeemIp
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ *
+ * iTop custom operations to merge objects.
+ * Heavily based on Combodo's TeemIP module for iTop.
  */
+ 
 /*****************************************
  * Displays choices related to operation.
  */			
@@ -124,7 +113,6 @@ try
 	$oAppContext = new ApplicationContext();
 	
 	// Start construction of page
-
 	$oP = new iTopWebPage('');
 	$oP->set_base(utils::GetAbsoluteUrlAppRoot().'pages/');
 	
@@ -136,16 +124,18 @@ try
 	$oP->add_linked_script("../js/linkswidget.js");
 	$oP->add_linked_script("../js/extkeywidget.js");
 	
+	$sCustomOperation = utils::ReadParam('operation', '');
 	
-	$operation = utils::ReadParam('operation', '');
-	switch($operation)
+	// @todo Take safe approach like in iTop when deleting objects: user selects from list -> limited list with selection boxes is shown -> limited list without boxes is shown to confirm
+	
+	switch($sCustomOperation)
 	{
 		///////////////////////////////////////////////////////////////////////////////////////////
 		
 		case 'displaylist':	// Display hierarchical tree for domain, blocks or subnets
 			
 			// $sName, $defaultValue = "", $bAllowCLI = false, $sSanitizationFilter = 'parameter'
-			$sIDs = utils::ReadParam('ids', '');
+			$sIDs = utils::ReadParam('ids', '', false, 'string');
 			$sClass = utils::ReadParam('class', '', false, 'class');
 			
 			// Check if right parameters have been given
@@ -160,45 +150,100 @@ try
 				throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'class'));
 			}
 			
-			
-			// @Combodo: after reading your 'todo', this should probably change in the future. (CMDBObjectSet) :)
-			$sQuery = 'SELECT '.$sClass.' WHERE id IN ('.$sIDs.')';
-			$oObjectSet = new CMDBObjectSet(DBObjectSearch::FromOQL($sQuery));
-
-			// Found the objects.
-			// List with checkboxes (checked by default)
-			// Also show a combobox with all Tickets. Default to first (oldest) one?
-			
-
 			// Set page header: 'Merge to one <Class object>'
 			$sClassLabel = MetaModel::GetName($sClass);
 			$oP->add("<p class=\"page-header\">\n");
 			$oP->add(MetaModel::GetClassIcon($sClass, true) . ' ' . Dict::Format('UI:ObjectMerge:Title', $sClass));
 			$oP->add("</p>\n");
 			
-			// Add list
-			$oDisplayBlock = DisplayBlock::FromObjectSet(/* DBObjectSet */ $oObjectSet, /* $sStyle */ 'list');
-			$oDisplayBlock->Display(/* WebPage */ $oP, /* $sId */ 1, /* $aExtraParams */ ['menu' => false]);
-
 			// As of 2.6.1, iTop doesn't offer check boxes yet (also not when trying to select from the list and chose native 'delete').
-			// Add translations
-			$oP->add(
-<<<EOF
-			<form method="post">
-				<input type="hidden" name="transaction_id" value="adm6874.tmp">
-				<input type="hidden" name="operation" value="bulk_delete_confirmed">
-				<input type="hidden" name="filter" value="[&quot;SELECT `IPv4Block` FROM IPv4Block AS `IPv4Block` WHERE (`IPv4Block`.`id` IN ('1'))&quot;,[],[]]">
-				<input type="hidden" name="class" value="{$sClass}">
-				<input type="hidden" name="selectObject[]" value="1">
-				<input type="button" onclick="window.history.back();" value=" << Back ">
-				<input type="submit" name="" value=" Delete ! ">
-				<input type="hidden" name="c[menu]" value="{$sClass}">
-			</form>
-EOF
-			);
+			// @todo Find out if transaction_id is useful? This must be generated somewhere
+			$aKeys = explode(',', $sIDs);
+			$oFilter = new DBObjectSearch($sClass);
+			$oFilter->AddCondition('id', $aKeys, 'IN');
+			$oObjectSet = new CMDBObjectSet($oFilter);
+			$iCountObjects = $oObjectSet->Count();
+			
+			if($iCountObjects < 2)
+			{
+				$oP->p(Dict::S('UI:Objectmerge:MultipleObjectsRequired'));
+			}
+			else
+			{
+				
+				// Code below based on cmdbAbstractObject::DeleteObjects() (2.6.1)
+				$oP->p('<h1>'.Dict::Format('UI:Objectmerge:ConfirmCountObjectsOfClass', $iCountObjects, MetaModel::GetName($sClass)).'</h1>');
 
+				$oP->add('<div id="0">');
+				CMDBAbstractObject::DisplaySet($oP, $oObjectSet, array('display_limit' => false, 'menu' => false, 'selection_mode' => false));
+				$oP->add("</div>\n");
+				$oP->add("<form method=\"post\">\n");			
+				$oP->add("<input type=\"hidden\" name=\"transaction_id\" value=\"".utils::GetNewTransactionId()."\">\n");
+				$oP->add("<input type=\"hidden\" name=\"operation\" value=\"merge\">\n");
+				$oP->add("<input type=\"hidden\" name=\"filter\" value=\"".htmlentities($oFilter->Serialize(), ENT_QUOTES,
+						'UTF-8')."\">\n");
+				$oP->add("<input type=\"hidden\" name=\"class\" value=\"$sClass\">\n");
+				
+				// Preliminary clean-up: use $oObjectSet, so only output valid IDs
+				while($oObj = $oObjectSet->Fetch())
+				{
+					$oP->add("<input type=\"hidden\" name=\"selectObject[]\" value=\"".$oObj->GetKey()."\">\n");
+				}
+				
+				$oP->add("<input type=\"button\" onclick=\"window.history.back();\" value=\"".Dict::S('UI:Button:Back')."\">\n");
+				$oP->add("<input type=\"submit\" name=\"\" value=\"".Dict::S('UI:ObjectMerge:Button:Merge')."\">\n");
+				$oAppContext = new ApplicationContext();
+				$oP->add($oAppContext->GetForForm());
+				$oP->add("</form>\n");
+
+				
+			}
+			
 			break; // End case displaytree
 	
+
+
+		case 'merge':
+		
+			$sClass = utils::ReadParam('class', '', false, 'class');
+			
+			// Check if right parameters have been given
+			if ( empty($sClass))
+			{
+				throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'class'));
+			}
+			
+			// Which attributes? Free select or from predefined config?
+			$aAttributes = Metamodel::GetAttributesList($sClass);
+			
+			// Temporary, move to next phase/blue form
+			$oP->add('<b>Merge candidates:</b><br>');
+			foreach($aAttributes as $sAttribute) {
+				$oAttributeDef = Metamodel::GetAttributeDef($sClass, $sAttribute);
+				 
+				// AttributeLinkedSetIndirect (update links; set ticket_id to the destination's ticket_id if not duplicate; else delete)
+				// AttributeCaselog is also likely to be interesting to merge.
+				if( in_array(get_class($oAttributeDef), ['AttributeLinkedSetIndirect', 'AttributeCaseLog']) == true ) {
+					$oP->add( $sAttribute . ' - ' . get_class($oAttributeDef) . '<br>');
+				}
+	
+			}
+			
+			// Don't forget: special classes like Attachments
+			$oP->add('Attachments');
+			
+			
+			// For now, get all the objects; process; DO NOT save or delete (testing phase)
+			
+			// To consider later: ormCaseLog->FromJSON() starts NEW ormCaseLog (no other easy way to clear or re-arrange); must contain 'items'
+			// For 2.6.1 create custom ormCaseLog which manipulates AddLogEntry() to support user_login and user_id. Also of use: GetAsArray()
+			// Sort/order, then create new ormCaseLog
+			// ormCaseLog
+			 
+			// $oLog = $oTicket->Get($sAttCode);
+			// $oLog->AddLogEntry($sCaseLogEntry, $sCallerName);
+			// $oTicket->Set($sAttCode, $oLog);
+			
 
 // Get rid of all this below
 
