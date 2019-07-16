@@ -1,7 +1,10 @@
 # jb-menu-image-v
 
 ## What?
-Adds link to Image-V (mobile mapping)
+Adds link to Image-V (mobile mapping) in Other Actions menu.
+
+Only if 'geom' field is set or if 'crab_address_id' is set (and contains geometry).
+
 
 ## Cookbook
 

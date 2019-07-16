@@ -49,13 +49,13 @@ class cPopupMenuExtension_ImageV implements iPopupMenuExtension
 						
 					case in_array('crab_address_id', $aAttributeList):
 					
-						if( $oObject->Get('crab_address_id') != '' && (int)crab_address_id > 0 ) {
+						if( $oObject->Get('crab_address_id') != '' && (int)$oObject->Get('crab_address_id') > 0 ) {
 							
 							// Obtain coordinates
 							$oSet_CrabAddresses = new CMDBObjectSet(DBObjectSearch::FromOQL('SELECT CrabAddress WHERE id = ' . $oObject->Get('crab_address_id')));
 							
 							// Could be invalid (but shouldn't be)
-							if ($this->Count() != 1 ) {							
+							if ($oSet_CrabAddresses->Count() == 1 ) {							
 								$oCrabAddress = $oSet_CrabAddresses->Fetch();
 								
 								// Use CRAB geometry
@@ -184,13 +184,13 @@ class cApplicationUIExtension_ImageV implements iApplicationUIExtension
 				
 			case in_array('crab_address_id', $aAttributeList):
 			
-				if( $oObject->Get('crab_address_id') != '' && (int)crab_address_id > 0 ) {
+				if( $oObject->Get('crab_address_id') != '' && (int)$oObject->Get('crab_address_id') > 0 ) {
 					
 					// Obtain coordinates
 					$oSet_CrabAddresses = new CMDBObjectSet(DBObjectSearch::FromOQL('SELECT CrabAddress WHERE id = ' . $oObject->Get('crab_address_id')));
 					
 					// Could be invalid (but shouldn't be)
-					if ($this->Count() != 1 ) {							
+					if ($oSet_CrabAddresses->Count() == 1 ) {							
 						$oCrabAddress = $oSet_CrabAddresses->Fetch();
 						
 						// Use CRAB geometry
