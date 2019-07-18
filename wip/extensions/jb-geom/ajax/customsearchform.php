@@ -54,12 +54,16 @@ try
 	// Convert
 	$aResults = $oObjectSet->ToArrayOfValues();
 	
+	$aParams_options = utils::ReadParam('list_params', '', false, 'raw_data');
+	$aParams_options = json_decode($aParams_options, true);
+		
 	// Change and drop 'class.' prefix for fields (limits length of JSON output significantly)
 	// @todo Implement 'output_fields' or something similar in name to iTop REST/JSON
 	foreach($aResults as &$aResult) {
 		foreach($aResult as $sAttribute => $sAttributeValue) {
-			if(isset($aParams['attributes']) == false || (isset($aParams['attributes']) == true && in_array($sAttribute, $aParams['attributes']) == true)) {
-				$aResult[preg_replace('/^'.$aParams['class'].'\./', '', $sAttribute)] = $sAttributeValue;
+			$sAttribute_without_alias = preg_replace('/^'.$oFilter->GetClass().'\./', '', $sAttribute);
+			if(isset($aParams_options['attributes']) == false || in_array($sAttribute_without_alias, $aParams_options['attributes']) ) {				
+				$aResult[$sAttribute_without_alias] = $sAttributeValue;
 			}
 			unset($aResult[$sAttribute]);
 		}

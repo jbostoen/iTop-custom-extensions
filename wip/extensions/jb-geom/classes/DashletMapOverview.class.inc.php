@@ -76,13 +76,13 @@
 		$sQuery = $this->aProperties['query'];
 		$sTitle = $this->aProperties['title'];
 		$iHeight = (int)$this->aProperties['height'];
-		$aAttributeList_Specified = explode(',', str_replace(' ', '', $this->aProperties['attributes']));
 		$sId = utils::GetSafeId('dashlet_map_overview_'.($bEditMode? 'edit_' : '').$this->sId);
 		
 		// Always add 'id', 'geom', 'friendlyname' to specified attribute list
 		// Not necessarily displayed, but it's important to fetch this data
-		$aAttributeList_Specified = array_merge(['id', 'friendlyname', 'geom'], $aAttributeList_Specified);
-		$aAttributeList_Specified = array_unique($aAttributeList_Specified);
+		$aAttributeList_Specified = explode(',', str_replace(' ', '', $this->aProperties['attributes']));
+		$aAttributeList_Specified_Request = array_merge(['id', 'friendlyname', 'geom'], $aAttributeList_Specified);
+		$aAttributeList_Specified_Request = array_unique($aAttributeList_Specified_Request);
 		
 		// Get path to ajax.handler.php
 		$sModuleDir = basename(dirname(dirname(__FILE__)));
@@ -186,10 +186,12 @@ EOF
 					geometryHandler[sDashletMapOverViewId].oVectorSource.clear();
 					
 					$.each(oData, function(i) {
-						if(typeof oData[i].geom !== "undefined" && oData[i].geom != "" ) {
-							var oFeature = geometryHandler[sDashletMapOverViewId].oFormat.{$aGeomSettings["dataformat"]}.readFeature(oData[i].geom);
-							oFeature.setProperties(oData[i]);
-							geometryHandler[sDashletMapOverViewId].oVectorSource.addFeature(oFeature);
+						if(typeof oData[i].geom !== "undefined") {
+							if( oData[i].geom !== null && oData[i].geom != "" ) {
+								var oFeature = geometryHandler[sDashletMapOverViewId].oFormat.{$aGeomSettings["dataformat"]}.readFeature(oData[i].geom);
+								oFeature.setProperties(oData[i]);
+								geometryHandler[sDashletMapOverViewId].oVectorSource.addFeature(oFeature);
+							}
 						}
 					});
 				}
@@ -204,7 +206,6 @@ EOF
 		
 		$sHtmlTitle = htmlentities(Dict::S($sTitle), ENT_QUOTES, 'UTF-8');
 
-		
 		// Add header
 		if ($sHtmlTitle != '')
 		{
@@ -251,17 +252,16 @@ EOF
 		}"; 
 		
 		// If nothing defined: ask all
-		$aExtraParams['attributes'] = (count($aAttributeList_Specified) == 0 ? [] : $aAttributeList_Complete);
+		$aExtraParams['attributes'] = (count($aAttributeList_Specified) == 0 ? $aAttributeList_Complete : $aAttributeList_Specified_Request );
 		
 		$oSearchForm = new CustomSearchForm();
 		$sHtml .= $oSearchForm->GetSearchForm($oPage, $oObjectSet, $aExtraParams);
 		$sHtml .= "</div>\n";
 		$oPage->add($sHtml);
 		
-		
 		// Get required translations
 		$aAttributes_Labels = [];
-		foreach((count($aAttributeList_Specified) == 0 ? $aAttributeList_Complete : $aAttributeList_Specified) as $sAttributeCode) {
+		foreach((count($aAttributeList_Specified) == 0 ? $aAttributeList_Complete : $aAttributeList_Specified_Request) as $sAttributeCode) {
 			$aAttributes_Labels[$sAttributeCode] = MetaModel::GetLabel($sClassName, $sAttributeCode, /* bShowMandatory */ false);
 		}
 		
@@ -284,7 +284,7 @@ EOF
 		$aFeatures = Array();
 		while ($oObject = $oObjectSet->Fetch()) {
 			$aFeature = [];
-			foreach($aAttributeList_Specified as $aAttribute) {
+			foreach($aAttributeList_Specified_Request as $aAttribute) {
 				if($aAttribute == 'geom') {
 					$aFeature['geometry'] = $oObject->Get('geom');
 				}
@@ -330,12 +330,14 @@ EOF
 			
 			$.each(geometryHandler["{$sId}"].aFeatureSet, function(i) {
 				// Must contain geometry
-				if(geometryHandler["{$sId}"].aFeatureSet[i].geometry != "" && geometryHandler["{$sId}"].aFeatureSet[i].geometry !== null) {
-					var oFeature = geometryHandler["{$sId}"].oFormat.{$aGeomSettings['dataformat']}.readFeature(geometryHandler["{$sId}"].aFeatureSet[i].geometry, { 
-						dataProjection: "{$aGeomSettings['datacrs']}", 
-						featureProjection: "{$aGeomSettings['mapcrs']}" });
-					oFeature.setProperties(geometryHandler["{$sId}"].aFeatureSet[i].properties);
-					geometryHandler["{$sId}"].aFeatures.push(oFeature);
+				if(typeof geometryHandler["{$sId}"].aFeatureSet[i].geometry !== "undefined") {
+					if(geometryHandler["{$sId}"].aFeatureSet[i].geometry != "" && geometryHandler["{$sId}"].aFeatureSet[i].geometry !== null) {
+						var oFeature = geometryHandler["{$sId}"].oFormat.{$aGeomSettings['dataformat']}.readFeature(geometryHandler["{$sId}"].aFeatureSet[i].geometry, { 
+							dataProjection: "{$aGeomSettings['datacrs']}", 
+							featureProjection: "{$aGeomSettings['mapcrs']}" });
+						oFeature.setProperties(geometryHandler["{$sId}"].aFeatureSet[i].properties);
+						geometryHandler["{$sId}"].aFeatures.push(oFeature);
+					}
 				}
 			});
 			
