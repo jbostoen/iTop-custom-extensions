@@ -98,7 +98,7 @@
 		$aAttributeList_Complete[] = 'id';
 		
 		// Module settings, defaults.
-		$aGeomSettings = MetaModel::GetModuleSetting('jb-geom', 'default', array( 
+		$aGeomSettings = utils::GetCurrentModuleSetting('default', array( 
 			'dataformat' => 'WKT',
 			'datacrs' => 'EPSG:3857',
 			'datatypes' => array('Point', 'LineString', 'Polygon'),
@@ -108,8 +108,8 @@
 		));
 		
 		// Module settings, class specifics. In XML, most nodes seem to start with a non-capital.
-		if(MetaModel::GetModuleSetting('jb-geom', strtolower($sClassName), '') != '') {
-			$aClassSpecificSettings = MetaModel::GetModuleSetting('jb-geom', strtolower($sClassName), array() ); 
+		if(utils::GetCurrentModuleSetting(strtolower($sClassName), '') != '') {
+			$aClassSpecificSettings = utils::GetCurrentModuleSetting(strtolower($sClassName), array() ); 
 			$aGeomSettings = array_replace_recursive($aGeomSettings, $aClassSpecificSettings);
 		}
 		
