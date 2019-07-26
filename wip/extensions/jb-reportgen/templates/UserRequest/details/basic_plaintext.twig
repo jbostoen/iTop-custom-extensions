@@ -4,13 +4,13 @@
 	</head>
 	<body>
 	
-		<h1>{{ item.title }}</h1>
+		<h1>{{ item.fields.title }}</h1>
 		
 		<p>
-			<b>Ref:</b> {{ item.ref }}
+			<b>Ref:</b> {{ item.fields.ref }}
 		</p>
 		
-		<pre>{{ item.description|striptags|trim }}</pre>
+		<pre>{{ item.fields.description|striptags|trim }}</pre>
 			
 	</body>
 </html>

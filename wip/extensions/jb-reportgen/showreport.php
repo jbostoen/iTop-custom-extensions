@@ -5,167 +5,213 @@
  * @version     -
  *
  * Shows report; based on available Twig templates.
+ *
+ * @todo Translate some errors which should never be seen in the first place
  */
 	 
-	// $_REQUEST should contain: 
-	// class:               String. Class name
-	// key:                 Integer. Key ID(s). Single ID. In combination with 'type=detail'.
-	// keys:                Integer(s). Key ID(s). Comma separated. In combination with 'type=list'.
-	// template: 			String. Report name. For convenience, use detail/<filename>.twig and list/<filename>.twig
-	// type: 				String. 'details' for single object, 'list' for multiple IDs. (reserved for future use, e.g. List/Overview)
-	 
-	// Assume we're under /extensions/extname. No other references yet.
-	// This file will be copied to /env-production, but the link will still point to /extensions
-	defined('JB_APPDIR_ITOP') or define('JB_APPDIR_ITOP', dirname(dirname(dirname( __FILE__ ))) );
+
+/**
+ * $_REQUEST should contain: 
+ * class:               String. Class name
+ * filter:              String. OQL Query
+ * template: 			String. Report name. For convenience, use detail/<filename>.twig and list/<filename>.twig
+ * type: 				String. 'details' or 'list'
+*/ 
+
+	if (!defined('APPROOT')) require_once(__DIR__.'/../../approot.inc.php');
+	require_once(APPROOT.'/application/application.inc.php');
+	require_once(APPROOT.'/application/displayblock.class.inc.php');
+	require_once(APPROOT.'/application/itopwebpage.class.inc.php');
+	require_once(APPROOT.'/application/loginwebpage.class.inc.php');
+	require_once(APPROOT.'/application/startup.inc.php');
+	require_once(APPROOT.'/application/wizardhelper.class.inc.php');
 	
-	// Autoloader (Twig, iTop_Rest, ...
-	require JB_APPDIR_ITOP . '/libext/vendor/autoload.php';
+	// Autoloader (Twig, chillerlan\QRCode, ...
+	require_once(APPROOT . '/libext/vendor/autoload.php');
 		
 	// Get iTop's Dict::S('string') so it can be exposed to Twig as well 
-	require_once( JB_APPDIR_ITOP . '/approot.inc.php' );
-	require_once( JB_APPDIR_ITOP . '/application/utils.inc.php' );
-	require_once( JB_APPDIR_ITOP . '/core/coreexception.class.inc.php' );
-	require_once( JB_APPDIR_ITOP . '/core/dict.class.inc.php' );
+	// require_once( JB_APPDIR_ITOP . '/application/utils.inc.php' );
+	// require_once( JB_APPDIR_ITOP . '/core/coreexception.class.inc.php' );
+	// require_once( JB_APPDIR_ITOP . '/core/dict.class.inc.php' );
 	
-	// Short validation first 
-	switch( $_REQUEST['type'] ) {
-
-		case 'details': 
-			if( isset($_REQUEST['key']) == false || isset($_REQUEST['template']) == false ) {
-				die('Type details requires <b>key</b> and <b>template</b> to be specified.');
-			}
-			break;
+	try {
 			
-		case 'list':
-			if( isset($_REQUEST['keys']) == false || isset($_REQUEST['template']) == false ) {
-				die('Type details requires <b>keys</b> and <b>template</b> to be specified.');
-			}
-			break;
-			
-		default:
-			die('Invalid type. Must be: <b>details</b> , <b>list</b>');
-		
-	}
-	
-	// Init array to be passed to Twig
-	$aObjectData = []; 
-	
-	// Now that we have the iTop Connector, use it to fetch info of this object we're looking for. 
-	// It's easier to pass to Twig with our implementation.
-	$oREST = new iTop_Rest();
-	
-	if( $_REQUEST['type'] == 'details' ) {
-						  
-		// Request
-		$aReturnData = $oREST->get([
-			'key' => $_REQUEST['key'],
-			'class' => $_REQUEST['class'],
-			'onlyValues' => true
-		]);
-		
-	}
-	elseif( $_REQUEST['type'] == 'list' ) {
-				  
-		// Request
-		$aReturnData = $oREST->get([
-			'key' => 'SELECT '.$_REQUEST['class'].' WHERE id IN ('.$_REQUEST['keys'].')',
-			'onlyValues' => true
-		]);		
-		
-	}
-		
-	// Valid object?
-	// 'list' and 'detail' should at least return 1 item.
-	if( count( $aReturnData ) < 1 ) {
-		
-		// Do some nicer handling in the future 
-		die('Invalid object');
-		
-	}
-
-	// Valid template?
-	$sTemplateDir = dirname( __FILE__ ) . '/templates/';
-	$sTemplateFile = $sTemplateDir . $_REQUEST['class'] . '/' . $_REQUEST['type'] . '/' . $_REQUEST['template'];
-
-	if( file_exists($sTemplateFile) == false ) {			
-		// Do some nicer handling in the future; but this simply shouldn't happen unless something just got deleted.
-		die('Invalid template: ' . $sTemplateFile );
-		
-	}		
-		 
-	$aTwigData['items'] = [];
-	
-	// For single and multiple items: fetch associated Attachments
-	foreach( $aReturnData as $aItemData ) {
-		
-		// No attachments by default
-		$aItemData['attachments'] = [];
-		
-		// Attachments?		
-		$aReturnDataAttachments = $oREST->get([
-			'key' => 'SELECT Attachment WHERE item_id = '.$aItemData['key'],
-			'onlyValues' => true
-		]);
-		
-		foreach( $aReturnDataAttachments as $aAttachmentData ) {
-			// Don't repeat data from the parent. Focus on contents ( data, mimetype, filename )
-			$aItemData['attachments'][] = $aAttachmentData['fields']['contents'];			
+		// Logging in exposed :current_contact_id in OQL
+		if (LoginWebPage::EXIT_CODE_OK != LoginWebPage::DoLoginEx(null /* any portal */, false, LoginWebPage::EXIT_RETURN))
+		{
+			throw new SecurityException('You must be logged in');
 		}
 		
-		// This will expose 'key' and 'fields' (as well as some other REST data)
-		$aTwigData['items'][] = $aItemData;
+		// utils::ReadParam( $sName, $defaultValue = "", $bAllowCLI = false, $sSanitizationFilter = 'parameter' )
+		$sClassName = utils::ReadParam('class', '', false, 'class');
+		$sFilter = utils::ReadParam('filter', '', false, 'raw_data');
+		$sType = utils::ReadParam('type', '', false, 'string');
+		$sTemplateName = utils::ReadParam('template', '', false, 'string');
 		
-	}
-	
-	
-	// For single item
-	if( count($aReturnData) == 1 ) {
-		$aTwigData['item'] = $aTwigData['items'][0];			
-	}
-	 
-	// Post both parameters to Twig.
-	// Either a single Object was requested, or multiple. 
-	
-	// Pass to Twig 	
-	
-	// Twig Loader
-	$loader = new Twig_Loader_Filesystem( dirname( __FILE__ ) . '/templates/' . $_REQUEST['class'] . '/' . $_REQUEST['type'] );
-	
-	// Twig environment options
-	$oTwigEnv = new Twig_Environment($loader, array(
-		'autoescape' => false
-	)); 
-
-	// Combodo uses this filter, so let's use it the same way for our report generator
-	$oTwigEnv->addFilter(new Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
-			return Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
-		})
-	);
-	
-	// Relies on chillerlan/php-qrcode
-	if( class_exists('chillerlan\\QRCode') == true ) {
+		// Validation
+		// --
 		
-		$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
-
-				$aOptions = new chillerlan\QRCode\QROptions([
-					'version'    => 5,
-					'outputType' => chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
-					'eccLevel'   => chillerlan\QRCode\QRCode::ECC_L,
-					'scale'		 => 3
-				]);
-
-				// invoke a fresh QRCode instance
-				$oQRCode = new chillerlan\QRCode\QRCode($aOptions);
-
-				// and dump the output 
-				return $oQRCode->render($sString);		
+		// Check if right parameters have been given
+		if ( empty($sClassName) == true ) {
+			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'class'));
+		}
 		
+		if ( empty($sFilter) == true ) {
+			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'filter'));
+		}
+		
+		if ( empty($sType) == true ) {
+			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'type'));
+		}
+		
+		if ( empty($sTemplateName) == true ) {
+			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'template'));
+		}
+		
+		// Valid type?
+		if(in_array($sType, ['details', 'list']) == false) {
+			throw new ApplicationException('Valid values for type are: details, list');
+		}
+		
+		$sReportDir = __DIR__ . '/templates/'.$sClassName.'/'.$sType;
+		$sReportFile = $sReportDir.'/'.$sTemplateName;
+		
+		// Prevent local file inclusion
+		if( __DIR__ != dirname(dirname(dirname(dirname($sReportFile)))) ) {
+			throw new ApplicationException('Invalid type or template');
+		}
+		elseif( file_exists($sReportFile) == false ) {
+			throw new ApplicationException('Template does not exist: ' .$sReportFile);
+		}
+		
+		$oFilter = DBObjectSearch::unserialize($sFilter);
+		$aAllArgs = MetaModel::PrepareQueryArguments($oFilter->GetInternalParams());
+		// $oFilter->ApplyParameters($aAllArgs); // Thought this was necessary for :current_contact_id. Guess not?
+		$oSet_Objects = new CMDBObjectSet($oFilter);
+		
+		
+		// Valid object(s)?
+		if($oSet_Objects->Count() == 0 ) {
+			throw new ApplicationException('Invalid OQL filter: no object(s) found');
+		}
+		
+		$aSet_Objects = ObjectSetToArray($oSet_Objects);
+		
+		// Get keys to build one OQL Query
+		$aKeys = [];
+		foreach( $aSet_Objects as $aObject ) {
+			$aKeys[] = $aObject['key'];
+		}
+		
+		$oFilter_Attachments = new DBObjectSearch('Attachment');
+		$oFilter_Attachments->AddCondition('item_id', $aKeys, 'IN');
+		$oSet_Attachments = new CMDBObjectSet($oFilter_Attachments);
+		$aSet_Attachments = ObjectSetToArray($oSet_Attachments);
+		
+		foreach( $aSet_Objects as &$aObject ) {
+			
+			$aObject['attachments'] = array_filter($aSet_Attachments, function($aAttachment) use ($aObject) {
+				return ($aAttachment['fields']['item_id'] = $aObject['key']);
+			});
+			
+			$aObject['attachments'] = array_values($aObject['attachments']);
+			
+		}
+		
+		if($sType == 'details') {
+			$aTwigData['item'] = array_values($aSet_Objects)[0];
+		}
+		else {
+			$aTwigData['items'] = $aSet_Objects;
+		}
+		
+		// Twig
+		// --
+		
+		// Twig Loader
+		$loader = new Twig_Loader_Filesystem( dirname($sReportFile) );
+		
+		// Twig environment options
+		$oTwigEnv = new Twig_Environment($loader, [
+			'autoescape' => false
+		]); 
+
+		// Combodo uses this filter, so let's use it the same way for our report generator
+		$oTwigEnv->addFilter(new Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
+				return Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
 			})
 		);
+		
+		// Relies on chillerlan/php-qrcode
+		if( class_exists('chillerlan\QRCode') == true ) {
 			
+			$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
+
+					$aOptions = new chillerlan\QRCode\QROptions([
+						'version'    => 5,
+						'outputType' => chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
+						'eccLevel'   => chillerlan\QRCode\QRCode::ECC_L,
+						'scale'		 => 3
+					]);
+
+					// invoke a fresh QRCode instance
+					$oQRCode = new chillerlan\QRCode\QRCode($aOptions);
+
+					// and dump the output 
+					return $oQRCode->render($sString);		
+			
+				})
+			);
+				
+		}
+		else {
+			
+			$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
+				return $sString . ' (QR library missing)';
+			}));
+				
+		}
+		
+		echo $oTwigEnv->render(basename($sReportFile), $aTwigData );	 
+
 	}
 	
-	echo $oTwigEnv->render( $_REQUEST['template'] , $aTwigData );	 
+	catch(Exception $e)
+	{
+		require_once(APPROOT.'/application/nicewebpage.class.inc.php');
+		$oP = new NiceWebPage(Dict::S('UI:PageTitle:FatalError'));
+		$oP->add("<h1>".Dict::S('UI:FatalErrorMessage')."</h1>\n");	
+		$oP->add(Dict::Format('UI:Error_Details', $e->getMessage()));	
+		$oP->output();
+	}
 
+
+	/**
+	 * Returns array (similar to REST/JSON) from object set
+	 *
+	 * @param CMDBObjectSet $oObjectSet iTop object set
+	 *
+	 * @return Array
+	 */
+	function ObjectSetToArray(CMDBObjectSet $oObjectSet) {
+		
+		$oResult = new RestResultWithObjects();
+		$aShowFields = [];
+		$sClass = $oObjectSet->GetClass();
+		foreach (MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
+		{
+			$aShowFields[$sClass][] = $sAttCode;
+		}
+		
+		while ($oObject = $oObjectSet->Fetch())
+		{
+			$oResult->AddObject(0, '', $oObject, $aShowFields);
+		}
+		
+		$sJSON = json_encode($oResult->objects);
+		
+		return json_decode($sJSON, true);
+		
+	}
 
 	

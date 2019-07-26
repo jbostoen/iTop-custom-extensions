@@ -4,7 +4,7 @@
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ Jeffrey Bostoen ]]></author>
 	<label><![CDATA[ Feature: Object Merge ]]></label>
-	<description><![CDATA[ Merges objects (primarily meant for any subclass of Ticket) ]]></description>
+	<description><![CDATA[ Merges objects (meant for any subclass of Ticket) ]]></description>
 	<version>2.6.190713</version>
 	<release_date>2019-07-13</release_date>
 	<version_description><![CDATA[  ]]></version_description>

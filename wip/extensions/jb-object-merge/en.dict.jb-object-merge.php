@@ -16,8 +16,14 @@ Dict::Add('EN US', 'English', 'English', array(
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for more info on the value',
 	'UI:ObjectMerge:Title' => 'Merge to one %1$s',
 	'UI:ObjectMerge:MultipleObjectsRequired' => 'Unable to merge: multiple objects must be specified.',
-	'UI:ObjectMerge:ConfirmCountObjectsOfClass' => 'Merging of %1$s objects of class %2$s',
+	'UI:Objectmerge:ConfirmCountObjectsOfClass' => 'Merging of %1$s objects of class %2$s',
 	'UI:ObjectMerge:Button:Merge' => 'Merge',
+	'UI:ObjectMerge:ObjectList:Merge' => 'Merge',
+	'UI:ObjectMerge:WarningModificationsMayTriggerNotifications' => 'Warning: modifications may trigger notifications.',
+	'UI:ObjectMerge:WarningAtLeastTwoObjectsNeeded' => 'You need to select at least two objects to merge.',
+	'UI:ObjectMerge:NoAttachmentsFound' => 'No attachments found.',
+	'UI:ObjectMerge:AttributeOverview' => 'Attribute overview',
+	'UI:ObjectMerge:SuccessFullyMergedTo' => 'Successfully merged to %1$s',
 	
 ));
 

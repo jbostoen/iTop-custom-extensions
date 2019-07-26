@@ -170,21 +170,18 @@
 		</script>
 	{% endif %}
 	
-	
 		{% for attachment in item.attachments %}
 		
 			
 			<div class="row">
-				<hr>
-				<img src="data:{{ attachment.mimetype }};base64, {{ attachment.data }}" alt="Bijlage" />
+				<hr>{{ attachment.fields.item_id }}
+				<img src="data:{{ attachment.fields.contents.mimetype }};base64, {{ attachment.fields.contents.data }}" alt="Bijlage" style="max-width: 100%;" />
 			</div>
 			
 		{% endfor %}
 	
 		<div class="page-break"></div>
 	
-	
-		
 		<div class="row">
 			
 			<h1>{{ item.key|qr }}  Melding #{{ item.key }}</h1>
@@ -198,8 +195,6 @@
 		</div>
 		
 	</div>
-
-
 </body>
 
 </html>

@@ -28,6 +28,7 @@ SetupWebPage::AddModule(
                 //
                 'datamodel' => array(
 					'model.jb-object-merge.php',
+					'core/PopupMenuExtensionObjectMerge.class.inc.php'
 					// 'ui.jb-object-merge.php' - do not include here
                 ),
                 'webservice' => array(

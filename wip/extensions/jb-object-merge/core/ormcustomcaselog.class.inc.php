@@ -11,7 +11,7 @@
  * therefore, it's better to build an ormCustomCaseLog from scratch and use AddLogEntry()
  */
  
-class ormCustomCaseLog {
+class ormCustomCaseLog extends ormCaseLog {
 
 	/**
 	 * Add a new entry to the log or merge the given text into the currently modified entry 
@@ -25,6 +25,7 @@ class ormCustomCaseLog {
 	{
 		$sText = HTMLSanitizer::Sanitize($sText);
 		$sDate = ($sDateTime == '' ? date(AttributeDateTime::GetInternalFormat()) : date(AttributeDateTime::GetInternalFormat(), strtotime($sDateTime)));
+		
 		if ($sOnBehalfOf == '')	{
 			$sOnBehalfOf = UserRights::GetUserFriendlyName();
 			$iUserId = UserRights::GetUserId();
@@ -33,20 +34,23 @@ class ormCustomCaseLog {
 			$iUserId = $iOnBehalfOfUserId;
 		}
 		
-		if ($this->m_bModified)
-		{
-			$aLatestEntry = end($this->m_aIndex);
-			if ($aLatestEntry['user_name'] == $sOnBehalfOf && $aLatestEntry['user_id'] == $iUserId)
+		/* 
+			No prepending!
+			if ($this->m_bModified)
 			{
-				// Append the new text to the previous one
-				$sPreviousText = substr($this->m_sLog, $aLatestEntry['separator_length'], $aLatestEntry['text_length']);
-				$sText = $sPreviousText."\n".$sText;
+				$aLatestEntry = end($this->m_aIndex);
+				if ($aLatestEntry['user_name'] == $sOnBehalfOf && $aLatestEntry['user_id'] == $iUserId)
+				{
+					// Append the new text to the previous one
+					$sPreviousText = substr($this->m_sLog, $aLatestEntry['separator_length'], $aLatestEntry['text_length']);
+					$sText = $sPreviousText."\n".$sText;
 
-				// Cleanup the previous entry
-				array_pop($this->m_aIndex);
-				$this->m_sLog = substr($this->m_sLog, $aLatestEntry['separator_length'] + $aLatestEntry['text_length']);
+					// Cleanup the previous entry
+					array_pop($this->m_aIndex);
+					$this->m_sLog = substr($this->m_sLog, $aLatestEntry['separator_length'] + $aLatestEntry['text_length']);
+				}
 			}
-		}
+		*/
 
 		$sSeparator = sprintf(CASELOG_SEPARATOR, $sDate, $sOnBehalfOf, $iUserId);
 		$iSepLength = strlen($sSeparator);
@@ -55,12 +59,53 @@ class ormCustomCaseLog {
 		$this->m_aIndex[] = array(
 			'user_name' => $sOnBehalfOf,
 			'user_id' => $iUserId,
-			'date' => $sDateTime,
+			'date' => strtotime($sDateTime),
 			'text_length' => $iTextlength,
 			'separator_length' => $iSepLength,
 			'format' => 'html',
 		);
 		$this->m_bModified = true;
+	}
+	
+	/**
+	 * Returns entries
+	 * 
+	 * @return Array
+	 */
+	public function GetEntries() {
+		return $this->m_aIndex;
+	}
+	
+	/**
+	 * Sorts case log entries by timestamp ('date')
+	 *
+	 * @param Boolean $bAscending Defaults to true.
+	 *
+	 * @return void
+	 *
+	 * @details Warning: if DBUpdate() is called AFTER this, it will be considered a modification and it will be likely be logged as 'new entry added'
+	 */
+	public function ToSortedCaseLog($bAscending = true) {
+		
+		$aEntries = $this->GetAsArray();
+		
+		usort($aEntries, function ($item1, $item2) use ($bAscending) {
+			
+			$dtCompare1 = ($bAscending == true ? $item2['date'] : $item1['date']);
+			$dtCompare2 = ($bAscending == true ? $item1['date'] : $item2['date']);
+			
+			return $dtCompare1 <=> $dtCompare2;
+		});
+		
+		// m_aIndex AND m_sLog both need to be updated, hence this trick.
+		$oCustomCaseLog = new ormCustomCaseLog();
+		
+		foreach($aEntries as $aEntry) {
+			$oCustomCaseLog->AddLogEntry($aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date']);
+		}
+		
+		return $oCustomCaseLog;
+		
 	}
 	
 }
