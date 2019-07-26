@@ -678,18 +678,21 @@ EOF
 			// if the subject does not match a specific pattern
 			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			
+			// To find the reference, make sure subject is handled in same way as original ticket (removing unwanted pattern)
+			$sSubject = $oEmail->sSubject;
+			$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
 			
-			// Are there patterns which should be ignored/removed from the title? 
-			// To find the reference, let's remove it from our temp variable. 
-			// We'll remove it elsewhere if it really needs to be gone.
-			// Patterns should be specified 1 per line	
-			$sSubject = $oEmail->sSubject;		
-			if(  $this->Get('policy_remove_pattern_patterns') != '' ) {
-				$aRemovePatterns = explode( PHP_EOL , $this->Get('policy_remove_pattern_patterns'));
+			foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
+				$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
 				
-				foreach( $aRemovePatterns as $sRemovePattern ) {
-					$sSubject = preg_replace($sIgnorePattern, '', $sSubject);
+				if( $oPregMatch === false) {
+					$this->Trace('Invalid pattern: {$sRemoveTitlePattern}');
+					break;
 				}
+				elseif( $oPregMatch != false ) {
+					$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
+				}
+				
 			}
 			
 			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches)))
