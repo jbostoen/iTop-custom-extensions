@@ -455,7 +455,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', substr($this->Get('debug_trace').$sStampedText, -$iMaxTraceLength));
+			$this->Set('debug_trace', $sStampedText.substr($this->Get('debug_trace'), -$iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");
@@ -520,17 +520,17 @@ EOF
 
 		
 		// Careful: Combodo's version implemented an IsUndesired-method in later versions (v3.0.11).
-		// Our method needs an additional parameter ( $oTicket ) to handle some policies.
+		// Our method needs an additional parameter ( $oTicket ) to validate the email against some policies.
 		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
 		
 		// Not policy compliant? Then stop processing. 
 		if( $oPolicy->bUndesired ) {
-			$this->Trace('. Email does not comply with at least one policy ('. $oPolicy->sPolicyId .') - so undesired.');
+			$this->Trace(". Email does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
 			return null;
 		}
 		else {
-			$this->Trace('. Email complies with our policies.');
+			$this->Trace(". Email complies with specified policies.");
 		}
 		 
 		$oCaller = $oPolicy->oCaller;
@@ -591,66 +591,67 @@ EOF
 		switch($oSet->Count())
 		{
 			case 1:
-			// Ok, the caller was found in iTop
-			$oCaller = $oSet->Fetch();
-			break;
-			
+				// Ok, the caller was found in iTop
+				$oCaller = $oSet->Fetch();
+				break;
+				
 			case 0:
-			switch($this->Get('policy_unknown_caller_behavior'))
-			{
-				case 'bounce_delete': 
-				case 'bounce_mark_as_undesired':
-				case 'delete':
-				case 'mark_as_undesired':
-					// Policy violation
-					$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed');
-					$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
-					return null;
-					break;
-				
-				case 'fallback':
-				default:
-					$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
-					$oCaller = new Person();
-					$oCaller->Set('email', $oEmail->sCallerEmail);
-					$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
-					$aDefaults = explode("\n", $sDefaultValues);
-					$aDefaultValues = array();
-					foreach($aDefaults as $sLine)														   
-					{
-						if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-						{
-							$sAttCode = trim($aMatches[1]);
-							$sValue = trim($aMatches[2]);
-							$aDefaultValues[$sAttCode] = $sValue;
-						}
-					}
-					$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
-					try
-					{
-						$this->Trace("Try to create user with default values");
-						// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
-						$oMyChange = MetaModel::NewObject("CMDBChange");
-						$oMyChange->Set("date", time());
-						$sUserString = CMDBChange::GetCurrentUserName();
-						$oMyChange->Set("userinfo", $sUserString);
-						$iChangeId = $oMyChange->DBInsert();
-						$oCaller->DBInsertTracked($oMyChange);					
-					}
-					catch(Exception $e)
-					{
-						// This is an actual error.
-						$this->Trace('Failed to create a Person for the email address "'.$oEmail->sCallerEmail.'".');
-						$this->Trace($e->getMessage());
-						$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
+			
+				switch($this->Get('policy_unknown_caller_behavior'))
+				{
+					case 'bounce_delete': 
+					case 'bounce_mark_as_undesired':
+					case 'delete':
+					case 'mark_as_undesired':
+						// Policy violation
+						$this->Trace("No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed.");
+						$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
 						return null;
-					}
-				
-			}			
-			break;
+						break;
+					
+					case 'fallback':
+					default:
+						$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
+						$oCaller = new Person();
+						$oCaller->Set('email', $oEmail->sCallerEmail);
+						$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
+						$aDefaults = explode("\n", $sDefaultValues);
+						$aDefaultValues = array();
+						foreach($aDefaults as $sLine)														   
+						{
+							if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
+							{
+								$sAttCode = trim($aMatches[1]);
+								$sValue = trim($aMatches[2]);
+								$aDefaultValues[$sAttCode] = $sValue;
+							}
+						}
+						$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
+						try
+						{
+							$this->Trace("Try to create user with default values");
+							// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
+							$oMyChange = MetaModel::NewObject("CMDBChange");
+							$oMyChange->Set("date", time());
+							$sUserString = CMDBChange::GetCurrentUserName();
+							$oMyChange->Set("userinfo", $sUserString);
+							$iChangeId = $oMyChange->DBInsert();
+							$oCaller->DBInsertTracked($oMyChange);					
+						}
+						catch(Exception $e)
+						{
+							// This is an actual error.
+							$this->Trace("Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
+							$this->Trace($e->getMessage());
+							$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
+							return null;
+						}
+					
+				}			
+				break;
 			
 			default:
-				$this->Trace('Found '.$oSet->Count().' callers with the same email address "'.$oEmail->sCallerEmail.'", the first one will be used...');
+				$this->Trace("Found ".$oSet->Count()." callers with the same email address '{$oEmail->sCallerEmail}', the first one will be used...");
 				// Multiple callers with the same email address !!!
 				$oCaller = $oSet->Fetch();
 		}
@@ -686,7 +687,7 @@ EOF
 				$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
 				
 				if( $oPregMatch === false) {
-					$this->Trace('Invalid pattern: {$sRemoveTitlePattern}');
+					$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
 					break;
 				}
 				elseif( $oPregMatch != false ) {
@@ -699,7 +700,7 @@ EOF
 			{
 				$iTicketId = 0;
 				sscanf($aMatches[1], '%d', $iTicketId);
-				$this->Trace('iTop Simple Email Synchro: Retrieving ticket {$iTicketId} (match by subject pattern)...');
+				$this->Trace("iTop Simple Email Synchro: Retrieving ticket {$iTicketId} (match by subject pattern)...");
 				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false);
 			}
 		}		
@@ -732,10 +733,11 @@ EOF
 		{
 			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 		}
-		$this->Trace('Creating a new Ticket from eMail {$oEmail->sSubject}');
+		$this->Trace("Creating a new Ticket from eMail {$oEmail->sSubject}");
 		if (!MetaModel::IsValidClass($this->Get('target_class')))
 		{
-			throw new Exception('Invalid "ticket_class" configured: {$this->Get('target_class')} is not a valid class. Cannot create such an object.');
+			$sTargetClass = $this->Get('target_class');
+			throw new Exception('Invalid "ticket_class" configured: {$sTargetClass} is not a valid class. Cannot create such an object.');
 		}
 		$oTicket = MetaModel::NewObject($this->Get('target_class'));
 		$oTicket->Set('org_id', $oCaller->Get('org_id'));
@@ -752,7 +754,7 @@ EOF
 		if ($oEmail->sSubject == '')
 		{
 			$sDefaultSubject = ($this->Get('policy_no_subject_default_value') == '') ? Dict::S('MailInbox:NoSubject') : $this->Get('policy_no_subject_default_value');
-			$this->Trace('The incoming email has no subject, the ticket title will be set to: "{$sDefaultSubject}"');
+			$this->Trace("The incoming email has no subject, the ticket title will be set to: {$sDefaultSubject}");
 			$oTicket->Set('title', $sDefaultSubject);
 		}
 		else
@@ -770,7 +772,7 @@ EOF
 					$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
 					
 					if( $oPregMatch === false) {
-						$this->Trace('Invalid pattern: {$sRemoveTitlePattern}');
+						$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
 						break;
 					}
 					elseif( $oPregMatch != false ) {
@@ -795,13 +797,13 @@ EOF
 			{ 
 				if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
 				{
-					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: ". $aAttachment['mimeType'] ." = forbidden.");
+					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = forbidden.");
 					// In the Combodo version, you often see $aIgnoredAttachments ; however it's barely used. 
 					// Instead, we remove it ourselves.
 					unset( $oEmail->aAttachments[ $index ] );
 				}
 				else {
-					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: ". $aAttachment['mimeType'] ." = allowed.");
+					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = allowed.");
 				}
 			}
 			
@@ -947,7 +949,7 @@ EOF
 			}
 			else
 			{
-				$this->Trace('Skipping "'.$sCallerEmail.'" from the email address in To/CC since it is the same as the caller\'s email.');
+				$this->Trace("Skipping '{$sCallerEmail}' from the email address in To/CC since it is the same as the caller's email.");
 			}
 		}
 		$oTicket->Set('contacts_list', $oContactsSet);
@@ -972,16 +974,16 @@ EOF
 			case 1:
 				// Ok, the caller was found in iTop
 				$oContact = $oSet->Fetch();
-				$this->Trace('Found Contact::'.$oContact->GetKey().' ('.$oContact->GetName().') from the email address in To/CC "'.$sEmail.'".');
+				$this->Trace("Found Contact: ID {$oContact->GetKey()} ({$oContact->GetName()}) from the email address in To/CC '{$sEmail}'.");
 				break;
 			
 			case 0:
-				$this->Trace('No contact found with the email address in To/CC "'.$sEmail.'", email address ignored.');
+				$this->Trace("No contact found with the email address in To/CC '{$sEmail}', email address ignored.");
 				break;
 			
 			default:
-				$this->Trace('Found '.$oSet->Count().' contacts with the same email address in To/CC "'.$sEmail.'", the first one will be used...');
-				// Multiple contacts with the same email address !!!
+				// Multiple contacts with the same email address!
+				$this->Trace("Found {$oSet->Count()} contacts with the same email address in To/CC '{$sEmail}', the first one will be used.");
 				$oCaller = $oSet->Fetch();
 		}
 		return $oContact;
@@ -1023,7 +1025,7 @@ EOF
 		if ($this->Get('email_storage') == 'delete')
 		{
 			// Remove the processed message from the mailbox
-			$this->Trace("Ticket created, deleting the source eMail '".$oEmail->sSubject."'");
+			$this->Trace("Ticket created, deleting the source eMail '{$oEmail->sSubject}'");
 			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE);		
 		}
 		else
@@ -1060,13 +1062,13 @@ EOF
 		// Check that the ticket is of the expected class
 		if (!is_a($oTicket, $this->Get('target_class')))
 		{
-			$this->Trace("iTop Simple Email Synchro: Error: the incoming email refers to the ticket ".$oTicket->GetName()." of class ".get_class($oTicket).", but this mailbox is configured to process only tickets of class ".$this->Get('target_class'));
+			$this->Trace("iTop Simple Email Synchro: Error: the incoming email refers to the ticket ".$oTicket->GetName()." of class {get_class($oTicket)}, but this mailbox is configured to process only tickets of class {$this->Get('target_class')}");
 			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 			return;
 		}
 		
 		// Try to extract what's new from the message's body
-		$this->Trace("iTop Simple Email Synchro: Updating the iTop ticket ".$oTicket->GetName()." from eMail '".$oEmail->sSubject."'");
+		$this->Trace("iTop Simple Email Synchro: Updating the iTop ticket {$oTicket->GetName()} from eMail '{$oEmail->sSubject}'");
 
 		// Not policy compliant? Then stop processing. 
 		// Careful: Combodo's version implemented an IsUndesired-method in later versions (v3.0.11).
@@ -1075,24 +1077,17 @@ EOF
 		
 		// Not policy compliant? Then stop processing. 
 		if( $oPolicy->bUndesired ) {
-			$this->Trace('. Email (update) does not comply with at least one policy ('. $oPolicy->sPolicyId .') - so undesired.');
+			$this->Trace(". Email (update) does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
 			return null;
 		}
 		else {
-			$this->Trace('. Email (update) complies with our policies.');
+			$this->Trace(". Email (update) complies with our policies.");
 		}
 		 
 		$oCaller = $oPolicy->oCaller;
 		
-
-
-
-
-		
 		// Everything compliant, but we might need to perform actions.
-		
-		
 		
 		// Process attachments
 		$aIgnoredAttachments = array();
@@ -1101,6 +1096,7 @@ EOF
 		$sCaseLogEntry = $this->BuildCaseLogEntry($oEmail, $aAddedAttachments, $aIgnoredAttachments);
 		
 		$this->Trace($oEmail->sTrace);
+		
 		// Write the log on behalf of the caller
 		$sCallerName = $oEmail->sCallerName;
 		if (empty($sCallerName))
@@ -1116,9 +1112,23 @@ EOF
 			$sAttCode = $aAttCodes[get_class($oTicket)];
 		}
 		
-		$oLog = $oTicket->Get($sAttCode);
-		$oLog->AddLogEntry($sCaseLogEntry, $sCallerName);
-		$oTicket->Set($sAttCode, $oLog);
+		$oCaseLog = $oTicket->Get($sAttCode);
+		$oAttributeValue = new ormCustomCaseLog();
+		
+		// GetForJSON() actually returns an array of each entry
+		foreach($oCaseLog->GetAsArray() as $aEntry) {
+			
+			// CustomCaseLog's AddLogEntry remains flexible; keeps original user information and datetime
+			$oAttributeValue->AddLogEntry( $aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date'] );
+			
+		}
+		
+		$oLog->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
+		
+		// Sort chronologically. NOT ascending (true), but descending (false)!
+		$oAttributeValue = $oAttributeValue->ToSortedCaseLog(false);
+		
+		$oTicket->Set($sAttCode, $oAttributeValue);
 		
 		if ( in_array( $this->Get('policy_other_recipients_behavior'), ['add_all_contacts', 'add_existing_contacts'] ) == true )
 		{
@@ -1126,7 +1136,7 @@ EOF
 		}
 		$this->BeforeUpdateTicket($oTicket, $oEmail, $oCaller);
 		$oTicket->DBUpdate();			
-		$this->Trace("Ticket ".$oTicket->GetName()." updated.");
+		$this->Trace("Ticket {$oTicket->GetName()} updated.");
 		$this->AfterUpdateTicket($oTicket, $oEmail, $oCaller);
 				
 		return $oTicket;		
@@ -1215,13 +1225,13 @@ EOF
 			}
 			elseif (!empty($sLine))
 			{
-				$this->Trace('Invalid line in the "stimuli" configuration: "'.$sLine.'". The expected format for each line is <state_code>:<stimulus_code>');
+				$this->Trace("Invalid line in the 'stimuli' configuration: '{$sLine}'. The expected format for each line is <state_code>:<stimulus_code>");
 			}
 		}
 		if (array_key_exists($oTicket->GetState(), $aStateToStimulus))
 		{
 			$sStimulusCode = $aStateToStimulus[$oTicket->GetState()];
-			$this->Trace('About to apply the stimulus: '.$sStimulusCode.' for the ticket in state: '.$oTicket->GetState());
+			$this->Trace("About to apply the stimulus: ".$sStimulusCode." for the ticket in state: ".$oTicket->GetState());
 			
 			// Check that applying the stimulus will not break the data integrity constaints (mandatory, must change)
 			$aTransitions = $oTicket->EnumTransitions();
@@ -1229,7 +1239,7 @@ EOF
 			if (!isset($aTransitions[$sStimulusCode]))
 			{
 				$bCanApplyStimulus = false;
-				$this->Trace('The Stimulus '.$sStimulusCode.' for '.get_class($oTicket).' in state '.$oTicket->GetState().' has no effect (no transition). Ignored.');
+				$this->Trace("The Stimulus {$sStimulusCode} for ".get_class($oTicket)." in state {$oTicket->GetState()} has no effect (no transition). Ignored.");
 			}
 			else
 			{
@@ -1254,11 +1264,11 @@ EOF
 							{
 								$oRemoteObj = $oAllowedValues->Fetch();
 								$oTicket->Set($sAttCode, $oRemoteObj->GetKey());
-								$this->Trace('Setting the mandatory External Key '.$sAttCode.' to the only allowed value: '.$oRemoteObj->GetKey());
+								$this->Trace("Setting the mandatory External Key {$sAttCode} to the only allowed value: {$oRemoteObj->GetKey()}");
 							}
 							else
 							{
-								$this->Trace('Cannot apply the stimulus since the attribute '.$sAttCode.' is mandatory in the target state '.$sTargetState.' and is neither currently set nor has just one allowed value.');
+								$this->Trace("Cannot apply the stimulus since the attribute {$sAttCode} is mandatory in the target state {$sTargetState} and is neither currently set nor has just one allowed value.");
 								$bCanApplyStimulus = false;
 							}
 						}
@@ -1269,18 +1279,18 @@ EOF
 							{
 								$aValues = array_keys($aAllowedValues);
 								$oTicket->Set($sAttCode, $aValues[0]);
-								$this->Trace('Setting the mandatory attribute '.$sAttCode.' to the only allowed value: '.(string)$aValues[0]);
+								$this->Trace("Setting the mandatory attribute {$sAttCode} to the only allowed value: ".(string)$aValues[0]);
 							}
 							else
 							{
-								$this->Trace('Cannot apply the stimulus since the attribute '.$sAttCode.' is mandatory in the target state '.$sTargetState.' and is neither currently set nor has just one allowed value.');
+								$this->Trace("Cannot apply the stimulus since the attribute {$sAttCode} is mandatory in the target state {$sTargetState} and is neither currently set nor has just one allowed value.");
 								$bCanApplyStimulus = false;
 							}
 						}
 					}
 					if ($iExpectCode & OPT_ATT_MUSTCHANGE)
 					{
-						$this->Trace('Cannot apply the stimulus since the value of the attribute '.$sAttCode.' must be modified (manually) during the transition to the target state '.$sTargetState.'.');
+						$this->Trace("Cannot apply the stimulus since the value of the attribute {$sAttCode} must be modified (manually) during the transition to the target state {$sTargetState}.");
 						$bCanApplyStimulus = false;
 					}
 				}
@@ -1290,17 +1300,17 @@ EOF
 			{
 				try
 				{
-					$this->Trace('Actually applying the stimulus: '.$sStimulusCode.' for the ticket in state: '.$oTicket->GetState());
+					$this->Trace("Actually applying the stimulus: {$sStimulusCode} for the ticket in state: {$oTicket->GetState()}");
 					$oTicket->ApplyStimulus($sStimulusCode);
 				}
 				catch(Exception $e)
 				{
-					$this->Trace('ApplyStimulus failed: '.$e->getMessage());
+					$this->Trace("ApplyStimulus failed: {$e->getMessage()}");
 				}
 			}
 			else
 			{
-				$this->Trace('ApplyStimulus ignored.');
+				$this->Trace("ApplyStimulus ignored.");
 			}
 		}
 	}]]></code>
@@ -1333,7 +1343,7 @@ EOF
 		if ($this->Get('email_storage') == 'delete')
 		{
 			// Remove the processed message from the mailbox
-			$this->Trace("Ticket updated, deleting the source eMail '".$oEmail->sSubject."'");
+			$this->Trace("Ticket updated, deleting the source eMail '{$oEmail->sSubject}'");
 			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE);		
 		}
 		else
@@ -1365,7 +1375,7 @@ EOF
 				$sCID = $aInfo[0];
 				if (!array_key_exists($sCID, $aAddedAttachments) && !array_key_exists($sCID, $aIgnoredAttachments))
 				{
-					$this->Trace("Info: inline image: $sCID not found as an attachment. Ignored.");
+					$this->Trace("Info: inline image: {$sCID} not found as an attachment. Ignored.");
 				}
 				else if (array_key_exists($sCID, $aAddedAttachments))
 				{
@@ -1635,7 +1645,7 @@ EOF
 		// - mark as undesired (stays in the mailbox for a few days)
 		// - fallback (usually ignoring or using default values, shouldn't end up here.)  
 		
-		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for ".$sPolicyViolation." is ".$this->Get( $sPolicyViolation.'_behavior' ) );
+		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for {$sPolicyViolation} is {$this->Get( $sPolicyViolation.'_behavior')}");
 		
 		switch( $this->Get( $sPolicyViolation.'_behavior' ) ){
 		
@@ -1707,7 +1717,7 @@ EOF
 			case 'fallback': 
 			default: 
 			
-				$this->Trace("HandlePolicyViolation ending up in a fallback/default for " . $sPolicyViolation );
+				$this->Trace("HandlePolicyViolation ending up in a fallback/default for {$sPolicyViolation}");
 				 
 				
 		}
@@ -1743,7 +1753,7 @@ EOF
 		$oCaller = null; 
 		
 		// ### Policy: Forbidden Attachments.
-		$this->Trace(".. Policy: forbidden attachments. Behavior: " . $this->Get('policy_forbidden_attachments_behavior') );
+		$this->Trace(".. Policy: forbidden attachments. Behavior: {$this->Get('policy_forbidden_attachments_behavior')}");
 		
 			if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback' ) {
 				// Will be processed. Forbidden attachments will be ignored. So fallback does not make sense.
@@ -1754,15 +1764,14 @@ EOF
 				$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_forbidden_attachments_mimetypes') );
 				
 				$this->Trace(".. testing for these forbidden MimeTypes: " . implode(" - ", $aForbiddenMimeTypes) );
-				
-				 
+								 
 				// Forbidden attachments? 
 				foreach($oEmail->aAttachments as $aAttachment)
 				{ 
-					$this->Trace('.. MimeType: '.$aAttachment['mimeType'] );
+					$this->Trace(".. MimeType: {$aAttachment['mimeType']}");
 					if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
 					{
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains an attachment with MimeType ".$aAttachment['mimeType']);
+						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it contains an attachment with forbidden MimeType {$aAttachment['mimeType']}");
 						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_forbidden_attachments'];
 					}
 				}
@@ -1777,7 +1786,7 @@ EOF
 			if ( $oRawEmail->GetSize() > $this->Get('policy_mail_size_too_big_max_size_MB') * 1024 * 1024 )
 			{
 				// Mail size too big  
-				$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since the mail size is too big (mail = '".($oRawEmail->GetSize()/1024/1024)." MB = ".$oRawEmail->GetSize()."' bytes, limit = '".$this->Get('policy_mail_size_too_big_max_size_MB')."' MB = '".($this->Get('policy_mail_size_too_big_max_size_MB')*1024*1024)."' bytes ) ");
+				$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since the mail size is too big (mail = '".($oRawEmail->GetSize()/1024/1024)." MB = {$oRawEmail->GetSize()}' bytes, limit = '{$this->Get('policy_mail_size_too_big_max_size_MB')}' MB = '".($this->Get('policy_mail_size_too_big_max_size_MB')*1024*1024)."' bytes ) ");
 				return (object)["bUndesired" => true, 'sPolicyId' => 'policy_mail_size_too_big'];
 			}
 		
@@ -1790,7 +1799,7 @@ EOF
 			else {
 			
 				if( $oEmail->sSubject == '' && in_array($this->Get('policy_no_subject_behavior'), ['bounce_delete', 'bounce_mark_as_undesired', 'delete', 'mark_as_undesired']) == true ) {
-					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it has no subject."); 
+					$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it has no subject."); 
 					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_no_subject'];
 				}
 		
@@ -1820,7 +1829,7 @@ EOF
 					if ( !in_array( $aInfo['email'] , $aExcludeContacts ) ) 
 					{
 						// Found other contacts in To: or CC: 
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it contains another recipient (missing alias or unwanted): ".$aInfo['email'] );
+						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it contains another recipient (missing alias or unwanted): {$aInfo['email']}");
 						return (object)["bUndesired" => true, 'sPolicyId' => 'policy_other_recipients'];
 					} 
 				}
@@ -1848,7 +1857,7 @@ EOF
 						$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
 						
 						if( $oPregMatch === false) {
-							$this->Trace('Invalid pattern: {$sRemoveTitlePattern}');
+							$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
 							break;
 						}
 						elseif( $oPregMatch != false ) {
@@ -1860,12 +1869,12 @@ EOF
 				
 				$sPattern = $this->FixPattern($this->Get('title_pattern'));
 				if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
-					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('".$sPattern."').");
+					$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('{$sPattern}').");
 					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];
 				} 
 				elseif( $oEmail->oRelatedObject != null ) {
-					$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it could not be linked to any prior ticket despite an email header (".$oEmail->oRelatedObject.").");
-					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];			
+					$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it could not be linked to any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
+					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];
 				}
 				
 			}
@@ -1941,12 +1950,12 @@ EOF
 					$oPregMatched = @preg_match($sPattern, $oEmail->sSubject);
 					
 					if($oPregMatched === false) {
-						$this->Trace('The pattern "{$sPattern}" is an invalid undesired title pattern.');
+						$this->Trace("... Invalid pattern: '{$sPattern}'");
 						break;
 					}
 					elseif (preg_match($sPattern, $oEmail->sSubject))
 					{
-						$this->Trace("The message '{$oEmail->sSubject}' IS considered as undesired, since it matches '$sPattern'."); 
+						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it matches {$sPattern}."); 
 						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_undesired_pattern'];
 					}
 				}
@@ -1963,7 +1972,7 @@ EOF
 			{
 				case 1:
 					// Ok, the caller was found in iTop
-					$this->Trace('Contact found for the email address "'.$oEmail->sCallerEmail.'"');
+					$this->Trace("Contact found for the email address '{$oEmail->sCallerEmail}'");
 					$oCaller = $oSet->Fetch();
 					break;
 					
@@ -1974,7 +1983,7 @@ EOF
 						case 'bounce_mark_as_undesired':
 						case 'delete': 
 						case 'mark_as_undesired':
-							$this->Trace('No contact found for the email address "'.$oEmail->sCallerEmail.'", the email will not be processed'); 
+							$this->Trace("No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed"); 
 							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_unknown_caller'];
 							break;
 						
@@ -2009,7 +2018,7 @@ EOF
 							catch(Exception $e)
 							{
 								// This is an actual error.
-								$this->Trace('Failed to create a Person for the email address "'.$oEmail->sCallerEmail.'".');
+								$this->Trace("Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
 								$this->Trace($e->getMessage());
 								$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
 								return null;
@@ -2019,7 +2028,7 @@ EOF
 					break;
 				
 				default:
-					$this->Trace('Found '.$oSet->Count().' callers with the same email address "'.$oEmail->sCallerEmail.'", the first one will be used...');
+					$this->Trace("Found {$oSet->Count()} callers with the same email address '{$oEmail->sCallerEmail}.', the first one will be used.");
 					// Multiple callers with the same email address !!!
 					$oCaller = $oSet->Fetch();
 			}

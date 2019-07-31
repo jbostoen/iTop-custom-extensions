@@ -23,8 +23,9 @@ SetupWebPage::AddModule(
 
 		// Components
 		//
-		'datamodel' => array( 
-			'model.jb-itop-standard-email-synchro.php' 
+		'datamodel' => array(
+			'model.jb-itop-standard-email-synchro.php',
+			'core/ormcustomcaselog.class.inc.php'
 		),
 		'webservice' => array(
 			

@@ -2,19 +2,23 @@
 # Variables
 
 # About iTop
-$iTop_Root = "C:\xampp\htdocs\iTop\web";
-$iTop_ConfigFile = "$($iTop_Root)\conf\production\config-itop.php";
-$iTop_Extensions = "$($iTop_Root)\extensions";
+$iTop_Root = "C:\xampp\htdocs\iTop\web";								# Path to iTop root (/web included)
+$iTop_ConfigFile = "$($iTop_Root)\conf\production\config-itop.php";		# Path to iTop config file
+$iTop_Extensions = "$($iTop_Root)\extensions";							# Path to iTop Extensions
 
 # Defaults for new extensions
-$ext_VersionDescription = ""; 									# Version info, if used.
-$ext_Author = "Jeffrey Bostoen";									# Author
-$ext_Company = "";												# Company
-$ext_VersionMin = "2.6.0";										# Min version of iTop
-$ext_Version = "2.6.$(Get-Date -format 'yyMMdd')";				# Version of this extension
-$ext_ReleaseDate = $(Get-Date -format 'yyyy-MM-dd');				# A release date 
-$ext_Url = "https://github.com/jbostoen/iTop-custom-extensions/" # Some info
+$ext_VersionDescription = ""; 											# Version info, if used.
+$ext_Author = "Jeffrey Bostoen";										# Author
+$ext_Company = "";														# Company
+$ext_VersionMin = "2.6.0";												# Min version of iTop
+$ext_Version = "2.6.$(Get-Date -format 'yyMMdd')";						# Version of this extension
+$ext_ReleaseDate = $(Get-Date -format 'yyyy-MM-dd');					# A release date 
+$ext_Url = "https://github.com/jbostoen/iTop-custom-extensions/" 		# Some info
 
+# About PHP (XAMPP preferred)
+$php_Path = "c:\xampp\php\php.exe"										# Path to PHP
+$php_iTop_Cron_User = "admin"											# iTop user to run cron
+$php_iTop_Cron_Password = "admin"										# iTop user passwords to run cron
 
 
 function Set-iTopConfigWritable {
@@ -39,7 +43,6 @@ function Set-iTopConfigWritable {
         [Boolean] $loop = $false
     )
 
-
     $count = 0;
     while($loop -eq $true -or $count -eq 0) {
     
@@ -47,11 +50,11 @@ function Set-iTopConfigWritable {
 
         Get-Item -Path $iTop_ConfigFIle | Set-ItemProperty -Name IsReadOnly -Value $false
         Write-Host "Made iTop configuration file writable ($($iTop_ConfigFIle)) (#$($count))"
-        Start-Sleep -Seconds 15
-
+        
+		If($loop -eq $true) {
+			Start-Sleep -Seconds 15
+		}		
     }
-
-
 }
 
 
@@ -82,13 +85,11 @@ function New-iTopExtension {
         [Parameter(Mandatory=$false)][String] $label = 'Group name: something'
     )
 
-
     # Prevent issues with filename
     If( $name -notmatch "^[A-z][A-z0-9\-]{1,}$" ) {
         throw "The extension's name preferably starts with alphabetical character. Furthermore, it consists of alphanumerical characters or hyphens (-) only."
     }
 
-  
     $extension_Source = "$($env:USERPROFILE)\Documents\WindowsPowerShell\Modules\iTop\data\template"
     $extension_Destination = "$($iTop_Extensions)\$($name)"
 
@@ -97,18 +98,14 @@ function New-iTopExtension {
         throw "The destination folder $($extension_Destination) already exists!"
     }
 
-
     # Copy directory 
     Copy-Item -Path $extension_Source -Destination $extension_Destination -Recurse -Container 
-
-
 
     # Rename some files
     $aFiles = Get-ChildItem -Path $extension_Destination
     $aFiles | Foreach-Object {
 	    Move-Item -Path "$($extension_Destination)\$($_.Name)" -Destination "$($extension_Destination)\$( $_.Name -replace "template", $name )"
     }
-
 
     # Replace variables in template files
     $files = Get-ChildItem -Path "$($extension_Destination)"
@@ -135,14 +132,9 @@ function New-iTopExtension {
 	    $c | Set-Content "$($extension_Destination)\$($_.Name)"
     }
 
-
-
     Write-Host "Created extension $($name) from template"
 
-
-
 }
-
 
 function Rename-iTopExtension {
 <#
@@ -193,8 +185,6 @@ function Rename-iTopExtension {
 
     Write-Host "Renamed extension from $($from) to $($to)"
 
-
-
 }
 
 function Remove-iTopLanguages {
@@ -210,7 +200,6 @@ function Remove-iTopLanguages {
  
  .Example
  Remove-iTopLanguages -languages @("en", "nl") -confirm $true
-
 
 #>
     param(
@@ -232,4 +221,20 @@ function Remove-iTopLanguages {
         }
     }
 
+}
+
+function Start-iTopCron {
+<#
+
+ .Example
+ Start-iTopCron
+
+#>
+    param(
+    )
+
+    # c:\xampp\php\php.exe c:\xampp\htdocs\itop\web\webservices\cron.php --auth_user=admin --auth_pwd=admin --verbose=1
+	$expression = "$($php_Path) $($iTop_Root)\webservices\cron.php --auth_user=$($php_iTop_Cron_User) --auth_pwd=$($php_iTop_Cron_Password) --verbose=1"
+	Invoke-Expression $expression
+	
 }
