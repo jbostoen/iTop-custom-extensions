@@ -46,7 +46,7 @@ abstract class EmailSource
 	 * @return MessageFromMailbox
 	 */
 	abstract public function GetMessage($index);
-
+	
 	/**
 	 * Deletes the message of the given index [0..Count] from the mailbox
 	 * @param $index integer The index between zero and count

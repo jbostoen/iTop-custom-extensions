@@ -78,7 +78,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	 * @throws \CoreException
 	 * @throws \CoreUnexpectedValue
      */
-	protected function SetErrorOnEmailReplica(&$oEmailReplica, $oProcessor, $sErrorCode = 'error')
+	protected function SetErrorOnEmailReplica(&$oEmailReplica, $oProcessor, $sErrorCode = 'error', $oRawEmail = null)
 	{
 		try
 		{
@@ -207,6 +207,11 @@ class EmailBackgroundProcess implements iBackgroundProcess
 					{
 						try
 						{
+							if($oSource instanceof IMAPEmailSource) {
+								$this->Trace("Undelete message (IMAP) {$iMessage}");
+								$ret = $oSource->UndeleteMessage($iMessage);
+							}
+								
 							$this->InitMessageTrace($oSource, $iMessage);
 							$iTotalMessages++;
 							if (self::IsMultiSourceMode())
