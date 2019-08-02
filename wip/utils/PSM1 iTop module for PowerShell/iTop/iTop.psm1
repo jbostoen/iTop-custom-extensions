@@ -165,21 +165,21 @@ function Rename-iTopExtension {
     )
   
     # Rename directory 
-    Move-Item -Path "$($from)" -Destination "$($to)" 
+    Move-Item -Path "$($path)\$($from)" -Destination "$($path)\$($to)" 
 
     # Rename all files containing the string
     # This searches for default patterns only.
-    $files = Get-ChildItem -path "$($to)\*" -include "*.$($from).php","*.$($from).xml","extension.xml","readme.md"
+    $files = Get-ChildItem -path "$($path)\$($to)\*" -include "*.$($from).php","*.$($from).xml","extension.xml","readme.md"
 
     $files | ForEach-Object {
 	
 	    # Replace content within those files found above
-        [String]$c = (Get-Content "$($to)\$($_.Name)" -Raw);	
+        [String]$c = (Get-Content "$($path)\$($to)\$($_.Name)" -Raw);	
 	    $c = $c.replace( $from , $to ); 	
-	    $c | Set-Content "$($to)\$($_.Name)"
+	    $c | Set-Content "$($path)\$($to)\$($_.Name)"
 	
 	    # Rename 
-	    Move-Item -Path "$($to)\$($_.Name)" -Destination "$($to)\$($_.Name -replace $($from),$($to) )"
+	    Move-Item -Path "$($path)\$($to)\$($_.Name)" -Destination "$($path)\$($to)\$($_.Name -replace $($from),$($to) )"
 	
     }
 

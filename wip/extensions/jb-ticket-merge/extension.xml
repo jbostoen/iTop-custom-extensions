@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-object-merge</extension_code>
+	<extension_code>jb-ticket-merge</extension_code>
 	<company><![CDATA[  ]]></company>
 	<author><![CDATA[ Jeffrey Bostoen ]]></author>
 	<label><![CDATA[ Feature: Object Merge ]]></label>
@@ -13,4 +13,5 @@
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
 </extension>
+
 

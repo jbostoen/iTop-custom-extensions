@@ -5,14 +5,14 @@
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  * @version     -
  *
- * Defines PopupMenuExtensionObjectMerge
+ * Defines PopupMenuExtensionTicketMerge
  */
  
 /**
-* Class PopupMenuExtensionObjectMerge. Adds popup menu to allow merging of (Ticket) objects
+* Class PopupMenuExtensionTicketMerge. Adds popup menu to allow merging of (Ticket) objects
 */
 
-class PopupMenuExtensionObjectMerge implements iPopupMenuExtension
+class PopupMenuExtensionTicketMerge implements iPopupMenuExtension
 {
         /**
          * Get the list of items to be added to a menu.
@@ -37,16 +37,22 @@ class PopupMenuExtensionObjectMerge implements iPopupMenuExtension
                         case iPopupMenuExtension::MENU_OBJLIST_ACTIONS:
 							
 							$oObjectSet = $param;
+							
+							// Module settings, defaults.
+							$aModuleSettings = utils::GetCurrentModuleSetting('default', []);
+							
+							$bMergeAllowed = (count(array_intersect(UserRights::ListProfiles(), explode(',', $aModuleSettings['allowed_profiles']))) > 0);
+							$bMergeAllowed = ($aModuleSettings['allowed_profiles'] == '' ? true : $bMergeAllowed);
 								
 							// Only if subclass of Ticket, for now.
-							if( is_subclass_of($oObjectSet->GetClass(), 'Ticket') == true ) {
+							if( is_subclass_of($oObjectSet->GetClass(), 'Ticket') == true && $bMergeAllowed == true ) {
 							 
 								// Add a separator
 								// $aResult[] = new SeparatorPopupMenuItem(); // Note: separator does not work in iTop 2.0 due to Trac #698, fixed in 2.0.1
 								$oFilter = $oObjectSet->GetFilter();
 								
 								$sUID = utils::GetCurrentModuleName().'_show_list'; // Make sure that each menu item has a unique "ID"
-								$sLabel = Dict::S('UI:ObjectMerge:ObjectList:Merge');
+								$sLabel = Dict::S('UI:TicketMerge:ObjectList:Merge');
 								$sURL = utils::GetAbsoluteUrlExecPage().'?'.
 									'exec_module='.utils::GetCurrentModuleName().
 									'&exec_page=ui.'.utils::GetCurrentModuleName().'.php'.

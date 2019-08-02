@@ -50,39 +50,43 @@ try
 		// --
 		'attributes' => [
 			// Attributes must be one of these types: 'AttributeCaseLog', 'AttributeLinkedSet', 'AttributeLinkedSetIndirect'
-			// Attributes must be specified by their attribute code. If all attributes (of the above types) are allowed, set to ['*']
+			// Attributes must be specified by their attribute code. If all attributes (of the above types) are specified, it's possible to use ['*']
+			
+			// Attributes which can be merged for this class
 			'allowed' => ['contacts_list', 'functionalcis_list', 'private_log', 'public_log'],
-			'default' => ['*']
+			
+			// ['*'] can be used to include ALL attributes.
+			'checked' => ['*'],
+			
+			// Attributes which are ALWAYS merged (enforced). Any attribute specified here should also be in the allowed list.
+			'required' => ['private_log', 'public_log'],
+			
 		],
 		
 		'target_object' => [
 			'add_callers_to_related_contacts' => true, // Add callers of the merged tickets to 'related Contacts' (could be used in Notification)
 		],
-		'target_object_selection' => [
-			'order_by' => 'id',
-			'order' => 'ascending', // 'ascending' or 'descending'
-			'add_callers_to_related_contacts' => true, // Add callers of the merged tickets to 'related Contacts' (could be used in Notification)
+		'target_object_selection_order' => [
+			// Multiple attributes can be specified. Processed in order.
+			'id' => true, // Set to 'true' for sorting target objects from oldest to newest; set to false for newest to oldest
 		],
 		
 		// Ideas but not implemented
 		// --
 		
 		// OQL Scope to limit objects which can be selected?
-		'scope' => [
-		],
-		// Limit who can do this?
-		'allowed_users' => [
-			'profiles' => [],
-			'scope' => '',
-		],
-		// Can user override default options?
-		'allow_override_options' => true,		
+		// For instance, non-resolved and non-closed Tickets
+		'source_scope' => '', // Similar to Combodo's User Actions Configurator. The OQL to define the source objects. The only parameter available is current_contact_id.
+		
+		// Limit who can merge objects?
+		'allowed_profiles' = '', // Similar to Combodo's User Actions Configurator. CSV list of profiles allowing the shortcut. The user must have at least one profile to have the shortcut available. Wrong profiles names are ignored. Set as an empty string to allow the shortcut to anybody.
+		
 		'merged_objects' => [
+			'apply_stimulus' => 'some_stimulus', // @todo Check for valid stimulus
 			'delete' => true, // Notification could be sent first. How can a placeholder be used?
 			'set' => [
 				'<attribute_name>' => 'could be used for writeback; have $targetObj placeholder'
 			],
-			'set_state' => 'closed', // Could be used to set a state
 			'add_entries' => [
 				'<CaseLog_attribute_name>' => 'Entry to insert; add targetObj placeholder'
 			],
@@ -93,13 +97,24 @@ try
 	// Required 'class' parameter makes it easier
 	$sClass = utils::ReadParam('class', '', false, 'class');
 	if( empty($sClass) == false ) {
+		
+		if( MetaModel::GetParentClass($sClass) != 'Ticket' ) {
+			// Shouldn't be possible to get here
+			throw new ApplicationException(Dict::S('UI:TicketMerge:OnlyTickets'));
+		}
+		
+		// Obtain more class specific settings
 		if( utils::GetCurrentModuleSetting(strtolower($sClass), '') != '') {
 			$aModuleSettings_class_specific = utils::GetCurrentModuleSetting($sClass, array());
 			$aModuleSettings = array_replace_recursive($$aModuleSettings, $aModuleSettings_class_specific);
 		}
+		
+		
 	}
 	
-	// @todo Take safe approach like in iTop when deleting objects: user selects from list -> limited list with selection boxes is shown -> limited list without boxes is shown to confirm
+	if( $aModuleSettings['allowed_profiles'] != '' && (count(array_intersect(UserRights::ListProfiles(), explode(',', $aModuleSettings['allowed_profiles']))) > 0) ) {
+		throw new SecurityException(basename(__FILE__) . ': invalid profile');
+	}
 	
 	switch($sCustomOperation)
 	{
@@ -126,23 +141,21 @@ try
 			// Set page header: 'Merge to one <Class object>'
 			$sClassLabel = MetaModel::GetName($sClass);
 			$oP->add("<p class=\"page-header\">\n");
-			$oP->add(MetaModel::GetClassIcon($sClass, true) . ' ' . Dict::Format('UI:ObjectMerge:Title', $sClass));
+			$oP->add(MetaModel::GetClassIcon($sClass, true) . ' ' . Dict::Format('UI:TicketMerge:Title', $sClass));
 			$oP->add("</p>\n");
 			
-			// @todo Find out if transaction_id is useful? This must be generated somewhere
 			$oFilter = DBObjectSearch::unserialize($sFilter);
 			// CMDBAbstractObject::DisplaySet() probably decides output order, not here.
 			$oObjectSet = new CMDBObjectSet($oFilter);
 			$iCountObjects = $oObjectSet->Count();
 	
 			if($iCountObjects < 2) {
-				$oP->p(Dict::S('UI:Objectmerge:MultipleObjectsRequired'));
+				$oP->p(Dict::S('UI:TicketMerge:MultipleObjectsRequired'));
 			}
 			else {
 				
 				// Code below based on cmdbAbstractObject::DeleteObjects() (2.6.1)
-				$oP->p(Dict::S('UI:Objectmerge:ConfirmCountObjectsOfClass'));
-				$oP->p('<h1>'.Dict::Format('UI:Objectmerge:ConfirmCountObjectsOfClass', $iCountObjects, MetaModel::GetName($sClass)).'</h1>');
+				$oP->p('<h1>'.Dict::Format('UI:TicketMerge:ConfirmCountObjectsOfClass', $iCountObjects, MetaModel::GetName($sClass)).'</h1>');
 
 				$oP->add("<form method=\"post\">\n");
 				
@@ -155,14 +168,15 @@ try
 				));
 				$oP->add("</div>\n");
 				
+				// transaction_id protects against hijacking attempts
 				$oP->add("<input type=\"hidden\" name=\"transaction_id\" value=\"".utils::GetNewTransactionId()."\">\n");
 				$oP->add("<input type=\"hidden\" name=\"operation\" value=\"merge_show_options\">\n");
 				$oP->add("<input type=\"hidden\" name=\"filter\" value=\"".htmlentities($oFilter->Serialize(), ENT_QUOTES, 'UTF-8')."\">\n");
-				$oP->add("<input type=\"hidden\" name=\"class\" value=\"$sClass\">\n");
+				$oP->add("<input type=\"hidden\" name=\"class\" value=\"{$sClass}\">\n");
 				
 				
 				$oP->add("<input type=\"button\" onclick=\"window.history.back();\" value=\"".Dict::S('UI:Button:Back')."\">\n");
-				$oP->add("<input type=\"submit\" name=\"\" value=\"".Dict::S('UI:ObjectMerge:Button:Merge')."\">\n");
+				$oP->add("<input type=\"submit\" name=\"\" value=\"".Dict::S('UI:TicketMerge:Button:Merge')."\">\n");
 				$oP->add("<br>");
 				$oAppContext = new ApplicationContext();
 				$oP->add($oAppContext->GetForForm());
@@ -178,7 +192,7 @@ try
 			// Not sure why, but also used in iTop's native modify/deletion procedure
 			$oP->DisableBreadCrumb();
 			
-			// Inconsistency between transaction_id and selectObject comes from Combodo (~ object deletion)
+			// Inconsistency between style of 'transaction_id' and 'selectObject' parameters comes from Combodo (~ object deletion)
 			$sClass = utils::ReadParam('class', '', false, 'class');
 			$sFilter = utils::ReadParam('filter', '', false, 'raw_data');
 			$sTransaction_id = utils::ReadParam('transaction_id', '', false, 'transaction_id');
@@ -195,19 +209,23 @@ try
 				throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'transaction_id'));
 			}
 			if( empty($aSelectedObjects) || count($aSelectedObjects) < 2 ) {
-				throw new ApplicationException(Dict::S('UI:ObjectMerge:WarningAtLeastTwoObjectsNeeded'));
+				throw new ApplicationException(Dict::S('UI:TicketMerge:WarningAtLeastTwoObjectsNeeded'));
 			}
+			
+			if (!utils::IsTransactionValid($sTransaction_id, true)) {
+				throw new SecurityException(basename(__FILE__) . ': invalid transaction_id');
+			}
+			utils::RemoveTransaction($sTransaction_id);
 			
 			// Temporary, move to next phase/blue form
 			// Open blue modification frame 
 			$oP->add("<div class=\"wizContainer\">\n");
 
 			$oP->add("<form method=\"post\">\n");			
-			$oP->add("<input type=\"hidden\" name=\"transaction_id\" value=\"".$sTransaction_id."\">\n");
+			$oP->add("<input type=\"hidden\" name=\"transaction_id\" value=\"".utils::GetNewTransactionId()."\">\n");
 			$oP->add("<input type=\"hidden\" name=\"operation\" value=\"merge_execute\">\n");
 			$oP->add("<input type=\"hidden\" name=\"filter\" value=\"".htmlentities($sFilter, ENT_QUOTES, 'UTF-8')."\">\n");
 			$oP->add("<input type=\"hidden\" name=\"class\" value=\"$sClass\">\n");
-			
 			
 			// Don't forget: special classes like Attachments.
 			// MetaModel won't known if this class has Attachments.
@@ -216,7 +234,12 @@ try
 			// $oFilter = new DBObjectSearch($oFilter->GetClass());
 			$oFilter->ResetCondition();
 			$oFilter->AddCondition('id', $aSelectedObjects, 'IN');
-			$aOrder[$oFilter->GetClassAlias().'.'.$aModuleSettings['target_object_selection']['order_by']] = ($aModuleSettings['target_object_selection']['order'] == 'ascending');
+			
+			// How to order target object dropdown list?
+			$aOrder = [];
+			foreach($aModuleSettings['target_object_selection_order'] as $sAttCode => $bSortAscending) {
+				$aOrder[$oFilter->GetClassAlias().'.'.$sAttCode] = $bSortAscending;
+			}
 			$oObjectSet = new CMDBObjectSet($oFilter, $aOrder);
 			$iCountObjects = $oObjectSet->Count();
 			
@@ -225,7 +248,6 @@ try
 			$oFilter_Attachments->AddCondition('item_class', $sClass, '='); // Not really necessary due to specified ids?
 			$oFilter_Attachments->AddCondition('item_id', $aSelectedObjects, 'IN');
 			$oObjectSet_Attachments = new CMDBObjectSet($oFilter_Attachments, ['Attachment.item_id' => true, 'Attachment.id' => true]);
-			
 			
 			// Let user pick destination object
 			$oP->add("<b>Merge to:</b><br>");
@@ -250,27 +272,16 @@ try
 			{
 				$oP->add("<input type=\"hidden\" name=\"selectObject[]\" value=\"".$iKey."\">\n");
 			}
-			$oP->add('<b>'.Dict::S('UI:ObjectMerge:AttributeOverview').':</b><br>');
+			$oP->add('<b>'.Dict::S('UI:TicketMerge:AttributeOverview').':</b><br>');
 			
 			$oP->add("<ul>"); 
 			
 			
 			// Which attributes? Free select or from predefined config?
-			// @todo Extend this to offer choices
 			$aAttributes = Metamodel::GetAttributesList($sClass);
-			$aOption_attributes_allowed = $aModuleSettings['attributes']['allowed'];
-			$aOption_attributes_default = $aModuleSettings['attributes']['default'];
-			
-			// Limit to allowed attributes for this class as specified in the configuration
-			$aAttributes_allowed = ( count($aOption_attributes_allowed) == 1 && $aOption_attributes_allowed[0] == '*' ? $aAttributes : array_intersect($aAttributes, $aOption_attributes_allowed));
-			$aAttributes_allowed = array_values($aAttributes_allowed);
-		
-			// Limit default checked attributes for this class
-			$aOption_attributes_default = ( count($aOption_attributes_default) == 1 && $aOption_attributes_default[0] == '*' ? $aAttributes_allowed : array_intersect($aAttributes_allowed, $aOption_attributes_default));
-			$aOption_attributes_default = array_values($aOption_attributes_default);
 			
 			// Limit to valid attribute types
-			$aAttributes = array_filter($aAttributes_allowed, function($sAttribute) use ($sClass) {
+			$aAttributes = array_filter($aAttributes, function($sAttribute) use ($sClass) {
 				
 				// Get attribute definition (to determine type)
 				$oAttributeDef = Metamodel::GetAttributeDef($sClass, $sAttribute);
@@ -284,11 +295,29 @@ try
 			// Sort alphabetically
 			sort($aAttributes);
 			
+			$aOption_attributes_allowed = $aModuleSettings['attributes']['allowed'];
+			$aOption_attributes_checked = $aModuleSettings['attributes']['checked'];
+			$aOption_attributes_required = $aModuleSettings['attributes']['required'];
+			
+			// Limit to allowed attributes for this class as specified in the configuration.
+			// Take care of wildcard ['*'] to specify all attributes
+			$aOption_attributes_allowed = (count($aOption_attributes_allowed) == 1 && $aOption_attributes_allowed[0] == '*' ? $aAttributes : $aOption_attributes_allowed);
+			$aOption_attributes_allowed = array_values(array_intersect($aAttributes, $aOption_attributes_allowed));
+				
+			// Limit enforced/required attributes for this class
+			$aOption_attributes_required = ( count($aOption_attributes_required) == 1 && $aOption_attributes_required[0] == '*' ? $aOption_attributes_allowed : $aOption_attributes_required);
+			$aOption_attributes_required = array_values(array_intersect($aOption_attributes_allowed, $aOption_attributes_required));
+			
+			// Limit automatically checked attributes for this class
+			$aOption_attributes_checked = ( count($aOption_attributes_checked) == 1 && $aOption_attributes_checked[0] == '*' ? $aOption_attributes_allowed : $aOption_attributes_checked);
+			$aOption_attributes_checked = array_values(array_intersect($aOption_attributes_allowed, $aOption_attributes_checked));
+			
 			// Change for output
-			$aAttributes = array_map(function($sAttribute) use ($sClass, $aOption_attributes_default) {
+			$aAttributes = array_map(function($sAttribute) use ($sClass, $aOption_attributes_checked, $aOption_attributes_required) {
 				// Add checkbox
-				$bChecked = ( (count($aOption_attributes_default) == 1 && $aOption_attributes_default[0] == '*') || in_array($sAttribute, $aOption_attributes_default) == true );
-				return '<input type="checkbox" name="attributes_to_merge[]" value="'.$sAttribute.'"'.($bChecked == true ? ' checked' : '').'> ' . MetaModel::GetLabel($sClass, $sAttribute, /* bShowMandatory */ false) . ' ('. $sAttribute .')';
+				$bChecked = (in_array($sAttribute, $aOption_attributes_checked) == true);
+				$bDisabled = (in_array($sAttribute, $aOption_attributes_required) == true);
+				return '<input type="checkbox" name="attributes_to_merge[]" value="'.$sAttribute.'"'.($bChecked == true ? ' checked' : '').($bDisabled == true ? ' disabled' : '').'> ' . MetaModel::GetLabel($sClass, $sAttribute, /* bShowMandatory */ false) . ' ('. $sAttribute .')';
 			}, $aAttributes);
 			
 			$oP->add(implode('<br>', $aAttributes).'<br><br>');
@@ -312,19 +341,17 @@ try
 			}
 			else {
 				// No Attachment objects found
-				$oP->add(Dict::S('UI:ObjectMerge:NoAttachmentsFound'));
+				$oP->add(Dict::S('UI:TicketMerge:NoAttachmentsFound'));
 			}
-			
-			
 			
 			// Add label to warn user that modifications caused by merging may trigger notifications
 			$oP->add("<hr>"); 
-			$oP->add('<p>'.Dict::S('UI:ObjectMerge:WarningModificationsMayTriggerNotifications').'</p>');
+			$oP->add('<p>'.Dict::S('UI:TicketMerge:WarningModificationsMayTriggerNotifications').'</p>');
 			
 			$oP->add("<br>");
 			
 			$oP->add("<input type=\"button\" onclick=\"window.history.back();\" value=\"".Dict::S('UI:Button:Back')."\">\n");
-			$oP->add("<input type=\"submit\" name=\"\" value=\"".Dict::S('UI:ObjectMerge:Button:Merge')."\">\n");
+			$oP->add("<input type=\"submit\" name=\"\" value=\"".Dict::S('UI:TicketMerge:Button:Merge')."\">\n");
 			$oAppContext = new ApplicationContext();
 			$oP->add($oAppContext->GetForForm());
 			$oP->add("</form>\n");
@@ -367,6 +394,11 @@ try
 				throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'target_object_id'));
 			}
 			
+			if (!utils::IsTransactionValid($sTransaction_id, true)) {
+				throw new SecurityException(basename(__FILE__) . ': invalid transaction_id');
+			}
+			
+			utils::RemoveTransaction($sTransaction_id);
 			$sClassLabel = MetaModel::GetName($sClass);
 			
 			require_once( __DIR__ .'/core/ormcustomcaselog.class.inc.php' );
@@ -390,24 +422,52 @@ try
 			$oFilter->AddCondition('id', $aSelectedObjects, 'IN');
 			$oObjectSet = new CMDBObjectSet($oFilter);
 			
-			
-			// Attributes allowed?
 			// Which attributes? Free select or from predefined config?
-			// @todo Extend this to offer choices
 			$aAttributes = Metamodel::GetAttributesList($sClass);
+			
+			// Limit to valid attribute types
+			$aAttributes = array_filter($aAttributes, function($sAttribute) use ($sClass) {
+				
+				// Get attribute definition (to determine type)
+				$oAttributeDef = Metamodel::GetAttributeDef($sClass, $sAttribute);
+				 
+				// AttributeCaselog (merge logs)
+				// AttributeLinkedSet (update links)
+				// AttributeLinkedSetIndirect (update links; set ticket_id to the destination's ticket_id if not duplicate; else delete)
+				return in_array(get_class($oAttributeDef), ['AttributeCaseLog', 'AttributeExternalKey', 'AttributeLinkedSet', 'AttributeLinkedSetIndirect']);
+	
+			});
+			
 			$aOption_attributes_allowed = $aModuleSettings['attributes']['allowed'];
-			$aOption_attributes_default = $aModuleSettings['attributes']['default'];
+			$aOption_attributes_checked = $aModuleSettings['attributes']['checked'];
+			$aOption_attributes_required = $aModuleSettings['attributes']['required'];
 			
-			// Limit to allowed attributes for this class as specified in the configuration
-			$aAttributes_allowed = ( count($aOption_attributes_allowed) == 1 && $aOption_attributes_allowed[0] == '*' ? $aAttributes : array_intersect($aAttributes, $aOption_attributes_allowed));
-			$aAttributes_allowed = array_values($aAttributes_allowed);
+			// Limit to allowed attributes for this class as specified in the configuration.
+			// Take care of wildcard ['*'] to specify all attributes
+			$aOption_attributes_allowed = (count($aOption_attributes_allowed) == 1 && $aOption_attributes_allowed[0] == '*' ? $aAttributes : $aOption_attributes_allowed);
+			$aOption_attributes_allowed = array_values(array_intersect($aAttributes, $aOption_attributes_allowed));
+				
+			// Limit enforced/required attributes for this class
+			$aOption_attributes_required = ( count($aOption_attributes_required) == 1 && $aOption_attributes_required[0] == '*' ? $aOption_attributes_allowed : $aOption_attributes_required);
+			$aOption_attributes_required = array_values(array_intersect($aOption_attributes_allowed, $aOption_attributes_required));
+			
+			// Limit automatically checked attributes for this class
+			$aOption_attributes_checked = ( count($aOption_attributes_checked) == 1 && $aOption_attributes_checked[0] == '*' ? $aOption_attributes_allowed : $aOption_attributes_checked);
+			$aOption_attributes_checked = array_values(array_intersect($aOption_attributes_allowed, $aOption_attributes_checked));
+			
+			// Change for output
+			$aAttributes = array_map(function($sAttribute) use ($sClass, $aOption_attributes_checked, $aOption_attributes_required) {
+				// Add checkbox
+				$bChecked = (in_array($sAttribute, $aOption_attributes_checked) == true);
+				$bDisabled = (in_array($sAttribute, $aOption_attributes_required) == true);
+				return '<input type="checkbox" name="attributes_to_merge[]" value="'.$sAttribute.'"'.($bChecked == true ? ' checked' : '').($bDisabled == true ? ' disabled' : '').'> ' . MetaModel::GetLabel($sClass, $sAttribute, /* bShowMandatory */ false) . ' ('. $sAttribute .')';
+			}, $aAttributes);
 		
-			// Limit default checked attributes for this class
-			$aAttributes_to_merge = array_intersect($aAttributes_allowed, $aAttributes_to_merge);
+			// Limit default checked attributes for this class to what is actually allowed
+			$aAttributes_to_merge = array_intersect($aOption_attributes_allowed, $aAttributes_to_merge);
 			
-			// Special cases
+			// Special cases. Cheating a bit.
 			$aAttributes_to_merge[] = 'caller_id'; // To add caller of Ticket as related contact (lnkContactToTicket)
-			$aAttributes_to_merge[] = 'org_id'; // To link Attachment objects to target ticket
 			
 			// Limit to valid attribute types
 			$aAttributes_to_merge = array_filter($aAttributes_to_merge, function($sAttribute) use ($sClass) {
@@ -467,19 +527,20 @@ try
 							// Keep in mind this extension was written for subclasses of Ticket
 							if($sAttribute == 'caller_id' && $aModuleSettings['target_object']['add_callers_to_related_contacts'] == true) {
 								
-								$aRelatedContacts_cache = [];
-								$aRelatedContacts_added = []; // Meant for possible output at the end
+								$aRelatedContacts_IDs = []; // Storing Contact IDs of all existing and newly created lnkContactToTicket
+								$aRelatedContacts_added = []; // Meant for possible output to the user at the end
 								
 								// Get existing related contacts of target Ticket object (lnkContactToTicket)
 								$oFilter_related_contacts = new DBObjectSearch('lnkContactToTicket');
 								$oFilter_related_contacts->AddCondition('ticket_id', $oTargetObj->GetKey(), '=');
 								$oObjectSet_related_contacts = new CMDBObjectSet($oFilter_related_contacts);
 								
+								// Cache contact_id of people already linked to this Ticket
 								while($oObj = $oObjectSet_related_contacts->Fetch()) {
-									$aRelatedContacts_cache[] = $oObj->Get('contact_id');
+									$aRelatedContacts_IDs[] = $oObj->Get('contact_id');
 								}
-									
-								// Might have gone over the object set
+								
+								// Prepare to go over the object set another time
 								$oObjectSet->Rewind();
 								
 								// Loop over the object set
@@ -487,7 +548,7 @@ try
 								
 									// No existing lnkContactToTicket yet?
 									// Also, shouldn't be the caller_id of the target object
-									if(in_array($oObj->Get('caller_id'), $aRelatedContacts_cache) == false && $oObj->Get('caller_id') != $oTargetObj->Get('caller_id')) {
+									if(in_array($oObj->Get('caller_id'), $aRelatedContacts_IDs) == false && $oObj->Get('caller_id') != $oTargetObj->Get('caller_id')) {
 										
 										// Create new link between Ticket and Contact (lnkContactToTicket)
 										// Downside: it has a combobox for roles: 'computed', 'manual', 'do_not_notify'.
@@ -498,8 +559,8 @@ try
 										$oLinkContactToTicket->Set('ticket_id', $oTargetObj->GetKey());
 										$oLinkContactToTicket->DBInsert();
 										
-										$aRelatedContacts_added[] = $oObj->Get('caller_id');
-										$aRelatedContacts_cache[] = $oObj->Get('caller_id');
+										$aRelatedContacts_added[] = ['caller_id' => $oObj->Get('caller_id'), 'contact_id_friendlyname' => $oObj->Get('caller_id_friendlyname')];
+										$aRelatedContacts_IDs[] = $oObj->Get('caller_id');
 									}
 									
 								}
@@ -515,7 +576,7 @@ try
 							// Fetch all objects of the other class (e.g. WorkOrder)
 							// Update the attribute in the other class pointing to the current class
 							
-							// @todo What about the history? Should update be tracked and hwo?
+							// @todo What about the history? Should update be tracked and how?
 							
 							break;
 							
@@ -679,15 +740,11 @@ try
 				
 				echo 'should delete #'.$oChange->GetKey();
 				
-				
 				// Find all related change operations
 				
 				// Only now the CMDBChange can be deleted...
 				// Or we can recycle it to add a change of our own?
 				// $o->DBDelete();
-				
-				
-		
 			
 			// Cleanup
 			// --
@@ -701,13 +758,9 @@ try
 			// --
 				// Log something in history?
 			
-			
-			
-			$oP->add(Dict::Format('UI:ObjectMerge:SuccessFullyMergedTo', $oTargetObj->Get('friendlyname')));
+			$oP->add(Dict::Format('UI:TicketMerge:SuccessFullyMergedTo', $oTargetObj->Get('friendlyname')));
 			
 			break;
-
-		
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		
@@ -808,3 +861,4 @@ catch(Exception $e)
 		IssueLog::Error($e->getMessage());
 	}
 }
+
