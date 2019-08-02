@@ -151,7 +151,7 @@
 						'version'    => 5,
 						'outputType' => chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
 						'eccLevel'   => chillerlan\QRCode\QRCode::ECC_L,
-						'scale'		 => 3
+						'scale'		 => 3 // Note: scale is for SVG, IMAGE_*. output. Irrelevant for HTML output; use CSS
 					]);
 
 					// invoke a fresh QRCode instance

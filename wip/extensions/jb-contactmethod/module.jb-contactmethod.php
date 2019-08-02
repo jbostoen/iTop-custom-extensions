@@ -27,8 +27,9 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-contactmethod.php',
-                        'main.jb-contactmethod.php'
+					'model.jb-contactmethod.php',
+					'main.jb-contactmethod.php',
+					'classes/class.iTop_Helper_Phone.php'
                 ),
                 'webservice' => array(
 

@@ -32,21 +32,29 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				
 				case 'phone':
 				
-					$sPhone = self::ReturnSignificantDigits_BE( $sContactDetail );
-										
-					// Belgian number or most likely international
-					if( self::IsValidMobilePhone_BE($sPhone) == true ) {
-						// OK
-				
-					}
-					elseif( self::IsValidPhone_BE($sPhone) == true || strlen( $sPhone ) > 8 ) {
-						// OK
-					}
-					else {
+					$sPhone_digits = iTop_Helper_Phone::ReturnDigits( $sContactDetail );
+					
+					switch(true) {
 						
-						return Array( 
-							Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
-						);
+						// Belgian land line phone number
+						case iTop_Helper_Phone::IsValidPhone_BE($sPhone_digits) == true:
+						
+						// International phone number - hopefully land line
+						case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sContactDetail) == true && iTop_Helper_Phone::IsLocal($sContactDetail) == false && strlen($sPhone_digits) > 8:
+						
+							// No error
+							break;
+						
+						// Belgian mobile phone number
+						case iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true:
+						
+						// Unidentified
+						default:
+						
+							return Array( 
+								Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
+							);
+							
 						
 					}
 				
@@ -54,21 +62,30 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				
 				case 'mobile_phone':
 				
-					$sMobilePhone = self::ReturnSignificantDigits_BE( $sContactDetail );
+					$sMobilePhone_digits = iTop_Helper_Phone::ReturnDigits( $sContactDetail );
 					
-					// Belgian number or most likely international
-					if( self::IsValidPhone_BE($sMobilePhone) == true ) {
-						// OK
-					}
-					elseif( self::IsValidMobilePhone_BE($sMobilePhone) == true || strlen( $sMobilePhone ) > 9 ) {
-						// OK
-					}
-					else {
+					switch(true) {
 						
-						return Array( 
-							Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
-						);
+						// Belgian mobile phone number
+						case iTop_Helper_Phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true:
 						
+						// International phone number - hopefully mobile
+						case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sContactDetail) == true && iTop_Helper_Phone::IsLocal($sContactDetail) == false && strlen($sMobilePhone_digits) > 9:
+						
+							// No error
+							break;
+						
+						// Belgian land line phone number
+						case iTop_Helper_Phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true:
+						
+						// Unidentified
+						default: 
+							
+							// Belgian land line phone number
+							return Array( 
+								Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
+							);
+							
 					}
 					
 					break;
@@ -96,51 +113,69 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 			$aErrors = Array();
 			
 			// Check phone
-		
-			$sPhone = self::ReturnDigits( $oObject->Get('phone') );
-			$sPhone_SignificantDigits = self::ReturnSignificantDigits_BE( $oObject->Get('phone') );
-								
-			// Belgian number or most likely international
-			if( self::IsValidMobilePhone_BE($sPhone) == true ) {
-				$aErrors[] = Dict::S('Errors/Person/InvalidPhoneNumber');
-			}
-			elseif( self::IsValidPhone_BE($sPhone) == true || strlen( $sPhone_SignificantDigits ) > 8 ) {
-				// OK
-			}
-			elseif( strlen( $sPhone ) == 0 ) {
-				// Empty. OK for Person, NOT for ContactMethod
-			}
-			else {	
-				$aErrors[] = Dict::S('Errors/Person/InvalidPhoneNumber');
-			}
-		
-		
-			// Check mobile_phone
-			$sMobilePhone = self::ReturnDigits( $oObject->Get('mobile_phone') );
-			$sMobilePhone_SignificantDigits = self::ReturnSignificantDigits_BE( $oObject->Get('mobile_phone') );
+			// ---
+			$sPhone_original = $oObject->Get('phone');
+			$sPhone_digits = iTop_Helper_Phone::ReturnDigits($sPhone_original);
 			
-			// Belgian number or most likely international
-			if( self::IsValidPhone_BE($sMobilePhone) == true ) {
-				$aErrors[] = Dict::S('Errors/Person/InvalidMobilePhoneNumber');
+			switch(true) {
+				
+				// Empty (OK for Person, NOT for ContactMethod)
+				case strlen($sPhone_original) == 0:
+				
+				// Belgian land line number
+				case iTop_Helper_Phone::IsValidPhone_BE($sPhone_original) == true:
+				
+				// International phone number - hopefully land line
+				case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sPhone_original) == true && iTop_Helper_Phone::IsLocal($sPhone_digits) == false && strlen($sPhone_digits) > 8:
+				
+					// No error
+					break;
+				
+				// Belgian mobile phone number
+				case iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true:
+				
+				// Unidentified
+				default:
+				
+					$aErrors[] = Dict::S('Errors/ContactMethod/InvalidPhoneNumber');
+				
 			}
-			elseif( self::IsValidMobilePhone_BE($sMobilePhone) == true ) {
-				// OK: it's a Belgian phone number
+			
+			// Check mobile phone
+			// ---
+			$sMobile_original = $oObject->Get('mobile_phone');
+			$sMobile_digits = iTop_Helper_Phone::ReturnDigits($sMobile_original);
+			
+			switch(true) {
+				
+				// Empty (OK for Person, NOT for ContactMethod)
+				case strlen($sMobile_original) == 0:
+				
+				// Belgian mobile phone number
+				case iTop_Helper_Phone::IsValidMobilePhone_BE($sMobile_original) == true:
+				
+				// International phone number - hopefully mobile
+				case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sMobile_original) == true && iTop_Helper_Phone::IsLocal($sMobile_digits) == false && strlen($sMobile_digits) > 9:
+				
+					// No error
+					break;
+				
+				// Belgian land line number
+				case iTop_Helper_Phone::IsValidPhone_BE($sMobile_original) == true:
+				
+				// Unidentified
+				default:
+				
+					$aErrors[] = Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber');
+				
 			}
-			elseif( strlen( $sMobilePhone_SignificantDigits ) > 9 ) {
-				// International number?
-			}
-			elseif( strlen( $sPhone ) == 0 ) {
-				// Empty. OK for Person, NOT for ContactMethod
-			}
-			else {				
-				$aErrors[] = Dict::S('Errors/Person/InvalidMobilePhoneNumber');
-			}
-		
+			
 			// Check email
+			// ---
 			$sEmail = $oObject->Get('email');
 			
-			if( !filter_var( $sEmail, FILTER_VALIDATE_EMAIL) ) {
-				$aErrors[] = Dict::S('Errors/Person/InvalidEmail');				
+			if( $sEmail != '' && !filter_var( $sEmail, FILTER_VALIDATE_EMAIL) ) {
+				$aErrors[] = Dict::S('Errors/ContactMethod/InvalidEmail');				
 			}
 		
 			return $aErrors;
@@ -233,7 +268,9 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 *
 	 */
 	public function OnContactMethodChanged($oObject) {
-				
+			
+			
+		// If a ContactMethod changed, validate and port back to Person object
 		if( $oObject instanceof ContactMethod ) {
 			
 			$sContactMethod = $oObject->Get('contact_method');
@@ -246,16 +283,19 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				// These properties are available in the Person class
 				case 'phone':
 				
-					$sPhone = self::ReturnDigits( $oObject->Get('contact_detail') );
-					$sPhone_SignificantDigits = self::ReturnSignificantDigits_BE( $oObject->Get('contact_detail') );
+					$sPhone_digits = iTop_Helper_Phone::ReturnDigits( $oObject->Get('contact_detail') );
 					
 					// Belgian number or most likely international
-					if( self::IsValidMobilePhone_BE($sPhone) == true ) {
-						// Autocorrect
-						$oObject->Set('contact_method', 'mobile_phone');
+					if( iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true ) {
+						
+						return Array( 
+							Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
+						);	
 					}
-					elseif( self::IsValidPhone_BE($sPhone) == true || strlen( $sPhone_SignificantDigits ) > 8 ) {
+					elseif( iTop_Helper_Phone::IsValidLandLinePhone_BE($sPhone_digits) == true || (iTop_Helper_Phone::OnlyContainsAllowedCharacters($sPhone) == true && strlen($sPhone_digits) > 8) ) {
 						// OK, assuming Belgian phone OR international number
+						$oObject->Set('contact_detail', $sPhone_digits);
+						$oObject->DBUpdate();
 					}
 					else {
 						
@@ -264,34 +304,33 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 						);						
 						
 					}
-					
-					$oObject->Set('contact_detail', $sPhone );
-					$oObject->DBUpdate();
 				
 					break;
 				
 				case 'mobile_phone':
 					
-					$sMobilePhone = self::ReturnDigits( $oObject->Get('contact_detail') );
-					$sMobilePhone_SignificantDigits = self::ReturnSignificantDigits_BE( $oObject->Get('contact_detail') );
+					$sMobilePhone_digits = iTop_Helper_Phone::ReturnDigits( $oObject->Get('contact_detail') );
 										
 					// Belgian number or most likely international
-					if( self::IsValidPhone_BE($sMobilePhone) == true ) {
-						// Autocorrect
-						$oObject->Set('contact_method', 'phone');				
+					if( iTop_Helper_Phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true ) {
+						
+						return Array( 
+							Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
+						);			
 					}
-					elseif( self::IsValidMobilePhone_BE($sMobilePhone) == true || strlen( $sMobilePhone_SignificantDigits ) > 9 ) {
+					elseif( iTop_Helper_Phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true || (iTop_Helper_Phone::OnlyContainsAllowedCharacters($oObject->Get('contact_detail')) == true && strlen(sMobilePhone_digits) > 9) ) {
 						// OK, assuming Belgian mobile_phone OR international number
+						$oObject->Set('contact_detail', $sMobilePhone_digits);
+						$oObject->DBUpdate();
 					}
 					else {
 						
 						return Array( 
-							Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
+							Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
 						);
 						
 					}
 					
-					$oObject->Set('contact_detail', $sMobilePhone );
 					$oObject->DBUpdate();
 				
 					break;
@@ -313,7 +352,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
 				$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 							
-				// Only 1 person should be retrieved
+				// Only 1 person will be retrieved (assuming person_id was valid)
 				$oPerson = $oSet_Person->Fetch();
 				
 				// Prevent loop: only if the Person property is not equal to this new detail: update().
@@ -325,6 +364,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 			}			
 		}
 		
+		// If contact info on the Person object changed, update ContactMethods if necessary
 		elseif( $oObject instanceof Person ) {
 			
 			// Check if a ContactMethod exists for email, phone, mobile_phone. 
@@ -340,10 +380,11 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				if( $oObject->Get($sContactMethod) != '' ) {
 						
 					// Select ContactMethod
-					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('id') .' AND contact_method = "' . $sContactMethod . '" AND contact_detail = "' . $oObject->Get($sContactMethod). '"';
+					// Use LIKE without wildcards to enforce case insensitivity (email)
+					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('id') .' AND contact_method LIKE "' . $sContactMethod . '" AND contact_detail = "' . $oObject->Get($sContactMethod). '"';
 					$oSet_ContactMethods = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 					
-					// No contact method was found with these details
+					// There shouldn't be a ContactMethod with the same details if a new one is added
 					if( $oSet_ContactMethods->Count() == 0 ) {
 						
 						// Create ContactMethod
@@ -384,20 +425,21 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 					$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
 					$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 			
-					// Same person: previous/alternative ContactMethod available?
-					// Since this happens before delete: don't include this object. Might be most recent.
-					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('person_id') . ' AND contact_method = "' . $sContactMethod . '" AND id != "' . $oObject->Get('id'). '"';			
-					$oSet_ContactMethod = new DBObjectSet(DBObjectSearch::FromOQL($sOQL), /* Order by */ Array('id' => /* Ascending */ false), /* Arguments */ Array(), /* Extended data spec */ null, /* Amount */ 1);
-		
 					// Only 1 person should be retrieved
 					$oPerson = $oSet_Person->Fetch();
 
 					// Set to empty
 					$oPerson->Set($sContactMethod, '');
+					
+					// But what if a fallback is possible, to update the Person object with another most recent ContactMethod of the same contact_method type?
+					// Since this query is executed before ContactMethod is really deleted: 
+					// Don't include this ContactMethod object (which might have been the most recent one)
+					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('person_id') . ' AND contact_method = "' . $sContactMethod . '" AND id != "' . $oObject->Get('id'). '"';			
+					$oSet_ContactMethod = new DBObjectSet(DBObjectSearch::FromOQL($sOQL), /* Order by */ Array('id' => /* Ascending */ false), /* Arguments */ Array(), /* Extended data spec */ null, /* Amount */ 1);
 						
-					// But hey, maybe there's another last known ContactMethod.
-					// For this, simply look at 'id', not date of last change (yet)
-					// Todo: look if we can do something with the DBOBjectSet::seek() method
+					// But maybe there's another last known ContactMethod.
+					// Simply look at 'id' and take the last one, not date of last change (yet)
+					// @todo look if something can be done with the DBOBjectSet::seek() method
 					while($oContactMethod = $oSet_ContactMethod->Fetch()){
 						$oPerson->Set($sContactMethod, $oContactMethod->Get('contact_detail'));	
 					}
@@ -417,122 +459,4 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 		return;
 	}
 	
-	
-	/**
-	* Returns whether this is a valid prefix for a Belgian mobile phone number
-	*
-	* @param String $sPhone Phone number
-	*
-	* @return Boolean
-	*/
-	public static function IsMobilePrefix_BE( $sPhone ) {
-		
-		// https://www.bipt.be/en/consumers/telephone/numbering/numbering-principles
-		// 046, 047, 048, 049
-		// 04 = land line too, Liège and Voeren. Less digits!
-		// That's why we check for the first 2 digits.
-		
-		// Length is important because:
-		// +46 = Sweden
-		// +47 = Norway
-		// +48 = Poland
-		// +49 = Sweden
-		
-		$sPhone = self::ReturnSignificantDigits_BE($sPhone);
-		
-		// Amount of digits does not match
-		if( strlen($sPhone) != 9 ) {
-			return false;
-		}
-		
-		switch( substr($sPhone, 0, 2) ) {
-			case '46':
-			case '47':
-			case '48':
-			case '49':
-				return true;
-				break;
-				
-			default:
-				break;
-				
-		}
-	
-		return false;
-
-	}
-
-	/**
-	* Returns whether this is a valid Belgian phone number (based on length)
-	*
-	* @param String $sPhone Phone number
-	*
-	* @return Boolean
-	*/
-	public static function IsValidPhone_BE( $sPhone ) {
-	
-		$sPhone = self::ReturnSignificantDigits_BE($sPhone);
-		return ( strlen($sPhone) == 8 );
-
-	}		
-	
-	/**
-	* Returns whether this is a valid Belgian mobile phone number (basically just an alias for now)
-	*
-	* @param String $sPhone Phone number
-	*
-	* @return Boolean
-	*/
-	public static function IsValidMobilePhone_BE( $sPhone ) {
-	
-		return self::IsMobilePrefix_BE($sPhone);			
-				
-	}
-	
-	/**
-	* Returns digits only.
-	*
-	* @param String $sPhone Phone number
-	*
-	* @return String Digits only of provided string (phone number)
-	*/
-	public static function ReturnDigits( $sPhone ) {
-	
-		return preg_replace('/\D/', '', $sPhone);
-	
-	}
-	
-	/**
-	* Returns significant digits only (meaning: no leading zero and no national number if Belgian phone number)
-	*
-	* @param String $sPhone Phone number
-	*
-	* @return String Digits only of provided string (phone number)
-	*
-	* @details Significant details: the ones which make up the zone number (or mobile prefix), without leading zero and without (Belgian) country code
-	*/
-	public static function ReturnSignificantDigits_BE( $sPhone ) {
-	
-		$sPhone = self::ReturnDigits($sPhone);
-		
-		// Remove leading zero
-		$sPhone = ltrim($sPhone, '0');		
-		
-		// Adapted to Belgian situation
-		if( substr($sPhone, 0, 2) == '32' ) {
-			
-			// 32 47x xx xx xx
-			// 32 51 xx xx xx
-			// Drop country code
-			return substr( $sPhone, 2);
-		
-		}
-		else {
-			return $sPhone;
-		}
-		
-	}	
-	
 }
-
-
