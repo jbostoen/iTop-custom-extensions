@@ -40,7 +40,7 @@ $aFiles | Foreach-Object {
 $aFiles = Get-ChildItem -path $sParentFolder -File -Recurse -Include module.*.php
 
 $aFiles | Foreach-Object {
-	$_.Name -match "^(.*)\.(.*)\.(.*)$"
+	$unused_but_surpress_output = $_.Name -match "^(.*)\.(.*)\.(.*)$"
 	$sModuleShortName = $Matches[2]; # magic
 	$content = Get-Content "$($_.Directory)\$($_.Name)"
 	$content = $content -replace "'$($sModuleShortName)\/(.*)',", "'$($sModuleShortName)/$($sVersionExtensions)',"
@@ -56,20 +56,20 @@ $aFiles | Foreach-Object {
 	$content = Get-Content "$($_.Directory)\$($_.Name)"
 	
 	# Info on license on top of file
-	$content = $content -replace '\* @version     -', "* @version     - $($sVersionDate)"
+	$content = $content -replace '\* @version     -', "* @version     $($sVersionDate)"
 	
 	$content | Set-Content "$($_.Directory)\$($_.Name)"
 }
 
 # Update any PS1 file
-$aFiles = Get-ChildItem -path $sParentFolder -File -Recurse -Include *.ps1
+$aFiles = Get-ChildItem -path $sParentFolder -File -Recurse -Include *.ps1, *.psm1
 
 $aFiles | Foreach-Object {
 
 	$content = Get-Content "$($_.Directory)\$($_.Name)"
 	
 	# Info on license on top of file
-	$content = $content -replace '# version     -', "* @version     - $($sVersionDate)"
+	$content = $content -replace '# version     .*', "# version     $($sVersionDate)"
 	
 	$content | Set-Content "$($_.Directory)\$($_.Name)"
 }
@@ -83,7 +83,7 @@ $aFiles | Foreach-Object {
 	$content = Get-Content "$($_.Directory)\$($_.Name)"
 	
 	# Info on license on top of file
-	$content = $content -replace 'REM version     -', "REM @version     - $($sVersionDate)"
+	$content = $content -replace 'REM version     .*', "REM version     $($sVersionDate)"
 	
 	$content | Set-Content "$($_.Directory)\$($_.Name)"
 }
