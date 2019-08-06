@@ -683,15 +683,20 @@ EOF
 			$sSubject = $oEmail->sSubject;
 			$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
 			
+			$this->Trace(".. Remove undesired title patterns: {$this->Get('policy_remove_pattern_patterns')}");
+			
 			foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
 				$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
 				
 				if( $oPregMatch === false) {
-					$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
-					break;
+					$this->Trace("... Invalid pattern to remove from title: '{$sRemoveTitlePattern}'");
 				}
-				elseif( $oPregMatch != false ) {
+				elseif( preg_match($sRemoveTitlePattern, $sSubject) ) {
+					$this->Trace("... Pattern to remove - found: '{$sRemoveTitlePattern}'");
 					$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
+				}
+				else {
+					// Just not matching
 				}
 				
 			}
@@ -775,8 +780,11 @@ EOF
 						$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
 						break;
 					}
-					elseif( $oPregMatch != false ) {
+					elseif( preg_match($sRemoveTitlePattern, $sSubject) ) {
 						$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
+					}
+					else {
+						// Just not matching
 					}
 					
 				}
@@ -1863,6 +1871,9 @@ EOF
 						elseif( $oPregMatch != false ) {
 							$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
 						}
+						else {
+							// Just not matching
+						}
 						
 					}
 				}
@@ -1938,7 +1949,7 @@ EOF
 			}
 		
 		// ### Policy: Undesired patterns in subject
-		$this->Trace(".. Policy: undesired patterns");
+		$this->Trace(".. Policy: undesired patterns: '{$this->Get('policy_undesired_pattern_patterns')}' - subject: '{$oEmail->sSubject}'");
 		 		
 			if( $this->Get('policy_undesired_pattern_patterns') != '' ) { 
 			
@@ -1951,12 +1962,14 @@ EOF
 					
 					if($oPregMatched === false) {
 						$this->Trace("... Invalid pattern: '{$sPattern}'");
-						break;
 					}
 					elseif (preg_match($sPattern, $oEmail->sSubject))
 					{
-						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it matches {$sPattern}."); 
+						$this->Trace(".... The message '{$oEmail->sSubject}' is considered as undesired, since it matches {$sPattern}."); 
 						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_undesired_pattern'];
+					}
+					else {
+						$this->Trace("... Pattern '{$sPattern}' not matched");
 					}
 				}
 			}

@@ -159,10 +159,14 @@ UIDL
 * **Fallback**: ignore, remove 	 
 * **Undesired patterns in subject** - (regex, one per line)
 
+# About regex patterns
+Anytime regex pattern is meant above, it should be specified like in PHP code.
+For example, /^testmail$/ (subject starts and ends with the word testmail)
+
 # Other improvements
 
 ## Minor code tweaks
-Some code was simplified.
+Some code was simplified. Debug trace is much more extended.
 
 ## Lost IMAP connections
 There's an attempt to fix issues with lost IMAP connections. 
@@ -172,5 +176,6 @@ It's stored for 7 more days after it's last seen.
 Benefit: if the email wasn't seen due to a lost IMAP connection, the EmailReplica got deleted with the original Combodo extension. 
 If in the next run the IMAP connection functions properly, the email would be reprocessed as 'new' - which led to new tickets being created.
 
-
-
+## Unset IMAP deletion flag
+By default, the IMAP deletion flag is removed upon processing the email.
+It's set back only if necessary.
