@@ -138,6 +138,8 @@
 					<ext_key_to_me>ssid_id</ext_key_to_me>
 					<ext_key_to_remote>networkdevice_id</ext_key_to_remote>
 					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
 				</field>
 			</fields>
 			<methods/>
@@ -324,6 +326,16 @@
 						</item>
 					</items>
 				</details>
+				<list>
+					<items>
+						<item id="ssid_id">
+							<rank>1</rank>
+						</item>
+						<item id="networkdevice_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</list>
 				<default_search>
 					<items>
 						<item id="ssid_id">
@@ -370,6 +382,7 @@
 	</classes>
 	
 	<menus>
+		<!-- For TeemIP users, this could be id="teemip-000" -->
 		<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="ConfigManagementOverview" xsi:type="DashboardMenuNode">
 		  <definition>
 			<cells>
@@ -384,5 +397,11 @@
 			</cells>
 		  </definition>
 		</menu>
-	</menus>	
+	</menus>
+
+	<group id="Configuration" _altered_in="itop-profiles-itil">
+        <classes>
+          <class id="SSID" _delta="define"/>		
+		</classes>
+	</group>
 </itop_design>

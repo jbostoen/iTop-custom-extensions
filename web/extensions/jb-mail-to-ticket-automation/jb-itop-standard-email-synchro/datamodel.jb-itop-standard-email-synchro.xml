@@ -501,7 +501,7 @@ EOF
 	 * @param EmailSource $oSource The source from which this email was read
 	 * @param int $index The index of the message in the source
 	 * @param EmailMessage $oEmail The decoded email
-	 * @return Ticket The ticket created or updated in response to the email
+	 * @return Ticket|Object The ticket created or updated in response to the email or an object containing the policy violation
 	 */</comment>
 					<static>false</static>
 					<access>public</access>
@@ -527,7 +527,7 @@ EOF
 		if( $oPolicy->bUndesired ) {
 			$this->Trace(". Email does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
-			return null;
+			return (Object)['incompliant_policy_name' => $oPolicy->sPolicyId];
 		}
 		else {
 			$this->Trace(". Email complies with specified policies.");
@@ -1131,7 +1131,7 @@ EOF
 			
 		}
 		
-		$oLog->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
+		$oAttributeValue->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
 		
 		// Sort chronologically. NOT ascending (true), but descending (false)!
 		$oAttributeValue = $oAttributeValue->ToSortedCaseLog(false);
@@ -1742,8 +1742,8 @@ EOF
 					<comment><![CDATA[/**
 	 * Check all policies to see if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
-	 * @param $oTicket The ticket being written (Ticket or null)
-	 * @return array ( boolean 'compliant', Ticket 'ticket', string 'Caller' )
+	 * @param Ticket $oTicket The ticket which is being modified (Ticket or null)
+	 * @return Object ( boolean bUndesired, Person 'Caller' )
 	 */]]></comment>
 					<static>false</static>
 					<access>protected</access>

@@ -44,6 +44,12 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:SSID/Attribute:channel_number' => 'Nummer kanaal',
 	'Class:SSID/Attribute:networkdevices_list' => 'Draadloze toegangspunten',
 	
+	'Class:lnkNetworkDeviceToSSID' => 'Link Network Device / SSID',
+	'Class:lnkNetworkDeviceToSSID/Attribute:networkdevice_id_friendlyname' => 'Netwerkapparaat',
+	'Class:lnkNetworkDeviceToSSID/Attribute:ssid_id_friendlyname' => 'SSID',
+	
+	'Class:VLAN/Attribute:ssid_list' => 'SSID\'s',
+	
 	'SSID:General' => 'General',
 	'SSID:Security' => 'Beveiliging',
 	'SSID:Radio' => 'Radio',

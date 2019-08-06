@@ -44,6 +44,12 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:SSID/Attribute:channel_number' => 'Channel number',
 	'Class:SSID/Attribute:networkdevices_list' => 'Wireless Access Points',
 	
+	'Class:lnkNetworkDeviceToSSID' => 'Link Network Device / SSID',
+	'Class:lnkNetworkDeviceToSSID/Attribute:networkdevice_id' => 'Network Device',
+	'Class:lnkNetworkDeviceToSSID/Attribute:ssid_id' => 'SSID',
+	
+	'Class:VLAN/Attribute:ssid_list' => 'SSIDs',
+	
 	'SSID:General' => 'General',
 	'SSID:Security' => 'Security',
 	'SSID:Radio' => 'Radio',
