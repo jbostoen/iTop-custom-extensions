@@ -455,7 +455,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', $sStampedText.substr($this->Get('debug_trace'), -$iMaxTraceLength));
+			$this->Set('debug_trace', $sStampedText.substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");
@@ -1083,11 +1083,11 @@ EOF
 		// Our method needs an additional parameter ( $oTicket ) to handle some policies.
 		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
 		
-		// Not policy compliant? Then stop processing. 
 		if( $oPolicy->bUndesired ) {
+			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
 			$this->Trace(". Email (update) does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
-			return null;
+			return;
 		}
 		else {
 			$this->Trace(". Email (update) complies with our policies.");
@@ -1985,7 +1985,7 @@ EOF
 			{
 				case 1:
 					// Ok, the caller was found in iTop
-					$this->Trace("Contact found for the email address '{$oEmail->sCallerEmail}'");
+					$this->Trace(".... Contact found for the email address '{$oEmail->sCallerEmail}'");
 					$oCaller = $oSet->Fetch();
 					break;
 					
@@ -1996,13 +1996,13 @@ EOF
 						case 'bounce_mark_as_undesired':
 						case 'delete': 
 						case 'mark_as_undesired':
-							$this->Trace("No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed"); 
+							$this->Trace(".... No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed"); 
 							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_unknown_caller'];
 							break;
 						
 						case 'fallback':
 						default:
-							$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
+							$this->Trace(".... Creating a new Person for the email: {$oEmail->sCallerEmail}");
 							$oCaller = new Person();
 							$oCaller->Set('email', $oEmail->sCallerEmail);
 							$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
@@ -2031,7 +2031,7 @@ EOF
 							catch(Exception $e)
 							{
 								// This is an actual error.
-								$this->Trace("Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
+								$this->Trace(".... Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
 								$this->Trace($e->getMessage());
 								$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
 								return null;
@@ -2041,7 +2041,7 @@ EOF
 					break;
 				
 				default:
-					$this->Trace("Found {$oSet->Count()} callers with the same email address '{$oEmail->sCallerEmail}.', the first one will be used.");
+					$this->Trace(".... Found {$oSet->Count()} callers with the same email address '{$oEmail->sCallerEmail}.', the first one will be used.");
 					// Multiple callers with the same email address !!!
 					$oCaller = $oSet->Fetch();
 			}

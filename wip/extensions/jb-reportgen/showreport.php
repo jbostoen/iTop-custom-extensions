@@ -128,6 +128,8 @@
 		// Twig
 		// --
 		
+		$aTwigData['current_contact'] = ObjectToArray(UserRights::GetUserObject());
+		
 		// Twig Loader
 		$loader = new Twig_Loader_Filesystem( dirname($sReportFile) );
 		
@@ -208,10 +210,44 @@
 			$oResult->AddObject(0, '', $oObject, $aShowFields);
 		}
 		
-		$sJSON = json_encode($oResult->objects);
-		
-		return json_decode($sJSON, true);
-		
+		if(is_null($oResult->objects) == true) {
+			return [];
+		}
+		else {
+			
+			$sJSON = json_encode($oResult->objects);
+			return json_decode($sJSON, true);
+		}
 	}
 
+
+	/**
+	 * Returns array (similar to REST/JSON) from object
+	 *
+	 * @param CMDBObject $oObject iTop object
+	 *
+	 * @return Array
+	 */
+	function ObjectToArray(CMDBObject $oObject) {
+		
+		$oResult = new RestResultWithObjects();
+		$aShowFields = [];
+		$sClass = get_class($oObject);
+		
+		foreach (MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
+		{
+			$aShowFields[$sClass][] = $sAttCode;
+		}
+		
+		$oResult->AddObject(0, '', $oObject, $aShowFields);
+		
+		if(is_null($oResult->objects) == true) {
+			return [];
+		}
+		else {
+			$sJSON = json_encode($oResult->objects);
+			return current(json_decode($sJSON, true));
+		}
+		
+	}
 	

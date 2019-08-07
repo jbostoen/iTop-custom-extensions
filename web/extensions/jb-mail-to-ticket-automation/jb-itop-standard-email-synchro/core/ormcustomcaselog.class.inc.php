@@ -28,7 +28,7 @@ if( class_exists('ormCustomCaseLog') == false ) {
 		public function AddLogEntry($sText, $sOnBehalfOf = '', $iOnBehalfOfUserId = null, $sDateTime = '')
 		{
 			$sText = HTMLSanitizer::Sanitize($sText);
-			$sDate = ($sDateTime == '' ? date(AttributeDateTime::GetInternalFormat()) : date(AttributeDateTime::GetInternalFormat(), strtotime($sDateTime)));
+			$sDateTime = ($sDateTime == '' ? date(AttributeDateTime::GetInternalFormat()) : date(AttributeDateTime::GetInternalFormat(), strtotime($sDateTime)));
 			
 			if ($sOnBehalfOf == '')	{
 				$sOnBehalfOf = UserRights::GetUserFriendlyName();
@@ -95,10 +95,10 @@ if( class_exists('ormCustomCaseLog') == false ) {
 			
 			usort($aEntries, function ($item1, $item2) use ($bAscending) {
 				
-				$dtCompare1 = ($bAscending == true ? $item2['date'] : $item1['date']);
-				$dtCompare2 = ($bAscending == true ? $item1['date'] : $item2['date']);
+				$dtCompare1 = strtotime($item1['date']);
+				$dtCompare2 = strtotime($item2['date']);
 				
-				return $dtCompare1 <=> $dtCompare2;
+				return (($dtCompare1 <=> $dtCompare2) * ( $bAscending == true ? 1 : -1));
 			});
 			
 			// m_aIndex AND m_sLog both need to be updated, hence this trick.
