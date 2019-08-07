@@ -28,6 +28,7 @@ SetupWebPage::AddModule(
                 //
                 'datamodel' => array(
 					// 'model.jb-reportgen.php',
+					'core/ApplicationUIExtension_ReportGenerator.class.inc.php',
 					'core/PopupMenuExtension_ReportGenerator.class.inc.php'
                 ),
                 'webservice' => array(

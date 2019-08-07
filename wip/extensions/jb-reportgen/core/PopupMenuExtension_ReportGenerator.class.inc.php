@@ -5,7 +5,7 @@
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  * @version     -
  *
- * PHP Main file
+ * Definition of PopupMenuExtension_ReportGenerator
  */
 
 /**
@@ -25,9 +25,13 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 		$sModuleName = utils::GetCurrentModuleName();
 		$sModuleDir = dirname(__DIR__);
 		
+		$aMenuItems = [];
+		
 		if ($iMenuId == self::MENU_OBJDETAILS_ACTIONS)
 		{
 		  
+			$sActions = MetaModel::GetConfig()->Get('shortcut_actions');
+		
 			// The actual object of which details are displayed
 			$oObject = $param;
 			
@@ -65,8 +69,14 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 					$sLabel = Dict::S('UI:Menu:ReportGenerator:ShowReportTitleMissing');
 				}
 				
+				// Prefix
+				$sLabel = Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel;
+				
 				// UID must simply be unique. Keep alphanumerical version of filename.
 				$sUID = $sModuleName.'_' . preg_replace('/[^\da-z]/i', '',  basename($sReportFile)) . '_' . rand(0, 10000);
+				
+				// Button or menu-item?
+				$sActions .= ( self::GetAppearance($sReportContent) == 'button' ? ','.$sUID : '');
 				
 				// URL should give our generator the location of the report (folder/report) and the ID of the object
 				// type=Object is to allow 'showReport.php' to also include lists in the future.
@@ -80,18 +90,18 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 					'&filter='.htmlentities($oFilter->Serialize(), ENT_QUOTES, 'UTF-8').
 					'&template=' . basename(basename($sReportFile));
 					
-				$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
+				$aMenuItems[] = new URLPopupMenuItem($sUID, $sLabel, $sURL, $sTarget);
 				
 			}
-			
-			 
-			return $aMenuItems;
 		 
+			MetaModel::GetConfig()->Set('shortcut_actions', $sUID);
 		
 		}
 		elseif($iMenuId == self::MENU_OBJLIST_ACTIONS)
 		{
 			
+			$sActions = MetaModel::GetConfig()->Get('shortcut_actions');
+		
 			// $param in this case is a DBObjectSet
 			$oObjectSet = $param;
 			
@@ -131,9 +141,16 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 						
 					}
 					
+					// Prefix
+					$sLabel = Dict::S('UI:Menu:ReportGenerator:ShowReport'). ': ' . $sLabel;
+					$sLabel = 'test';
+					
 					// UID must simply be unique. Keep alphanumerical version of filename.
 					$sUID = $sModuleName.'_' . preg_replace('/[^\da-z]/i', '',  basename($sReportFile)) . '_' . rand(0, 10000);
-								
+						
+					// Button or menu-item?
+					$sActions .= ( self::GetAppearance($sReportContent) == 'button' ? ','.$sUID : '');
+						
 					$oFilter = $oObjectSet->GetFilter();
 					
 					// URL should pass location of the report (folder/report) and the OQL query for the object(s)
@@ -143,18 +160,18 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 						'&filter='.htmlentities($oFilter->Serialize(), ENT_QUOTES, 'UTF-8').
 						'&template=' . basename(basename($sReportFile));
 					
-					$aMenuItems[] = new URLPopupMenuItem($sUID, Dict::S('UI:Menu:ReportGenerator:ShowReport') . ': ' . $sLabel, $sURL, $sTarget); 
+					$aMenuItems[] = new URLPopupMenuItem($sUID, $sLabel, $sURL, $sTarget); 
+									
 					 
-				} 
-				  
-				return $aMenuItems;
-				  
+				}
+				
+				MetaModel::GetConfig()->Set('shortcut_actions', ltrim($sActions, ',' ));
+				
 			} 
-		} 
-		  
-		  
+		}		
+		
 		// Always expects an array as result (?)
-		return array();
+		return $aMenuItems;
 		  
 	}
 	
@@ -165,31 +182,55 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 	 *
 	 * @return String
 	 */
-	 public static function RenderLabel($sLabel) {
+	public static function RenderLabel($sLabel) {
 	 
-			// Autoloader (Twig, chillerlan\QRCode, ...
-			require_once(APPROOT . '/libext/vendor/autoload.php');
-			
-			// Twig Loader
-			$loader = new \Twig\Loader\ArrayLoader([
-				'string' => $sLabel
-			]);
-			
-			// Twig environment options
-			$oTwigEnv = new Twig_Environment($loader, [
-				'autoescape' => false
-			]); 
+		// Autoloader (Twig, chillerlan\QRCode, ...
+		require_once(APPROOT . '/libext/vendor/autoload.php');
+		
+		// Twig Loader
+		$loader = new \Twig\Loader\ArrayLoader([
+			'string' => $sLabel
+		]);
+		
+		// Twig environment options
+		$oTwigEnv = new Twig_Environment($loader, [
+			'autoescape' => false
+		]);
 
-			// Combodo uses this filter, so let's use it the same way for our report generator
-			$oTwigEnv->addFilter(new Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
-					return Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
-				})
-			);
-			
-			$sLabel = $oTwigEnv->render('string');
+		// Combodo uses this filter, so let's use it the same way for our report generator
+		$oTwigEnv->addFilter(new Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
+				return Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
+			})
+		);
+		
+		$sLabel = $oTwigEnv->render('string');
+
+		return $sLabel;
   
-			return $sLabel;
-  
-	 }
+	}
+	
+	/**
+	 * Gets appearance. Currently: not specified (same as 'menu') or 'button'.
+	 *
+	 * @details Specify in Twig file as <html data-report-trigger="menu">
+	 *
+	 * @return String
+	 */
+	public static function GetAppearance($sReportContent) {
+		
+		$sRegex = '/\<html.*(?=(\>|data-report-trigger))data-report-trigger="(menu|button)"(?=\>)/';
+		
+		preg_match($sRegex, $sReportContent, $aRegexGroups);
+		
+		if(count($aRegexGroups) == 0) {
+			// Default
+			return 'menu';
+		}
+		else {
+			// As defined
+			return $aRegexGroups[2];
+		}
+	
+	}
 	 
 }

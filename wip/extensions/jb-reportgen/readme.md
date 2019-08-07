@@ -46,6 +46,10 @@ Examples: current_contact.fields.first_name , current_contact.fields.last_name
 ## Setting report title
 * To determine the title, you can specify the report title between the <title> tags. This is what will be shown in iTop.
 
+## Show as button instead of menu item
+In the <html> attribute, add data-report-trigger attribute with value of 'button'. 
+Current possible values: 'menu' (default), 'button'.
+
 ## Using iTop language strings
 * If you want to use iTop Language strings, you can! 
 There's a Twig Filter named dict_s in templates.
