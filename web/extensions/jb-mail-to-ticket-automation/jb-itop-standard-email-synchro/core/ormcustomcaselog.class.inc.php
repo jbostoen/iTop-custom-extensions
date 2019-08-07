@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     -
+ * @version     2019-08-07
  *
  * Custom version of ormCaseLog. Likely to be included in my fork of Mail to Ticket Automation.
  * extended AddLogEntry() to support on_behalf_of_user_id (rather than just 'on_behalf_of'). Important: NOT done so for AddLogEntryFromJSON(). If needed, do this.

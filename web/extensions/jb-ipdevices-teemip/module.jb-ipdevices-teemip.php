@@ -10,7 +10,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-ipdevices-teemip/2.6.190803',
+	'jb-ipdevices-teemip/2.6.190807',
 	array(
 		// Identification
 		//

@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Datamodel: IP Devices - TeemIP enhancements]]></label>
 	<description><![CDATA[IP Address fields of IPDevices are now integrated with TeemIP module.]]></description>
-	<version>2.6.190803</version>
-	<release_date>2019-08-03</release_date>
+	<version>2.6.190807</version>
+	<release_date>2019-08-07</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
