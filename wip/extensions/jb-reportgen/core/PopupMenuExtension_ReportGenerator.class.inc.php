@@ -94,7 +94,7 @@ class PopupMenuExtension_ReportGenerator implements iPopupMenuExtension
 				
 			}
 		 
-			MetaModel::GetConfig()->Set('shortcut_actions', $sUID);
+			MetaModel::GetConfig()->Set('shortcut_actions', ltrim($sActions, ',' ));
 		
 		}
 		elseif($iMenuId == self::MENU_OBJLIST_ACTIONS)

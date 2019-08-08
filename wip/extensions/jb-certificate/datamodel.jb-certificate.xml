@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!-- 
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+-->
+	<classes>
+		<class id="Certificate" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>certificate</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<column id="name" ascending="true"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</reconciliation>
+				<icon>images/certificate.png</icon>
+			</properties>
+			<fields>
+				<field id="name" xsi:type="AttributeString">
+					<sql>name</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<!-- org_id for permission silo -->
+				<field id="org_id" xsi:type="AttributeExternalKey">
+					<sql>org_id</sql>
+					<target_class>Organization</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="creator_id" xsi:type="AttributeExternalKey">
+					<sql>creator_id</sql>
+					<target_class>Contact</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="provider_org_id" xsi:type="AttributeExternalKey">
+					<sql>provider_org_id</sql>
+					<target_class>Organization</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="date_creation" xsi:type="AttributeDateTime">
+					<sql>date_creation</sql>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="date_expiration" xsi:type="AttributeDateTime">
+					<sql>date_expiration</sql>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="description" xsi:type="AttributeText">
+					<sql>description</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="certificate" xsi:type="AttributeBlob"/>
+				<field id="functionalcis_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
+					<linked_class>lnkCertificateToFunctionalCI</linked_class>
+					<ext_key_to_remote>functionalci_id</ext_key_to_remote>
+					<ext_key_to_me>certificate_id</ext_key_to_me>
+					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+				</field>
+				<field id="webservers_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
+					<linked_class>lnkCertificateToWebServer</linked_class>
+					<ext_key_to_remote>webserver_id</ext_key_to_remote>
+					<ext_key_to_me>certificate_id</ext_key_to_me>
+					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="creator_id">
+							<rank>21</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>31</rank>
+						</item>
+						<item id="date_creation">
+							<rank>41</rank>
+						</item>
+						<item id="date_expiration">
+							<rank>51</rank>
+						</item>
+						<item id="description">
+							<rank>61</rank>
+						</item>
+						<item id="certificate">
+							<rank>71</rank>
+						</item>
+						<item id="functionalcis_list">
+							<rank>101</rank>
+						</item>
+						<item id="webservers_list">
+							<rank>111</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="creator_id">
+							<rank>21</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>31</rank>
+						</item>
+						<item id="date_creation">
+							<rank>41</rank>
+						</item>
+						<item id="date_expiration">
+							<rank>51</rank>
+						</item>
+						<item id="description">
+							<rank>61</rank>
+						</item>
+						<item id="certificate">
+							<rank>71</rank>
+						</item>
+					</items>
+				</search>
+				<default_search>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="creator_id">
+							<rank>21</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>31</rank>
+						</item>
+						<item id="date_creation">
+							<rank>41</rank>
+						</item>
+						<item id="date_expiration">
+							<rank>51</rank>
+						</item>
+						<item id="description">
+							<rank>61</rank>
+						</item>
+					</items>
+				</default_search>
+				<list>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="creator_id">
+							<rank>21</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>31</rank>
+						</item>
+						<item id="date_creation">
+							<rank>41</rank>
+						</item>
+						<item id="date_expiration">
+							<rank>51</rank>
+						</item>
+						<item id="description">
+							<rank>61</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+		<!-- Allow links to FunctionalCI. Limited to Server, VirtualMachine. -->
+		<class id="lnkCertificateToFunctionalCI" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<is_link>1</is_link>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>lnkcertificatetofunctionalci</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="certificate_id_friendlyname"/>
+						<attribute id="functionalci_id_friendlyname"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<column id="certificate_id" ascending="true"/>
+						<column id="functionalci_id" ascending="true"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attirbute id="certificate_id"/>
+						<attirbute id="functionalci_id"/>
+					</attributes>
+				</reconciliation>
+				<icon/>
+			</properties>
+			<fields>
+				<field id="certificate_id" xsi:type="AttributeExternalKey">
+					<sql>certificate_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Certificate</target_class>
+				</field>
+				<field id="functionalci_id" xsi:type="AttributeExternalKey">
+					<sql>functionalci_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>FunctionalCI</target_class>
+					<filter><![CDATA[ SELECT FunctionalCI WHERE finalclass IN ('Server', 'VirtualMachine') ]]></filter>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</details>
+				<list>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</list>
+				<default_search>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</default_search>
+				<search>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</search>
+			</presentation>
+		</class>
+
+		<!-- Add Certificates tab to Server and VirtualMachine objects -->
+		<class id="Server">
+			<fields>
+				<field id="certificates_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
+					<linked_class>lnkCertificateToFunctionalCI</linked_class>
+					<ext_key_to_me>functionalci_id</ext_key_to_me>
+					<ext_key_to_remote>certificate_id</ext_key_to_remote>
+					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+				</field>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="certificates_list" _delta="define">
+							<rank>101</rank>
+						</item>
+					</items>
+				</details>
+			</presentation>
+		</class>
+		<class id="VirtualMachine">
+			<fields>
+				<field id="certificates_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
+					<linked_class>lnkCertificateToFunctionalCI</linked_class>
+					<ext_key_to_me>functionalci_id</ext_key_to_me>
+					<ext_key_to_remote>certificate_id</ext_key_to_remote>
+					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+				</field>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="certificates_list" _delta="define">
+							<rank>101</rank>
+						</item>
+					</items>
+				</details>
+			</presentation>
+		</class>
+	
+
+		<!-- Allow links to WebServer. Limited to Server, VirtualMachine. -->
+		<class id="lnkCertificateToWebServer" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<is_link>1</is_link>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>lnkcertificatetowebserver</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="certificate_id_friendlyname"/>
+						<attribute id="webserver_id_friendlyname"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<column id="certificate_id" ascending="true"/>
+						<column id="webserver_id" ascending="true"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attirbute id="certificate_id"/>
+						<attirbute id="webserver_id"/>
+					</attributes>
+				</reconciliation>
+				<icon/>
+			</properties>
+			<fields>
+				<field id="certificate_id" xsi:type="AttributeExternalKey">
+					<sql>certificate_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Certificate</target_class>
+				</field>
+				<field id="webserver_id" xsi:type="AttributeExternalKey">
+					<sql>webserver_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>WebServer</target_class>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="webserver_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</details>
+				<list>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="webserver_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</list>
+				<default_search>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="webserver_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</default_search>
+				<search>
+					<items>
+						<item id="certificate_id">
+							<rank>1</rank>
+						</item>
+						<item id="webserver_id">
+							<rank>11</rank>
+						</item>
+					</items>
+				</search>
+			</presentation>
+		</class>
+
+		<!-- Add Certificates tab to Server and VirtualMachine objects -->
+		<class id="WebServer">
+			<fields>
+				<field id="certificates_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
+					<linked_class>lnkCertificateToWebServer</linked_class>
+					<ext_key_to_me>webserver_id</ext_key_to_me>
+					<ext_key_to_remote>certificate_id</ext_key_to_remote>
+					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+				</field>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="certificates_list" _delta="define">
+							<rank>101</rank>
+						</item>
+					</items>
+				</details>
+			</presentation>
+		</class>
+		
+		
+	</classes>
+
+	<menus>
+		<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="ConfigManagementOverview" xsi:type="DashboardMenuNode">
+			<definition>
+				<cells>
+					<cell id="4">
+						<dashlets>
+							<dashlet id="Certificate" xsi:type="DashletBadge" _delta="define">
+								<rank>101</rank>
+								<class>Certificate</class>
+							</dashlet>
+						</dashlets>
+					</cell>
+				</cells>
+			</definition>
+		</menu>
+	</menus>	
+
+</itop_design>
