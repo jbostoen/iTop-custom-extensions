@@ -9,6 +9,16 @@ $iTop_Root = "C:\xampp\htdocs\iTop\web";								# Path to iTop root (/web includ
 $iTop_ConfigFile = "$($iTop_Root)\conf\production\config-itop.php";		# Path to iTop config file
 $iTop_Extensions = "$($iTop_Root)\extensions";							# Path to iTop Extensions
 
+# About iTop REST/JSON API
+$iTop_API_Url = "http://127.0.0.1:8181/itop/web/webservices/rest.php";	# iTop API URL
+$iTop_API_Version = "1.3";												# iTop API Version
+$iTop_API_User = "admin";												# iTop API Username
+$iTop_API_Password = "admin";											# iTop API Password
+$iTop_API_Output_Fields = "*"											# iTop API - fields to return. 
+																		# * for all attributes of the queried class; 
+																		# *+ to include attributes of subclasses
+
+
 # Defaults for new extensions
 $ext_VersionDescription = ""; 											# Version info, if used.
 $ext_Author = "Jeffrey Bostoen";										# Author
@@ -51,8 +61,8 @@ function Set-iTopConfigWritable {
     
         $count = $count + 1;
 
-        Get-Item -Path $iTop_ConfigFIle | Set-ItemProperty -Name IsReadOnly -Value $false
-        Write-Host "Made iTop configuration file writable ($($iTop_ConfigFIle)) (#$($count))"
+        Get-Item -Path $iTop_ConfigFile | Set-ItemProperty -Name IsReadOnly -Value $false
+        Write-Host "Made iTop configuration file writable ($($iTop_ConfigFile)) (#$($count))"
         
 		If($loop -eq $true) {
 			Start-Sleep -Seconds 15
@@ -228,7 +238,12 @@ function Remove-iTopLanguages {
 
 function Start-iTopCron {
 <#
+ .Synopsis
+ Starts iTop Cron jobs
 
+ .Description
+ Starts iTop Cron jobs
+ 
  .Example
  Start-iTopCron
 
@@ -239,5 +254,88 @@ function Start-iTopCron {
     # c:\xampp\php\php.exe c:\xampp\htdocs\itop\web\webservices\cron.php --auth_user=admin --auth_pwd=admin --verbose=1
 	$expression = "$($php_Path) $($iTop_Root)\webservices\cron.php --auth_user=$($php_iTop_Cron_User) --auth_pwd=$($php_iTop_Cron_Password) --verbose=1"
 	Invoke-Expression $expression
+	
+}
+
+function Get-iTopObject {
+<#
+ .Synopsis
+ Uses iTop REST/JSON API to get object (core/get)
+
+ .Description
+ Uses iTop REST/JSON API to get object (core/get)
+ Hint: on output, use ExpandProperty: $a = (Get-iTopObject -key 123 -class "UserRequest") | Select-Object -ExpandProperty fields
+ 
+ .Parameter key
+ ID of iTop object or OQL-query
+ 
+ .Parameter class
+ Name of class. Can be ommitted if parameter 'key' is a valid OQL-query.
+ 
+ .Parameter outputFields
+ Comma separated list of attributes; or * (return all attributes for specified class); or *+ (all attributes - might be more for subclasses)
+ 
+ .Example
+ Get-iTopObject -key 123 -class "UserRequest"
+ 
+ .Example
+ Get-iTopObject -key "SELECT UserRequest" -OutputFields "id,ref,title"
+
+#>
+    param(
+        [Parameter(Mandatory=$true)][String] $key,
+        [Parameter(Mandatory=$false)][String] $class = "",
+        [Parameter(Mandatory=$false)][String] $outputFields = ""
+    )
+	
+	# Shortcut, if possible.
+	if($class -eq "") {
+	
+		$matched = ($key -match 'SELECT (.*?)( |$)');
+		
+		if($matched -eq $true) {
+			$class = $matches[1]
+		}
+		else {
+			throw "Specify parameter 'class' if parameter 'key' is not a valid OQL-query"
+		}
+	
+	}
+	
+	# Output fields
+	if($outputFields -eq "") {
+		$outputFields = $iTop_API_Output_Fields;
+	}
+		
+		
+	$jsonData = @{
+		'operation'='core/get';
+		'key'=$key;
+		'class'=$class;
+		'output_fields'=$outputFields
+	};
+	
+	$argData = @{
+		'version'=$iTop_API_Version;
+		'auth_user'=$iTop_API_User;
+		'auth_pwd'=$iTop_API_Password;
+		'json_data'=(ConvertTo-JSON $jsonData)
+	}
+	
+	$request = Invoke-WebRequest $iTop_API_Url -Method "POST" -Body $argData -Headers @{"Cache-Control"="no-cache"}
+
+	If($request.StatusCode -eq 200) {
+		$content = (ConvertFrom-JSON $request.content)
+		
+		[Array]$objects = @()
+		$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { $objects += ($content.objects | Select-Object -ExpandProperty $_.Name) }
+
+		return $objects
+		
+	}
+	else {
+		throw "Failure to retrieve data from iTop API. Check URL. Other parameters would be validated by iTop REST/JSON API"
+	}
+	
 	
 }
