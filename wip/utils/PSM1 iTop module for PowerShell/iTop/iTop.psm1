@@ -324,18 +324,30 @@ function Get-iTopObject {
 	
 	$request = Invoke-WebRequest $iTop_API_Url -Method "POST" -Body $argData -Headers @{"Cache-Control"="no-cache"}
 
+	# Valid HTTP response?
 	If($request.StatusCode -eq 200) {
+	
+		# Valid HTTP response
 		$content = (ConvertFrom-JSON $request.content)
 		
-		[Array]$objects = @()
-		$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { $objects += ($content.objects | Select-Object -ExpandProperty $_.Name) }
+		# iTop API did not return an error
+		If($content.code -eq 0) {
+		
+			[Array]$objects = @()
+			$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { $objects += ($content.objects | Select-Object -ExpandProperty $_.Name) }
 
-		return $objects
+			return $objects
+			
+		}
+		# iTop API did return an error
+		else {
+			throw "iTop API returned an error: $($content.code) - $($content.message)"
+		}
 		
 	}
 	else {
-		throw "Failure to retrieve data from iTop API. Check URL. Other parameters would be validated by iTop REST/JSON API"
+		# Invalid HTTP response
+		throw "Failure to retrieve data from iTop API (HTTP error). Check URL. Other parameters would be validated by iTop REST/JSON API"
 	}
-	
 	
 }
