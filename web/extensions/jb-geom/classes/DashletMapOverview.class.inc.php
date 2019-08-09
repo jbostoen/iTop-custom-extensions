@@ -423,7 +423,7 @@ EOF
 				controls: ol.control.defaults().extend([ new ol.control.FullScreen() ])
 			});
 			
-			geometryHandler["{$sId}"].oResolution = geometryHandler["common"].oMap.getView().getResolution();
+			geometryHandler["{$sId}"].oResolution = geometryHandler["{$sId}"].oMap.getView().getResolution();
 			geometryHandler["{$sId}"].oMap.getView().fit( geometryHandler["{$sId}"].aExtent, geometryHandler["{$sId}"].oMap.getSize() );
 			geometryHandler["{$sId}"].oMap.getView().setResolution( geometryHandler["{$sId}"].oResolution );
 			
