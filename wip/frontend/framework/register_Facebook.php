@@ -38,8 +38,8 @@
 
 		//Facebook application credentials
 		'keys' => [
-			'id'     => '***REMOVED***', //Required: your Facebook application id
-			'secret' => '-'  //Required: your Facebook application secret 
+			'id'     => 'test', //Required: your Facebook application id
+			'secret' => 'test'  //Required: your Facebook application secret 
 		]
 	];
 
