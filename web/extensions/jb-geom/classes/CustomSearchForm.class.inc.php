@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-03 2019-08-03
+ * @version     2019-08-11 20:40:30
  *
  * Class GeomSearchForm simply overwrites the default GetSearchForm() to allow for an alternate endpoint, which is unfortunately not an option in iTop 2.6.
  * It's based on \Combodo\iTop\Application\Search\SearchForm\GetSearchForm() (iTop 2.6) and should be updated accordingly.

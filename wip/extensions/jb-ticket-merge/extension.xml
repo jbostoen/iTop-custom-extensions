@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
 	<extension_code>jb-ticket-merge</extension_code>
-	<company><![CDATA[  ]]></company>
+	<company></company>
 	<author><![CDATA[ Jeffrey Bostoen ]]></author>
 	<label><![CDATA[ Feature: Object Merge ]]></label>
 	<description><![CDATA[ Merges objects (meant for any subclass of Ticket) ]]></description>
-	<version>2.6.190713</version>
-	<release_date>2019-07-13</release_date>
+	<version>2.6.190811</version>
+	<release_date>2019-08-11</release_date>
 	<version_description><![CDATA[  ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>

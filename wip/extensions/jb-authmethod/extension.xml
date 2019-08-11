@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
 	<extension_code>jb-authmethod</extension_code>
-	<company><![CDATA[  ]]></company>
+	<company></company>
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Datamodel: Authentication Method ]]></label>
 	<description><![CDATA[ Adds Authentication Methods tab to UserLocal. See read me of this extension.]]></description>
-	<version>2.5.190115</version>
-	<release_date>2019-01-15</release_date>
+	<version>2.6.190811</version>
+	<release_date>2019-08-11</release_date>
 	<version_description><![CDATA[  ]]></version_description>
-	<itop_version_min>2.5.0</itop_version_min>
+	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>

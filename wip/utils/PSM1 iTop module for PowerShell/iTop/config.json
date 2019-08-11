@@ -11,10 +11,11 @@
                     "User":  "admin"
                 },
     "extensions":  {
+                       "Path":  "C:\\xampp\\htdocs\\iTop\\web\\extensions",
                        "Url":  "https://github.com/jbostoen/iTop-custom-extensions/",
                        "VersionMin":  "2.6.0",
+                       "VersionDataModel":  "1.6",
                        "Author":  "Jeffrey Bostoen",
-                       "ReleaseDate":  "2019-08-11",
                        "Company":  "",
                        "VersionDescription":  ""
                    },
@@ -22,8 +23,7 @@
                 "Path":  "C:\\xampp\\php\\php.exe"
             },
     "iTop":  {
-                 "Root":  "C:\\xampp\\htdocs\\iTop\\web",
-                 "Extensions":  "C:\\xampp\\htdocs\\iTop\\web\\extensions",
+                 "Path":  "C:\\xampp\\htdocs\\iTop\\web",
                  "ConfigFile":  "C:\\xampp\\htdocs\\iTop\\web\\conf\\production\\config-itop.php"
              }
 }

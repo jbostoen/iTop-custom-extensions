@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) {{ ext_Year }} {{ ext_Author }}
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     -
+ * @version     
  *
  * iTop module definition file
  */

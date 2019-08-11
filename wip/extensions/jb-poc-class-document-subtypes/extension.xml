@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
 	<extension_code>jb-poc-class-document-subtypes</extension_code>
-	<company><![CDATA[  ]]></company>
+	<company></company>
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Datamodel: Document - Makes Document abstracts, adds sub-types ]]></label>
 	<description><![CDATA[ Test to create new Document Classes to set specific rights ]]></description>
-	<version>2.6.190110</version>
-	<release_date>2019-01-10</release_date>
+	<version>2.6.190811</version>
+	<release_date>2019-08-11</release_date>
 	<version_description><![CDATA[  ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>

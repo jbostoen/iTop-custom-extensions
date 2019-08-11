@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-03 2019-08-03
+ * @version     2019-08-11 20:40:30
  *
  * iTop module definition file
  */
  
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-tweaks-change-mgmt-itil/2.6.190807',
+	'jb-tweaks-change-mgmt-itil/2.6.190811',
 	array(
 		// Identification
 		//
