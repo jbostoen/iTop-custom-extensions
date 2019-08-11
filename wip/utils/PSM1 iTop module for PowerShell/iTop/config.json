@@ -1,0 +1,29 @@
+{
+    "iTopCron":  {
+                     "User":  "admin",
+                     "Password":  "admin"
+                 },
+    "iTopAPI":  {
+                    "Url":  "http://127.0.0.1:8181/itop/web/webservices/rest.php",
+                    "Version":  "1.3",
+                    "Password":  "admin",
+                    "Output_Fields":  "*",
+                    "User":  "admin"
+                },
+    "extensions":  {
+                       "Url":  "https://github.com/jbostoen/iTop-custom-extensions/",
+                       "VersionMin":  "2.6.0",
+                       "Author":  "Jeffrey Bostoen",
+                       "ReleaseDate":  "2019-08-11",
+                       "Company":  "",
+                       "VersionDescription":  ""
+                   },
+    "php":  {
+                "Path":  "C:\\xampp\\php\\php.exe"
+            },
+    "iTop":  {
+                 "Root":  "C:\\xampp\\htdocs\\iTop\\web",
+                 "Extensions":  "C:\\xampp\\htdocs\\iTop\\web\\extensions",
+                 "ConfigFile":  "C:\\xampp\\htdocs\\iTop\\web\\conf\\production\\config-itop.php"
+             }
+}

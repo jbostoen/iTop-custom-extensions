@@ -9,17 +9,22 @@ Work in progress. Note: this is my very first PowerShell module.
 REST/JSON functions 
 * Get-iTopObject (core/get)
 
-REST/JSON functions will likely be added:
-* New-iTopObject (core/create)
-* Remove-iTopObject (core/delete)
-* Set-iTopObject (core/update)
-
 Misc
 * Set-iTopConfigWritable: makes or keeps (every 5 seconds) configuration file writable
 * New-iTopExtension: creates new extension from template
 * Remove-iTopLanguages: removes all unnecessary language files
 * Rename-iTopExtension: renames an extension. Renames folder, renames default files, replaces extension name in those files...
 * Start-iTopCron
+
+Also exposes variable
+$iTopConfig - contains all the settings needed for the functions above. Retrieved from config.json
+
+## Roadmap
+REST/JSON functions will be added:
+* New-iTopObject (core/create)
+* Remove-iTopObject (core/delete)
+* Set-iTopObject (core/update)
+
 
 
 ## Where to put this module

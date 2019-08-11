@@ -4,35 +4,10 @@
 
 # Variables
 
-# About iTop
-$iTop_Root = "C:\xampp\htdocs\iTop\web";								# Path to iTop root (/web included)
-$iTop_ConfigFile = "$($iTop_Root)\conf\production\config-itop.php";		# Path to iTop config file
-$iTop_Extensions = "$($iTop_Root)\extensions";							# Path to iTop Extensions
-
-# About iTop REST/JSON API
-$iTop_API_Url = "http://127.0.0.1:8181/itop/web/webservices/rest.php";	# iTop API URL
-$iTop_API_Version = "1.3";												# iTop API Version
-$iTop_API_User = "admin";												# iTop API Username
-$iTop_API_Password = "admin";											# iTop API Password
-$iTop_API_Output_Fields = "*"											# iTop API - fields to return. 
-																		# * for all attributes of the queried class; 
-																		# *+ to include attributes of subclasses
-
-
-# Defaults for new extensions
-$ext_VersionDescription = ""; 											# Version info, if used.
-$ext_Author = "Jeffrey Bostoen";										# Author
-$ext_Company = "";														# Company
-$ext_VersionMin = "2.6.0";												# Min version of iTop
-$ext_Version = "2.6.$(Get-Date -format 'yyMMdd')";						# Version of this extension
-$ext_ReleaseDate = $(Get-Date -format 'yyyy-MM-dd');					# A release date 
-$ext_Url = "https://github.com/jbostoen/iTop-custom-extensions/" 		# Some info
-
-# About PHP (XAMPP preferred)
-$php_Path = "c:\xampp\php\php.exe"										# Path to PHP
-$php_iTop_Cron_User = "admin"											# iTop user to run cron
-$php_iTop_Cron_Password = "admin"										# iTop user passwords to run cron
-
+# Read configuration from JSON-file.
+# To do: make settings configurable from command line?
+# For now, let's make it $global ($global later?) so it can easily be altered
+$global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\config.json" -Raw)
 
 function Set-iTopConfigWritable {
 <#
@@ -61,8 +36,8 @@ function Set-iTopConfigWritable {
     
         $count = $count + 1;
 
-        Get-Item -Path $iTop_ConfigFile | Set-ItemProperty -Name IsReadOnly -Value $false
-        Write-Host "Made iTop configuration file writable ($($iTop_ConfigFile)) (#$($count))"
+        Get-Item -Path $global:iTopConfig.ConfigFile | Set-ItemProperty -Name IsReadOnly -Value $false
+        Write-Host "Made iTop configuration file writable ($($global:iTopConfig.ConfigFile)) (#$($count))"
         
 		If($loop -eq $true) {
 			Start-Sleep -Seconds 15
@@ -104,7 +79,7 @@ function New-iTopExtension {
     }
 
     $extension_Source = "$($env:USERPROFILE)\Documents\WindowsPowerShell\Modules\iTop\data\template"
-    $extension_Destination = "$($iTop_Extensions)\$($name)"
+    $extension_Destination = "$($global:iTopConfig.Extensions)\$($name)"
 
     # Prevent issues with copy-item, running second time
     If( (Test-Path -Path $extension_Destination) -eq $true ) {
@@ -133,13 +108,13 @@ function New-iTopExtension {
 	    $c = $c.replace('{{ ext_Label }}', $label);
 
         # Defaults from variables
-	    $c = $c.replace('{{ ext_Url }}', $ext_Url);
-	    $c = $c.replace('{{ ext_VersionDescription }}', $ext_VersionDescription );	
-	    $c = $c.replace('{{ ext_Author }}', $ext_Author);
-	    $c = $c.replace('{{ ext_Company }}', $ext_Company);
-	    $c = $c.replace('{{ ext_VersionMin }}', $ext_VersionMin);
-	    $c = $c.replace('{{ ext_Version }}', $ext_Version);
-	    $c = $c.replace('{{ ext_ReleaseDate }}', $ext_ReleaseDate);
+	    $c = $c.replace('{{ ext_Url }}', $global:iTopConfig.extensions.Url);
+	    $c = $c.replace('{{ ext_VersionDescription }}', $global:iTopConfig.extensions.VersionDescription );	
+	    $c = $c.replace('{{ ext_Author }}', $global:iTopConfig.extensions.Author);
+	    $c = $c.replace('{{ ext_Company }}', $global:iTopConfig.extensions.Company);
+	    $c = $c.replace('{{ ext_VersionMin }}', $global:iTopConfig.extensions.VersionMin);
+	    $c = $c.replace('{{ ext_Version }}', "$($global:iTopConfig.extensions.Version -replace '\.[0-9]+$','').$(Get-Date -Format 'yyMMdd')";
+	    $c = $c.replace('{{ ext_ReleaseDate }}', $global:iTopConfig.extensions.ReleaseDate);
 	    $c = $c.replace('{{ ext_Year }}', $(Get-Date -Format 'yyyy') );
 	
 	    $c | Set-Content "$($extension_Destination)\$($_.Name)"
@@ -171,7 +146,7 @@ function Rename-iTopExtension {
 
 #>
     param(
-        [Parameter(Mandatory=$false)][String] $path = $iTop_Extensions,
+        [Parameter(Mandatory=$false)][String] $path = $global:iTopConfig.iTop.extensions,
         [Parameter(Mandatory=$true)][String] $from = '',
         [Parameter(Mandatory=$true)][String] $to = ''
     
@@ -225,12 +200,12 @@ function Remove-iTopLanguages {
 	    $lang = $_
 
         if( $confirm -eq $false ) {
-	        Get-ChildItem -path $iTop_Root -Recurse -Include "$($lang).dict.*"
-	        Get-ChildItem -path $iTop_Root -Recurse -Include "$($lang).dictionary.*"
+	        Get-ChildItem -path $global:iTopConfig.Root -Recurse -Include "$($lang).dict.*"
+	        Get-ChildItem -path $global:iTopConfig.Root -Recurse -Include "$($lang).dictionary.*"
         }
         elseif( $confirm -eq $true ) {
-	        Get-ChildItem -path $iTop_Root -Recurse -Include "$($lang).dict.*" | Remove-Item
-	        Get-ChildItem -path $iTop_Root -Recurse -Include "$($lang).dictionary.*" | Remove-Item
+	        Get-ChildItem -path $global:iTopConfig.Root -Recurse -Include "$($lang).dict.*" | Remove-Item
+	        Get-ChildItem -path $global:iTopConfig.Root -Recurse -Include "$($lang).dictionary.*" | Remove-Item
         }
     }
 
@@ -252,7 +227,7 @@ function Start-iTopCron {
     )
 
     # c:\xampp\php\php.exe c:\xampp\htdocs\itop\web\webservices\cron.php --auth_user=admin --auth_pwd=admin --verbose=1
-	$expression = "$($php_Path) $($iTop_Root)\webservices\cron.php --auth_user=$($php_iTop_Cron_User) --auth_pwd=$($php_iTop_Cron_Password) --verbose=1"
+	$expression = "$($global:iTopConfig.php.Path) $($global:iTopConfig.Root)\webservices\cron.php --auth_user=$($global:iTopConfig.iTopCron.User) --auth_pwd=$($global:iTopConfig.iTopCron.Password) --verbose=1"
 	Invoke-Expression $expression
 	
 }
@@ -304,7 +279,7 @@ function Get-iTopObject {
 	
 	# Output fields
 	if($outputFields -eq "") {
-		$outputFields = $iTop_API_Output_Fields;
+		$outputFields = $global:iTopConfig.iTopAPI.Output_Fields;
 	}
 		
 		
@@ -316,13 +291,13 @@ function Get-iTopObject {
 	};
 	
 	$argData = @{
-		'version'=$iTop_API_Version;
-		'auth_user'=$iTop_API_User;
-		'auth_pwd'=$iTop_API_Password;
+		'version'=$global:iTopConfig.iTopAPI.Version;
+		'auth_user'=$global:iTopConfig.iTopAPI.User;
+		'auth_pwd'=$global:iTopConfig.iTopAPI.Password;
 		'json_data'=(ConvertTo-JSON $jsonData)
 	}
 	
-	$request = Invoke-WebRequest $iTop_API_Url -Method "POST" -Body $argData -Headers @{"Cache-Control"="no-cache"}
+	$request = Invoke-WebRequest $global:iTopConfig.iTopAPI.Url -Method "POST" -Body $argData -Headers @{"Cache-Control"="no-cache"}
 
 	# Valid HTTP response?
 	If($request.StatusCode -eq 200) {
