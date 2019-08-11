@@ -334,7 +334,10 @@ function Get-iTopObject {
 		If($content.code -eq 0) {
 		
 			[Array]$objects = @()
-			$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { $objects += ($content.objects | Select-Object -ExpandProperty $_.Name) }
+			
+			if($content.objects -ne $null) {
+				$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { $objects += ($content.objects | Select-Object -ExpandProperty $_.Name) }
+			}
 
 			return $objects
 			
