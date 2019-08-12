@@ -36,8 +36,8 @@ function Set-iTopConfigWritable {
     
         $count = $count + 1;
 
-        Get-Item -Path $global:iTopConfig.ConfigFile | Set-ItemProperty -Name IsReadOnly -Value $false
-        Write-Host "Made iTop configuration file writable ($($global:iTopConfig.ConfigFile)) (#$($count))"
+        Get-Item -Path $global:iTopConfig.iTop.ConfigFile | Set-ItemProperty -Name IsReadOnly -Value $false
+        Write-Host "Made iTop configuration file writable ($($global:iTopConfig.iTop.ConfigFile)) (#$($count))"
         
 		If($loop -eq $true) {
 			Start-Sleep -Seconds 15
@@ -79,7 +79,7 @@ function New-iTopExtension {
     }
 
     $extension_Source = "$($env:USERPROFILE)\Documents\WindowsPowerShell\Modules\iTop\data\template"
-    $extension_Destination = "$($global:iTopConfig.Extensions)\$($name)"
+    $extension_Destination = "$($global:iTopConfig.Extensions.Path)\$($name)"
 
     # Prevent issues with copy-item, running second time
     If( (Test-Path -Path $extension_Destination) -eq $true ) {

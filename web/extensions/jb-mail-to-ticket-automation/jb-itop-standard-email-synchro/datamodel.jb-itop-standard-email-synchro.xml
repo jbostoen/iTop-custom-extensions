@@ -1121,7 +1121,7 @@ EOF
 		}
 		
 		$oCaseLog = $oTicket->Get($sAttCode);
-		$oAttributeValue = new ormCustomCaseLog();
+		$oAttributeValue = new \jb_standard_email_synchro\ormCustomCaseLog();
 		
 		// GetForJSON() actually returns an array of each entry
 		foreach($oCaseLog->GetAsArray() as $aEntry) {

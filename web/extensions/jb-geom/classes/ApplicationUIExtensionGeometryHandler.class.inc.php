@@ -331,7 +331,11 @@ EOF
 					// Workaround to keep zoom
 					geometryHandler["common"].oResolution = geometryHandler["common"].oMap.getView().getResolution();
 					geometryHandler["common"].oMap.getView().fit( geometryHandler["common"].aExtent, geometryHandler["common"].oMap.getSize() );
-					geometryHandler["common"].oMap.getView().setResolution(geometryHandler["common"].oResolution);
+					// Sometimes this is better on small scales, but it's often worse:			
+					if( geometryHandler["common"].oMap.getView().getResolution() < geometryHandler["common"].oResolution ) {
+						geometryHandler["common"].oMap.getView().setResolution( geometryHandler["common"].oResolution );
+					}
+					
 				}
 			
 				// For some reason, OpenLayers displays a blank map, until you call updateSize() on the ol.Map object.

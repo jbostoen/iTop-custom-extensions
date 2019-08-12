@@ -425,7 +425,11 @@ EOF
 			
 			geometryHandler["{$sId}"].oResolution = geometryHandler["{$sId}"].oMap.getView().getResolution();
 			geometryHandler["{$sId}"].oMap.getView().fit( geometryHandler["{$sId}"].aExtent, geometryHandler["{$sId}"].oMap.getSize() );
-			geometryHandler["{$sId}"].oMap.getView().setResolution( geometryHandler["{$sId}"].oResolution );
+			// Sometimes this is better on small scales, but it's often worse:
+			console.log('orig res = ' + geometryHandler["{$sId}"].oResolution + ', new res = ' + geometryHandler["{$sId}"].oMap.getView().getResolution());
+			if( geometryHandler["{$sId}"].oMap.getView().getResolution() < geometryHandler["{$sId}"].oResolution ) {
+				geometryHandler["{$sId}"].oMap.getView().setResolution( geometryHandler["{$sId}"].oResolution );
+			}
 			
 			geometryHandler["{$sId}"].aTranslations = {$sAttributeLabels};
 			
