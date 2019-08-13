@@ -63,6 +63,11 @@
 					<sql>date_expiration</sql>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
+				<field id="password" xsi:type="AttributeEncryptedString">
+					<sql>password</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
 				<field id="description" xsi:type="AttributeText">
 					<sql>description</sql>
 					<default_value/>
@@ -108,11 +113,14 @@
 						<item id="date_expiration">
 							<rank>51</rank>
 						</item>
-						<item id="description">
+						<item id="password">
 							<rank>61</rank>
 						</item>
-						<item id="certificate">
+						<item id="description">
 							<rank>71</rank>
+						</item>
+						<item id="certificate">
+							<rank>81</rank>
 						</item>
 						<item id="functionalcis_list">
 							<rank>101</rank>
@@ -147,6 +155,9 @@
 						</item>
 						<item id="certificate">
 							<rank>71</rank>
+						</item>
+						<item id="password">
+							<rank>81</rank>
 						</item>
 					</items>
 				</search>
@@ -197,6 +208,9 @@
 						</item>
 						<item id="description">
 							<rank>61</rank>
+						</item>
+						<item id="password">
+							<rank>81</rank>
 						</item>
 					</items>
 				</list>

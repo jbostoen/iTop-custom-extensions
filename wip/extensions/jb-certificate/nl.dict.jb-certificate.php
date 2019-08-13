@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-11 20:40:30
+ * @version     -
  *
  * Localized data
  */
@@ -25,6 +25,7 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:Certificate/Attribute:date_expiration' => 'Vervalt op',
 	'Class:Certificate/Attribute:description' => 'Beschrijving',
 	'Class:Certificate/Attribute:certificate' => 'Certificaat',
+	'Class:Certificate/Attribute:password' => 'Wachtwoord',
 	'Class:Certificate/Attribute:functionalcis_list' => 'Functionele CI\'s',
 	'Class:Certificate/Attribute:webservers_list' => 'Webservers',
 	
