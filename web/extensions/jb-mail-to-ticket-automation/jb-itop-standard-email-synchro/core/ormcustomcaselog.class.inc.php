@@ -16,7 +16,7 @@
  
 namespace jb_standard_email_synchro;
 
-class ormCustomCaseLog extends ormCaseLog {
+class ormCustomCaseLog extends \ormCaseLog {
 
 	/**
 	 * Add a new entry to the log or merge the given text into the currently modified entry 
