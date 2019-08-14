@@ -28,6 +28,11 @@ There will be a variety of options:
 
 * add callers from merged Tickets on the related contacts tab of the target Ticket. This allows Notifications to be sent to everyone linked to this Ticket.
 
+## Out of scope
+Ideas which will only get implemented when sponsored:
+* merge Tickets into new Ticket instead of existing one
+* detailed history track (which log entries, linked sets, attachments, ... were merged and from which original Ticket?)
+
 
 ## Cookbook
 
