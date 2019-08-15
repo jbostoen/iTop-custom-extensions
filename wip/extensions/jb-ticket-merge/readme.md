@@ -1,6 +1,6 @@
 # jb-ticket-merge
 
-Can't be used for now. Very early development stage. Hence protected.
+Can't be used for now. Near complete.
 Developed in personal time.
 
 If you are interested in a quick development of this extension or a specific feature, consider getting in touch and sponsor it.
@@ -27,10 +27,12 @@ There will be a variety of options:
 ** retrofit from target object to merged objects: copy (attributes), copy_head (most recent case log entry)
 
 * add callers from merged Tickets on the related contacts tab of the target Ticket. This allows Notifications to be sent to everyone linked to this Ticket.
+* add description from merged Tickets as a case log entry (for example in public_log).
 
 ## Out of scope
 Ideas which will only get implemented when sponsored:
 * merge Tickets into new Ticket instead of existing one
+* merge different class of Tickets into one
 * detailed history track (which log entries, linked sets, attachments, ... were merged and from which original Ticket?)
 
 

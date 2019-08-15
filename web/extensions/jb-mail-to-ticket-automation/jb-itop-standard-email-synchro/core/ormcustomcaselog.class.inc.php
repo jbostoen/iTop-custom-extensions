@@ -16,9 +16,9 @@
  
 namespace jb_standard_email_synchro;
 
-use \ormCaseLog;
-use \HTMLSanitizer;
 use \AttributeDateTime;
+use \ormCaseLog;
+use \HTMLSanitizer;	   
 use \UserRights;
 
 class ormCustomCaseLog extends ormCaseLog {
@@ -62,7 +62,7 @@ class ormCustomCaseLog extends ormCaseLog {
 			}
 		*/
 
-		$sSeparator = sprintf(CASELOG_SEPARATOR, $sDate, $sOnBehalfOf, $iUserId);
+		$sSeparator = sprintf(CASELOG_SEPARATOR, $sDateTime, $sOnBehalfOf, $iUserId);
 		$iSepLength = strlen($sSeparator);
 		$iTextlength = strlen($sText);
 		$this->m_sLog = $sSeparator.$sText.$this->m_sLog; // Latest entry printed first
