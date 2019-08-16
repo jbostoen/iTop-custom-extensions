@@ -10,14 +10,15 @@ REST/JSON functions
 * Get-iTopObject (core/get)
 
 Misc
-* Set-iTopConfigWritable: makes or keeps (every 5 seconds) configuration file writable
+* Get-iTopClass: gets overview of each class, including parent and module where it's defined or changed
 * New-iTopExtension: creates new extension from template
 * Remove-iTopLanguages: removes all unnecessary language files
 * Rename-iTopExtension: renames an extension. Renames folder, renames default files, replaces extension name in those files...
+* Set-iTopConfigWritable: makes or keeps (every 5 seconds) configuration file writable
 * Start-iTopCron
 
 Also exposes variable
-$iTopConfig - contains all the settings needed for the functions above. Retrieved from config.json
+$global:iTopConfig - contains all the settings needed for the functions above. Retrieved from config.json. Can be overwritten during session.
 
 ## Roadmap
 REST/JSON functions will be added:

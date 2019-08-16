@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-11 20:40:30
+ * @version     -
  *
  * PHP Main file
  */
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-contactmethod/2.6.190811',
+        'jb-contactmethod/',
         array(
                 // Identification
                 //

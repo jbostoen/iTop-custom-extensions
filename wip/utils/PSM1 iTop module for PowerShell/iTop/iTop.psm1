@@ -183,6 +183,12 @@ function Remove-iTopLanguages {
  .Description
  Removes languages
 
+ .Parameter confirm
+ Confirm. Defaults to false and does NOT remove language files!
+ 
+ .Parameter path
+ Path where extension is located
+ 
  .Example
  Remove-iTopLanguages
  
@@ -191,23 +197,30 @@ function Remove-iTopLanguages {
 
 #>
     param(
+        [Parameter(Mandatory=$false)][String] $path = $global:iTopConfig.iTop.Path,
         [String[]] $languages = @("cs", "da", "de", "es_cr", "fr", "hu", "it", "ja", "pt_br", "ru", "tr", "zh"),
         [Boolean] $confirm = $false 
     )
 
-    # Uncomment Remove-Item after testing and confirming it won't delete too much!
-    $languages | ForEach-Object {
-	    $lang = $_
+	$languageFiles = Get-ChildItem -Path $global:iTopConfig.iTop.Path -Recurse -Include @("*.dict.*.php", "*.dictionary.*.php")
 
-        if( $confirm -eq $false ) {
-	        Get-ChildItem -path $global:iTopConfig.iTop.Path -Recurse -Include "$($lang).dict.*"
-	        Get-ChildItem -path $global:iTopConfig.iTop.Path -Recurse -Include "$($lang).dictionary.*"
-        }
-        elseif( $confirm -eq $true ) {
-	        Get-ChildItem -path $global:iTopConfig.iTop.Path -Recurse -Include "$($lang).dict.*" | Remove-Item
-	        Get-ChildItem -path $global:iTopConfig.iTop.Path -Recurse -Include "$($lang).dictionary.*" | Remove-Item
-        }
-    }
+	# Exclude languages we want to keep
+	$regex = "^(?!" + ($global:iTopConfig.iTop.Languages -Join "|") + ").*\.(dict|dictionary)\.(.*?)\.php$"
+	
+	$languageFiles_Remove = $languageFiles | Where-Object { 
+		($_.Name -match $regex -eq $true)
+	}
+	
+	if($confirm -eq $false) {
+		# Just list
+		$languageFiles_Remove
+		Write-Host "Warning: performed simulation. Did NOT remove languages. Use -confirm`$true"
+	}
+	else {
+		# Delete
+		$languageFiles_Remove | Remove-Item		
+		Write-Host "Removed all languages except: " + ($global:iTopConfig.iTop.Languages -join ", ")
+	}
 
 }
 
@@ -438,3 +451,83 @@ function Set-iTopExtensionReleaseInfo {
 
 
 }
+
+
+<#
+ .Synopsis
+ Gets iTop classes from datamodel-production.xml
+
+ .Description
+ Gets iTop classes from datamodel-production.xml
+ 
+ .Parameter class
+ Get specific class
+ 
+ .Parameter recurse
+ Process child classes. Defaults to $true.
+ 
+ .Example
+ Get-iTopClassesFromNode -recurse $false
+
+#>
+function Get-iTopClass() { 
+
+	param(
+		 [Parameter(Mandatory=$false)][Boolean]$recurse = $true,
+		 [Parameter(Mandatory=$false)][String]$class = ""
+	)
+
+	[Xml]$xmlDoc = Get-Content ($global:iTopConfig.iTop.Path + "\data\datamodel-production.xml")
+	return (Get-iTopClassFromNode -recurse $recurse -xmlNode $xmlDoc.itop_design.classes.class -class $class)
+
+}
+
+<#
+ .Synopsis
+ Gets iTop classes from XML Node. Avoid using this, it's meant as a sub function.
+
+ .Description
+ Gets iTop classes from XML Node. Avoid using this, it's meant as a sub function.
+ 
+ .Parameter class
+ Get specific class
+ 
+ .Parameter recurse
+ Process child classes. Defaults to $true.
+ 
+ .Parameter xmlNode
+ XML-node to process
+ 
+ .Example
+ Get-iTopClassesFromNode -xmlNode $xmlNode -recurse $false
+
+#>
+function Get-iTopClassFromNode() { 
+
+	param(
+		 [Parameter(Mandatory=$true)][System.Array]$xmlNode,
+		 [Parameter(Mandatory=$false)][Boolean]$recurse = $true,
+		 [Parameter(Mandatory=$false)][String]$class = ""
+	)
+	
+	[System.Collections.ArrayList]$results = @()
+
+	# For each class
+	$xmlNode | ForEach-Object {
+
+		if($class -eq "" -or $_.id -eq $class) {
+			$results += ($_ | Select-Object -Property id, _created_in, _altered_in, _alteration, parent, properties, fields, presentation)
+		}
+
+		if($_.class) {
+			$subResults = Get-iTopClassFromNode -xmlNode $_.class -recurse $recurse -class $class
+			$results = $results + $subResults
+		}
+
+	}
+
+	
+	return $results | Sort-Object Id
+
+}
+

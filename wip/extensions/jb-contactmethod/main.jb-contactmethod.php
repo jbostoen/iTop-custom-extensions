@@ -3,12 +3,12 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-11 20:40:30
+ * @version     -
  *
  * PHP Main file
  */
 
-class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExtension {
+class ApplicationObjectExtension_ContactMethod implements iApplicationObjectExtension {
 	 	  
 	/**
 	 * Invoked to determine whether an object can be written to the database 
@@ -21,7 +21,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 	 */	
 	public function OnCheckToWrite( $oObject ) {
 				
-		// Note: you can not set properties here on the object!
+		// Note: you can not set properties here on the object! (so no way to fix the format)
 		// Only blocks invalid input
 				
 		if( $oObject instanceof ContactMethod ) {
@@ -32,21 +32,21 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				
 				case 'phone':
 				
-					$sPhone_digits = iTop_Helper_Phone::ReturnDigits( $sContactDetail );
+					$sPhone_digits = \jb_contact_method\iTop_Helper_Phone::ReturnDigits( $sContactDetail );
 					
 					switch(true) {
 						
 						// Belgian land line phone number
-						case iTop_Helper_Phone::IsValidPhone_BE($sPhone_digits) == true:
+						case \jb_contact_method\iTop_Helper_Phone::IsValidPhone_BE($sPhone_digits) == true:
 						
 						// International phone number - hopefully land line
-						case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sContactDetail) == true && iTop_Helper_Phone::IsLocal($sContactDetail) == false && strlen($sPhone_digits) > 8:
+						case \jb_contact_method\iTop_Helper_Phone::OnlyContainsAllowedCharacters($sContactDetail) == true && \jb_contact_method\iTop_Helper_Phone::IsLocal($sContactDetail) == false && strlen($sPhone_digits) > 8:
 						
 							// No error
 							break;
 						
 						// Belgian mobile phone number
-						case iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true:
+						case \jb_contact_method\iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true:
 						
 						// Unidentified
 						default:
@@ -62,21 +62,21 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				
 				case 'mobile_phone':
 				
-					$sMobilePhone_digits = iTop_Helper_Phone::ReturnDigits( $sContactDetail );
+					$sMobilePhone_digits = \jb_contact_method\iTop_Helper_Phone::ReturnDigits( $sContactDetail );
 					
 					switch(true) {
 						
 						// Belgian mobile phone number
-						case iTop_Helper_Phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true:
+						case \jb_contact_method\iTop_Helper_Phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true:
 						
 						// International phone number - hopefully mobile
-						case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sContactDetail) == true && iTop_Helper_Phone::IsLocal($sContactDetail) == false && strlen($sMobilePhone_digits) > 9:
+						case \jb_contact_method\iTop_Helper_Phone::OnlyContainsAllowedCharacters($sContactDetail) == true && \jb_contact_method\iTop_Helper_Phone::IsLocal($sContactDetail) == false && strlen($sMobilePhone_digits) > 9:
 						
 							// No error
 							break;
 						
 						// Belgian land line phone number
-						case iTop_Helper_Phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true:
+						case \jb_contact_method\iTop_Helper_Phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true:
 						
 						// Unidentified
 						default: 
@@ -115,7 +115,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 			// Check phone
 			// ---
 			$sPhone_original = $oObject->Get('phone');
-			$sPhone_digits = iTop_Helper_Phone::ReturnDigits($sPhone_original);
+			$sPhone_digits = \jb_contact_method\iTop_Helper_Phone::ReturnDigits($sPhone_original);
 			
 			switch(true) {
 				
@@ -123,16 +123,16 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				case strlen($sPhone_original) == 0:
 				
 				// Belgian land line number
-				case iTop_Helper_Phone::IsValidPhone_BE($sPhone_original) == true:
+				case \jb_contact_method\iTop_Helper_Phone::IsValidPhone_BE($sPhone_original) == true:
 				
 				// International phone number - hopefully land line
-				case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sPhone_original) == true && iTop_Helper_Phone::IsLocal($sPhone_digits) == false && strlen($sPhone_digits) > 8:
+				case \jb_contact_method\iTop_Helper_Phone::OnlyContainsAllowedCharacters($sPhone_original) == true && \jb_contact_method\iTop_Helper_Phone::IsLocal($sPhone_digits) == false && strlen($sPhone_digits) > 8:
 				
 					// No error
 					break;
 				
 				// Belgian mobile phone number
-				case iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true:
+				case \jb_contact_method\iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true:
 				
 				// Unidentified
 				default:
@@ -144,7 +144,7 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 			// Check mobile phone
 			// ---
 			$sMobile_original = $oObject->Get('mobile_phone');
-			$sMobile_digits = iTop_Helper_Phone::ReturnDigits($sMobile_original);
+			$sMobile_digits = \jb_contact_method\iTop_Helper_Phone::ReturnDigits($sMobile_original);
 			
 			switch(true) {
 				
@@ -152,16 +152,16 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				case strlen($sMobile_original) == 0:
 				
 				// Belgian mobile phone number
-				case iTop_Helper_Phone::IsValidMobilePhone_BE($sMobile_original) == true:
+				case \jb_contact_method\iTop_Helper_Phone::IsValidMobilePhone_BE($sMobile_original) == true:
 				
 				// International phone number - hopefully mobile
-				case iTop_Helper_Phone::OnlyContainsAllowedCharacters($sMobile_original) == true && iTop_Helper_Phone::IsLocal($sMobile_digits) == false && strlen($sMobile_digits) > 9:
+				case \jb_contact_method\iTop_Helper_Phone::OnlyContainsAllowedCharacters($sMobile_original) == true && \jb_contact_method\iTop_Helper_Phone::IsLocal($sMobile_digits) == false && strlen($sMobile_digits) > 9:
 				
 					// No error
 					break;
 				
 				// Belgian land line number
-				case iTop_Helper_Phone::IsValidPhone_BE($sMobile_original) == true:
+				case \jb_contact_method\iTop_Helper_Phone::IsValidPhone_BE($sMobile_original) == true:
 				
 				// Unidentified
 				default:
@@ -283,16 +283,16 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				// These properties are available in the Person class
 				case 'phone':
 				
-					$sPhone_digits = iTop_Helper_Phone::ReturnDigits( $oObject->Get('contact_detail') );
+					$sPhone_digits = \jb_contact_method\iTop_Helper_Phone::ReturnDigits( $oObject->Get('contact_detail') );
 					
 					// Belgian number or most likely international
-					if( iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true ) {
+					if( \jb_contact_method\iTop_Helper_Phone::IsValidMobilePhone_BE($sPhone_digits) == true ) {
 						
 						return Array( 
 							Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
 						);	
 					}
-					elseif( iTop_Helper_Phone::IsValidLandLinePhone_BE($sPhone_digits) == true || (iTop_Helper_Phone::OnlyContainsAllowedCharacters($sPhone) == true && strlen($sPhone_digits) > 8) ) {
+					elseif( \jb_contact_method\iTop_Helper_Phone::IsValidLandLinePhone_BE($sPhone_digits) == true || (\jb_contact_method\iTop_Helper_Phone::OnlyContainsAllowedCharacters($sPhone) == true && strlen($sPhone_digits) > 8) ) {
 						// OK, assuming Belgian phone OR international number
 						$oObject->Set('contact_detail', $sPhone_digits);
 						$oObject->DBUpdate();
@@ -309,16 +309,16 @@ class cApplicationObjectExtension_ContactMethod implements iApplicationObjectExt
 				
 				case 'mobile_phone':
 					
-					$sMobilePhone_digits = iTop_Helper_Phone::ReturnDigits( $oObject->Get('contact_detail') );
+					$sMobilePhone_digits = \jb_contact_method\iTop_Helper_Phone::ReturnDigits( $oObject->Get('contact_detail') );
 										
 					// Belgian number or most likely international
-					if( iTop_Helper_Phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true ) {
+					if( \jb_contact_method\iTop_Helper_Phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true ) {
 						
 						return Array( 
 							Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
 						);			
 					}
-					elseif( iTop_Helper_Phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true || (iTop_Helper_Phone::OnlyContainsAllowedCharacters($oObject->Get('contact_detail')) == true && strlen(sMobilePhone_digits) > 9) ) {
+					elseif( \jb_contact_method\iTop_Helper_Phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true || (\jb_contact_method\iTop_Helper_Phone::OnlyContainsAllowedCharacters($oObject->Get('contact_detail')) == true && strlen(sMobilePhone_digits) > 9) ) {
 						// OK, assuming Belgian mobile_phone OR international number
 						$oObject->Set('contact_detail', $sMobilePhone_digits);
 						$oObject->DBUpdate();

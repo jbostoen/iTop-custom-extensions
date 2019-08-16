@@ -3,16 +3,17 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-11 20:40:30
+ * @version     -
  * @experimental
  *
  * Defines class iTop_Helper_Phone, which offers some methods to validate phone numbers. Warning: specifically for Belgian use.
  *
  */
+ 
+ namespace jb_contact_method;
 	
 	/**
 	 * Class iTop_Helper_Phone. Provides some phone functions.
-	 * Also see jb-contactmethod
 	 */
 	abstract class iTop_Helper_Phone {
 		

@@ -24,6 +24,10 @@
             },
     "iTop":  {
                  "Path":  "C:\\xampp\\htdocs\\iTop\\web",
-                 "ConfigFile":  "C:\\xampp\\htdocs\\iTop\\web\\conf\\production\\config-itop.php"
+                 "ConfigFile":  "C:\\xampp\\htdocs\\iTop\\web\\conf\\production\\config-itop.php",
+				 "Languages": [
+					"en",
+					"nl"
+				 ] 
              }
 }
