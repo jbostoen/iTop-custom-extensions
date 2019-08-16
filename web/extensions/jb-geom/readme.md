@@ -20,6 +20,9 @@ It's possible to only show certain attributes in the popup, although 'id' and 'f
 
 The last used basemap is remembered per user for each class and dashlet.
 
+## Screenshots
+![Object details](docs/20190711_object_details.PNG)
+![Dashlet](docs/20190711_dashlet.PNG)
 
 ## Cookbook
 XML: 
@@ -62,7 +65,6 @@ A cookie remembers for 30 days the last chosen basemap - per user, per class or 
 
 # Good to know
 * Using QGIS Desktop (open source and free), you can easily visualize the data and do all sorts of geospatial analyses.
-
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html

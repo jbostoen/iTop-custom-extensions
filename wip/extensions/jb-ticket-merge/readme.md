@@ -35,6 +35,14 @@ Ideas which will only get implemented when sponsored:
 * merge different class of Tickets into one
 * detailed history track (which log entries, linked sets, attachments, ... were merged and from which original Ticket?)
 
+## Screenshots
+![Step 0](docs/20190815_step_0_ticket1.PNG)
+![Step 0](docs/20190815_step_0_ticket2.PNG)
+![Step 1](docs/20190815_step_1_list_merge_menu.PNG)
+![Step 2](docs/20190815_step_2_confirm_selection.PNG)
+![Step 3](docs/20190815_step_3_confirm_attributes_and_target.PNG)
+![Result](docs/20190815_result_ticket.PNG)
+![Result history](docs/20190815_result_ticket_history.PNG)
 
 ## Cookbook
 
