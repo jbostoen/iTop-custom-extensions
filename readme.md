@@ -47,7 +47,7 @@ I am developing ***unofficial*** extensions (simple tweaks, extra features) for 
 
 It's unknown if these extensions work on older versions of iTop. For most of them, only minor adjustments might be enough (downgrading data model version number, dependencies).
 
-* [Support plan]( https://github.com/jbostoen/iTop-custom-extensions/blob/master/docs/support%20plan.md)
+* [Support plan](https://github.com/jbostoen/iTop-custom-extensions/blob/master/docs/support%20plan.md)
 
 
 # History
