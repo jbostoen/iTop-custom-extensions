@@ -455,7 +455,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', $sStampedText.substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
+			$this->Set('debug_trace', $sStampedText.substr($this->Get('debug_trace'), -$iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");
@@ -501,7 +501,7 @@ EOF
 	 * @param EmailSource $oSource The source from which this email was read
 	 * @param int $index The index of the message in the source
 	 * @param EmailMessage $oEmail The decoded email
-	 * @return Ticket|Object The ticket created or updated in response to the email or an object containing the policy violation
+	 * @return Ticket The ticket created or updated in response to the email
 	 */</comment>
 					<static>false</static>
 					<access>public</access>
@@ -527,7 +527,7 @@ EOF
 		if( $oPolicy->bUndesired ) {
 			$this->Trace(". Email does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
-			return (Object)['incompliant_policy_name' => $oPolicy->sPolicyId];
+			return null;
 		}
 		else {
 			$this->Trace(". Email complies with specified policies.");
@@ -683,20 +683,15 @@ EOF
 			$sSubject = $oEmail->sSubject;
 			$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
 			
-			$this->Trace(".. Remove undesired title patterns: {$this->Get('policy_remove_pattern_patterns')}");
-			
 			foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
 				$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
 				
 				if( $oPregMatch === false) {
-					$this->Trace("... Invalid pattern to remove from title: '{$sRemoveTitlePattern}'");
+					$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
+					break;
 				}
-				elseif( preg_match($sRemoveTitlePattern, $sSubject) ) {
-					$this->Trace("... Pattern to remove - found: '{$sRemoveTitlePattern}'");
+				elseif( $oPregMatch != false ) {
 					$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
-				}
-				else {
-					// Just not matching
 				}
 				
 			}
@@ -780,11 +775,8 @@ EOF
 						$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
 						break;
 					}
-					elseif( preg_match($sRemoveTitlePattern, $sSubject) ) {
+					elseif( $oPregMatch != false ) {
 						$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
-					}
-					else {
-						// Just not matching
 					}
 					
 				}
@@ -1083,11 +1075,11 @@ EOF
 		// Our method needs an additional parameter ( $oTicket ) to handle some policies.
 		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
 		
+		// Not policy compliant? Then stop processing. 
 		if( $oPolicy->bUndesired ) {
-			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
 			$this->Trace(". Email (update) does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
 			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
-			return;
+			return null;
 		}
 		else {
 			$this->Trace(". Email (update) complies with our policies.");
@@ -1121,7 +1113,7 @@ EOF
 		}
 		
 		$oCaseLog = $oTicket->Get($sAttCode);
-		$oAttributeValue = new \jb_standard_email_synchro\ormCustomCaseLog();
+		$oAttributeValue = new \jb_mail_to_ticket_automation\ormCustomCaseLog();
 		
 		// GetForJSON() actually returns an array of each entry
 		foreach($oCaseLog->GetAsArray() as $aEntry) {
@@ -1131,7 +1123,7 @@ EOF
 			
 		}
 		
-		$oAttributeValue->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
+		$oLog->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
 		
 		// Sort chronologically. NOT ascending (true), but descending (false)!
 		$oAttributeValue = $oAttributeValue->ToSortedCaseLog(false);
@@ -1742,8 +1734,8 @@ EOF
 					<comment><![CDATA[/**
 	 * Check all policies to see if the email is considered as "undesired"
 	 * @param EmailMessage $oEmail The message to check
-	 * @param Ticket $oTicket The ticket which is being modified (Ticket or null)
-	 * @return Object ( boolean bUndesired, Person 'Caller' )
+	 * @param $oTicket The ticket being written (Ticket or null)
+	 * @return array ( boolean 'compliant', Ticket 'ticket', string 'Caller' )
 	 */]]></comment>
 					<static>false</static>
 					<access>protected</access>
@@ -1871,9 +1863,6 @@ EOF
 						elseif( $oPregMatch != false ) {
 							$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
 						}
-						else {
-							// Just not matching
-						}
 						
 					}
 				}
@@ -1949,7 +1938,7 @@ EOF
 			}
 		
 		// ### Policy: Undesired patterns in subject
-		$this->Trace(".. Policy: undesired patterns: '{$this->Get('policy_undesired_pattern_patterns')}' - subject: '{$oEmail->sSubject}'");
+		$this->Trace(".. Policy: undesired patterns");
 		 		
 			if( $this->Get('policy_undesired_pattern_patterns') != '' ) { 
 			
@@ -1962,14 +1951,12 @@ EOF
 					
 					if($oPregMatched === false) {
 						$this->Trace("... Invalid pattern: '{$sPattern}'");
+						break;
 					}
 					elseif (preg_match($sPattern, $oEmail->sSubject))
 					{
-						$this->Trace(".... The message '{$oEmail->sSubject}' is considered as undesired, since it matches {$sPattern}."); 
+						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it matches {$sPattern}."); 
 						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_undesired_pattern'];
-					}
-					else {
-						$this->Trace("... Pattern '{$sPattern}' not matched");
 					}
 				}
 			}
@@ -1985,7 +1972,7 @@ EOF
 			{
 				case 1:
 					// Ok, the caller was found in iTop
-					$this->Trace(".... Contact found for the email address '{$oEmail->sCallerEmail}'");
+					$this->Trace("Contact found for the email address '{$oEmail->sCallerEmail}'");
 					$oCaller = $oSet->Fetch();
 					break;
 					
@@ -1996,13 +1983,13 @@ EOF
 						case 'bounce_mark_as_undesired':
 						case 'delete': 
 						case 'mark_as_undesired':
-							$this->Trace(".... No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed"); 
+							$this->Trace("No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed"); 
 							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_unknown_caller'];
 							break;
 						
 						case 'fallback':
 						default:
-							$this->Trace(".... Creating a new Person for the email: {$oEmail->sCallerEmail}");
+							$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
 							$oCaller = new Person();
 							$oCaller->Set('email', $oEmail->sCallerEmail);
 							$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
@@ -2031,7 +2018,7 @@ EOF
 							catch(Exception $e)
 							{
 								// This is an actual error.
-								$this->Trace(".... Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
+								$this->Trace("Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
 								$this->Trace($e->getMessage());
 								$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
 								return null;
@@ -2041,7 +2028,7 @@ EOF
 					break;
 				
 				default:
-					$this->Trace(".... Found {$oSet->Count()} callers with the same email address '{$oEmail->sCallerEmail}.', the first one will be used.");
+					$this->Trace("Found {$oSet->Count()} callers with the same email address '{$oEmail->sCallerEmail}.', the first one will be used.");
 					// Multiple callers with the same email address !!!
 					$oCaller = $oSet->Fetch();
 			}

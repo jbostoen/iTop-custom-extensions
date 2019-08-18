@@ -1,6 +1,6 @@
-﻿# copyright   Copyright (C) 2019 Jeffrey Bostoen
+# copyright   Copyright (C) 2019 Jeffrey Bostoen
 # license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2019-06-28 21:21
+# version     2019-08-18 18:59:12
 
 # Variables
 

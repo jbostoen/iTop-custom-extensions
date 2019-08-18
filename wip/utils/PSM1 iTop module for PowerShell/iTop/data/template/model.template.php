@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) {{ ext_Year }} {{ ext_Author }}
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     
+ * @version     2019-08-18 18:59:12
  *
  * PHP Data Model definition file
  */

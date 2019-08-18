@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-11 20:40:30
+ * @version     2019-08-18 18:59:12
  *
  * Custom version of ormCaseLog.
  * Extended AddLogEntry() to support on_behalf_of_user_id (rather than just 'on_behalf_of'). 
@@ -14,7 +14,7 @@
  * Therefore, it's better to build an ormCustomCaseLog from scratch and use AddLogEntry()
  */
  
-namespace jb_standard_email_synchro;
+namespace jb_mail_to_ticket_automation;
 
 use \AttributeDateTime;
 use \ormCaseLog;
@@ -65,8 +65,9 @@ class ormCustomCaseLog extends ormCaseLog {
 		$sSeparator = sprintf(CASELOG_SEPARATOR, $sDateTime, $sOnBehalfOf, $iUserId);
 		$iSepLength = strlen($sSeparator);
 		$iTextlength = strlen($sText);
-		$this->m_sLog = $sSeparator.$sText.$this->m_sLog; // Latest entry printed first
-		$this->m_aIndex[] = array(
+		
+		// Not looking to add duplicate entries, so
+		$aEntry =  array(
 			'user_name' => $sOnBehalfOf,
 			'user_id' => $iUserId,
 			'date' => strtotime($sDateTime),
@@ -74,7 +75,33 @@ class ormCustomCaseLog extends ormCaseLog {
 			'separator_length' => $iSepLength,
 			'format' => 'html',
 		);
-		$this->m_bModified = true;
+		
+		if(in_array($aEntry, $this->m_aIndex) == false) {
+		
+			$this->m_sLog = $sSeparator.$sText.$this->m_sLog; // Latest entry printed first
+			$this->m_aIndex[] = $aEntry;
+			$this->m_bModified = true;
+			
+		}
+		
+	}
+	
+	/**
+	 * Adds case log entries from a provided source ormCaseLog
+	 *
+	 * @param ormCaseLog $oSourceCaseLog Case log
+	 *
+	 * @return void
+	 */
+	public function AddLogEntriesFromCaseLog($oSourceCaseLog) {
+		
+		foreach($oSourceCaseLog->GetAsArray() as $aEntry) {
+			
+			// CustomCaseLog's AddLogEntry remains flexible; keeps original user information and datetime
+			$this->AddLogEntry( $aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date'] );
+			
+		}
+		
 	}
 	
 	/**
@@ -85,6 +112,8 @@ class ormCustomCaseLog extends ormCaseLog {
 	public function GetEntries() {
 		return $this->m_aIndex;
 	}
+	
+	
 	
 	/**
 	 * Sorts case log entries by timestamp ('date')

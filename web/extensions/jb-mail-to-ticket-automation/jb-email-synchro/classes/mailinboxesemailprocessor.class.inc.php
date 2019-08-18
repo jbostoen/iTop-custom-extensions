@@ -184,13 +184,12 @@ class MailInboxesEmailProcessor extends EmailProcessor
 			self::Trace("Combodo Email Synchro: MailInboxesEmailProcessor: Processing message $index ({$oEmail->sUIDL})");
 			if ($oEmailReplica->IsNew())
 			{
-				self::Trace('Ticket creation: ProcessNewEmail');
-				$oResult = $oInbox->ProcessNewEmail($oSource, $index, $oEmail);
+				self::Trace('Ticket creation: ProcessNewEmail ');
+				$oTicket = $oInbox->ProcessNewEmail($oSource, $index, $oEmail);
+				self::Trace('Ticket created. Handle email replica.');
 				
-				if (is_object($oResult) && $oResult instanceof Ticket)
+				if (is_object($oTicket))
 				{
-					self::Trace('Ticket created. Handle email replica.');
-					
 					if (EmailBackgroundProcess::IsMultiSourceMode())
 					{
 				
@@ -202,7 +201,7 @@ class MailInboxesEmailProcessor extends EmailProcessor
 					}
 					$oEmailReplica->Set('mailbox_path', $oSource->GetMailbox());
 					$oEmailReplica->Set('message_id', $oEmail->sMessageId);
-					$oEmailReplica->Set('ticket_id', $oResult->GetKey());
+					$oEmailReplica->Set('ticket_id', $oTicket->GetKey());
 					$oEmailReplica->DBInsert();
 					if (!empty($oInbox->sLastError))
 					{
@@ -211,22 +210,12 @@ class MailInboxesEmailProcessor extends EmailProcessor
 						$aErrors[] = $oInbox->sLastError;
 					}
 				}
-				elseif(is_object($oResult) && method_exists($oResult, 'incompliant_policy_name') ) {
-					// Could be an object with only property incompliant_policy_name
-					// Handle as error like below, but add policy
-					$this->sLastErrorSubject = "Failed to create a ticket for the incoming email (" . __METHOD__ . ") due to incompliance with policy ({$oResult->Get('incompliant_policy_name')}).";
-					$this->sLastErrorMessage = $oInbox->sLastError;
-					$sMessage = "Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL}) due to incompliance with policy ({$oResult->Get('incompliant_policy_name')})";
-					$aErrors[] = $sMessage;
-					$aErrors[] = $oInbox->sLastError;
-					self::Trace($sMessage);
-				}
 				else
 				{
-					// Other unexpected error
+					// Error ???
 					$this->sLastErrorSubject = "Failed to create a ticket for the incoming email (" . __METHOD__ . "). No Ticket object.";
 					$this->sLastErrorMessage = $oInbox->sLastError;
-					$sMessage = "Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL})";
+					$sMessage = "Combodo Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL})";
 					$aErrors[] = $sMessage;
 					$aErrors[] = $oInbox->sLastError;
 					self::Trace($sMessage);
@@ -239,7 +228,7 @@ class MailInboxesEmailProcessor extends EmailProcessor
 			}
 			$iRetCode = $oInbox->GetNextAction();
 			$sRetCode = $this->GetActionFromCode($iRetCode);
-			self::Trace("Email Synchro: MailInboxesEmailProcessor: End of processing of the new message $index ({$oEmail->sUIDL}) retCode: ($iRetCode) $sRetCode");
+			self::Trace("Combodo Email Synchro: MailInboxesEmailProcessor: End of processing of the new message $index ({$oEmail->sUIDL}) retCode: ($iRetCode) $sRetCode");
 		}
 		catch(Exception $e)
 		{
@@ -247,7 +236,7 @@ class MailInboxesEmailProcessor extends EmailProcessor
 			$this->sLastErrorSubject = "Failed to process email $index ({$oEmail->sUIDL})";
 			$this->sLastErrorMessage = "Email Synchro: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL}), reason: exception: ".$e->getMessage();
 			$aErrors[] = $this->sLastErrorMessage;
-			self::Trace("Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL}), reason: exception: ".$e->getMessage()."\n".$e->getTraceAsString());
+			self::Trace("Combodo Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL}), reason: exception: ".$e->getMessage()."\n".$e->getTraceAsString());
 		}
 
 		return $iRetCode;
