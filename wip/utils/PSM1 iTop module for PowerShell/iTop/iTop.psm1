@@ -37,7 +37,7 @@ function Set-iTopConfigWritable {
         $count = $count + 1;
 
         Get-Item -Path $global:iTopConfig.iTop.ConfigFile | Set-ItemProperty -Name IsReadOnly -Value $false
-        Write-Host "Made iTop configuration file writable ($($global:iTopConfig.iTop.ConfigFile)) (#$($count))"
+        Write-Host "Set write permissions on iTop configuration file ($($global:iTopConfig.iTop.ConfigFile)) (#$($count))"
         
 		If($loop -eq $true) {
 			Start-Sleep -Seconds 15
@@ -469,6 +469,8 @@ function Set-iTopExtensionReleaseInfo {
  .Example
  Get-iTopClassesFromNode -recurse $false
 
+ .Notes
+ Since 2019-08-16 
 #>
 function Get-iTopClass() { 
 
@@ -501,6 +503,8 @@ function Get-iTopClass() {
  .Example
  Get-iTopClassesFromNode -xmlNode $xmlNode -recurse $false
 
+ .Notes
+ Since 2019-08-16 
 #>
 function Get-iTopClassFromNode() { 
 
@@ -530,4 +534,66 @@ function Get-iTopClassFromNode() {
 	return $results | Sort-Object Id
 
 }
+
+<#
+ .Synopsis
+ Installs iTop unattended.
+
+ .Description
+ Installs iTop unattended.
+ 
+ .Example
+ Install-iTopUnattended
+
+ .Notes
+ Since 2019-08-18 
+#>
+function Install-iTopUnattended() { 
+
+	param(
+	)
+	
+	$installScript = $global:iTopConfig.iTop.UnattendedInstallScript;
+	$installXML = $global:iTopConfig.iTop.UnattendedInstallXML;
+	$phpExe = $global:iTopConfig.php.Path;
+	
+	If((Test-Path -Path $installScript) -eq $false) {
+		throw "Unattended install script not found: $($installScript). Download from iTop Wiki or specify correct location in config.json"
+	}
+	If((Test-Path -Path $installXML) -eq $false) {
+		throw "Unattended install XML not found: $($installXML). Specify correct location in config.json"
+	}
+	If((Test-Path -Path $phpExe) -eq $false) {
+		throw "PHP.exe not found: $($phpExe). Specify correct location in config.json"
+	}
+	
+	# Make config writable
+	Set-iTopConfigWritable
+	
+	# PHP.exe: require statements etc relate to current working directory. 
+	# Need to temporarily change this!
+	$originalDir = (Get-Item -Path ".\").FullName;
+	$scriptDir = (Get-Item -Path $installScript).Directory.FullName;
+	
+	cd $scriptDir
+	
+	$cmd = "$($phpExe) $($installScript) --response_file=$($installXML)";
+	
+	Write-Host "Running PHP script for unattended installation..."
+	Write-Host "Unattended installation script: $($installScript)"
+	Write-Host "Unattended installation XML: $($installXML)"
+	Write-Host "Command: $($cmd)"
+	Write-Host "$('*' * 25)"
+	
+	PowerShell.exe -Command $cmd
+	
+	cd $originalDir
+	
+	Write-Host ""
+	Write-Host "$('*' * 25)"
+	Write-Host "Ran unattended installation. See above for details."
+	
+
+}
+
 

@@ -25,6 +25,8 @@
     "iTop":  {
                  "Path":  "C:\\xampp\\htdocs\\iTop\\web",
                  "ConfigFile":  "C:\\xampp\\htdocs\\iTop\\web\\conf\\production\\config-itop.php",
+                 "UnattendedInstallScript":  "C:\\xampp\\htdocs\\iTop\\web\\toolkit\\unattended_install.php",
+                 "UnattendedInstallXML":  "C:\\xampp\\htdocs\\iTop\\web\\toolkit\\unattended_install.xml",
 				 "Languages": [
 					"en",
 					"nl"

@@ -1,7 +1,8 @@
 # jb-geom
 
 ## Special note
-If you want a customized version or special feature, please get in touch.
+Because of the complexity, this is now a professional extension.
+If you want to use this extension, get in touch please.
 
 
 ## What?
