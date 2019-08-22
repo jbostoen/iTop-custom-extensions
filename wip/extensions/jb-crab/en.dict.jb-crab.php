@@ -9,6 +9,16 @@
 
 Dict::Add('EN US', 'English', 'English', array(
 
+	// Crab City
+	'CrabCity:baseinfo' => 'City',
+	 
+	'CrabCity:baseinfo' => 'General information',
+	'Class:CrabCity' => 'Name',
+	'Class:CrabCity+' => 'Official name',
+	
+	'Class:CrabCity/Attribute:streets_list' => 'Streets list',
+	'Class:CrabCity/Attribute:streets_list+' => 'Streets list',
+	
 	// Crab Street
 	'CrabStreet:baseinfo' => 'General information',
 	 
@@ -28,8 +38,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabStreet/Attribute:status/Value:3' => 'in use',
 	'Class:CrabStreet/Attribute:status/Value:4' => 'no longer in use', 
 	 
-	'Class:CrabStreet/Attribute:list_addresses' => 'Address list',
-	'Class:CrabStreet/Attribute:list_addresses+' => 'Address list',
+	'Class:CrabStreet/Attribute:addresses_list' => 'Address list',
+	'Class:CrabStreet/Attribute:addresses_list+' => 'Address list',
 	
 	'Menu:SearchCrabStreet' => 'Search for Crab streets',
 	'Menu:SearchCrabStreet+' => 'Search for Crab streets',

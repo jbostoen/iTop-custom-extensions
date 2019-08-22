@@ -9,6 +9,16 @@
 
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 
+	// Crab City
+	'CrabCity:baseinfo' => 'Gemeente',
+	 
+	'CrabCity:baseinfo' => 'Algemene info',
+	'Class:CrabCity' => 'Naam',
+	'Class:CrabCity+' => 'Officiële naam',
+	
+	'Class:CrabCity/Attribute:streets_list' => 'Stratenlijst',
+	'Class:CrabCity/Attribute:streets_list+' => 'Stratenlijst',
+	
 	// Crab-Street
 	'CrabStreet:baseinfo' => 'Algemene info',
 	 
@@ -28,8 +38,8 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabStreet/Attribute:status/Value:3' => 'in gebruik',
 	'Class:CrabStreet/Attribute:status/Value:4' => 'niet meer in gebruik', 
 	 
-	'Class:CrabStreet/Attribute:list_addresses' => 'Adreslijst',
-	'Class:CrabStreet/Attribute:list_addresses+' => 'Adreslijst',
+	'Class:CrabStreet/Attribute:addresses_list' => 'Adreslijst',
+	'Class:CrabStreet/Attribute:addresses_list+' => 'Adreslijst',
 	
 	'Menu:SearchCrabStreet' => 'Zoek Crab-straten',
 	'Menu:SearchCrabStreet+' => 'Zoek Crab-straten',

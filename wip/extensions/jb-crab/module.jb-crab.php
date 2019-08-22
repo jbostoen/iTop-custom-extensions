@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-18 18:59:12
+ * @version     2019-08-22 12:49:39
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-crab/2.6.190818',
+	'jb-crab/2.6.190822',
 	array(
 		// Identification
 		//
@@ -28,7 +28,9 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-crab.php'
+			'model.jb-crab.php',
+			'core/CrabImportHandler.class.inc.php',
+			'core/ScheduledProcessCrab.class.inc.php',
 		),
 		'webservice' => array(
 			
@@ -49,6 +51,9 @@ SetupWebPage::AddModule(
 		//
 		'settings' => array(
 			// Module specific settings go here, if any
+			'time' => '16:14',
+			'enabled' => true,
+			'debug' => false
 		),
 	)
 );
