@@ -21,7 +21,7 @@ Advanced examples include adding menu's, entirely new dashlets, flexible reports
 # Support development / freelance
 If you appreciate this work, consider a small donation.
 Also open to offers to discuss configuring or customizing your iTop or to develop new features or extensions.
-Feel free to get in touch.
+Feel free to get in touch: jbostoen.itop@outlook.com
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/jbostoen)
 
