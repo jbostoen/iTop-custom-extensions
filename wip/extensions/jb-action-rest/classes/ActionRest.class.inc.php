@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Definitions of ActionRest and EventNotificationRest
+ * Definition of ActionRest
  *
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
@@ -157,11 +157,12 @@
 			}
 			
 			// Object does NOT always contain all properties (example: Trigger 'On Create', 'On Update')
+			// This takes care of that issue
 			$oObject = $aContextArgs['this->object()'];
 			
 			// Use iTop's built-in REST utils and re-use it to obtain all data
 			// Autoload fails?
-			require_once( __DIR__ . '/../../core/restservices.class.inc.php');
+			require_once( APPROOT . '/core/restservices.class.inc.php');
 			
 			$aParams = json_decode(utils::ReadParam('json_data', null, false, 'raw_data'));			
 			$aShowFields = RestUtils::GetFieldList(get_class($oObject), $aParams, 'output_fields');
@@ -174,6 +175,31 @@
 			// This way, it's possible for one ActionRest to be linked to multiple triggers
 			$oResult->trigger_id = $oTrigger->GetKey();
 			$oResult->trigger_friendly_name = $oTrigger->Get('friendlyname');
+			
+			// Context arguments
+			// -
+				
+				// No longer needed in this function.
+				unset($aContextArgs['this->object()']);
+				
+				// Convert other arguments to a more native iTop format
+				foreach($aContextArgs as $sArgCode => &$oArgValue) {
+					
+					// Could be String, Integer. (current_contact_id, current_contact_friendlyname, current_date, current_time ...)
+					// Only do something when dealing with an object.
+					if(preg_match('/.*?->object\(\)$/', $sArgCode)) {
+						// Convert to a more native iTop format. Use same settings as above.
+						$oSubResult = new RestResultWithObjects();
+						$oSubResult->AddObject( RestResult::OK, '', $aContextArgs[$sArgCode], $aShowFields, $bExtendedOutput );
+						$oArgValue = current(((Array)$oSubResult)['objects']);
+					}
+					
+				}
+			
+			// Add any provided context arguments.
+			// They could provide more information in certain cases, such as current_contact
+			// Unset default, this is just double information
+			$oResult->context_arguments = $aContextArgs;
 		
 			// Currently this version simply posts the data.
 			// Future version might post JSON data instead.
@@ -203,34 +229,3 @@
 		}
 	}
 
-	class EventNotificationRest extends EventNotification
-	{
-		public static function Init()
-		{
-			$aParams = array
-			(
-				"category" => "core/cmdb,view_in_gui",
-				"key_type" => "autoincrement",
-				"name_attcode" => "",
-				"state_attcode" => "",
-				"reconc_keys" => array(),
-				"db_table" => "priv_event_notification_rest",
-				"db_key_field" => "id",
-				"db_finalclass_field" => "",
-				"display_template" => "",
-				"order_by_default" => array('date' => false)
-			);
-			MetaModel::Init_Params($aParams);
-			MetaModel::Init_InheritAttributes();
-			MetaModel::Init_AddAttribute(new AttributeUrl("url", array("allowed_values"=>null, "sql"=>"url", "default_value"=>null, "is_null_allowed"=>true, "depends_on"=>array(), "target" => "_blank")));
-			
-			// Display lists
-			MetaModel::Init_SetZListItems('details', array('date', 'userinfo', 'url')); // Attributes to be displayed for the complete details
-			MetaModel::Init_SetZListItems('list', array('date', 'url')); // Attributes to be displayed for a list
-
-			// Search criteria. Copied from EventNotificationEmail, but 'name' is not defined.
-			// MetaModel::Init_SetZListItems('standard_search', array('name')); // Criteria of the std search form
-			// MetaModel::Init_SetZListItems('advanced_search', array('name')); // Criteria of the advanced search form
-		}
-
-	}

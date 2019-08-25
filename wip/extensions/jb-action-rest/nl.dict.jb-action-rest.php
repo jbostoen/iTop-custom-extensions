@@ -1,10 +1,11 @@
 <?php
 /**
- * Localized data
- *
- * @copyright   Copyright (C) 2013 XXXXX
- * @license     http://opensource.org/licenses/AGPL-3.0
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  * @author		jbostoen
+ * @version     2019-08-22 12:49:39
+ *
+ * Translations for jb-action-rest
  */
 
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(

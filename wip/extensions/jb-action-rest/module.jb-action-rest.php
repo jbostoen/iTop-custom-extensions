@@ -28,7 +28,8 @@ SetupWebPage::AddModule(
                 //
                 'datamodel' => array(
                         'model.jb-action-rest.php',
-						'main.jb-action-rest.php'
+						'classes/ActionRest.class.inc.php',
+						'classes/EventNotification.class.inc.php'
                 ),
                 'webservice' => array(
 
