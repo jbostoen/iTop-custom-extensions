@@ -2,7 +2,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-22 12:49:39
+ * @version     2019-08-22 12:47:48
  *
  * Shows report; based on available Twig templates.
  *
@@ -25,6 +25,7 @@
 	require_once(APPROOT.'/application/loginwebpage.class.inc.php');
 	require_once(APPROOT.'/application/startup.inc.php');
 	require_once(APPROOT.'/application/wizardhelper.class.inc.php');
+	require_once(APPROOT.'/core/restservices.class.inc.php');
 	
 	// Autoloader (Twig, chillerlan\QRCode, ...
 	require_once(APPROOT . '/libext/vendor/autoload.php');
@@ -145,7 +146,7 @@
 		);
 		
 		// Relies on chillerlan/php-qrcode
-		if( class_exists('chillerlan\QRCode') == true ) {
+		if( class_exists('chillerlan\QRCode\QRCode') == true ) {
 			
 			$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
 
