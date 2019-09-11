@@ -9,6 +9,9 @@ Written mostly to automate some tasks which are repeated a lot in development.
 
 REST/JSON functions 
 * Get-iTopObject (core/get)
+* New-iTopObject (core/create)
+* Remove-iTopObject (core/delete)
+* Set-iTopObject (core/update)
 
 Misc
 * Install-iTopUnattended: performs an unattended (automatic) (re)installation of iTop.
@@ -20,14 +23,7 @@ Misc
 * Start-iTopCron
 
 Also exposes variable
-$global:iTopConfig - contains all the settings needed for the functions above. Retrieved from config.json. Can be overwritten during session.
-
-## Roadmap
-REST/JSON functions will be added:
-* New-iTopObject (core/create)
-* Remove-iTopObject (core/delete)
-* Set-iTopObject (core/update)
-
+* $global:iTopConfig - contains all the settings needed for the functions above. Retrieved from config.json. Can be overwritten during session.
 
 
 ## Where to put this module
