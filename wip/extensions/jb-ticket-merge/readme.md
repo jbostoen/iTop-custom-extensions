@@ -22,6 +22,7 @@ Attachments may be copied to the target Ticket.
 
 * add callers from merged Tickets on the related contacts tab of the target Ticket. This allows Notifications to be sent to everyone linked to this Ticket.
 * add description from merged Tickets as a case log entry (for example in public_log).
+* delete all Tickets except for target after merge
 
 * New triggers
   * Trigger On Ticket Merge Source Processed
