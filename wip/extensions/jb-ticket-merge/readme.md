@@ -37,8 +37,8 @@ Attachments may be copied to the target Ticket.
 **Work in progress*
 
 * perform actions on target object as well as merged objects, similar to Combodo's User Actions Configurator.
-  * on all objects: apply stimulus (so they can be resolved/closed automatically), set attributes, append log entries, ...
-  * retrofit from target object to merged objects: copy (attributes), copy_head (most recent case log entry)
+  * on all objects: apply stimulus (so they can be resolved/closed automatically), set attributes, append text, ...
+  * place holders: $this for the actual object; $source_object for copying data from the target Ticket to the merged Ticket
 
 
 ## Out of scope
@@ -110,20 +110,21 @@ $aModuleSettings = utils::GetCurrentModuleSetting('default', [
 		
 		// Add callers of the merged tickets to 'related Contacts' (those Contacts could be used in Notification)
 		'add_callers_to_related_contacts' => true, 
+		
+		// Specify the order of Tickets in the dropdown list when determining the target Ticket.
+		// Multiple attributes can be specified. Processed in order.
+		'selection_order' => [
+			'id' => true, // Set to 'true' for sorting target objects from oldest to newest; set to false for newest to oldest
+		],
+		
 	],
 	
-	'target_object_selection_order' => [
-		// Multiple attributes can be specified. Processed in order.
-		'id' => true, // Set to 'true' for sorting target objects from oldest to newest; set to false for newest to oldest
-	],
 	
 	'merged_objects' => [
 		// actions actions - sSimilar to Combodo's User Actions Configurator. 
 		'actions' => [
-			'apply_stimulus' => 'some_stimulus',
-			'set' => [
-				'<attribute_name>' => 'could be used for writeback; have $targetObj placeholder'
-			],
+			'apply_stimulus(some_stimulus)',
+			'set(attribute_name,some_value)', // could be used for writeback; have $targetObj placeholder
 			'add_entries' => [
 				'<CaseLog_attribute_name>' => 'Entry to insert; add targetObj placeholder'
 			]
@@ -131,6 +132,11 @@ $aModuleSettings = utils::GetCurrentModuleSetting('default', [
 		'delete' => true, // Notification could be sent first. How can a placeholder be used?
 	],
 	
+	// Similar to Combodo's User Actions Configurator. 
+	// CSV list of profiles allowing the shortcut. 
+	// The user must have at least one profile to have the shortcut available. 
+	// Wrong profiles names are ignored. Set as an empty string to allow the shortcut to anybody.
+	'allowed_profiles' => '', 
 	
 	// Currently unimplemented
 	// --
@@ -139,11 +145,6 @@ $aModuleSettings = utils::GetCurrentModuleSetting('default', [
 	// The only parameter available is current_contact_id.
 	'source_scope' => '',
 	
-	// Similar to Combodo's User Actions Configurator. 
-	// CSV list of profiles allowing the shortcut. 
-	// The user must have at least one profile to have the shortcut available. 
-	// Wrong profiles names are ignored. Set as an empty string to allow the shortcut to anybody.
-	'allowed_profiles' => '', 
 	
 ]); 
 
