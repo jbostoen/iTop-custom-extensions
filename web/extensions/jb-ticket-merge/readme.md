@@ -1,6 +1,6 @@
 # jb-ticket-merge
 
-Beta version available! (Very stable, but some advanced features still need to be added)
+First version available! (Very stable, but some advanced features are still being implemented).
 If you are interested in a quick development of this extension or a specific feature, consider getting in touch.
 Also you're interested in acquiring this extension now or to be informed when it's out of beta, contact jbostoen.itop@outlook.com
 
@@ -76,7 +76,7 @@ PHP:
 
 ```
 // Module settings, defaults.
-$aModuleSettings = utils::GetCurrentModuleSetting('default', [
+$aModuleSettings = [
 
 	'attributes' => [
 		// Attributes must be one of these types: 'AttributeCaseLog', 'AttributeLinkedSet', 'AttributeLinkedSetIndirect'
@@ -95,16 +95,12 @@ $aModuleSettings = utils::GetCurrentModuleSetting('default', [
 	
 	'target_object' => [
 	
-		// actions applied on target_object - similar to Combodo's User Actions Configurator.
-		// available actions: append, apply_stimulus, call_method, reset, nullify, set
+		// Similar to Combodo's User Actions Configurator. Runs actions on the target Ticket.
 		'actions' => [
-			'apply_stimulus' => 'some_stimulus', // Similar to Combodo's User Actions Configurator. String. Stimulus code
 		],
 		
-		// retrofit actions - similar to Combodo's User Actions Configurator.
-		// takes data from the target object and retrofits it to the other merged objects.
-		// available actions: copy, copy_head
-		'retrofit_actions' => [
+		'actions' => [
+			'apply_stimulus' => 'some_stimulus', // Similar to Combodo's User Actions Configurator. String. Stimulus code
 			'copy' => 'some_attribute_code'
 		],
 		
@@ -119,34 +115,23 @@ $aModuleSettings = utils::GetCurrentModuleSetting('default', [
 		
 	],
 	
-	
 	'merged_objects' => [
-		// actions actions - sSimilar to Combodo's User Actions Configurator. 
+		// Similar to Combodo's User Actions Configurator. Runs actions on the Tickets that were merged, except Target ticket.
 		'actions' => [
 			'apply_stimulus(some_stimulus)',
-			'set(attribute_name,some_value)', // could be used for writeback; have $targetObj placeholder
-			'add_entries' => [
-				'<CaseLog_attribute_name>' => 'Entry to insert; add targetObj placeholder'
-			]
+			'set(attribute_name,some_value)',
+			'set(attribute_name,$source_object->title$)', // $source_object->attribute_name$ is generic; it reads data from the Target ticket (which is the $source_object here)
 		],
-		'delete' => true, // Notification could be sent first. How can a placeholder be used?
+		'delete' => true, // Delete objects after merging
 	],
 	
-	// Similar to Combodo's User Actions Configurator. 
-	// CSV list of profiles allowing the shortcut. 
+	// CSV list of profiles which may merge Tickets.
 	// The user must have at least one profile to have the shortcut available. 
-	// Wrong profiles names are ignored. Set as an empty string to allow the shortcut to anybody.
-	'allowed_profiles' => '', 
+	// Incorrect profiles names are ignored. Set as an asterix to allow for everyone.
+	'allowed_profiles' => '*', 
+		
 	
-	// Currently unimplemented
-	// --
-	
-	// Similar to Combodo's User Actions Configurator. The OQL to define the source objects. 
-	// The only parameter available is current_contact_id.
-	'source_scope' => '',
-	
-	
-]); 
+]; 
 
 ```
 
