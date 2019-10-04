@@ -2,7 +2,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-08-22 12:47:48
+ * @version     2019-10-04 18:08:57
  *
  * Shows report; based on available Twig templates.
  *
@@ -16,7 +16,9 @@
  * filter:              String. OQL Query
  * template: 			String. Report name. For convenience, use detail/<filename>.twig and list/<filename>.twig
  * type: 				String. 'details' or 'list'
-*/ 
+*/
+
+namespace jb_report_generator;
 
 	if (!defined('APPROOT')) require_once(__DIR__.'/../../approot.inc.php');
 	require_once(APPROOT.'/application/application.inc.php');
@@ -31,47 +33,47 @@
 	require_once(APPROOT . '/libext/vendor/autoload.php');
 		
 	// Get iTop's Dict::S('string') so it can be exposed to Twig as well 
-	// require_once( JB_APPDIR_ITOP . '/application/utils.inc.php' );
-	// require_once( JB_APPDIR_ITOP . '/core/coreexception.class.inc.php' );
-	// require_once( JB_APPDIR_ITOP . '/core/dict.class.inc.php' );
+	// require_once( APPROOT . '/application/utils.inc.php' );
+	// require_once( APPROOT . '/core/coreexception.class.inc.php' );
+	// require_once( APPROOT . '/core/dict.class.inc.php' );
 	
 	try {
 			
 		// Logging in exposed :current_contact_id in OQL
-		if (LoginWebPage::EXIT_CODE_OK != LoginWebPage::DoLoginEx(null /* any portal */, false, LoginWebPage::EXIT_RETURN))
+		if (\LoginWebPage::EXIT_CODE_OK != \LoginWebPage::DoLoginEx(null /* any portal */, false, \LoginWebPage::EXIT_RETURN))
 		{
-			throw new SecurityException('You must be logged in');
+			throw new \SecurityException('You must be logged in');
 		}
 		
 		// utils::ReadParam( $sName, $defaultValue = "", $bAllowCLI = false, $sSanitizationFilter = 'parameter' )
-		$sClassName = utils::ReadParam('class', '', false, 'class');
-		$sFilter = utils::ReadParam('filter', '', false, 'raw_data');
-		$sType = utils::ReadParam('type', '', false, 'string');
-		$sTemplateName = utils::ReadParam('template', '', false, 'string');
+		$sClassName = \utils::ReadParam('class', '', false, 'class');
+		$sFilter = \utils::ReadParam('filter', '', false, 'raw_data');
+		$sType = \utils::ReadParam('type', '', false, 'string');
+		$sTemplateName = \utils::ReadParam('template', '', false, 'string');
 		
 		// Validation
 		// --
 		
 		// Check if right parameters have been given
 		if ( empty($sClassName) == true ) {
-			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'class'));
+			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'class'));
 		}
 		
 		if ( empty($sFilter) == true ) {
-			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'filter'));
+			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'filter'));
 		}
 		
 		if ( empty($sType) == true ) {
-			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'type'));
+			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'type'));
 		}
 		
 		if ( empty($sTemplateName) == true ) {
-			throw new ApplicationException(Dict::Format('UI:Error:1ParametersMissing', 'template'));
+			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'template'));
 		}
 		
 		// Valid type?
 		if(in_array($sType, ['details', 'list']) == false) {
-			throw new ApplicationException('Valid values for type are: details, list');
+			throw new \ApplicationException('Valid values for type are: details, list');
 		}
 		
 		$sReportDir = __DIR__ . '/templates/'.$sClassName.'/'.$sType;
@@ -79,24 +81,24 @@
 		
 		// Prevent local file inclusion
 		if( __DIR__ != dirname(dirname(dirname(dirname($sReportFile)))) ) {
-			throw new ApplicationException('Invalid type or template');
+			throw new \ApplicationException('Invalid type or template');
 		}
 		elseif( file_exists($sReportFile) == false ) {
-			throw new ApplicationException('Template does not exist: ' .$sReportFile);
+			throw new \ApplicationException('Template does not exist: ' .$sReportFile);
 		}
 		
-		$oFilter = DBObjectSearch::unserialize($sFilter);
-		$aAllArgs = MetaModel::PrepareQueryArguments($oFilter->GetInternalParams());
+		$oFilter = \DBObjectSearch::unserialize($sFilter);
+		$aAllArgs = \MetaModel::PrepareQueryArguments($oFilter->GetInternalParams());
 		// $oFilter->ApplyParameters($aAllArgs); // Thought this was necessary for :current_contact_id. Guess not?
-		$oSet_Objects = new CMDBObjectSet($oFilter);
+		$oSet_Objects = new \CMDBObjectSet($oFilter);
 		
 		
 		// Valid object(s)?
 		if($oSet_Objects->Count() == 0 ) {
-			throw new ApplicationException('Invalid OQL filter: no object(s) found');
+			throw new \ApplicationException('Invalid OQL filter: no object(s) found');
 		}
 		
-		$aSet_Objects = ObjectSetToArray($oSet_Objects);
+		$aSet_Objects = \jb_report_generator\ObjectSetToArray($oSet_Objects);
 		
 		// Get keys to build one OQL Query
 		$aKeys = [];
@@ -104,12 +106,12 @@
 			$aKeys[] = $aObject['key'];
 		}
 		
-		$oFilter_Attachments = new DBObjectSearch('Attachment');
+		$oFilter_Attachments = new \DBObjectSearch('Attachment');
 		$oFilter_Attachments->AddCondition('item_id', $aKeys, 'IN');
-		$oSet_Attachments = new CMDBObjectSet($oFilter_Attachments);
-		$aSet_Attachments = ObjectSetToArray($oSet_Attachments);
+		$oSet_Attachments = new \CMDBObjectSet($oFilter_Attachments);
+		$aSet_Attachments = \jb_report_generator\ObjectSetToArray($oSet_Attachments);
 		
-		foreach( $aSet_Objects as &$aObject ) {
+		foreach($aSet_Objects as &$aObject ) {
 			
 			$aObject['attachments'] = array_filter($aSet_Attachments, function($aAttachment) use ($aObject) {
 				return ($aAttachment['fields']['item_id'] = $aObject['key']);
@@ -129,36 +131,36 @@
 		// Twig
 		// --
 		
-		$aTwigData['current_contact'] = ObjectToArray(UserRights::GetUserObject());
+		$aTwigData['current_contact'] = \jb_report_generator\ObjectToArray(\UserRights::GetUserObject());
 		
 		// Twig Loader
-		$loader = new Twig_Loader_Filesystem( dirname($sReportFile) );
+		$loader = new \Twig_Loader_Filesystem( dirname($sReportFile) );
 		
 		// Twig environment options
-		$oTwigEnv = new Twig_Environment($loader, [
+		$oTwigEnv = new \Twig_Environment($loader, [
 			'autoescape' => false
 		]); 
 
 		// Combodo uses this filter, so let's use it the same way for our report generator
-		$oTwigEnv->addFilter(new Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
-				return Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
+		$oTwigEnv->addFilter(new \Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
+				return \Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
 			})
 		);
 		
 		// Relies on chillerlan/php-qrcode
 		if( class_exists('chillerlan\QRCode\QRCode') == true ) {
 			
-			$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
+			$oTwigEnv->addFilter(new \Twig_SimpleFilter('qr', function ($sString) {
 
-					$aOptions = new chillerlan\QRCode\QROptions([
+					$aOptions = new \chillerlan\QRCode\QROptions([
 						'version'    => 5,
-						'outputType' => chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
-						'eccLevel'   => chillerlan\QRCode\QRCode::ECC_L,
+						'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
+						'eccLevel'   => \chillerlan\QRCode\QRCode::ECC_L,
 						'scale'		 => 3 // Note: scale is for SVG, IMAGE_*. output. Irrelevant for HTML output; use CSS
 					]);
 
 					// invoke a fresh QRCode instance
-					$oQRCode = new chillerlan\QRCode\QRCode($aOptions);
+					$oQRCode = new \chillerlan\QRCode\QRCode($aOptions);
 
 					// and dump the output 
 					return $oQRCode->render($sString);		
@@ -169,20 +171,36 @@
 		}
 		else {
 			
-			$oTwigEnv->addFilter(new Twig_SimpleFilter('qr', function ($sString) {
+			$oTwigEnv->addFilter(new \Twig_SimpleFilter('qr', function ($sString) {
 				return $sString . ' (QR library missing)';
 			}));
 				
+		}
+		
+		$sReportExtension = strtolower(pathinfo($sReportFile, PATHINFO_EXTENSION));
+		
+		$aExtensionsToContentTypes = [
+			'csv' => 'text/csv',
+			'html' => 'text/html',
+			'json' => 'application/json',
+			'twig' => 'text/html',
+			'txt' => 'text/plain',
+			'xml' => 'text/xml'
+		];
+		
+		// Set header if Content-type is known (above)
+		if(isset($aExtensionsToContentTypes[$sReportExtension]) == true) {
+			header('Content-Type: '.$aExtensionsToContentTypes[$sReportExtension]);
 		}
 		
 		echo $oTwigEnv->render(basename($sReportFile), $aTwigData );	 
 
 	}
 	
-	catch(Exception $e)
+	catch(\Exception $e)
 	{
 		require_once(APPROOT.'/application/nicewebpage.class.inc.php');
-		$oP = new NiceWebPage(Dict::S('UI:PageTitle:FatalError'));
+		$oP = new \NiceWebPage(Dict::S('UI:PageTitle:FatalError'));
 		$oP->add("<h1>".Dict::S('UI:FatalErrorMessage')."</h1>\n");	
 		$oP->add(Dict::Format('UI:Error_Details', $e->getMessage()));	
 		$oP->output();
@@ -192,16 +210,16 @@
 	/**
 	 * Returns array (similar to REST/JSON) from object set
 	 *
-	 * @param CMDBObjectSet $oObjectSet iTop object set
+	 * @param \CMDBObjectSet $oObjectSet iTop object set
 	 *
 	 * @return Array
 	 */
-	function ObjectSetToArray(CMDBObjectSet $oObjectSet) {
+	function ObjectSetToArray(\CMDBObjectSet $oObjectSet) {
 		
-		$oResult = new RestResultWithObjects();
+		$oResult = new \RestResultWithObjects();
 		$aShowFields = [];
 		$sClass = $oObjectSet->GetClass();
-		foreach (MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
+		foreach (\MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
 		{
 			$aShowFields[$sClass][] = $sAttCode;
 		}
@@ -225,17 +243,17 @@
 	/**
 	 * Returns array (similar to REST/JSON) from object
 	 *
-	 * @param CMDBObject $oObject iTop object
+	 * @param \CMDBObject $oObject iTop object
 	 *
 	 * @return Array
 	 */
-	function ObjectToArray(CMDBObject $oObject) {
+	function ObjectToArray(\CMDBObject $oObject) {
 		
-		$oResult = new RestResultWithObjects();
+		$oResult = new \RestResultWithObjects();
 		$aShowFields = [];
 		$sClass = get_class($oObject);
 		
-		foreach (MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
+		foreach (\MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
 		{
 			$aShowFields[$sClass][] = $sAttCode;
 		}

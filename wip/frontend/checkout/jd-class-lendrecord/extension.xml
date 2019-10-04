@@ -5,8 +5,8 @@
 	<author><![CDATA[jdefoort]]></author>
 	<label><![CDATA[Datamodel: Lendrecord]]></label>
 	<description><![CDATA[Adds Lendrecord, A system to log who used which PhysicalDevice and when.]]></description>
-	<version>2.6.190822</version>
-	<release_date>2019-08-22</release_date>
+	<version>2.6.191004</version>
+	<release_date>2019-10-04</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>

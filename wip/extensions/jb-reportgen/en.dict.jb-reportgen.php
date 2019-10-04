@@ -9,7 +9,6 @@
 
 Dict::Add('EN US', 'English', 'English', array(
 
-	'UI:Menu:ReportGenerator:ShowReport' => 'Show report',
 	'UI:Menu:ReportGenerator:ShowReportTitleMissing' => htmlspecialchars('<title>').'-tag is missing'
 	
 ));

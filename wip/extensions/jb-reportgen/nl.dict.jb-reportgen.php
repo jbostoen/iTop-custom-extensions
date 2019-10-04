@@ -9,7 +9,6 @@
 
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 
-	'UI:Menu:ReportGenerator:ShowReport' => 'Toon rapport',
 	'UI:Menu:ReportGenerator:ShowReportTitleMissing' => htmlspecialchars('<title>').'-tag ontbreekt'
 	
 ));

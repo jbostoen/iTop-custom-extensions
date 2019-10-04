@@ -38,17 +38,8 @@ For lists (single or multiple objects), you can use **item** and create things l
 
 Attachments are also available for each item.
 
-### Current contact
-You can use **current_contact** to get any fields related to the current user (see iTop's UserLocal object).
-Examples: current_contact.fields.first_name , current_contact.fields.last_name
-
-
 ## Setting report title
 * To determine the title, you can specify the report title between the <title> tags. This is what will be shown in iTop.
-
-## Show as button instead of menu item
-In the <html> attribute, add data-report-trigger attribute with value of 'button'. 
-Current possible values: 'menu' (default), 'button'.
 
 ## Using iTop language strings
 * If you want to use iTop Language strings, you can! 
