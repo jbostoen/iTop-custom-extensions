@@ -39,6 +39,8 @@ There's also a **dashlet** to show all objects of a class on a map.
   * set default basemap
   * ...
 
+**Custom PHP Interface**
+* With this interface, additional controls can be added above the map; such as a geolocator.
 
 ## Screenshots
 ![Object details](docs/20190711_object_details.PNG)
