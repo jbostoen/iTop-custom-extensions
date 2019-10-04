@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-10-04 18:08:57
+ * @version     2019-08-11 20:40:30
  *
  * Custom version of ormCaseLog.
  * Extended AddLogEntry() to support on_behalf_of_user_id (rather than just 'on_behalf_of'). 
@@ -137,9 +137,11 @@ class ormCustomCaseLog extends ormCaseLog {
 		});
 		
 		// m_aIndex AND m_sLog both need to be updated, hence this trick.
-		$oCustomCaseLog = new ormCustomCaseLog();
+		$oCustomCaseLog = new \jb_mail_to_ticket_automation\ormCustomCaseLog();
 		
-		foreach($aEntries as $aEntry) {
+		// The order above might be descending, as wanted.
+		// However, if that item gets added first, iTop will add the subsequent (older) issues on top of that entry again.
+		foreach(array_reverse($aEntries) as $aEntry) {
 			$oCustomCaseLog->AddLogEntry($aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date']);
 		}
 		
