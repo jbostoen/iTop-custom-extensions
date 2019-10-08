@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-10-04 18:08:57
+ * @version     2019-08-11 20:40:30
  *
  * Definition of Address
  */
@@ -45,7 +45,7 @@ namespace jb_crab;
 		 * @return void
 		 */
 		public function Trace($sMessage) {
-			echo date('Y-m-d H:i:s').' - '.\utils::GetCurrentModuleName().' - '.$sMessage.PHP_EOL;
+			echo date('Y-m-d H:i:s').' - '. \utils::GetCurrentModuleName().' - '.$sMessage.PHP_EOL;
 		}
 		
 		/**
@@ -62,7 +62,7 @@ namespace jb_crab;
 
 			// Link last checked 16th of July,2019
 			$sURL = 'https://downloadagiv.blob.core.windows.net/crab-adressenlijst/Shapefile/CRAB_Adressenlijst_Shapefile.zip';
-			$sDownloadDirectory = str_replace('\\', '/', dirname(__FILE__).'/download');
+			$sDownloadDirectory = APPROOT . 'env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleName() . '/download';
 			$sTargetFileName = $sDownloadDirectory.'/Crab_Adressenlijst_Shapefile.zip';
 			
 			// Recursive delete everything
@@ -122,7 +122,7 @@ namespace jb_crab;
 		public function ConvertShapeFileToGeoJSON($sFilter = "SELECT * FROM CrabAdr WHERE GEMEENTE = 'Izegem' ORDER BY STRAATNM") {
 			
 			// Disabled for security?
-			$sDownloadDirectory = str_replace('\\', '/', dirname(__FILE__).'/download');
+                        $sDownloadDirectory = APPROOT . 'env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleName() . '/download';
 			$aDisabledFunctions = explode(',', ini_get('disable_functions'));
 			
 			if(in_array('shell_exec', $aDisabledFunctions) == true) {
@@ -289,7 +289,7 @@ namespace jb_crab;
 				// Exists in iTop? 
 				if(array_key_exists('crab_id::'.$oAddress->Get('crab_id'), $aAddresses_crab_id) == false) {
 					
-					self::Trace('Create CrabAddress: ' . $v['properties']['STRAATNM'] . ' ' . $v['properties']['HUISNR'] . $v['properties']['APPTNR'] . $v['properties']['BUSNR']);
+					self::Trace('Create CrabAddress: ' . $v['properties']['STRAATNM'] . ' ' . $v['properties']['HUISNR'] . ' ' . $v['properties']['APPTNR'] . $v['properties']['BUSNR']);
 					$oAddress->DBInsert();
 					
 				}
@@ -345,7 +345,7 @@ namespace jb_crab;
 			self::Trace('Finished processing GeoJSON.');
 			
 			// Recursive delete everything
-			self::RecursiveRemoveDirectory(dirname(__FILE__). '/shapefile');
+			self::RecursiveRemoveDirectory( APPROOT . 'env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleName() . '/download/Shapefile');
 
 			self::Trace('Cleaned up shapefile directory (all geodata including converted GeoJSON).');
 			

@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-10-04 18:08:57
+ * @version     -
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-crab/2.6.191004',
+	'jb-crab/2.4.180215',
 	array(
 		// Identification
 		//
@@ -20,7 +20,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
-			'jb-geom/2.6.0'
+			'jb-geom-pro/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,

@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-10-04 18:08:57
+ * @version     2019-08-11 20:40:30
  *
  * Definition of SheduledProcessCrabSync
  */
@@ -39,7 +39,7 @@ class SheduledProcessCrabSync implements iScheduledProcess
 	function __construct()
 	{
 		echo 'Constructed, set bDebug';
-		$this->$bDebug = (bool)MetaModel::GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_DEBUG, static::DEFAULT_MODULE_SETTING_DEBUG);
+		$this->bDebug = (bool)MetaModel::GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_DEBUG, static::DEFAULT_MODULE_SETTING_DEBUG);
 	}
 
 	/**

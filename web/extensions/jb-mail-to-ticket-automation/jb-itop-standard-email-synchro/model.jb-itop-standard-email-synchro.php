@@ -856,7 +856,8 @@ EOF
 			
 		}
 		
-		$oLog->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
+		// Add new name
+		$oAttributeValue->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
 		
 		// Sort chronologically. NOT ascending (true), but descending (false)!
 		$oAttributeValue = $oAttributeValue->ToSortedCaseLog(false);

@@ -9,12 +9,10 @@
 
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 
-	// Crab City
-	'CrabCity:baseinfo' => 'Gemeente',
-	 
-	'CrabCity:baseinfo' => 'Algemene info',
+	// Crab City	 
 	'Class:CrabCity' => 'Naam',
 	'Class:CrabCity+' => 'Officiële naam',
+	'CrabCity:baseinfo' => 'Algemene info',
 	
 	'Class:CrabCity/Attribute:streets_list' => 'Stratenlijst',
 	'Class:CrabCity/Attribute:streets_list+' => 'Stratenlijst',

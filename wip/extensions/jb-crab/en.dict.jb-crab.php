@@ -10,11 +10,9 @@
 Dict::Add('EN US', 'English', 'English', array(
 
 	// Crab City
-	'CrabCity:baseinfo' => 'City',
-	 
-	'CrabCity:baseinfo' => 'General information',
 	'Class:CrabCity' => 'Name',
 	'Class:CrabCity+' => 'Official name',
+	'CrabCity:baseinfo' => 'General information',
 	
 	'Class:CrabCity/Attribute:streets_list' => 'Streets list',
 	'Class:CrabCity/Attribute:streets_list+' => 'Streets list',

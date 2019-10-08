@@ -36,12 +36,16 @@ class ormCustomCaseLog extends ormCaseLog {
 		$sText = HTMLSanitizer::Sanitize($sText);
 		$sDateTime = ($sDateTime == '' ? date(AttributeDateTime::GetInternalFormat()) : date(AttributeDateTime::GetInternalFormat(), strtotime($sDateTime)));
 		
+		$iUserId = null;
+		
 		if ($sOnBehalfOf == '')	{
+			// Not specified. Fall back to current user.
 			$sOnBehalfOf = UserRights::GetUserFriendlyName();
-			$iUserId = UserRights::GetUserId();
-		}
-		if( $iOnBehalfOfUserId !== null ) {
-			$iUserId = $iOnBehalfOfUserId;
+			
+			if($iOnBehalfOfUserId === null) {
+				// Not specified. Fall back co current user's ID
+				$iUserId = UserRights::GetUserId();
+			}
 		}
 		
 		/* 
@@ -62,14 +66,14 @@ class ormCustomCaseLog extends ormCaseLog {
 			}
 		*/
 
-		$sSeparator = sprintf(CASELOG_SEPARATOR, $sDateTime, $sOnBehalfOf, $iUserId);
+		$sSeparator = sprintf(CASELOG_SEPARATOR, $sDateTime, $sOnBehalfOf, $$iOnBehalfOfUserId);
 		$iSepLength = strlen($sSeparator);
 		$iTextlength = strlen($sText);
 		
 		// Not looking to add duplicate entries, so
 		$aEntry =  array(
 			'user_name' => $sOnBehalfOf,
-			'user_id' => $iUserId,
+			'user_id' => $$iOnBehalfOfUserId,
 			'date' => strtotime($sDateTime),
 			'text_length' => $iTextlength,
 			'separator_length' => $iSepLength,
