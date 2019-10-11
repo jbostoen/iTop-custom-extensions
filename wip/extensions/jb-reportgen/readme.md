@@ -31,7 +31,10 @@ Some vary basic reports are included as an example.
 
 For details (single object), you can use the variable *item*. It exposes *key* and *fields* (see iTop REST Documentation). Example: item.fields.description 
  
-As a bonus: you can also use *item.attachments*. If you use **{% for attachment in item.attachments %} ... {% endfor %}**; you can use the attachment's field properties: **fields.contents.mimetype, fields.contents.data, fields.contents.filename**
+As a bonus: you can also use *item.attachments*. If you use **{% for attachment in item.attachments %} ... {% endfor %}**; you can use the attachment's field properties:
+* attachment.fields.contents.mimetype
+* attachment.fields.contents.data
+* attachment.fields.contents.filename
 
 ### Multiple items (list view)
 For lists (single or multiple objects), you can use **item** and create things like **{% for item in items % } ... {% endfor %}**

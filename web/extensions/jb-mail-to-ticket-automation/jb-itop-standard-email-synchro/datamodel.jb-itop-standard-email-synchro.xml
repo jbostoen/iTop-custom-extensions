@@ -455,7 +455,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', $sStampedText . substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
+			$this->Set('debug_trace', substr($sStampedText, $this->Get('debug_trace'), 0, $iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");

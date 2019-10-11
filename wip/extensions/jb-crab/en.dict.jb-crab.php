@@ -53,7 +53,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabAddress/Attribute:crab_id' => 'Crab ID',
 	'Class:CrabAddress/Attribute:crab_id+' => 'Internal ID within Crab Services',
 	
-	'Class:CrabAddress/Attribute:street_id' => 'Street ID',
+	'Class:CrabAddress/Attribute:street_id' => 'Street name',
 	'Class:CrabAddress/Attribute:street_id+' => 'Internal ID within iTop',
 	
 	'Class:CrabAddress/Attribute:house_number' => 'House number',
@@ -67,6 +67,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	 
 	'Class:CrabAddress/Attribute:status' => 'Status',
 	'Class:CrabAddress/Attribute:status+' => 'Status',
+	
+	'Class:CrabAddress/Attribute:geom' => 'Geometry',
+	'Class:CrabAddress/Attribute:geom+' => 'XY-coordinates',
 	
 	'Class:CrabAddress/Attribute:status/Value:1' => 'proposed',
 	'Class:CrabAddress/Attribute:status/Value:2' => 'reserved',

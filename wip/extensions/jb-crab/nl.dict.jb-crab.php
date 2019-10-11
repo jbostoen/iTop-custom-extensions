@@ -31,6 +31,9 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabStreet/Attribute:status' => 'Status',
 	'Class:CrabStreet/Attribute:status+' => 'Status',
 	
+	'Class:CrabAddress/Attribute:geom' => 'Geometrie',
+	'Class:CrabAddress/Attribute:geom+' => 'XY-coördinaten',
+	
 	'Class:CrabStreet/Attribute:status/Value:1' => 'voorgesteld',
 	'Class:CrabStreet/Attribute:status/Value:2' => 'gereserveerd',
 	'Class:CrabStreet/Attribute:status/Value:3' => 'in gebruik',
@@ -53,8 +56,8 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabAddress/Attribute:crab_id' => 'Crab-ID',
 	'Class:CrabAddress/Attribute:crab_id+' => 'Interne ID (Crab-Services)',
 	
-	'Class:CrabAddress/Attribute:street_id' => 'Street ID',
-	'Class:CrabAddress/Attribute:street_id+' => 'Internal ID within iTop',
+	'Class:CrabAddress/Attribute:street_id' => 'Straatnaam',
+	'Class:CrabAddress/Attribute:street_id+' => 'Straatnaam ID binnen iTop',
 	
 	'Class:CrabAddress/Attribute:house_number' => 'Huisnummer',
 	'Class:CrabAddress/Attribute:house_number+' => 'Huisnummer (gebruik _2 voor bisnummers = apart gebouw)',
@@ -84,6 +87,6 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	
 	// Geometry
 	'UI:Geom:Point' => 'Point', 		
-	'Location:Geometry' => 'Geometry',
+	'Location:Geometry' => 'Kaart',
 
 ));
