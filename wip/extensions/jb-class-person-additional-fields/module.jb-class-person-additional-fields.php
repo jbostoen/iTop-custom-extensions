@@ -27,7 +27,8 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-                        'model.jb-class-person-additional-fields.php'
+                        'model.jb-class-person-additional-fields.php',
+                        'main.php'
                 ),
                 'webservice' => array(
 
