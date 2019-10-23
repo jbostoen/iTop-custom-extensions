@@ -15,7 +15,7 @@ Dict::Add('EN US', 'English', 'English', array(
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value' => 'your translation for a value',
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for more info on the value',
 	
-	'Class:Certificate' => 'Certificaat',
+	'Class:Certificate' => 'Certificate',
 	'Class:Certificate/Attribute:name' => 'Name',
 	'Class:Certificate/Attribute:org_id' => 'Organization',
 	'Class:Certificate/Attribute:creator_id' => 'Created by',
@@ -25,7 +25,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:Certificate/Attribute:description' => 'Description',
 	'Class:Certificate/Attribute:certificate' => 'Certificate',
 	'Class:Certificate/Attribute:password' => 'Password',
-	'Class:Certificate/Attribute:functionalcis_list' => 'CI\'s',
+	'Class:Certificate/Attribute:functionalcis_list' => 'CIs',
 	'Class:Certificate/Attribute:webservers_list' => 'WebServers',
 	
 	'Class:Server/Attribute:certificates_list' => 'Certificates',
