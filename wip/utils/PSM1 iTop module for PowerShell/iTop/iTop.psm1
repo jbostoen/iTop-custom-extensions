@@ -511,7 +511,20 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				
 				if($content.objects -ne $null) {
 					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object {
-						$objects += ($content.objects | Select-Object -ExpandProperty $_.Name)
+					
+						# Gets the properties for each object
+						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
+						
+						# Cast 'fields' to System.Collections.Hashtable 
+						$recastedFields = [System.Collections.Hashtable]@{};
+						
+						$object.fields | Get-Member | ForEach-Object {
+							$recastedFields."$($_.Name)" = $object.fields."$($_.Name)"
+						}
+						
+						$object.fields = $recastedFields
+						
+						$objects += $object						
 					}
 				}
 
@@ -604,7 +617,19 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				
 				if($content.objects -ne $null) {
 					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { 
-						$object = $content.objects | Select-Object -ExpandProperty $_.Name;
+
+						# Gets the properties for each object
+						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
+						
+						# Cast 'fields' to System.Collections.Hashtable 
+						$recastedFields = [System.Collections.Hashtable]@{};
+						
+						$object.fields | Get-Member | ForEach-Object {
+							$recastedFields."$($_.Name)" = $object.fields."$($_.Name)"
+						}
+						
+						$object.fields = $recastedFields
+						
 						$objects += $object
 					}
 				}
@@ -717,7 +742,19 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				
 				if($content.objects -ne $null) {
 					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { 
-						$object = $content.objects | Select-Object -ExpandProperty $_.Name;
+
+						# Gets the properties for each object
+						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
+						
+						# Cast 'fields' to System.Collections.Hashtable 
+						$recastedFields = [System.Collections.Hashtable]@{};
+						
+						$object.fields | Get-Member | ForEach-Object {
+							$recastedFields."$($_.Name)" = $object.fields."$($_.Name)"
+						}
+						
+						$object.fields = $recastedFields
+						
 						$objects += $object
 					}
 				}
@@ -809,7 +846,19 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				
 				if($content.objects -ne $null) {
 					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { 
-						$object = $content.objects | Select-Object -ExpandProperty $_.Name;
+
+						# Gets the properties for each object
+						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
+						
+						# Cast 'fields' to System.Collections.Hashtable 
+						$recastedFields = [System.Collections.Hashtable]@{};
+						
+						$object.fields | Get-Member | ForEach-Object {
+							$recastedFields."$($_.Name)" = $object.fields."$($_.Name)"
+						}
+						
+						$object.fields = $recastedFields
+						
 						$objects += $object
 					}
 				}
