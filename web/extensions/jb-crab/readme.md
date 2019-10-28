@@ -9,7 +9,7 @@ There's also a (currently) standalone script to import that data into iTop, so y
 
 ## Important notes
 * This extension requires jb-geom.
-* The cron job may disturb other cron jobs, since it's a lenghty one which downloads a large file. Schedule at night.
+* The cron job may disturb other cron jobs, since it runs for a long time because it downloads a large file and processes the dataset. Schedule at night.
 
 ## Cookbook
 

@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) {{ ext_Year }} {{ ext_Author }}
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-10-04 18:08:57
+ * @version     2019-10-28 13:59:53
  *
  * Localized data
  */
