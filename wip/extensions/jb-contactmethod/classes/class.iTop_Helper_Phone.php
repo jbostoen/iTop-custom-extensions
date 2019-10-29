@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-10-28 13:59:53
+ * @version     2019-08-22 12:47:48
  * @experimental
  *
  * Defines class iTop_Helper_Phone, which offers some methods to validate phone numbers. Warning: specifically for Belgian use.
@@ -201,6 +201,11 @@
 				return substr($sPhone, 1);
 				
 			}
+			else {
+				// Possibly already stripped
+				return $sPhone;
+			}
+			
 			
 		}
 		
