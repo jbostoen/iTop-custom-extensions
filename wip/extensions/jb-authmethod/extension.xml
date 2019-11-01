@@ -5,8 +5,8 @@
 	<author><![CDATA[ jbostoen ]]></author>
 	<label><![CDATA[ Datamodel: Authentication Method ]]></label>
 	<description><![CDATA[ Adds Authentication Methods tab to UserLocal. See read me of this extension.]]></description>
-	<version>2.6.191028</version>
-	<release_date>2019-10-28</release_date>
+	<version>2.6.191101</version>
+	<release_date>2019-11-01</release_date>
 	<version_description><![CDATA[  ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
