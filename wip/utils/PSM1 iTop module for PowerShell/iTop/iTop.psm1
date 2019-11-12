@@ -1,6 +1,6 @@
 # copyright   Copyright (C) 2019 Jeffrey Bostoen
 # license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2019-11-01 17:26:09
+# version     2019-10-04 18:08:57
 
 # Variables
 
@@ -8,6 +8,37 @@
 # To do: make settings configurable from command line?
 # For now, let's make it $global ($global later?) so it can easily be altered
 $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\config.json" -Raw)
+
+
+# region Common
+
+	function Get-iTopCommand {
+	<#
+	 .Synopsis
+	 Lists commands for iTop
+
+	 .Description
+	 Lists commands for iTop
+
+	 .Parameter Credentials
+	 Credentials
+
+	 .Example
+	 Get-iTopCommand
+
+	#>   
+		param(
+			
+		)
+		
+		Write-Host "Getting help: Get-Help <name function>"
+		
+		Get-Command | Where { $_.Source -eq 'iTop' } | Format-Table
+
+	}
+	
+# endregion
+
 
 #region iTop (un)install related functions
 
