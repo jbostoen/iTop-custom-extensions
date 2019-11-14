@@ -3,9 +3,9 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:26:09
+ * @version     2019-08-11 20:40:30
  *
- * Definition of SheduledProcessCrabSync
+ * Definition of ScheduledProcessCrabSync
  */
 
 namespace jb_crab;
@@ -15,9 +15,9 @@ use \iScheduledProcess;
 use \MetaModel;
 
 /**
- * Class SheduledProcessCrabSync
+ * Class ScheduledProcessCrabSync
  */
-class SheduledProcessCrabSync implements iScheduledProcess
+class ScheduledProcessCrabSync implements iScheduledProcess
 {
 	const MODULE_CODE = 'jb-crab';
 
@@ -38,7 +38,6 @@ class SheduledProcessCrabSync implements iScheduledProcess
 	 */
 	function __construct()
 	{
-		echo 'Constructed, set bDebug';
 		$this->bDebug = (bool)MetaModel::GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_DEBUG, static::DEFAULT_MODULE_SETTING_DEBUG);
 	}
 
@@ -137,10 +136,10 @@ class SheduledProcessCrabSync implements iScheduledProcess
 		// Ignore time limit, it should run nightly and it will take some time.
 		try {
 			
-			
-			CrabImportHandler::DownloadShapeFile();
-			$sFileName_GeoJSON = CrabImportHandler::ConvertShapeFileToGeoJSON();
-			CrabImportHandler::ImportFromGeoJSON($sFileName_GeoJSON);			
+			$oCrab = new \jb_crab\CrabImportHandler;
+			$oCrab->DownloadShapeFile();
+			$oCrab->ConvertShapeFileToGeoJSON();
+			$oCrab->ImportFromGeoJSON();			
 			
 		}
 		catch(Exception $e) {
