@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
- * @copyright   Copyright (C) 2019 Jeffrey Bostoen
- * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
--->
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
 	<!--
-		Note: this was one of the first classes I created. Since then, I've learned attributes are usually in lowercase and using underscores. numDisplayPort would become number_displayport for example.
+		Note: this was one of the first classes I created. Since then, I've learned attributes are usually in lowercase and using underscores. 
+		num_displayport would become number_displayport for example.
 		I might rectify this in a future version.
 	-->
 	<classes>
 		<!-- 
-			Before we create the actual class, take in mind that 'model' is one of the options we'll add. Model is an existing Typology class. Simply define this new class as a value/option.
+			Before creating the actual class, take in mind that 'model' is one of the options we'll add. Model is an existing Typology class. Simply define this new class as a value/option.
 			This was originally missing from the Combodo version in their tutorial, but has been rectified after I submitted feedback.
 		-->
 		<class id="Model"> 
@@ -52,18 +49,10 @@
 				</reconciliation>
 			</properties>
 			<fields>
-				<!-- I might drop this field in a future release; crt screens are rare nowadays. There's only two predefined option values. -->
-				<field id="technology" xsi:type="AttributeEnum">
-					<values>
-						<value>crt</value>
-						<value>lcd</value>
-					</values>
-					<sql>technology</sql>
-					<default_value/>
-					<is_null_allowed>true</is_null_allowed>
-					<display_style>radio_horizontal</display_style>
-				</field>
-				<!-- For now, this is an AttributeEnum, which means we predefine the options available. You could change this to the way the model attribute works, so users can add their own typology. -->
+				<!-- 
+					For now, this is an AttributeEnum, which means optoins are predefined. 
+					It's possible to change this to the way the model attribute works, so users can add their own typology. 
+				-->
 				<field id="type" xsi:type="AttributeEnum">
 					<values>
 						<value>beamer</value>
@@ -75,20 +64,20 @@
 					<is_null_allowed>true</is_null_allowed>
 					<display_style>list</display_style>
 				</field>
-				<field id="numVGA" xsi:type="AttributeInteger"> 
-					<sql>numVGA</sql>
+				<field id="num_vga" xsi:type="AttributeInteger"> 
+					<sql>num_vga</sql>
 					<default_value>0</default_value>
 					<is_null_allowed>true</is_null_allowed>
 					<tracking_level>none</tracking_level>
 				</field>
-				<field id="numHDMI" xsi:type="AttributeInteger"> 
-					<sql>numHDMI</sql>
+				<field id="num_hdmi" xsi:type="AttributeInteger"> 
+					<sql>num_hdmi</sql>
 					<default_value>0</default_value>
 					<is_null_allowed>true</is_null_allowed>
 					<tracking_level>none</tracking_level>
 				</field>
-				<field id="numDisplayPort" xsi:type="AttributeInteger"> 
-					<sql>numDisplayPort</sql>
+				<field id="num_displayport" xsi:type="AttributeInteger"> 
+					<sql>num_displayport</sql>
 					<default_value>0</default_value>
 					<is_null_allowed>true</is_null_allowed>
 					<tracking_level>none</tracking_level>
@@ -98,71 +87,72 @@
 			<presentation>
 				<details>
 					<items>
-						<item id="name">
-							<rank>10</rank>
-						</item>
-						<item id="org_id">
-							<rank>20</rank>
-						</item>
-						<item id="status">
-							<rank>30</rank>
-						</item>
-						<item id="business_criticity">
-							<rank>40</rank>
-						</item>
-						<item id="location_id">
-							<rank>50</rank>
-						</item>
-						<item id="brand_id">
-							<rank>60</rank>
-						</item>
-						<item id="model_id">
-							<rank>70</rank>
-						</item>
-						<item id="technology">
-							<rank>75</rank>
-						</item>
-						<item id="serialnumber">
-							<rank>80</rank>
-						</item>
-						<item id="asset_number">
-							<rank>90</rank>
-						</item>
-						<item id="numVGA">
-							<rank>100</rank>
-						</item>
-						<item id="numHDMI">
-							<rank>110</rank>
-						</item>
-						<item id="numDisplayPort">
-							<rank>120</rank>
-						</item>
-						<item id="move2production">
-							<rank>130</rank>
-						</item>
-						<item id="purchase_date">
-							<rank>140</rank>
-						</item>
-						<item id="end_of_warranty">
-							<rank>150</rank>
-						</item>
-						<item id="description">
-							<rank>160</rank>
-						</item>
 						<item id="contacts_list">
 							<rank>170</rank>
 						</item>
 						<item id="documents_list">
 							<rank>180</rank>
 						</item>
-						<item id="tickets_list">
-							<rank>190</rank>
-						</item>
-						<item id="providercontracts_list">
+						<item id="providercontracts_list"> 
 							<rank>200</rank>
 						</item>
 						<item id="services_list">
 							<rank>210</rank>
+						</item>
+						<item id="col:col1">
+							<items>					  
+								<item id="name">
+									<rank>10</rank>
+								</item>
+								<item id="org_id">
+									<rank>20</rank>
+								</item>
+								<item id="status">
+									<rank>30</rank>
+								</item>
+								<item id="business_criticity">
+									<rank>40</rank>
+								</item>
+								<item id="location_id">
+									<rank>50</rank>
+								</item>
+								<item id="brand_id">
+									<rank>60</rank>
+								</item>
+								<item id="model_id">
+									<rank>70</rank>
+								</item>
+								<item id="type">
+									<rank>75</rank>
+								</item>
+								<item id="serialnumber">
+									<rank>80</rank>
+								</item>
+								<item id="asset_number">
+									<rank>90</rank>
+								</item>
+								<item id="num_vga">
+									<rank>100</rank>
+								</item>
+								<item id="num_hdmi">
+									<rank>110</rank>
+								</item>
+								<item id="num_displayport">
+									<rank>120</rank>
+								</item>
+								<item id="move2production">
+									<rank>130</rank>
+								</item>
+								<item id="purchase_date">
+									<rank>140</rank>
+								</item>
+								<item id="end_of_warranty">
+									<rank>150</rank>
+								</item>
+								<item id="description">
+									<rank>160</rank>
+								</item>
+							</items>
 						</item>
 					</items>
 				</details>
@@ -189,7 +179,7 @@
 						<item id="model_id">
 							<rank>70</rank>
 						</item>
-						<item id="technology">
+						<item id="type">
 							<rank>75</rank>
 						</item>
 						<item id="serialnumber">
@@ -207,13 +197,13 @@
 						<item id="end_of_warranty">
 							<rank>120</rank>
 						</item>
-						<item id="numVGA">
+						<item id="num_vga">
 							<rank>130</rank>
 						</item>
-						<item id="numHDMI">
+						<item id="num_hdmi">
 							<rank>140</rank>
 						</item>
-						<item id="numDisplayPort">
+						<item id="num_displayport">
 							<rank>150</rank>
 						</item>
 					</items>
@@ -241,13 +231,13 @@
 						<item id="serialnumber">
 							<rank>70</rank>
 						</item>
-						<item id="numVGA">
+						<item id="num_vga">
 							<rank>80</rank>
 						</item>
-						<item id="numHDMI">
+						<item id="num_hdmi">
 							<rank>90</rank>
 						</item>
-						<item id="numDisplayPort">
+						<item id="num_displayport">
 							<rank>100</rank>
 						</item>
 					</items>

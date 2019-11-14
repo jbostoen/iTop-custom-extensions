@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:26:09
+ * @version     2019-08-11 20:40:30
  *
  * Definition of Address
  */
@@ -13,12 +13,12 @@ namespace jb_crab;
 	/**
 	 * Class CrabImportHandler. Contains methods to import addresses.
 	 */
-	abstract class CrabImportHandler {
+	class CrabImportHandler {
 		
 		/**
 		 * @var \Array $aCrab_Status Crab Status codes
 		 */
-		private static $aCrab_Status = [
+		private $aCrab_Status = [
 			// Official Crab Status
 			'proposed' => 1,
 			'reserved' => 2,
@@ -30,12 +30,19 @@ namespace jb_crab;
 		];
 		
 		/**
+		 * @var \String $sDownloadDirectory Download directory
+		 */
+		private $sDownloadDirectory = '';
+		
+		/**
 		 *
 		 * Constructor
 		 *
 		 * @return void
 		 */
-		private function __construct() {
+		public function __construct() {
+			
+			$this->sDownloadDirectory = str_replace('\\', '/', dirname(__FILE__).'/download');
 			
 		}
 		
@@ -45,7 +52,7 @@ namespace jb_crab;
 		 * @return void
 		 */
 		public function Trace($sMessage) {
-			echo date('Y-m-d H:i:s').' - '. \utils::GetCurrentModuleName().' - '.$sMessage.PHP_EOL;
+			echo date('Y-m-d H:i:s').' - '.\utils::GetCurrentModuleName().' - '.$sMessage.PHP_EOL;
 		}
 		
 		/**
@@ -62,18 +69,17 @@ namespace jb_crab;
 
 			// Link last checked 16th of July,2019
 			$sURL = 'https://downloadagiv.blob.core.windows.net/crab-adressenlijst/Shapefile/CRAB_Adressenlijst_Shapefile.zip';
-			$sDownloadDirectory = APPROOT . 'env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleName() . '/download';
-			$sTargetFileName = $sDownloadDirectory.'/Crab_Adressenlijst_Shapefile.zip';
+			$sTargetFileName = $this->sDownloadDirectory.'/Crab_Adressenlijst_Shapefile.zip';
 			
 			// Recursive delete everything
-			self::RecursiveRemoveDirectory($sDownloadDirectory);
+			$this->RecursiveRemoveDirectory($this->sDownloadDirectory);
 			$oOldMask = umask(0);
-			mkdir($sDownloadDirectory, '0755');
+			mkdir($this->sDownloadDirectory, '0755');
 			umask($oOldMask);
 
-			self::Trace('Downloading file...');
-			self::Trace('. From '.$sURL);
-			self::Trace('. To '.$sTargetFileName);
+			$this->Trace('Downloading file...');
+			$this->Trace('. From '.$sURL);
+			$this->Trace('. To '.$sTargetFileName);
 			
 			// Actual download
  			$ch = curl_init();
@@ -88,25 +94,25 @@ namespace jb_crab;
 			curl_close($ch);
 			
 			if(class_exists('ZipArchive') == false) {
-				self::Trace('Failure: missing php-zip?');
+				$this->Trace('Failure: missing php-zip?');
 				throw new \Exception('Failure: missing php-zip?');
 			}
 			
-			self::Trace('Unzipping file...');
+			$this->Trace('Unzipping file...');
 
 			$zip = new \ZipArchive;
 			$res = $zip->open($sTargetFileName);
 			
 			if ($res === true) {
 				
-				$zip->extractTo($sDownloadDirectory);
+				$zip->extractTo($this->sDownloadDirectory);
 				$zip->close();
 			  			  
 			} 
 			else {
 				// Fail
-				self::Trace('Unable to unzip file to directory '.$sDownloadDirectory);
-				throw new \Exception('Unable to unzip file to directory '.$sDownloadDirectory);
+				$this->Trace('Unable to unzip file to directory '.$this->sDownloadDirectory);
+				throw new \Exception('Unable to unzip file to directory '.$this->sDownloadDirectory);
 			}
 			
 		}
@@ -122,20 +128,19 @@ namespace jb_crab;
 		public function ConvertShapeFileToGeoJSON($sFilter = "SELECT * FROM CrabAdr WHERE GEMEENTE = 'Izegem' ORDER BY STRAATNM") {
 			
 			// Disabled for security?
-                        $sDownloadDirectory = APPROOT . 'env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleName() . '/download';
 			$aDisabledFunctions = explode(',', ini_get('disable_functions'));
 			
 			if(in_array('shell_exec', $aDisabledFunctions) == true) {
-				self::Trace('Failure: shell_exec is disabled (PHP disable_functions)');
+				$this->Trace('Failure: shell_exec is disabled (PHP disable_functions)');
 				throw new \Exception('Failure: shell_exec is disabled (PHP disable_functions)');
 			}
 			
 			// Where were contacts extracted (see Download()) 
-			$sFileName_GeoJSON = $sDownloadDirectory.'/output.geojson';
-			$sFileName_ShapeFile = $sDownloadDirectory.'/Shapefile/CrabAdr.shp';
+			$sFileName_GeoJSON = $this->sDownloadDirectory.'/output.geojson';
+			$sFileName_ShapeFile = $this->sDownloadDirectory.'/Shapefile/CrabAdr.shp';
 
 			if( file_exists($sFileName_ShapeFile) == false ) {
-				self::Trace('Failure: no shapefile found at '.$sFileName_ShapeFile);
+				$this->Trace('Failure: no shapefile found at '.$sFileName_ShapeFile);
 				throw new \Exception('Failure: no shapefile found at '.$sFileName_ShapeFile);
 			}
 
@@ -149,35 +154,38 @@ namespace jb_crab;
 				'-t_srs "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs" '.
 				($sFilter != '' ? '-sql "'.$sFilter.'" ' : ''); 
 			
-			self::Trace('Reprojecting dataset to EPSG:3857 and applying this filter: '. $sRunOGR2OGR);		 
+			$this->Trace('Reprojecting dataset to EPSG:3857 and applying this filter: '. $sRunOGR2OGR);		 
 
 			exec( $sRunOGR2OGR ); 
 
 			// Check if everything went well
 			if(file_exists($sFileName_GeoJSON) == false) {
-				self::Trace('Failure: unable to convert shapefile to GeoJSON');
+				$this->Trace('Failure: unable to convert shapefile to GeoJSON');
 				throw new \Exception('Failure: unable to convert shapefile to GeoJSON');
 			}
 			
-			return $sFileName_GeoJSON;
+			return;
 		
 		}
 		
 		/**
 		 * Imports the features in the GeoJSON file
-		 *
-		 * @param String $sFileName_GeoJSON Filename
-		 *
+		 *		 *
 		 * @return void
 		 */
-		public function ImportFromGeoJSON($sFileName_GeoJSON) {
+		public function ImportFromGeoJSON() {
 	
+			$sFileName_GeoJSON = $this->sDownloadDirectory.'/output.geojson';
 			$aJsonDecoded = json_decode(file_get_contents($sFileName_GeoJSON), true);
+			
+			$iNewCities = 0;
+			$iNewStreets = 0;
+			$iNewAddresses = 0;
 			
 			// Fetch cities
 			$oFilter_CrabCities = \DBObjectSearch::FromOQL('SELECT CrabCity');
 			$oSet_CrabCities = new \CMDBObjectSet($oFilter_CrabCities);
-			self::Trace('# known cities: '.$oSet_CrabCities->Count());
+			$this->Trace('# known cities: '.$oSet_CrabCities->Count());
 						
 			// The cities object set is used to:
 			$aCities_name = [];
@@ -188,7 +196,7 @@ namespace jb_crab;
 			// Fetch streets
 			$oFilter_CrabStreets = \DBObjectSearch::FromOQL('SELECT CrabStreet');
 			$oSet_CrabStreets = new \CMDBObjectSet($oFilter_CrabStreets);
-			self::Trace('# known streets: '.$oSet_CrabStreets->Count());
+			$this->Trace('# known streets: '.$oSet_CrabStreets->Count());
 			
 			// The streets object set is used to:
 			// 1) check if a street exists
@@ -202,7 +210,7 @@ namespace jb_crab;
 			// Fetch existing addresses
 			$oFilter_CrabAddresses = \DBObjectSearch::FromOQL('SELECT CrabAddress');
 			$oSet_CrabAddresses = new \CMDBObjectSet($oFilter_CrabAddresses);
-			self::Trace('# known addresses: '.$oSet_CrabAddresses->Count());
+			$this->Trace('# known addresses: '.$oSet_CrabAddresses->Count());
 			
 			// To see if it exists based on crab_id and NOT having to run thousands of queries: index the CrabAddress objects.
 			// It also seems like CMDBObjectSet does not support removal.
@@ -231,31 +239,33 @@ namespace jb_crab;
 				// Some values are set manually.
 				// Geometry comes from the geometry of the GeoJSON, not from properties.
 				// In list? Let's assume it's in use 
-				$v['properties']['STATUS'] = self::$aCrab_Status['in_use'];
+				$v['properties']['STATUS'] = $this->aCrab_Status['in_use'];
 				$v['properties']['GEOM'] = 'POINT('. implode(' ', $v['geometry']['coordinates']) .')';
  
 				if($iAddress == 1) {
 					// Output available properties before processing first address (with above properties added)
 					$aProperties = array_keys($v['properties']);
-					self::Trace('Mapped GeoJSON properties: '.implode(', ', array_intersect($aProperties, $aMapping)));
-					self::Trace('Unmapped GeoJSON properties: '.implode(', ', array_diff($aProperties, $aMapping)));
+					$this->Trace('Mapped GeoJSON properties: '.implode(', ', array_intersect($aProperties, $aMapping)));
+					$this->Trace('Unmapped GeoJSON properties: '.implode(', ', array_diff($aProperties, $aMapping)));
 				}
 				
 				// City exists?
 				$sCityName = $v['properties']['GEMEENTE'];
 				if(in_array($sCityName, array_keys($aCities_name)) == false) {
-					self::Trace('Create CrabCity: '. $sCityName);
+					$this->Trace('Create CrabCity: '. $sCityName);
 					$oCity = new \CrabCity();
 					$oCity->Set('name', $sCityName);
 					$oCity->DBInsert();
 					$aCities_name[$oCity->Get('name')] = $oCity;
+					
+					$iNewCities += 1;
 				}
 				
 				$oStreet = new \CrabStreet();
 				$oStreet->Set('name', $v['properties']['STRAATNM']);
 				$oStreet->Set('crab_id', $v['properties']['STRAATNMID']);
 				$oStreet->Set('city_id', $aCities_name[$sCityName]->GetKey());
-				$oStreet->Set('status', self::$aCrab_Status['in_use']);
+				$oStreet->Set('status', $this->aCrab_Status['in_use']);
 				
 				$aDebugInfo = [];
 				$oAddress = new \CrabAddress();
@@ -268,19 +278,19 @@ namespace jb_crab;
 				// Must fix: street_id is currently the crab_id; but it has to be translated into the iTop internal ID
 				$oAddress->Set('street_id', $aStreets_crab_id['crab_id::'.$oAddress->Get('street_id')]->GetKey());
 			
-				self::Trace('Processing GeoJSON Feature '.sprintf('%08d', $iAddress ).' | '.implode(' | ', $aDebugInfo));
+				$this->Trace('Processing GeoJSON Feature '.sprintf('%08d', $iAddress ).' | '.implode(' | ', $aDebugInfo));
 				
 				// Street exists in array? (crab_id is unique)
 				// If not, create. Assume no changes are made to street names.
 				if(array_key_exists('crab_id::'.$oStreet->Get('crab_id'), $aStreets_crab_id) == false ) {
 					
-					print_r(array_keys($aStreets_crab_id));
-					
-					self::Trace('Create CrabStreet: '.$oStreet->Get('name').' - Crab ID '.$oStreet->Get('crab_id'));
+					$this->Trace('Create CrabStreet: '.$oStreet->Get('name').' - Crab ID '.$oStreet->Get('crab_id'));
 					$oStreet->DBInsert();
 					
 					// Add. No duplicates.
 					$aStreets_crab_id['crab_id::'.$oStreet->Get('crab_id')] = $oStreet;
+					
+					$iNewStreets += 1;
 					
 				}
 				
@@ -289,8 +299,10 @@ namespace jb_crab;
 				// Exists in iTop? 
 				if(array_key_exists('crab_id::'.$oAddress->Get('crab_id'), $aAddresses_crab_id) == false) {
 					
-					self::Trace('Create CrabAddress: ' . $v['properties']['STRAATNM'] . ' ' . $v['properties']['HUISNR'] . ' ' . $v['properties']['APPTNR'] . $v['properties']['BUSNR']);
+					$this->Trace('Create CrabAddress: ' . $v['properties']['STRAATNM'] . ' ' . $v['properties']['HUISNR'] . $v['properties']['APPTNR'] . $v['properties']['BUSNR']);
 					$oAddress->DBInsert();
+					
+					$iNewAddresses += 1;
 					
 				}
 				else {
@@ -300,7 +312,7 @@ namespace jb_crab;
 					
 					if($oAddress->Fingerprint(['id']) != $oExistingAddress->Fingerprint(['id'])) {
 						
-						self::Trace('Update CrabAddress: ' . $v['properties']['STRAATNM'] . ' ' . $v['properties']['HUISNR'] . $v['properties']['APPTNR'] . $v['properties']['BUSNR']);
+						$this->Trace('Update CrabAddress: ' . $v['properties']['STRAATNM'] . ' ' . $v['properties']['HUISNR'] . $v['properties']['APPTNR'] . $v['properties']['BUSNR']);
 						
 						// Initial idea was to simply use $oAddress->SetKey() to set existing CrabAddress and run DBUpdate() was the initial thought.
 						// It won't work though: "DBUpdate: could not update a newly created object, please call DBInsert instead"
@@ -333,21 +345,26 @@ namespace jb_crab;
 			foreach( $aAddresses_crab_id as $sCrabId => $oAddress ) {
 					
 				// Update required?
-				if($oAddress->Get('status') != self::$aCrab_Status['not_found'] ) {
+				if($oAddress->Get('status') != $this->aCrab_Status['not_found'] ) {
 							
-					$oAddress->Set('status', self::$aCrab_Status['not_found']);
+					$oAddress->Set('status', $this->aCrab_Status['not_found']);
 					$oAddress->DBUpdate();
 					
 				}
 				
 			}
 			
-			self::Trace('Finished processing GeoJSON.');
+			$this->Trace('Finished processing GeoJSON.');
 			
 			// Recursive delete everything
-			self::RecursiveRemoveDirectory( APPROOT . 'env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleName() . '/download/Shapefile');
+			$this->RecursiveRemoveDirectory($this->sDownloadDirectory);
 
-			self::Trace('Cleaned up shapefile directory (all geodata including converted GeoJSON).');
+			$this->Trace('Cleaned up download directory (all geodata including converted GeoJSON).');
+			
+			$this->Trace('New items:');
+			$this->Trace('- ' . $iNewCities . ' cities');
+			$this->Trace('- ' . $iNewStreets. ' streets');
+			$this->Trace('- '.  $iNewAddresses . ' addresses');
 			
 		}		
 		
@@ -366,7 +383,7 @@ namespace jb_crab;
 			foreach(glob( $sDirectory.'/*') as $sFile)
 			{
 				if(is_dir($sFile)) { 
-					self::RecursiveRemoveDirectory($sFile);
+					$this->RecursiveRemoveDirectory($sFile);
 				} else {
 					unlink($sFile);
 				}
