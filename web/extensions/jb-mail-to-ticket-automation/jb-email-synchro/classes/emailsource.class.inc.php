@@ -67,6 +67,12 @@ abstract class EmailSource
 	}
 
 	/**
+	 * Get the list (with their IDs) of all the messages
+	 * @return array An array of hashes: 'msg_id' => index 'uild' => message identifier
+	 */
+	abstract public function GetListing();
+	
+	/**
 	 * Disconnect from the server
 	 */
 	abstract public function Disconnect();

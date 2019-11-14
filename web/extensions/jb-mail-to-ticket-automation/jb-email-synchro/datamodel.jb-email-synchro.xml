@@ -128,6 +128,25 @@
 		if (!$bEditMode)
 		{
 			$oPage->SetCurrentTab(Dict::S('MailInbox:MailboxContent'));
+			$sCountQuery = "SELECT @@global.max_allowed_packet";
+			try
+			{
+				$iMaxAllowedPacket = CMDBSource::QueryToScalar($sCountQuery);
+				$iRecommended = MetaModel::GetModuleSetting('combodo-email-synchro', 'recommended_max_allowed_packet', 10*1024*1024);
+				if ($iMaxAllowedPacket < $iRecommended)
+				{
+				    if ($iMaxAllowedPacket > 1024*1024)
+				    {
+				        $iMaxAllowedPacket = ($iMaxAllowedPacket / (1024*1024)).'M';
+				    }
+				    $iRecommended = ($iRecommended / (1024*1024)).'M';
+					$sMessage = Dict::Format('MailInbox:MaxAllowedPacketTooSmall', $iMaxAllowedPacket, $iRecommended);
+					$oPage->add('<div class="header_message message_error">'.$sMessage.'</div>');
+				}
+			}
+			catch (MySQLException $e)
+			{
+			}
 			$sForm = Dict::Format('MailInbox:Display_X_eMailsStartingFrom_Y', '<input type="text" size="3" id="mailbox_count" value="10"/>', '<input type="text" size="3" id="mailbox_start_index" value="0"/>');
 			$oPage->add('<p><form onsubmit="return false;">'.$sForm.'&nbsp;<button type="submit" id="mailbox_content_refresh">'.Dict::S('UI:Button:Refresh').'</button></form></p>');
 			$oPage->add('<div id="mailbox_content_output"></div>');
@@ -169,6 +188,9 @@ function MailboxRefresh(data)
 	$('#mailbox_delete_messages').click(function() {
 		MailboxDeleteMessages();
 	});
+	$('#mailbox_ignore_messages').click(function() {
+		MailboxIgnoreMessages();
+	});
 	MailboxUpdateActionButtons();
 }
 
@@ -207,6 +229,25 @@ function MailboxDeleteMessages()
 	});
 	return false;	
 }
+
+function MailboxIgnoreMessages()
+{
+	var aUIDLs = [];
+	$(".mailbox_item:checked").each(function() {
+		aUIDLs.push(this.value);
+	});
+
+	$('#mailbox_content_output').html('<img src="../images/indicator.gif"/>');
+	$('#mailbox_content_refresh').prop('disabled', true);
+	var iStart = $('#mailbox_start_index').val();
+	var iCount = $('#mailbox_count').val();
+
+	$.post('$sAjaxUrl', {operation: 'mailbox_ignore_messages', id: $iId, start: iStart, count: iCount, aUIDLs: aUIDLs }, function(data) {
+		 MailboxRefresh(data);
+	});
+	return false;
+}
+
 EOF
 			);
 			$oPage->add_ready_script(
@@ -346,6 +387,7 @@ EOF
 	{
 		$oTicket = null;
 		$this->SetNextAction(EmailProcessor::NO_ACTION);
+		$this->sLastError = null;
 		
 		// Search if the caller email is an existing contact in iTop
 		$oCaller = $this->FindCaller($oEmail);
@@ -902,16 +944,16 @@ EOF
           <type>Overload-DBObject</type>
           <code><![CDATA[	protected function RejectBigAttachment($aAttachment, $oObj)
 	{
-		$sMessage = "The attachment {$aAttachment['filename']} (".strlen($aAttachment['content'])." bytes) is bigger than the maximum possible size ({$this->iMaxAttachmentSize}).";
+		$sMessage = "The attachment {$aAttachment['filename']} (".strlen($aAttachment['content'])." bytes) is bigger than the maximum possible size ({$this->iMaxAttachmentSize}).\r\n";
 		if ($this->sBigFilesDir == '')
 		{
-			$sMessage .= "The attachment was deleted. In order to keep such attachments in the future, contact your administrator to:\n";
-			$sMessage .= "- either increase the 'max_allowed_packet' size in the configuration of the MySQL server to be able to store them in iTop\n";
-			$sMessage .= "- or configure the parameter 'big_files_dir' in the iTop configuration file, so that such attachments can be kept on the web server.\n";
+			$sMessage .= "The attachment was deleted. In order to keep such attachments in the future, contact your administrator to:\r\n";
+			$sMessage .= "- either increase the 'max_allowed_packet' size in the configuration of the MySQL server to be able to store them in iTop\r\n";
+			$sMessage .= "- or configure the parameter 'big_files_dir' in the iTop configuration file, so that such attachments can be kept on the web server.\r\n";
 		}
 		else if (!is_writable($this->sBigFilesDir))
 		{
-			$sMessage .= "The attachment was deleted, since the directory where to save such files on the web server ({$this->sBigFilesDir}) is NOT writable to iTop.\n";
+			$sMessage .= "The attachment was deleted, since the directory where to save such files on the web server ({$this->sBigFilesDir}) is NOT writable to iTop.\r\n";
 		}
 		else
 		{
@@ -925,8 +967,8 @@ EOF
 			}
 			fwrite($hFile, $aAttachment['content']);
 			fclose($hFile);
-			$sMessage .= "The attachment was saved as '{$sFileName}{$idx}{$sExtension}' on the web server in the directory '{$this->sBigFilesDir}'.\n";
-			$sMessage .= "In order to get such attachments into iTop, increase the 'max_allowed_packet' size in the configuration of the MySQL server.\n";
+			$sMessage .= "The attachment was saved as '{$sFileName}{$idx}{$sExtension}' on the web server in the directory '{$this->sBigFilesDir}'.\r\n";
+			$sMessage .= "In order to get such attachments into iTop, increase the 'max_allowed_packet' size in the configuration of the MySQL server.\r\n";
 		}
 		$aReplacement = array('content' => $sMessage, 'mimeType' => 'text/plain', 'filename' => 'warning.txt');
 		return $aReplacement;

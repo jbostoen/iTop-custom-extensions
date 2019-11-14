@@ -75,7 +75,7 @@ class IMAPEmailSource extends EmailSource
 	/**
 	 * Retrieves the message of the given index [0..Count]
 	 * @param $index integer The index between zero and count
-	 * @return \MessageFromMailbox|null
+	 * @return \MessageFromMailbox
 	 */
 	public function GetMessage($index)
 	{		

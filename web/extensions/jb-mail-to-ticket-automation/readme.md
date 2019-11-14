@@ -1,6 +1,7 @@
 # What?
 
-This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally based on their version 3.0.7, but also includes the changes up to 3.0.17 so far). Some fixes from this version were accepted by Combodo back in August 2018 and are now part of the official version.
+This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally based on their version 3.0.7, but also includes the changes up to 3.1.0 so far). 
+Some fixes from this version were accepted by Combodo back in August 2018 and are now part of the official version.
 
 What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. This extension offers some additional policies.
 
@@ -11,13 +12,13 @@ One thing is important here: it's actually recommended to set **use_message_id_a
 For IMAP, here's a quick example on the configuration options (config-itop.php).
 Also make sure the PHP IMAP extension is enabled.
 
+```	
 	'imap_options' => array (
 	  0 => 'imap',
 	  1 => 'ssl',
 	  2 => 'novalidate-cert',
 	),
-	
-
+```
 
 # Basics about policies
 Most of them have:
@@ -165,7 +166,7 @@ UIDL
 Some code was simplified.
 
 ## Lost IMAP connections
-There's an attempt to fix issues with lost IMAP connections. 
+There's an attempt to fix issues with lost IMAP connections (to Office 365). 
 Contrary to the original extension, EmailReplicas don't immediately disappear when the mail can not be seen anymore. 
 It's stored for 7 more days after it's last seen.
 

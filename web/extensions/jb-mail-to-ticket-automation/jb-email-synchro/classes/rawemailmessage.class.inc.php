@@ -68,6 +68,7 @@ class RawEmailMessage
 	
 	/**
 	 * Construct a new message from the full text version of it (equivalent to the content of a .eml file)
+	 *
 	 * @param string $sRawContent The full text version of the message (headers + empty line + body)
 	 */
 	public function __construct($sRawContent)
@@ -85,6 +86,7 @@ class RawEmailMessage
 	
 	/**
 	 * Get the raw size of the message (in bytes)
+	 *
 	 * @return int The size of the message
 	 */
 	public function GetSize()
@@ -94,6 +96,7 @@ class RawEmailMessage
 	
 	/**
 	 * Get the raw content of the message
+	 *
 	 * @return string The raw content of the message
 	 */
 	public function GetRawContent()
@@ -103,6 +106,7 @@ class RawEmailMessage
 	
 	/**
 	 * Retrieves the address(es) from the originator of the message... tries: From, Sender and Reply-To
+	 *
 	 * @return array An array of ('email' => email_address, 'name' => display_name) one per 'sender'
 	 */
 	public function GetSender()
@@ -122,6 +126,7 @@ class RawEmailMessage
 	/**
 	 * Retrieves the address(es) from the recipient of the message... "To". Note that in some cases
 	 * there is no 'email', just a description like "undisclosed recipients"
+	 *
 	 * @return array An array of ('email' => email_address, 'name' => display_name) one per recipient
 	 */
 	public function GetTo()
@@ -131,6 +136,7 @@ class RawEmailMessage
 	
 	/**
 	 * Retrieves the address(es) from the recipient in copy of the message... "CC".
+	 *
 	 * @return array An array of ('email' => email_address, 'name' => display_name) one per recipient
 	 */
 	public function GetCc()
@@ -140,6 +146,7 @@ class RawEmailMessage
 	
 	/**
 	 * Retrieves the subject of the message... "Subject".
+	 *
 	 * @return string The decoded subject of the message
 	 */
 	public function GetSubject()
@@ -149,6 +156,7 @@ class RawEmailMessage
 	
 	/**
 	 * Retrieves identifier of the message, as assigned by the creator/sender of the message
+	 *
 	 * @return string The message-id
 	 */
 	public function GetMessageId()
@@ -159,6 +167,7 @@ class RawEmailMessage
 	/**
 	 * Retrieves attachments of the message. Any part of the message that is not a "multipart", or an 'inline' text
 	 * is considered as an attachment.
+	 *
 	 * @return array Array of ('filename' => original_file_name, 'mimeType' => MIME_type, 'content' => binary_string), one entry per attachment
 	 */
 	public function GetAttachments(&$aAttachments = null, $aPart = null, &$index = 1)
@@ -221,12 +230,12 @@ class RawEmailMessage
 					$aTypes = explode('/', $sType);
 					$sFileExtension = $aTypes[1];
 					// map the type to a useful extension if needed
-					switch($aTypes[1])
+					switch ($aTypes[1])
 					{
 						case 'rfc822':
-						// Special case for messages: use the .eml extension
-						$sFileExtension = 'eml';
-						break;
+							// Special case for messages: use the .eml extension
+							$sFileExtension = 'eml';
+							break;
 					}
 					$sFileName = sprintf('%s%03d.%s', $aTypes[0], $index, $sFileExtension); // i.e. image001.jpg 
 				}
@@ -241,7 +250,7 @@ class RawEmailMessage
 		}
 		else
 		{
-			foreach($aPart['parts'] as $aSubPart)
+			foreach ($aPart['parts'] as $aSubPart)
 			{
 				$aAttachments = array_merge($aAttachments, $this->GetAttachments($aAttachments, $aSubPart, $index));
 			}
@@ -252,7 +261,9 @@ class RawEmailMessage
 	
 	/**
 	 * Create a new RawEmailMessage object by reading the content of the given file
+	 *
 	 * @param string $sFilePath The path to the file to load
+	 *
 	 * @return RawEmailMessage The loaded message
 	 */
 	static public function FromFile($sFilePath)
@@ -264,7 +275,9 @@ class RawEmailMessage
 	/**
 	 * Saves the raw message to a file (basically creating the equivalent to a .eml file that can be read
 	 * by Thunderbird, Lotus Notes or Outlok Express)
+	 *
 	 * @param string $sFilePath The path to the file to write into (the file will be overwritten if it exists)
+	 *
 	 * @return void
 	 */
 	public Function SaveToFile($sFilePath)
@@ -276,6 +289,7 @@ class RawEmailMessage
 	/**
 	 * returns the first 'text/plain' part of the message that is not an attachment
 	 * or null if no such part exists in the message
+	 *
 	 * @return string The text 'body' of the message or null if no plain text version of the 'body' exists
 	 */
 	public function GetTextBody()
@@ -294,6 +308,7 @@ class RawEmailMessage
 	/**
 	 * returns the first 'text/html' part of the message that is not an attachment
 	 * or null if no such part exists in the message
+	 *
 	 * @return string The html 'body' of the message or null if no html version of the 'body' exists
 	 */
 	public function GetHTMLBody()
@@ -311,8 +326,10 @@ class RawEmailMessage
 	
 	/**
 	 * Get the value for the specified header
+	 *
 	 * @param string $sHeaderName The name of the header (non case sensitive)
 	 * @param hash $aHeaders Optional parameter to read inside the headers of the given part of the message
+	 *
 	 * @return string The value of the header or an empty string if no such header exists in the message
 	 */
 	public function GetHeader($sHeaderName, $aHeaders = null)
@@ -331,7 +348,8 @@ class RawEmailMessage
 	}
 	
 	/**
-	 * Get all the headers of the message as a whole (note: header names are lower case'd)
+	 * Get all the headers of the message as a whole (note: header names are lowercase)
+	 *
 	 * @return hash The value of the headers as header_name => value
 	 */
 	public function GetHeaders()
@@ -341,23 +359,25 @@ class RawEmailMessage
 	
 	/**
 	 * Gets the full hierarchical structure of the message
+	 *
 	 * @param hash null. Used for recursion
+	 *
 	 * @return hash The wholme structure of the message except the 'body' piece of each part
 	 */
 	public function GetStructure($aParts = null)
 	{
 		$aRet = array();
-		if ($aParts === null)					 
+		if ($aParts === null)
 		{
 			$aParts = $this->aParts;
 		} //Init for recursion
 
 		
-		foreach($aParts as $sKey => $aData)
+		foreach ($aParts as $sKey => $aData)
 		{
 			if ($sKey !== 'body')
 			{
-				if(is_array($aData))
+				if (is_array($aData))
 				{
 					$aRet[$sKey] = $this->GetStructure($aData);
 				}
@@ -372,23 +392,25 @@ class RawEmailMessage
 	
 	/**
 	 * Retrieves a part of the message based on its 'part_id' identifier
+	 *
 	 * @param string $sId The identifier of the part to retrieve
 	 * @param hash $aPart Used for recursion
-	 * @return hash The 'raw' part found (i.e. the body is still an array of encoded strings), or null 
+	 *
+	 * @return hash The 'raw' part found (i.e. the body is still an array of encoded strings), or null
 	 */
 	public function GetPartById($sId, $aPart = null)
-	{			  
+	{
 		if ($aPart === null)
 		{
 			$aPart = $this->aParts;
-		} //Init for recursion		
+		} //Init for recursion
 		if (($aPart['type'] == 'simple') && ($aPart['part_id'] == $sId))
 		{
 			return $aPart;
 		}
 		else
 		{
-			foreach($aPart['parts'] as $aSubPart)
+			foreach ($aPart['parts'] as $aSubPart)
 			{
 				$aPartFound = $this->GetPartById($sId, $aSubPart);
 				if ($aPartFound === null)
@@ -401,7 +423,9 @@ class RawEmailMessage
 	}
 	/**
 	 * Whether or not to stop (i.e. throw an exception) in case of iconv error
+	 *
 	 * @param bool $bStrict True to stop on error, false otherwise (default is false) ands null to get the value without changing it
+	 *
 	 * @return bool The previous (or current) valur of the parameter
 	 */
 	public function StrictCharacterSetConversion($bStrict = null)
@@ -422,8 +446,10 @@ class RawEmailMessage
 	
 	/**
 	 * Splits the given content into pieces according to the given boundary marker
+	 *
 	 * @param array $aLines The content to be split as a array of lines
 	 * @param string $sBoundary The "boundary" marker (without the leading --)
+	 *
 	 * @return array (1 entry per  part). Each part is an array of lines
 	 */
 	protected function SplitIntoParts($aLines, $sBoundary)
@@ -456,9 +482,12 @@ class RawEmailMessage
 	
 	/**
 	 * Recursively extracts the sub parts from the given header/body depending on the type of this part (multipart or not)
+	 *
 	 * @param array $aHeaders Hash table of header => header_text
 	 * @param array $aBodyLines Array of text lines
+	 *
 	 * @return array of parts. Each part is itself a hash: array(type => string, headers => hash, body => array, parts => array )
+	 * @throws \EmailDecodingException
 	 */
 	protected function ExtractParts($aHeaders, $aBodyLines)
 	{
@@ -486,7 +515,7 @@ class RawEmailMessage
 			$aParsedParts['parts'] = array();
 			$aRawParts = $this->SplitIntoParts($aBodyLines, $sBoundary);
 
-			foreach($aRawParts as $aLines)
+			foreach ($aRawParts as $aLines)
 			{
 				$aSubPart = $this->ExtractHeadersAndRawBody($aLines);
 				if (count($aSubPart['headers']) > 0)
@@ -514,8 +543,10 @@ class RawEmailMessage
 	 * Extracts the headers and the raw body of the given part of the message
 	 * The headers are returned as a hash array, with key (in lowercase) => decoded value
 	 * The body is returned as an array of strings (one per line)
+	 *
 	 * @param array $aLines
-	 * @return array array('headers' => hash, 'body' => array of strings)
+	 *
+	 * @return array('headers' => hash, 'body' => array of strings)
 	 */
 	protected function ExtractHeadersAndRawBody($aLines)
 	{
@@ -526,7 +557,7 @@ class RawEmailMessage
 		$aRawBody = array();
 		foreach ($aLines as $sLine)
 		{
-			if(self::IsNewLine($sLine))
+			if (self::IsNewLine($sLine))
 			{
 				// end of headers
 				$aRawBody = array_slice($aLines, 1 + $idx);
@@ -555,7 +586,7 @@ class RawEmailMessage
 		
 		// Decode headers
 		$aHeaders = array();
-		foreach($aRawFields as $sKey => $sValue)
+		foreach ($aRawFields as $sKey => $sValue)
 		{
 			$aHeaders[$sKey] = self::DecodeHeaderString($sValue);
 		}
@@ -563,23 +594,27 @@ class RawEmailMessage
 	}
 
 	/**
-	 * Decodes to UTF-8 the entry of the header that can be either base64 or qencoded
+	 * Decodes to UTF-8 the entry of the header that can be either base64 or Qencoded
+	 *
 	 * @param string $sInput The string to decode
+	 *
 	 * @return string The decoded string
 	 */
 	static protected function DecodeHeaderString($sInput)
     {
 		$sOutput = iconv_mime_decode($sInput, ICONV_MIME_DECODE_CONTINUE_ON_ERROR, 'UTF-8');
-		return $sOutput; // Don't be too strict, continue on errors													 
+		return $sOutput; // Don't be too strict, continue on errors
     }
 
 	/**
 	 * Finds the first part of the message that matches the given criteria: MIMEType / !Content-Disposition
 	 * inside the (optional) part. If no part is given, scans the whole message.
+	 *
 	 * @param string $sMimeType The type to look for, for example text/html (non case sensitive)
 	 * @param string $sExcludeDispositionPattern A type (as regexp) of "disposition" to exclude
 	 * @param array $aPart The part to scan, by default (=null) scan the whole message
 	 * @return array The given part as a hash array('headers' => hash, 'body' => binary_string); or null if not found
+	 * @throws \Exception
 	 */
     protected function FindFirstPart($sMimeType, $sExcludeDispositionPattern = null, $aPart = null)
 	{
@@ -601,7 +636,11 @@ class RawEmailMessage
 					if ($sExcludeDispositionPattern != null)
 					{
 						$sContentDisposition = $this->getHeader('Content-Disposition', $aPart['headers']);
-						if (($sContentDisposition == '') || (preg_match($sExcludeDispositionPattern, $sContentDisposition) == 0))
+						$sSmimeType = array();
+						preg_match('/smime\-type=([a-zA-Z0-9\-]*);?/',$sContentType, $sSmimeType);
+						if (   ($sContentDisposition == '') 
+							|| (preg_match($sExcludeDispositionPattern, $sContentDisposition) == 0) 
+							|| ($sPartMimeType === 'application/pkcs7-mime' && count($sSmimeType) > 0 && $sSmimeType[1] === 'signed-data'))
 						{
 							$aRetPart = array();
 							$aRetPart['headers'] = $aPart['headers'];
@@ -617,7 +656,7 @@ class RawEmailMessage
 		}
 		else
 		{
-			foreach($aPart['parts'] as $aSubPart)
+			foreach ($aPart['parts'] as $aSubPart)
 			{
 				$aRetPart = $this->FindFirstPart($sMimeType, $sExcludeDispositionPattern, $aSubPart);
 				if ($aRetPart != null)
@@ -632,8 +671,10 @@ class RawEmailMessage
 	/**
 	 * Decodes the 'lines' of the 'body' of the given part according to its headers (and the message's global headers)
 	 * This function decode base64 and qencoded strings and converts the result to UTF-8 if needed
+	 *
 	 * @param hash $aHeaders The part headers, for the part to decode
 	 * @param array $aLines The body to decode as an array of text strings (one entry per line)
+	 *
 	 * @return string The decoded 'body' of the part, in UTF-8
 	 */
 	function DecodePart($aHeaders, $aLines)
@@ -659,7 +700,7 @@ class RawEmailMessage
 			$sCharset = strtoupper(trim($aMatches[1], '"'));
 		}
 
-		switch($sContentTransferEncoding)
+		switch ($sContentTransferEncoding)
 		{
 			case 'base64':
 				$sBody = base64_decode(implode("\n", $aLines));
@@ -680,7 +721,7 @@ class RawEmailMessage
 		}
  
 		// Convert to UTF-8 only if the part is some kind of text
-		if($sCharset != 'UTF-8' && preg_match('/text\//', $aHeaders['content-type']))
+		if ($sCharset != 'UTF-8' && preg_match('/text\//', $aHeaders['content-type']))
 		{
 			$sOriginalBody = $sBody;
 			$sBody = @iconv($sCharset, 'UTF-8//TRANSLIT//IGNORE', $sBody);
@@ -713,7 +754,9 @@ class RawEmailMessage
 	
 	/**
 	 * Checks if the given line contains only a "newline" character
+	 *
 	 * @param string $sLine
+	 *
 	 * @return boolean
 	 */
 	protected static function IsNewLine($sLine)
@@ -725,7 +768,9 @@ class RawEmailMessage
 
 	/**
 	 * Checks if the given line starts with a printable character
+	 *
 	 * @param string $sLine
+	 *
 	 * @return boolean
 	 */
 	protected static function IsLineStartingWithPrintableChar($sLine)
@@ -739,7 +784,9 @@ class RawEmailMessage
 	 *   - multipart/<anything> is not an attachment
 	 *   - text/<anything> is an attachment if and only if the 'content-disposition' says so
 	 *   - all other types are considered as attachments
+	 *
 	 * @param hash $aPartHeaders the headers of the part
+	 *
 	 * @return boolean
 	 */
 	protected function IsAttachment($aPartHeaders)
@@ -755,22 +802,25 @@ class RawEmailMessage
 				{
 					$bRet = false;
 				}
-				else if ($sPrimaryType == 'text')
+				else
 				{
-					$sContentDisposition = $this->GetHeader('content-disposition', $aPartHeaders);
-					if (($sContentDisposition != '') && (preg_match('/attachment/i', $sContentDisposition) != 0))
+					if ($sPrimaryType == 'text')
 					{
-						$bRet = true;
+						$sContentDisposition = $this->GetHeader('content-disposition', $aPartHeaders);
+						if (($sContentDisposition != '') && (preg_match('/attachment/i', $sContentDisposition) != 0))
+						{
+							$bRet = true;
+						}
+						else
+						{
+							$bRet = false;
+						}
+
 					}
 					else
 					{
-						$bRet = false;
+						$bRet = true;
 					}
-					
-				}
-				else
-				{
-					$bRet = true;
 				}
 			}
 		}
@@ -780,7 +830,9 @@ class RawEmailMessage
 	/**
 	 * Turn the string of addresses into an array (one entry per address) where the two components of each address
 	 * are separated: 'name' (human readable) and 'email'
+	 *
 	 * @param string $sAddresses The whole list of addresses as read from the email header
+	 *
 	 * @return array An array of ('name' => friendly_name, 'email' => email_address)
 	 */
 	protected static function ParseAddresses($sAddresses)
@@ -793,7 +845,7 @@ class RawEmailMessage
 		$bInTextString = false;
 		$bAtSignFound = false;
 		$sCurrentAddress = '';
-		for($idx = 0; $idx < strlen($sAddresses); $idx++)
+		for ($idx = 0; $idx < strlen($sAddresses); $idx++)
 		{
 			$c = $sAddresses[$idx];
 			
@@ -802,12 +854,12 @@ class RawEmailMessage
 				$bInTextString = !$bInTextString;
 			}
 			
-			if ( ($c == '@') && !$bInTextString )
+			if (($c == '@') && !$bInTextString)
 			{
 				$bAtSignFound = true;
 			}
 			
-			if ( ($c == $sAddressDelimiter) && !$bInTextString && $bAtSignFound)
+			if (($c == $sAddressDelimiter) && !$bInTextString && $bAtSignFound)
 			{
 				// End of address
 				$aAddresses[] = self::ExtractAddressPieces($sCurrentAddress);
@@ -819,7 +871,7 @@ class RawEmailMessage
 				$sCurrentAddress .= $c;
 			}
 			
-			if ( ($idx == (strlen($sAddresses)-1)) && (!empty($sCurrentAddress)) )
+			if (($idx == (strlen($sAddresses) - 1)) && (!empty($sCurrentAddress)))
 			{
 				// last address in the string
 				$aAddresses[] = self::ExtractAddressPieces($sCurrentAddress);
@@ -832,7 +884,9 @@ class RawEmailMessage
 	/**
 	 * Tries to (!) separate the two components of each address
 	 * 'name' (human readable) and 'email'
+	 *
 	 * @param string $sAddress The address to split
+	 *
 	 * @return array An array of ('name' => friendly_name, 'email' => email_address)
 	 */
 	protected static function ExtractAddressPieces($sAddress)
@@ -843,25 +897,37 @@ class RawEmailMessage
 			$sName = trim($aMatches[1], ' "');
 			$sEmail = $aMatches[2];
 		}
-		else if (preg_match('/^([^ ]+) ?\((.*)\)$/', $sAddress, $aMatches))
-		{
-			$sName = trim($aMatches[2]);
-			$sEmail = $aMatches[1];
-		}
 		else
 		{
-			if (strpos($sAddress, '@') === false)
+			if (preg_match('/^([^ ]+) ?\((.*)\)$/', $sAddress, $aMatches))
 			{
-				// Hmm, no valid address ??
-				$sName = $sAddress;
-				$sEmail = '';
+				$sName = trim($aMatches[2]);
+					   
+				$sEmail = $aMatches[1];
 			}
 			else
 			{
-				$sName = '';
-				$sEmail = $sAddress;
+				if (strpos($sAddress, '@') === false)
+				{
+					// Hmm, no valid address ??
+					$sName = $sAddress;
+					$sEmail = '';
+				}
+				else
+				{
+					$sName = '';
+					$sEmail = $sAddress;
+				}
 			}
 		}
 		return array('name' => $sName, 'email' => $sEmail);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function GetInvalidReasons()
+	{
+		return array();
 	}
 }

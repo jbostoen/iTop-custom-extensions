@@ -36,7 +36,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	/**
 	 * @var EmailSource
 	 */
-	private $oCurrentSource;	 
+	private $oCurrentSource;
 	
 	/**
 	 * Activates the given EmailProcessor specified by its class name
@@ -78,7 +78,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	 * @throws \CoreException
 	 * @throws \CoreUnexpectedValue
      */
-	protected function SetErrorOnEmailReplica(&$oEmailReplica, $oProcessor, $sErrorCode = 'error', $oRawEmail = null)
+	protected function UpdateEmailReplica(&$oEmailReplica, $oProcessor, $sErrorCode = 'error', $oRawEmail = null)
 	{
 		try
 		{
@@ -98,7 +98,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 			$oEmailReplica->Set('status', $sErrorCode);
 			if (isset($oRawEmail))
 			{
-				$oEmailReplica->Set('contents', new ormDocument($oRawEmail->GetRawContent(), 'message/rfc822', 'email.eml'));
+				$this->SaveEml($oEmailReplica, $oRawEmail);
 			}
 
 			$iMaxSize = MetaModel::GetAttributeDef('EmailReplica', 'error_message')->GetMaxSize();
@@ -111,8 +111,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
             {
                 $oEmailReplica->SetCurrentDate('message_date');
             }
-            $sTrace = $this->GetMessageTrace();
-			$oEmailReplica->Set('error_trace', $sTrace);
+			$oEmailReplica->Set('error_trace', $this->GetMessageTrace());
 			
 			$oEmailReplica->DBWrite();
 		}
@@ -121,10 +120,20 @@ class EmailBackgroundProcess implements iBackgroundProcess
 			$this->Trace('Error: ' . $oProcessor->GetLastErrorSubject() . " - " . $oProcessor->GetLastErrorMessage());
 			IssueLog::Error('Email not processed for email replica of uidl "' . $oEmailReplica->Get('uidl') . '" and message_id "' . $oEmailReplica->Get('message_id') . '" : ' . $oProcessor->GetLastErrorSubject() . " - " . $oProcessor->GetLastErrorMessage());
 
-			$oEmailReplica->Set('status', 'error');
-			$oEmailReplica->Set('error_message', 'An error occurred during the processing of this email that could not be displayed here. Consult application error log for details.');
-			$oEmailReplica->Set('error_trace', '');
-			$oEmailReplica->DBWrite();
+			$sMessage = $e->getMessage();
+			if (strlen($sMessage) > 10*1024)
+			{
+				$sMessage = "Truncated message: \n".substr($sMessage, 0, 8*1024)."\n[...]\n".substr($sMessage, -2*1024);
+			}
+			IssueLog::Error($sMessage);
+
+			if (strpos($e->getMessage(), 'MySQL server has gone away') === false)
+			{
+				$oEmailReplica->Set('status', 'error');
+				$oEmailReplica->Set('error_message', 'An error occurred during the processing of this email that could not be displayed here. Consult application error log for details.');
+				$oEmailReplica->Set('error_trace', '');
+				$oEmailReplica->DBWrite();
+			}
 		}
 	}
 	public function GetPeriodicity()
@@ -207,7 +216,8 @@ class EmailBackgroundProcess implements iBackgroundProcess
 					{
 						try
 						{
-							if($oSource instanceof IMAPEmailSource) {
+							if($oSource instanceof IMAPEmailSource) 
+							{
 								$this->Trace("Undelete message (IMAP) {$iMessage}");
 								$ret = $oSource->UndeleteMessage($iMessage);
 							}
@@ -235,45 +245,55 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								$oEmailReplica->Set('message_id', $iMessage);
 								$oEmailReplica->Set('last_seen', date('Y-m-d H:i:s'));
 							}
-							else if($oEmailReplica->Get('status') == 'error')
+							else 
 							{
-								$this->Trace("\nSkipping old (already processed) message: uidl=$sUIDL index=$iMessage marked as 'error'");
-								$iTotalSkipped++;
-								continue;
-							}
-							else if ($oEmailReplica->Get('status') == 'undesired')
-							{
-								$this->Trace("\nUndesired message: uidl=$sUIDL index=$iMessage");
-								$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7) * 86400;
-								if ($iDelay > 0)
+								
+								if($oEmailReplica->Get('status') == 'error')
 								{
-									$sDate = $oEmailReplica->Get('message_date');
-									$oDate = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);
-									if ($oDate !== false)
-									{
-										$iDate = $oDate->getTimestamp();
-										$iDelay -= time() - $iDate;
-									}
-								}
-								if ($iDelay <= 0)
-								{
-									$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7);
-									$this->Trace("\nDeleting undesired message (AND replica) due to purge delay threshold ({$iDelay}): uidl={$sUIDL} index={$iMessage}");
-									$iTotalDeleted++;
-									$ret = $oSource->DeleteMessage($iMessage);
-									$this->Trace("DeleteMessage($iMessage) returned $ret");
-									if (!$oEmailReplica->IsNew())
-									{
-									   $aReplicas[$sUIDL] = $oEmailReplica;
-									}
+									$this->Trace("\nSkipping old (already processed) message: uidl=$sUIDL index=$iMessage marked as 'error'");
+									$iTotalSkipped++;
 									continue;
 								}
-								$iTotalSkipped++;
-								continue;
-							}
-							else
-							{
-								$this->Trace("\nDispatching old (already read) message: uidl={$sUIDL} index={$iMessage}");						
+								elseif ($oEmailReplica->Get('status') == 'ignored')
+								{
+									$this->Trace("\nSkipping old (already processed) message: uidl=$sUIDL index=$iMessage marked as 'ignored'");
+									$iTotalSkipped++;
+									continue;
+								}
+								else if ($oEmailReplica->Get('status') == 'undesired')
+								{
+									$this->Trace("\nUndesired message: uidl=$sUIDL index=$iMessage");
+									$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7) * 86400;
+									if ($iDelay > 0)
+									{
+										$sDate = $oEmailReplica->Get('message_date');
+										$oDate = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);
+										if ($oDate !== false)
+										{
+											$iDate = $oDate->getTimestamp();
+											$iDelay -= time() - $iDate;
+										}
+									}
+									if ($iDelay <= 0)
+									{
+										$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7);
+										$this->Trace("\nDeleting undesired message (AND replica) due to purge delay threshold ({$iDelay}): uidl={$sUIDL} index={$iMessage}");
+										$iTotalDeleted++;
+										$ret = $oSource->DeleteMessage($iMessage);
+										$this->Trace("DeleteMessage($iMessage) returned $ret");
+										if (!$oEmailReplica->IsNew())
+										{
+										   $aReplicas[$sUIDL] = $oEmailReplica;
+										}
+										continue;
+									}
+									$iTotalSkipped++;
+									continue;
+								}
+								else
+								{
+									$this->Trace("\nDispatching old (already read) message: uidl={$sUIDL} index={$iMessage}");						
+								}
 							}
 							
 							$iActionCode = $oProcessor->DispatchMessage($oSource, $iMessage, $sUIDL, $oEmailReplica);
@@ -283,7 +303,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 								$iTotalMarkedAsError++;
 									$this->Trace("Marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-								$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+								$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
 								
 								break;
 								
@@ -318,8 +338,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 									$this->Trace("Could not get message (raw email): {$sUIDL}");
 									return "Stopped processing due to (possible temporary) IMAP error. Message(s) read: $iTotalMessages, message(s) skipped: {$iTotalSkipped}, message(s) processed: {$iTotalProcessed}, message(s) deleted: {$iTotalDeleted}, message(s) marked as error: {$iTotalMarkedAsError}, undesired message(s): {$iTotalUndesired}";
 								}
-															
-								//$oRawEmail->SaveToFile(dirname(__FILE__)."/log/$sUIDL.eml"); // Uncomment the line to keep a local copy if needed
+								
 								if ((self::$iMaxEmailSize > 0) && ($oRawEmail->GetSize() > self::$iMaxEmailSize))
 								{
 									$iNextActionCode = $oProcessor->OnDecodeError($oSource, $sUIDL, null, $oRawEmail);
@@ -328,7 +347,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 											$iTotalMarkedAsError++;
 											$this->Trace("Email too big, marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-											$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+											$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
 											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 
 											break;
@@ -356,7 +375,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 												$iTotalMarkedAsError++;
 												$this->Trace("Failed to decode the message, marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-												$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+												$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
 												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 											break;
 								
@@ -382,14 +401,14 @@ class EmailBackgroundProcess implements iBackgroundProcess
 											case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 												$iTotalMarkedAsError++;
 												$this->Trace("Marking the valid message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-												$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);							
+												$this->UpdateEmailReplica($oEmailReplica, $oProcessor);							
 												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 												break;
 	 
 											case EmailProcessor::MARK_MESSAGE_AS_UNDESIRED:
 												$iTotalUndesired++;
 												$this->Trace("Marking the message (and replica): uidl={$sUIDL} index={$iMessage} as undesired.");
-												$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor, 'undesired');
+												$this->UpdateEmailReplica($oEmailReplica, $oProcessor, 'undesired');
 												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 												break;
 	 
@@ -426,12 +445,14 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								case EmailProcessor::NO_ACTION:
 								default:
 									$this->Trace("No action for message (and replica): {$sUIDL}");
+									$this->UpdateEmailReplica($oEmailReplica, $oProcessor, 'ok', $oRawEmail);
 									$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 									break;
 							}
 							if (time() > $iTimeLimit) 
 							{
-								break; // We'll do the rest later
+								// We'll do the rest later
+								break; 
 							}
 						}
 						catch (Exception $e)
@@ -439,7 +460,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							if (!empty($oEmailReplica))
 							{
 								$this->Trace($e->getMessage());
-								$this->SetErrorOnEmailReplica($oEmailReplica, $oProcessor);
+								$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
 							}
 							throw $e;
 						}
@@ -496,6 +517,28 @@ class EmailBackgroundProcess implements iBackgroundProcess
 	private function GetMessageTrace()
 	{
 		return "<pre>".htmlentities(implode("\n", $this->aMessageTrace), ENT_QUOTES, 'UTF-8')."</pre>";
+	}
+	
+	/**
+	 * @param \EmailReplica $oEmailReplica
+	 * @param $oRawEmail
+	 *
+	 * @throws \CoreException
+	 * @throws \CoreUnexpectedValue
+	 */
+	protected function SaveEml(&$oEmailReplica, $oRawEmail)
+	{
+		$iContentSize = strlen($oRawEmail->GetRawContent());
+		$iMaxServerSize = CMDBSource::GetServerVariable('max_allowed_packet') - 128*1024;
+		if ($iContentSize < $iMaxServerSize)
+		{
+			$oEmailReplica->Set('contents', new ormDocument($oRawEmail->GetRawContent(), 'message/rfc822', 'email.eml'));
+		}
+		else
+		{
+			$this->Trace("EML too big ($iContentSize bytes) max is ($iMaxServerSize bytes), not saved in database.");
+			$oEmailReplica->Set('error_trace', $this->GetMessageTrace());
+		}
 	}
 }
 

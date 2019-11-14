@@ -39,14 +39,12 @@ class TriggerOnMailUpdate extends TriggerOnObject
 		);
 		MetaModel::Init_Params($aParams);
 		MetaModel::Init_InheritAttributes();
-
-
+		
 		// -- Display lists
-
 		// Attributes to be displayed for the complete details
 		MetaModel::Init_SetZListItems('details', array(
-			'description', 
-			'target_class', 
+			'description',
+			'target_class',
 			'filter',
 			'action_list'
 		)); 

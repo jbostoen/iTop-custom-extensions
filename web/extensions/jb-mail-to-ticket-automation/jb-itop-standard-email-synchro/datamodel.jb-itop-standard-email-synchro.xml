@@ -455,7 +455,7 @@ EOF
 		if ($this->Get('trace') == 'yes')
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
-			$this->Set('debug_trace', $sStampedText.substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
+			$this->Set('debug_trace', $sStampedText.mb_substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
 
 			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
 			$oMyChange = MetaModel::NewObject("CMDBChange");
@@ -508,6 +508,7 @@ EOF
 					<type>Overload-DBObject</type>
 					<code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
 	{		
+	    $this->sLastError = null;
 		$this->Trace("Processing new eMail ( index = $index )"); 
 		$this->Trace(". UIDL ".htmlspecialchars($oEmail->sUIDL) );
 		$this->Trace(". Message-ID ".htmlspecialchars ($oEmail->sMessageId) );
@@ -704,7 +705,13 @@ EOF
 			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches)))
 			{
 				$iTicketId = 0;
-				sscanf($aMatches[1], '%d', $iTicketId);
+				foreach ($aMatches as $sMatch){
+				  sscanf($sMatch, '%d', $iTicketId);
+				  if ($iTicketId != 0)
+				  {
+				    break;
+				  }
+                }
 				$this->Trace("iTop Simple Email Synchro: Retrieving ticket {$iTicketId} (match by subject pattern)...");
 				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false);
 			}
@@ -945,7 +952,7 @@ EOF
 		{
 			$sCallerEmail = $oTicket->Get('caller_id->email');
 			// Exclude the caller from the additional contacts
-			if ($aInfo['email'] != $sCallerEmail)
+			if ($aInfo['email'] != $sCallerEmail && $aInfo['email'] != $this->Get('login'))
 			{
 				$oContact = $this->FindAdditionalContact($aInfo['email']);
 				if (($oContact != null) && !array_key_exists($oContact->GetKey(), $aExistingContacts))
@@ -957,7 +964,7 @@ EOF
 			}
 			else
 			{
-				$this->Trace("Skipping '{$sCallerEmail}' from the email address in To/CC since it is the same as the caller's email.");
+				$this->Trace("Skipping '{$aInfo['email']}' from the email address in To/CC since it is the same as the caller's email.");
 			}
 		}
 		$oTicket->Set('contacts_list', $oContactsSet);
@@ -1560,6 +1567,7 @@ EOF
 			
 				$sSubject = '[iTop] Failed to process attachment(s) for the incoming eMail - '.$oEmail->sSubject;
 				$sBody = "<p>Some attachments to the eMail were not processed because they are too big:</p>\n";
+				$this->sLastError = $sAdditionalErrorMessage;
 				$sBody .= "<pre>".$sAdditionalErrorMessage."</pre>\n";
 				$sBody .= $sLastAction;
 				
