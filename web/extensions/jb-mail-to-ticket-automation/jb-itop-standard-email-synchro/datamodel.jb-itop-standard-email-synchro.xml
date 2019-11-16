@@ -579,6 +579,8 @@ EOF
 	 * depending on the mailinbox setting.
 	 * {@inheritDoc}
 	 * @see MailInboxBase::FindCaller()
+	 *
+	 * @throws Exception
 	 */</comment>
 					<static>false</static>
 					<access>protected</access>
@@ -1752,6 +1754,8 @@ EOF
 	 * @param EmailMessage $oEmail The message to check
 	 * @param Ticket $oTicket The ticket which is being modified (Ticket or null)
 	 * @return Object ( boolean bUndesired, Person 'Caller' )
+	 *
+	 * @throws Exception
 	 */]]></comment>
 					<static>false</static>
 					<access>protected</access>
@@ -1787,7 +1791,7 @@ EOF
 					$this->Trace(".. MimeType: {$aAttachment['mimeType']}");
 					if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
 					{
-						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it contains an attachment with forbidden MimeType {$aAttachment['mimeType']}");
+						$this->Trace("... The message '{$oEmail->sSubject}' is considered as undesired, since it contains an attachment with forbidden MimeType {$aAttachment['mimeType']}");
 						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_forbidden_attachments'];
 					}
 				}
@@ -1845,7 +1849,7 @@ EOF
 					if ( !in_array( $aInfo['email'] , $aExcludeContacts ) ) 
 					{
 						// Found other contacts in To: or CC: 
-						$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it contains another recipient (missing alias or unwanted): {$aInfo['email']}");
+						$this->Trace("... The message '{$oEmail->sSubject}' is considered as undesired, since it contains another recipient (missing alias or unwanted): {$aInfo['email']}");
 						return (object)["bUndesired" => true, 'sPolicyId' => 'policy_other_recipients'];
 					} 
 				}

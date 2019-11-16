@@ -59,7 +59,12 @@ SetupWebPage::AddModule(
 			),
 			'use_message_id_as_uid' => true, // Do NOT change this unless you known what you are doing!! Despite being 'false' in the Combodo version (3.0.5), it works better if set to true on IMAP connections.
 			'images_minimum_size' => '100x20', // Images smaller that these dimensions will be ignored (signatures...)
-			'images_maximum_size' => '', // Images bigger that these dimensions will be resized before uploading into iTop
+			'images_maximum_size' => '', // Images bigger that these dimensions will be resized before uploading into iTop,
+			'imap_options' => array (
+			  0 => 'imap',
+			  1 => 'ssl',
+			  2 => 'novalidate-cert',
+			),
 		),
 	)
 );

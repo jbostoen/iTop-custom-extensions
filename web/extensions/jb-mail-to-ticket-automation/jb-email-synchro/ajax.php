@@ -47,7 +47,7 @@ function GetMailboxContent($oPage, $oInbox)
 		$iMaxCount = utils::ReadParam('count', 10);
 		$iMsgCount = 0;
 		try
-   {
+		{
 			/** @var \EmailSource $oSource */
 			$oSource = $oInbox->GetEmailSource();
 			$iTotalMsgCount = $oSource->GetMessagesCount();
@@ -138,6 +138,7 @@ function GetMailboxContent($oPage, $oInbox)
 					$aArgs = array('operation' => 'message_details', 'sUIDL' => $sUIDLs);
 					$sDetailsURL = utils::GetAbsoluteUrlModulePage(basename(dirname(__FILE__)), 'details.php', $aArgs);
 					$sDetailsLink = '<a href="'.$sDetailsURL.'">'.Dict::S('MailInbox:MessageDetails').'</a>';
+				}
 				$aData[] = array(
 					'checkbox' => '<input type="checkbox" class="mailbox_item" value="'.htmlentities($sUIDLs, ENT_QUOTES, 'UTF-8').'"/>',
 					'status' => $sStatus,
@@ -151,7 +152,7 @@ function GetMailboxContent($oPage, $oInbox)
 			}
 			$oPage->p(Dict::Format('MailInbox:Z_DisplayedThereAre_X_Msg_Y_NewInTheMailbox', $iMsgCount, $iTotalMsgCount, ($iTotalMsgCount - $iProcessedCount)));
 			$oPage->table($aTableConfig, $aData);
-			$oPage->add('<div><img alt="" src="../images/tv-item-last.gif" style="vertical-align:bo
+			$oPage->add('<div><img alt="" src="../images/tv-item-last.gif" style="vertical-align:bottom;margin-left:10px;"/>&nbsp;'.Dict::S('MailInbox:WithSelectedDo').'&nbsp;&nbsp<button class="mailbox_button" id="mailbox_reset_status">'.Dict::S('MailInbox:ResetStatus').'</button>&nbsp;&nbsp;<button class="mailbox_button" id="mailbox_delete_messages">'.Dict::S('MailInbox:DeleteMessage').'</button>&nbsp;&nbsp;<button class="mailbox_button" id="mailbox_ignore_messages">'.Dict::S('MailInbox:IgnoreMessage').'</button></div>');
 		}
 		else
 		{
@@ -201,7 +202,7 @@ try
 	{
 		$oInbox = null;
 	}
-	else
+	else {
 		/** @var MailInboxBase $oInbox */						   
 		$oInbox = MetaModel::GetObject('MailInboxBase', $iMailInboxId, false);
 	}
@@ -300,6 +301,7 @@ try
 			}
 			GetMailboxContent($oPage, $oInbox);
 			break;
+	}
 	$oPage->output();
 }
 catch(Exception $e)

@@ -301,151 +301,154 @@ class EmailBackgroundProcess implements iBackgroundProcess
 							switch($iActionCode)
 							{
 								case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-								$iTotalMarkedAsError++;
-									$this->Trace("Marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-								$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
-								
-								break;
+									$iTotalMarkedAsError++;
+										$this->Trace("Marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
+									$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
+									
+									break;
 								
 								case EmailProcessor::DELETE_MESSAGE:
-								$iTotalDeleted++;
-								$this->Trace("Deleting message (AND replica): uidl={$sUIDL} index={$iMessage}");
-								$ret = $oSource->DeleteMessage($iMessage);
-								$this->Trace("DeleteMessage({$iMessage}) returned {$ret}");
-								if (!$oEmailReplica->IsNew())
-								{
-									$aReplicas[$sUIDL] = $oEmailReplica;
-								}
-								break;
+									$iTotalDeleted++;
+									$this->Trace("Deleting message (AND replica): uidl={$sUIDL} index={$iMessage}");
+									$ret = $oSource->DeleteMessage($iMessage);
+									$this->Trace("DeleteMessage({$iMessage}) returned {$ret}");
+									if (!$oEmailReplica->IsNew())
+									{
+										$aReplicas[$sUIDL] = $oEmailReplica;
+									}
+									break;
 								
 								case EmailProcessor::PROCESS_MESSAGE:
-								$iTotalProcessed++;
-								if ($oEmailReplica->IsNew())
-								{
-									$this->Trace("Processing new message: {$sUIDL}");
-								}
-								else
-								{
-									$this->Trace("Processing old (already read) message: {$sUIDL}");
-								}
-		
-		
-								$oRawEmail = $oSource->GetMessage($iMessage);
-								
-								// IMAP error occurred?
-								if(is_null($oRawEmail)) 
-								{
-									$this->Trace("Could not get message (raw email): {$sUIDL}");
-									return "Stopped processing due to (possible temporary) IMAP error. Message(s) read: $iTotalMessages, message(s) skipped: {$iTotalSkipped}, message(s) processed: {$iTotalProcessed}, message(s) deleted: {$iTotalDeleted}, message(s) marked as error: {$iTotalMarkedAsError}, undesired message(s): {$iTotalUndesired}";
-								}
-								
-								if ((self::$iMaxEmailSize > 0) && ($oRawEmail->GetSize() > self::$iMaxEmailSize))
-								{
-									$iNextActionCode = $oProcessor->OnDecodeError($oSource, $sUIDL, null, $oRawEmail);
-									switch($iNextActionCode)
+									$iTotalProcessed++;
+									if ($oEmailReplica->IsNew())
 									{
-										case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-											$iTotalMarkedAsError++;
-											$this->Trace("Email too big, marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-											$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
-											$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-
-											break;
-								
-										case EmailProcessor::DELETE_MESSAGE:
-											$iTotalDeleted++;
-											$this->Trace("Email too big, deleting message (and replica): {$sUIDL}");
-											$oSource->DeleteMessage($iMessage);
-											if (!$oEmailReplica->IsNew())
-											{
-												$aReplicas[$sUIDL] = $oEmailReplica;
-											}
-									}								
-								}
-								else
-								{
-									$oEmail = $oRawEmail->Decode($oSource->GetPartsOrder());
+										$this->Trace("Processing new message: {$sUIDL}");
+									}
+									else
+									{
+										$this->Trace("Processing old (already read) message: {$sUIDL}");
+									}
+			
+			
+									$oRawEmail = $oSource->GetMessage($iMessage);
 									
-									// Checks for valid caller (name, email), UIDL and attachments
-									if (!$oEmail->IsValid())
+									// IMAP error occurred?
+									if(is_null($oRawEmail)) 
+									{
+										$this->Trace("Could not get message (raw email): {$sUIDL}");
+										return "Stopped processing due to (possible temporary) IMAP error. Message(s) read: $iTotalMessages, message(s) skipped: {$iTotalSkipped}, message(s) processed: {$iTotalProcessed}, message(s) deleted: {$iTotalDeleted}, message(s) marked as error: {$iTotalMarkedAsError}, undesired message(s): {$iTotalUndesired}";
+									}
+									
+									if ((self::$iMaxEmailSize > 0) && ($oRawEmail->GetSize() > self::$iMaxEmailSize))
 									{
 										$iNextActionCode = $oProcessor->OnDecodeError($oSource, $sUIDL, null, $oRawEmail);
 										switch($iNextActionCode)
 										{
 											case EmailProcessor::MARK_MESSAGE_AS_ERROR:
 												$iTotalMarkedAsError++;
-												$this->Trace("Failed to decode the message, marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
+												$this->Trace("Email too big, marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
 												$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
 												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-											break;
-								
+
+												break;
+									
 											case EmailProcessor::DELETE_MESSAGE:
 												$iTotalDeleted++;
-												$this->Trace("Failed to decode the message, deleting it (and its replica): {$sUIDL}");
+												$this->Trace("Email too big, deleting message (and replica): {$sUIDL}");
 												$oSource->DeleteMessage($iMessage);
 												if (!$oEmailReplica->IsNew())
 												{
 													$aReplicas[$sUIDL] = $oEmailReplica;
 												}
-										}
+										}								
 									}
-									 
 									else
 									{
+										$oEmail = $oRawEmail->Decode($oSource->GetPartsOrder());
 										
-										$iNextActionCode = $oProcessor->ProcessMessage($oSource, $iMessage, $oEmail, $oEmailReplica);									  
-										$this->Trace("EmailReplica ID after ProcessMessage(): ".$oEmailReplica->GetKey());
-										
-										switch($iNextActionCode)
+										// Checks for valid caller (name, email), UIDL and attachments
+										if (!$oEmail->IsValid())
 										{
-											case EmailProcessor::MARK_MESSAGE_AS_ERROR:
-												$iTotalMarkedAsError++;
-												$this->Trace("Marking the valid message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
-												$this->UpdateEmailReplica($oEmailReplica, $oProcessor);							
-												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+											$iNextActionCode = $oProcessor->OnDecodeError($oSource, $sUIDL, null, $oRawEmail);
+											switch($iNextActionCode)
+											{
+												case EmailProcessor::MARK_MESSAGE_AS_ERROR:
+													$iTotalMarkedAsError++;
+													$this->Trace("Failed to decode the message, marking the message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
+													$this->UpdateEmailReplica($oEmailReplica, $oProcessor);
+													$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 												break;
-	 
-											case EmailProcessor::MARK_MESSAGE_AS_UNDESIRED:
-												$iTotalUndesired++;
-												$this->Trace("Marking the message (and replica): uidl={$sUIDL} index={$iMessage} as undesired.");
-												$this->UpdateEmailReplica($oEmailReplica, $oProcessor, 'undesired');
-												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
-												break;
-	 
-											case EmailProcessor::DELETE_MESSAGE:
-												$iTotalDeleted++;
-												$this->Trace("Deleting message (marked as DELETE_MESSAGE) (but not replica): {$sUIDL}");
-												$oSource->DeleteMessage($iMessage);
-												if (!$oEmailReplica->IsNew())
-												{
-													$aReplicas[$sUIDL] = $oEmailReplica;
-												}
-												break;
+									
+												case EmailProcessor::DELETE_MESSAGE:
+													$iTotalDeleted++;
+													$this->Trace("Failed to decode the message, deleting it (and its replica): {$sUIDL}");
+													$oSource->DeleteMessage($iMessage);
+													if (!$oEmailReplica->IsNew())
+													{
+														$aReplicas[$sUIDL] = $oEmailReplica;
+													}
+											}
+										}
+										 
+										else
+										{
 											
-											case EmailProcessor::PROCESS_ERROR:
-												$sSubject = $oProcessor->GetLastErrorSubject();
-												$sMessage = $oProcessor->GetLastErrorMessage();
-												EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
-												$iTotalDeleted++;
-												$this->Trace("Deleting message (but not replica) due to process error: {$sUIDL}");
-												$oSource->DeleteMessage($iMessage);
-												if (!$oEmailReplica->IsNew())
-												{								
-													$aReplicas[$sUIDL] = $oEmailReplica;
-												}
-												break;
-			
-											default:
-												$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+											$iNextActionCode = $oProcessor->ProcessMessage($oSource, $iMessage, $oEmail, $oEmailReplica);									  
+											$this->Trace("EmailReplica ID after ProcessMessage(): ".$oEmailReplica->GetKey());
+											
+											switch($iNextActionCode)
+											{
+												case EmailProcessor::MARK_MESSAGE_AS_ERROR:
+													$iTotalMarkedAsError++;
+													$this->Trace("Marking the valid message (and replica): uidl={$sUIDL} index={$iMessage} as in error.");
+													$this->UpdateEmailReplica($oEmailReplica, $oProcessor);							
+													$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+													break;
+		 
+												case EmailProcessor::MARK_MESSAGE_AS_UNDESIRED:
+													$iTotalUndesired++;
+													$this->Trace("Marking the message (and replica): uidl={$sUIDL} index={$iMessage} as undesired.");
+													$this->UpdateEmailReplica($oEmailReplica, $oProcessor, 'undesired');
+													$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+													break;
+		 
+												case EmailProcessor::DELETE_MESSAGE:
+													$iTotalDeleted++;
+													$this->Trace("Deleting message (marked as DELETE_MESSAGE) (but not replica): {$sUIDL}");
+													$oSource->DeleteMessage($iMessage);
+													if (!$oEmailReplica->IsNew())
+													{
+														$aReplicas[$sUIDL] = $oEmailReplica;
+													}
+													break;
+												
+												case EmailProcessor::PROCESS_ERROR:
+													$sSubject = $oProcessor->GetLastErrorSubject();
+													$sMessage = $oProcessor->GetLastErrorMessage();
+													EmailBackgroundProcess::ReportError($sSubject, $sMessage, $oRawEmail);
+													$iTotalDeleted++;
+													$this->Trace("Deleting message (but not replica) due to process error: {$sUIDL}");
+													$oSource->DeleteMessage($iMessage);
+													if (!$oEmailReplica->IsNew())
+													{								
+														$aReplicas[$sUIDL] = $oEmailReplica;
+													}
+													break;
+				
+												default:
+												case EmailProcessor::NO_ACTION:
+													$this->Trace("No more action for EmailReplica ID: ".$oEmailReplica->GetKey());
+													$this->UpdateEmailReplica($oEmailReplica, $oProcessor, 'ok', $oRawEmail);
+													$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
+													break;
+											}
 										}
 									}
-								}
-								break;
+									break;
 					
 								case EmailProcessor::NO_ACTION:
 								default:
 									$this->Trace("No action for message (and replica): {$sUIDL}");
-									$this->UpdateEmailReplica($oEmailReplica, $oProcessor, 'ok', $oRawEmail);
 									$aReplicas[$sUIDL] = $oEmailReplica; // Remember this new replica, don't delete it later as "unused"
 									break;
 							}

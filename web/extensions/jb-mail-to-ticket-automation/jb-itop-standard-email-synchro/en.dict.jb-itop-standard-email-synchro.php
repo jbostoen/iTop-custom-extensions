@@ -74,7 +74,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward eMails (in error) To Address',
 	'Class:MailInboxStandard/Attribute:notify_from' => 'Mail From Address',
 	
-	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases<br>(one per line)',
+	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases (one per line)',
 	 
 	
 	// Policy: mail size too large
@@ -96,7 +96,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_mimetypes' => 'MIME Types<br>(one per line)',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_mimetypes' => 'MIME Types (one per line)',
 	
 	// Policy: no subject
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior' => 'eMail',
@@ -118,7 +118,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:mark_as_undesired' =>  'Mark as Undesired / Temporarily keep the eMail',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new contact <br>(one per line, example: org_id:1)',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new contact (one per line, example: org_id:1)',
 	
 	// Policy: other recipients
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior' => 'eMail',
@@ -170,14 +170,14 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_notification' => 'Bounce message', 
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	
 	// Policy: remove or ignore title patterns
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Ignore/remove patterns in subject', 
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:delete' => 'Delete from subject',
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:ignore' => 'Ignore in subject',
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject <br>(regex, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	// Headers
 	'MailInbox:Server' => 'Mailbox Configuration',
