@@ -457,13 +457,7 @@ EOF
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
 			$this->Set('debug_trace', $sStampedText.mb_substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
 
-			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
-			$oMyChange = MetaModel::NewObject("CMDBChange");
-			$oMyChange->Set("date", time());
-			$sUserString = CMDBChange::GetCurrentUserName();
-			$oMyChange->Set("userinfo", $sUserString);
-			$iChangeId = $oMyChange->DBInsert();
-			$this->DBUpdateTracked($oMyChange);
+			$this->DBUpdate();
 		}
 	}]]></code>
 				</method>
