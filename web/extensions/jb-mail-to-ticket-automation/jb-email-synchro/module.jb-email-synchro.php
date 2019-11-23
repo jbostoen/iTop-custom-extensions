@@ -1,4 +1,7 @@
 <?php
+//
+// iTop module definition file
+//
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
@@ -36,10 +39,8 @@ SetupWebPage::AddModule(
 			'undesired-purge-delay' => 7, // interval (in days) after which undesired emails are deleted in the mailbox
 			'body_parts_order' => 'text/html,text/plain', // Order in which to read the parts of the incoming emails
 			'pop3_auth_option' => 'USER',
-			'imap_options' => array('imap'),
 			'maximum_email_size' => '10M', // Maximum allowed size for incoming emails
 			'big_files_dir' => '',
-			'exclude_attachment_types' => array('application/exe'), // Example: 'application/exe', 'application/x-winexe', 'application/msdos-windows'
 			// Lines to be removed just above the 'new part' in a reply-to message... add your own patterns below
 			'introductory-patterns' => array(
 				'/^le .+ a écrit :$/i', // Thunderbird French
@@ -58,12 +59,12 @@ SetupWebPage::AddModule(
 				'/\\R-----Message d\'origine-----\\R/m',
 			),
 			'use_message_id_as_uid' => true, // Do NOT change this unless you known what you are doing!! Despite being 'false' in the Combodo version (3.0.5), it works better if set to true on IMAP connections.
-			'images_minimum_size' => '100x20', // Images smaller that these dimensions will be ignored (signatures...)
-			'images_maximum_size' => '', // Images bigger that these dimensions will be resized before uploading into iTop,
+			'images_minimum_size' => '100x20', // Images smaller than these dimensions will be ignored (signatures...)
+			'images_maximum_size' => '', // Images bigger than these dimensions will be resized before uploading into iTop,
 			'imap_options' => array (
-			  0 => 'imap',
-			  1 => 'ssl',
-			  2 => 'novalidate-cert',
+				'imap',
+				'ssl',
+				'novalidate-cert',
 			),
 		),
 	)
@@ -83,8 +84,7 @@ if (!class_exists('EmailSynchroInstaller'))
 		 * @param $sPreviousVersion string Previous version number of the module (empty string in case of first install)
 		 * @param $sCurrentVersion string Current version number of the module
 		 */
-		public static function AfterDatabaseCreation(Config $oConfiguration, $sPreviousVersion, $sCurrentVersion)
-		{
+		public static function AfterDatabaseCreation(Config $oConfiguration, $sPreviousVersion, $sCurrentVersion) {
 			// For each email sources, update email replicas by setting mailbox_path to source.mailbox where mailbox_path is null
 			SetupPage::log_info("Updating email replicas to set their mailbox path.");
 
@@ -100,9 +100,6 @@ if (!class_exists('EmailSynchroInstaller'))
 			$oMailboxAttDef = MetaModel::GetAttributeDef('EmailReplica', 'mailbox_path');
 			$sMailboxColName = $oMailboxAttDef->Get('sql');
 
-			// Purpose of this line?
-			$sFriendlynameAttCode = MetaModel::GetFriendlyNameAttributeCode('EmailReplica');
-
 			// Looping on inboxes to update
 			$oSet = new DBObjectSet($oSearch);
 			while ($oInbox = $oSet->Fetch())
@@ -113,7 +110,7 @@ if (!class_exists('EmailSynchroInstaller'))
 				SetupPage::log_info("Updated $iRet rows.");
 			}
 		}
-
+		
 	}
 
 }

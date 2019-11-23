@@ -24,13 +24,13 @@
 Dict::Add('EN US', 'English', 'English', array(
 	// Dictionary entries go here
 	'Class:MailInboxStandard' => 'Standard Mail Inbox',
-	'Class:MailInboxStandard+' => 'Source of incoming eMails',
+	'Class:MailInboxStandard+' => 'Source of incoming e-mails',
 	'Class:MailInboxStandard/Attribute:behavior' => 'Behavior',
 	'Class:MailInboxStandard/Attribute:behavior/Value:create_only' => 'Create new Tickets',
 	'Class:MailInboxStandard/Attribute:behavior/Value:update_only' => 'Update existing Tickets',
 	'Class:MailInboxStandard/Attribute:behavior/Value:both' => 'Create or Update Tickets',
 
-	'Class:MailInboxStandard/Attribute:email_storage' => 'After processing the eMail',
+	'Class:MailInboxStandard/Attribute:email_storage' => 'After processing the e-mail',
 	'Class:MailInboxStandard/Attribute:email_storage/Value:keep' => 'Keep it on the mail server',
 	'Class:MailInboxStandard/Attribute:email_storage/Value:delete' => 'Delete it immediately',
 
@@ -71,118 +71,133 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:error_behavior' => 'Behavior',
 	'Class:MailInboxStandard/Attribute:error_behavior/Value:delete' => 'Delete the message from the mailbox',
 	'Class:MailInboxStandard/Attribute:error_behavior/Value:mark_as_error' => 'Mark as Error', 
-	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward eMails (in error) To Address',
+	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward e-mails (in error) To Address',
 	'Class:MailInboxStandard/Attribute:notify_from' => 'Mail From Address',
 	
 	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases (one per line)',
 	 
 	
 	// Policy: mail size too large
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior' => 'eMail',
+	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior' => 'Behavior on violation',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_mail_size_too_big_max_size_MB' => 'Max size (MB)',
 	
 	// Policy: forbidden attachments
-	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:fallback' => 'Fallback: ignore forbidden attachments',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior' => 'Behavior on violation',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:fallback_ignore_forbidden_attachments' => 'Fallback: ignore forbidden attachments',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_forbidden_attachments_mimetypes' => 'MIME Types (one per line)',
 	
 	// Policy: no subject
-	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:fallback' => 'Fallback: use default subject',
+	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior' => 'Behavior on violation',
+	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:fallback_default_subject' => 'Fallback: use default subject',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_no_subject_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_no_subject_default_value' => 'Default subject',
 	
 	// Policy: unknown caller
-	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:fallback' => 'Fallback: create contact',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior' => 'Behavior on violation',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:fallback_create_person' => 'Fallback: create person',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:mark_as_undesired' =>  'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_behavior/Value:mark_as_undesired' =>  'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_unknown_caller_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new contact (one per line, example: org_id:1)',
+	'Class:MailInboxStandard/Attribute:policy_unknown_caller_default_values' => 'Default values for new person (one per line, example: org_id:1)',
 	
 	// Policy: other recipients
-	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:add_existing_contacts' => 'Fallback: add contact if exists',
-	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:add_all_contacts' => 'Fallback: add contact / create if necessary',
-	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:ignore_all_contacts' => 'Fallback: ignore all other contacts',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior' => 'Behavior on violation',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:fallback_add_existing_other_contacts' => 'Fallback: add contact if exists',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:fallback_add_other_contacts' => 'Fallback: add contact / create if necessary',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:fallback_ignore_other_contacts' => 'Fallback: ignore all other contacts',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_notification' => 'Bounce message',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_default_values' => 'Default values for new contacts (one per line, example: org_id:1)',
 	
 	// Policy: closed ticket
-	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:fallback' => 'Fallback: reopen ticket',
+	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior' => 'Behavior on violation',
+	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:fallback_reopen' => 'Fallback: reopen ticket',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_notification' => 'Bounce message', 
 	
 	// Policy: resolved ticket
-	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior' => 'eMail',
-	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:fallback' => 'Fallback: reopen ticket',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior' => 'Behavior on violation',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:fallback_reopen' => 'Fallback: reopen ticket',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_resolved_notification' => 'Bounce message', 
 	 
 	// Policy: unknown ticket
-	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior' => 'eMail', 
+	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior' => 'Behavior on violation', 
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:delete' => 'Delete',
-	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_ticket_unknown_notification' => 'Bounce message', 
 	
 	// Policy: undesired title patterns
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior' => 'eMail', 
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior' => 'Behavior on violation', 
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:delete' => 'Delete',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:bounce_delete' => 'Bounce to sender and delete',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:bounce_mark_as_undesired' => 'Bounce to sender and mark as undesired',
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the eMail',
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_notification' => 'Bounce message', 
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	
-	// Policy: remove or ignore title patterns
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Ignore/remove patterns in subject', 
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:delete' => 'Delete from subject',
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:ignore' => 'Ignore in subject',
+	// Policy: remove parts of title
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Remove patterns from subject', 
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:fallback_remove' => 'Remove part(s) from subject',
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
+	
+	// Policy: ignore parts of title
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Ignore patterns in subject', 
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:fallback_remove' => 'Ignore part(s) in subject',
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	// Headers
 	'MailInbox:Server' => 'Mailbox Configuration',
-	'MailInbox:Behavior' => 'Behavior on Incoming eMails',
-	'MailInbox:Errors' => 'Emails in Error', 
+	'MailInbox:Behavior' => 'Behavior on Incoming e-mails',
+	'MailInbox:Errors' => 'E-mails in Error', 
 	
 	// Policies
 	'MailInbox:PolicyMailSize' => 'Policy: Mail Size',
@@ -196,8 +211,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'MailInbox:PolicyUnknownCaller' => 'Policy: Unknown caller',
 	'MailInbox:PolicyOtherRecipients' => 'Policy: Other recipients',
 	
-	'Menu:MailInboxes' => 'Incoming eMail Inboxes',
-	'Menu:MailInboxes+' => 'Configuration of Inboxes to scan for Incoming eMails',
+	'Menu:MailInboxes' => 'Incoming E-mail Inboxes',
+	'Menu:MailInboxes+' => 'Configuration of Inboxes to scan for Incoming e-mail',
 	 
 	'MailInboxStandard:DebugTrace' => 'Debug Trace',
 	'MailInboxStandard:DebugTraceNotActive' => 'Activate the debug on this Inbox to see the debug trace here.',

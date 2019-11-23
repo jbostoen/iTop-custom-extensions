@@ -1,7 +1,7 @@
 # What?
-This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation (originally based on their version 3.0.7, but also includes the changes up to 3.1.0 so far).
-Some fixes from this version were accepted by Combodo back in August 2018 and are now part of the official version.
-What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. This extension offers some additional policies.
+This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation. It was originally based on their version 3.0.7 (28th of August 2017), but also includes the changes up to 3.1.0 so far.
+Some fixes in this version were accepted by Combodo back in August 2018 and are now part of the official version.
+What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. This extension offers some additional policies that can be enforced and also adds a few automated actions if those policies are violated.For example, it's possible to force callers to NOT have other recipients in the message sent to the helpdesk.
 One thing is important here: it's actually recommended to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
 For IMAP, here's a quick example on the configuration options (config-itop.php).
 Also make sure the PHP IMAP extension is enabled.
@@ -11,41 +11,40 @@ Also make sure the PHP IMAP extension is enabled.
 	  1 => 'ssl',
 	  2 => 'novalidate-cert',
 	),
-```# RoadmapShort term roadmap: this was my first PHP extension (fork) for iTop.Initially for a minor problem only, but it grew over time. It works, but the code is not "by the book". Expect some refactoring soon; while keeping the current options and datamodel.Also expect an **optional** link to the **ContactMethod** class you find in this repository, so a caller can have multiple email addresses.Other new features may be proposed, but are currently not planned.
+```# RoadmapShort term roadmap: this was my first PHP extension (fork) for iTop.Initially for a minor problem only, but it grew over time. It works, but the code is not "by the book". Expect some refactoring soon; while keeping the current options and datamodel.Also expect an **optional** link to the **ContactMethod** class you find in this repository, so a caller can have multiple e-mail addresses.Other new features may be proposed, but are currently not planned.Password field will be reviewed.
 # Basics about policies
-Most of them have:
-* eMail - behavior: always 'bounce and delete', 'delete', 'mark as undesired'. Sometimes 'mark as error'. Sometimes fallbacks are possible.
-* bounce subject - message subject when message is bounced back to sender (caller)
-* bounce message - message content when message is bounced back to sender (caller)
-In the bounce message, some variables can be used. In fact, most (all?) strings from the EmailMessage class are supported.
-So in the bounce subject/message, you can use $mail->Subject etc. (list below)
+Common options are:
+* behavior (on conflict/not compliant with policy)  * bounce and delete (inform the user the message has been rejected, provide some information why)  * delete  * do nothing (can be used for tests, without taking further action: does it detect policy violations?)  * mark as undesired (keeps the e-mail, but will ignore it in future processing)  * mark as error (keeps the e-mail)
+* bouncing (sending message to the user telling their e-mail is rejected)  * subject  * message
+In the bounce message, some placeholders (variables) can be used. In fact, most (all?) strings from the EmailMessage class are supported.
+So in the bounce subject/message, it's possible to use **$mail->subject$** etc. (list below)
 ```
-BodyFormat
-BodyText
-BodyTextPlain (not a property of Email Message, but gives a version with HTML tags stripped)
-CallerEmail
-CallerName
-Date
-MessageId
-Recipient
-Subject
-UIDL
+body_format
+body_text
+body_text_plain (not a property of Email Message, but gives a version with HTML tags stripped)
+caller_email
+caller_name
+date
+message_id
+recipient
+subject
+uidl
 ```
 # Configuration
 ## Mailbox Configuration
-* **Mail Server** 	
+* **Mail Server** 
 * **Login**
-* **Password**
+* **Password** - warning: just like Combodo's Mail to Ticket Automation, the password is still saved unencrypted!
 * **Protocol** - POP or IMAP
 * **Port (993 for IMAP)** - often 993 for IMAP
 * **Mailbox folder (for IMAP)** - the folder, for example InboxTest/SomeSubFolder
 * **Mail From Address** - errors/bounce messages are sent 'from'
-* **Active** - check mailbox 	 	
+* **Active** - check mailbox
 * **Debug trace** - debug log
 * **Mail Aliases** - one per line. List each email address (minimum 1)
-	 	
+	 
 # Behavior on Incoming eMails
-* **Behavior** - create only, update only or both
+* **Policy violation behavior** - create only, update only or both
 * **After processing the eMail** - delete it right away or keep it on the mail server
 * **Ticket Class** - which ticket class (see iTop data model, usually UserRequest)
 * **Ticket Default Values** - default values for tickets (see iTop data model, example below).
@@ -57,89 +56,79 @@ UIDL
     agent_id:395
     team_id:2
     status:assigned
-```	 	
-	 	
-# Emails in Error
-* **Behavior** - Delete or keep the message in the mailbox 	 	
+```	 
+	 
+# Emails in ErrorThis handles technical issues with e-mails; not policy violations.
+* **Policy violation behavior**  * Delete  * Mark as error
 * **Forward eMails (in error) To Address**
 ***
-# Policies
-## Mail Size
-* Use case: mail size is too big (often related to PHP, MySQL limits)
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+# Available policiesA list of included policies which can be configured.With some programming skills, it's easy to extend the *PolicyViolation* class.If it's a common use case, make a pull request to include it.
+## E-mail Size
+* **Use case:** e-mail size is too big (often related to PHP or MySQL limits)
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Mark as undesired
+* **Bounce subject**
 * **Bounce message**
-* **Max size (MB)** - 10 
- 	
+* **Max size (MB)** - default is 10 MB
+ 
 ## Forbidden attachments
 * Use case: you might not want .exe attachments
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Fallback: ignore forbidden attachments  * Mark as undesired* **Bounce subject**
 * **Bounce message**
 * **MIME Types** - one per line. Example: application/exe
-* Fallback: ignore forbidden attachments?
-	 	
+	 
 ## No subject
 * Use case: you want to enforce people to at least supply a subject.
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Fallback: default subject
+* **Bounce subject**	 
 * **Bounce message**
-* **Default subject** - example: (no subject)
-* Fallback: use specified default subject	 	
- 	
+* **Default subject** - specify a default title. Example: (no subject)
+ 
 ## Closed tickets
 * Use case: despite very clear warnings a ticket has been closed, user still replies.
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Fallback: reopen ticket  * Mark as undesired
+* **Bounce subject**
 * **Bounce message**
-* Fallback: reopen
 
 ## Resolved tickets
 * Use case: despite very clear warnings a ticket has been resolved, user still replies.
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Fallback: reopen ticket  * Mark as undesired
+* **Bounce subject**
 * **Bounce message**
-* Fallback: reopen
-	 	
+	 
 ## Unknown tickets
-* Use case: usually if the extension misinterprets a pattern in the email header and can't find the ticket.
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* Use case: if the extension (mis)interprets a pattern in the email header and can't find the ticket.
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Mark as undesired
+* **Bounce subject**
 * **Bounce message**
-* No fallback
 
 ## Unknown caller
 * Use case: first time caller
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Fallback: create person (with specified default values)  * Mark as undesired
+* **Bounce subject**
 * **Bounce message**
-* **Default values for new contact** - see example
-* Fallback: create contact, with specified defaults.
+* **Default values for new contact** - see example for minimal configuration
 ```
 	org_id:1 
 	first_name:Unknown 
 	name:Caller
 ```
-( creates a contact named 'Unknown Caller', belonging to first organization in iTop)
-	 	
+( creates a person named 'Unknown Caller', belonging to first organization in iTop)
+	 
 ## Other recipients
-* Use case: if you allow (B)CC to a helpdesk system, you might see people replying to the initial email from the caller. This would lead to multiple new tickets, since there is no ticket reference in the email header or subject.
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* Use case:  * If other recipients (To: or CC:) to processed inboxes are allowed, it's likely people will reply to the initial email from the caller.   * This would lead to multiple new tickets, since there is no ticket reference in the e-mail header or subject.
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Fallback: ignore other contacts  * Fallback: add other contacts  * Fallback: add other existing contacts  * Mark as undesired 
+* **Bounce subject**
 * **Bounce message**
-* fallback: ignore
-	 	
+	 
 ## Undesired patterns in title
-* Use case: out-of-office
-* **eMail** Bounce to sender and delete 	 	
-* **Bounce subject**	 	
+* Use case: out-of-office, e-mail should NOT be processed
+* **Policy violation behavior**  * Bounce to sender and delete  * Bounce to sender and mark as undesired  * Delete  * Do nothing  * Mark as undesired
+* **Bounce subject**
 * **Bounce message**
 * **Undesired patterns in subject** - (regex, one per line)
-## Patterns to ignore/remove from title
-* Use case: another ticket system which uses IR-1234567 as a ticket reference. If our format is R-123456, this would lead to issues when handling emails with a reference from the other ticket.
-* Fallback - Ignore: just ignores parts when handling a new e-mail, but keeps the original subject to create the ticket.
-* Fallback - Remove, it's gone completely in the title.
-* **Fallback**: ignore, remove 	
+## Patterns to remove/ignore from title
+* Use case: e-mail SHOULD be processed.  * Another ticket system which uses IR-1234567 as a ticket reference.   * If iTop's format is R-123456, this would lead to issues when handling e-mails with a reference from the other ticket system.  * E-mail SHOULD be processed.
+* **Policy violation behavior**  * Fallback - Ignore: just ignores parts when handling a new e-mail, but keeps the original subject to create the ticket.  * Fallback - Remove: it's removed completely in the title, even when viewing in iTop.  * Do nothing* **Bounce subject*** **Bounce message**
 * **Undesired patterns in subject** - (regex, one per line)
 # Other improvements
 ## Minor code tweaks
@@ -148,5 +137,5 @@ Some code was simplified.
 There's an attempt to fix issues with lost IMAP connections (to Office 365).
 Contrary to the original extension, EmailReplicas don't immediately disappear when the mail can not be seen anymore.
 It's stored for 7 more days after it's last seen.
-Benefit: if the email wasn't seen due to a lost IMAP connection, the EmailReplica got deleted with the original Combodo extension.
-If in the next run the IMAP connection functions properly, the email would be reprocessed as 'new' - which led to new tickets being created.
+Benefit: if the e-mail wasn't seen due to a lost IMAP connection, the EmailReplica got deleted with the original Combodo extension.
+If in the next run the IMAP connection functions properly, the e-mail would be reprocessed as 'new' - which led to new tickets being created.# CookbookPHP- how to implement renaming of columns, running queries during installation (ModuleInstallerAPI)

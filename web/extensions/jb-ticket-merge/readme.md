@@ -34,7 +34,7 @@ Attachments may be copied to the target Ticket.
     * Placeholders: current_contact_id, current_contact_friendlyname, current_date, current_time
     * Use case: notify caller and now related contacts on target Ticket that Tickets have been merged and others will now receive notifications too.
 
-**Work in progress*
+**Work in progress**
 
 * perform actions on target object as well as merged objects, similar to Combodo's User Actions Configurator.
   * on all objects: apply stimulus (so they can be resolved/closed automatically), set attributes, append text, ...

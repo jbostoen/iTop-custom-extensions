@@ -121,18 +121,19 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>		
 
-				<!-- All policy options -->
+		<!-- All policy options -->
 
-				<!-- Mail size (attachments) too big -->
+			<!-- Mail size (attachments) too big -->
 				<field id="policy_mail_size_too_big_behavior" xsi:type="AttributeEnum">
 					<values>								
-						<value>mark_as_undesired</value> 
-						<value>delete</value> 
-						<value>bounce_delete</value> 
+						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value>
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_mail_size_too_big_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_mail_size_too_big_subject" xsi:type="AttributeString">
@@ -145,24 +146,24 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-				<field id="policy_mail_size_too_big_max_size_MB" xsi:type="AttributeString">
+				<field id="policy_mail_size_too_big_max_size_MB" xsi:type="AttributeInteger">
 					<sql>policy_mail_size_too_big_max_size_MB</sql> 
 					<default_value>10</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 
-
-				<!-- Forbidden mail attachments -->
+			<!-- Forbidden e-mail attachments -->
 				<field id="policy_forbidden_attachments_behavior" xsi:type="AttributeEnum">
 					<values>
-						<value>fallback</value>
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value> 
 						<value>bounce_mark_as_undesired</value>
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>fallback_ignore_forbidden_attachments</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_forbidden_attachments_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_forbidden_attachments_subject" xsi:type="AttributeString">
@@ -186,14 +187,15 @@
 				<!-- option: create (ticket) with default title -->
 				<field id="policy_no_subject_behavior" xsi:type="AttributeEnum">
 					<values>
-						<value>fallback</value><!-- use default subject -->
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>fallback_default_subject</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_no_subject_behavior</sql>
-					<default_value>fallback</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_no_subject_subject" xsi:type="AttributeString">
@@ -213,18 +215,18 @@
 				</field>
 
 
-				<!-- Unknown callers -->
-				<!-- option: create (with default values) -->
+				<!-- Unknown caller -->
 				<field id="policy_unknown_caller_behavior" xsi:type="AttributeEnum">
 					<values>
-						<value>fallback</value><!-- create contact -->
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
+						<value>delete</value> 
+						<value>do_nothing</value>
+						<value>fallback_create_person</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_unknown_caller_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_unknown_caller_subject" xsi:type="AttributeString">
@@ -246,19 +248,19 @@
 
 
 				<!-- Additional contacts -->
-				<!-- Option: ignore all, create/add all -->
 				<field id="policy_other_recipients_behavior" xsi:type="AttributeEnum">
 					<values>
-						<value>add_existing_contacts</value>
-						<value>add_all_contacts</value>
-						<value>ignore_all_contacts</value>
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>fallback_add_other_contacts</value>
+						<value>fallback_add_existing_contacts</value>
+						<value>fallback_ignore_other_contacts</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_other_recipients_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_other_recipients_subject" xsi:type="AttributeString">
@@ -281,14 +283,15 @@
 				<!-- Reference to closed ticket -->
 				<field id="policy_ticket_closed_behavior" xsi:type="AttributeEnum">
 					<values>
-						<value>fallback</value><!-- reopen -->
+						<value>fallback_reopen</value>
 						<value>mark_as_undesired</value>
-						<value>delete</value> 
+						<value>delete</value>
+						<value>do_nothing</value>
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
 					</values>
 					<sql>policy_ticket_closed_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_ticket_closed_subject" xsi:type="AttributeString">
@@ -305,14 +308,15 @@
 				<!-- Reference to resolved ticket -->
 				<field id="policy_ticket_resolved_behavior" xsi:type="AttributeEnum">
 					<values>
-						<value>fallback</value><!-- reopen -->
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>fallback_reopen</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_ticket_resolved_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_ticket_resolved_subject" xsi:type="AttributeString">
@@ -329,13 +333,14 @@
 				<!-- Reference to non-existing ticket -->
 				<field id="policy_ticket_unknown_behavior" xsi:type="AttributeEnum">
 					<values> 
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_ticket_unknown_behavior</sql>
-					<default_value>bounce_delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_ticket_unknown_subject" xsi:type="AttributeString">
@@ -349,17 +354,17 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 
-				<!-- Undesired pattern -->
-				<!-- option: specify undesired pattern here instead of in settings file. -->
+				<!-- Undesired title pattern, reject entire e-mail -->
 				<field id="policy_undesired_pattern_behavior" xsi:type="AttributeEnum">
 					<values> 
-						<value>mark_as_undesired</value>
-						<value>delete</value> 
 						<value>bounce_delete</value>
 						<value>bounce_mark_as_undesired</value> 
+						<value>delete</value>
+						<value>do_nothing</value>
+						<value>mark_as_undesired</value>
 					</values>
 					<sql>policy_undesired_pattern_behavior</sql>
-					<default_value>delete</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_undesired_pattern_subject" xsi:type="AttributeString">
@@ -378,15 +383,14 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 
-				<!-- Remove pattern -->
-				<!-- option: specify patterns to remove from the title. -->
+				<!-- Avoid title pattern conflicts by removing subject parts -->
 				<field id="policy_remove_pattern_behavior" xsi:type="AttributeEnum">
-					<values> 
-						<value>ignore</value>
-						<value>delete</value> 
+					<values>
+						<value>do_nothing</value>
+						<value>fallback_remove</value>
 					</values>
 					<sql>policy_remove_pattern_behavior</sql>
-					<default_value>ignore</default_value>
+					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field> 
 				<field id="policy_remove_pattern_patterns" xsi:type="AttributeText">
@@ -395,6 +399,21 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 
+				<!-- Avoid title pattern conflicts by ignoring subject parts -->
+				<field id="policy_ignore_pattern_behavior" xsi:type="AttributeEnum">
+					<values>
+						<value>do_nothing</value>
+						<value>fallback_ignore</value>
+					</values>
+					<sql>policy_ignore_pattern_behavior</sql>
+					<default_value>do_nothing</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field> 
+				<field id="policy_ignore_pattern_patterns" xsi:type="AttributeText">
+					<sql>policy_ignore_pattern_patterns</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
 
 
 			</fields>
@@ -457,7 +476,13 @@ EOF
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
 			$this->Set('debug_trace', $sStampedText.mb_substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
 
-			$this->DBUpdate();
+			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
+			$oMyChange = MetaModel::NewObject("CMDBChange");
+			$oMyChange->Set("date", time());
+			$sUserString = CMDBChange::GetCurrentUserName();
+			$oMyChange->Set("userinfo", $sUserString);
+			$iChangeId = $oMyChange->DBInsert();
+			$this->DBUpdateTracked($oMyChange);
 		}
 	}]]></code>
 				</method>
@@ -514,8 +539,8 @@ EOF
         $oTicket = $this->GetRelatedTicket($oEmail);
 
 		
-		// Careful: Combodo's version implemented an IsUndesired-method in later versions (v3.0.11).
-		// Our method needs an additional parameter ( $oTicket ) to validate the email against some policies.
+		// Careful: Combodo's version implemented an IsUndesired-method in later versions (starting in v3.0.11).
+		// The method in this fork needs an additional parameter ( $oTicket ) to validate the email against some policies.
 		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
 		
 		// Not policy compliant? Then stop processing. 
@@ -758,15 +783,7 @@ EOF
 			$oTicket->Set('origin', 'mail');
 		}
 		
-		// Email has no subject. If we get here, it's because there was no policy to reject empty subjects.
-		if ($oEmail->sSubject == '')
-		{
-			$sDefaultSubject = ($this->Get('policy_no_subject_default_value') == '') ? Dict::S('MailInbox:NoSubject') : $this->Get('policy_no_subject_default_value');
-			$this->Trace("The incoming email has no subject, the ticket title will be set to: {$sDefaultSubject}");
-			$oTicket->Set('title', $sDefaultSubject);
-		}
-		else
-		{
+		
 			$oTicketTitleAttDef = MetaModel::GetAttributeDef(get_class($oTicket), 'title');
 			$iTitleMaxSize = $oTicketTitleAttDef->GetMaxSize();
 			 
@@ -794,14 +811,15 @@ EOF
 			}
 			
 			$oTicket->Set('title', substr( $sSubject , 0, $iTitleMaxSize));
-		}
+		
 		
 		$aIgnoredAttachments = array();
 		
 		
-		// Get list of forbidden file types 
-		if( $this->Get('policy_forbidden_attachments_mimetypes') != '' ) {
-			$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_forbidden_attachments_mimetypes') );
+		// Get list of forbidden file types
+		$sForbiddenMimeTypes = $this->Get('policy_forbidden_attachments_mimetypes');
+		if($sForbiddenMimeTypes != '' ) {
+			$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $sForbiddenMimeTypes);
 			
 			// Forbidden attachments? 
 			foreach($oEmail->aAttachments as $index => $aAttachment)
@@ -1124,7 +1142,7 @@ EOF
 		}
 		
 		$oCaseLog = $oTicket->Get($sAttCode);
-		$oAttributeValue = new ormCustomCaseLog();
+		$oAttributeValue = new \jb_itop_extensions\components\ormCustomCaseLog();
 		
 		// GetForJSON() actually returns an array of each entry
 		foreach($oCaseLog->GetAsArray() as $aEntry) {
@@ -1766,43 +1784,6 @@ EOF
 		
 		$oCaller = null; 
 		
-		// ### Policy: Forbidden Attachments.
-		$this->Trace(".. Policy: forbidden attachments. Behavior: {$this->Get('policy_forbidden_attachments_behavior')}");
-		
-			if( $this->Get('policy_forbidden_attachments_behavior') == 'fallback' ) {
-				// Will be processed. Forbidden attachments will be ignored. So fallback does not make sense.
-			}
-			elseif( $this->Get('policy_forbidden_attachments_mimetypes') != '' ) {
-			
-				// Get list of forbidden file types 
-				$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_forbidden_attachments_mimetypes') );
-				
-				$this->Trace(".. testing for these forbidden MimeTypes: " . implode(" - ", $aForbiddenMimeTypes) );
-								 
-				// Forbidden attachments? 
-				foreach($oEmail->aAttachments as $aAttachment)
-				{ 
-					$this->Trace(".. MimeType: {$aAttachment['mimeType']}");
-					if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
-					{
-						$this->Trace("... The message '{$oEmail->sSubject}' is considered as undesired, since it contains an attachment with forbidden MimeType {$aAttachment['mimeType']}");
-						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_forbidden_attachments'];
-					}
-				}
-				
-			}
-			
-		// ### Policy: Mail Size
-		$this->Trace(".. Policy: mail size");
-		
-			$oRawEmail = $oEmail->oRawEmail;
-			
-			if ( $oRawEmail->GetSize() > $this->Get('policy_mail_size_too_big_max_size_MB') * 1024 * 1024 )
-			{
-				// Mail size too big  
-				$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since the mail size is too big (mail = '".($oRawEmail->GetSize()/1024/1024)." MB = {$oRawEmail->GetSize()}' bytes, limit = '{$this->Get('policy_mail_size_too_big_max_size_MB')}' MB = '".($this->Get('policy_mail_size_too_big_max_size_MB')*1024*1024)."' bytes ) ");
-				return (object)["bUndesired" => true, 'sPolicyId' => 'policy_mail_size_too_big'];
-			}
 		
 		// ### Policy: No subject
 		$this->Trace(".. Policy: no subject");	

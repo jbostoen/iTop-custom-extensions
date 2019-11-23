@@ -9,7 +9,7 @@ SetupWebPage::AddModule(
 	array(
 		// Identification
 		//
-		'label' => 'Ticket Creation from Emails (Standard)',
+		'label' => 'Feature: Ticket Creation from E-mails',
 		'category' => 'business',
 
 		// Setup
@@ -18,6 +18,7 @@ SetupWebPage::AddModule(
 			'jb-email-synchro/2.6.190110',
 			// no other dependency is listed, for backward 1.x compatibility... though this module uses implicitely the Ticket's derived classes...
 		),
+		'installer' => 'StandardEmailSynchroInstaller',
 		'mandatory' => false,
 		'visible' => true,
 
@@ -25,7 +26,8 @@ SetupWebPage::AddModule(
 		//
 		'datamodel' => array(
 			'model.jb-itop-standard-email-synchro.php',
-			'core/ormcustomcaselog.class.inc.php'
+			'core/ormcustomcaselog.class.inc.php',
+			'core/policyviolation.class.inc.php',
 		),
 		'webservice' => array(
 			
@@ -52,3 +54,37 @@ SetupWebPage::AddModule(
 	)
 );
 
+
+if (!class_exists('StandardEmailSynchroInstaller')) {
+
+	// Module installation handler
+	//
+	class StandardEmailSynchroInstaller extends ModuleInstallerAPI {
+
+		/**
+		 * Handler called before creating or upgrading the database schema
+		 * @param $oConfiguration Config The new configuration of the application
+		 * @param $sPreviousVersion string Previous version number of the module (empty string in case of first install)
+		 * @param $sCurrentVersion string Current version number of the module
+		 *
+		 * @since 20191123-2008
+		 */
+		public static function BeforeDatabaseCreation(Config $oConfiguration, $sPreviousVersion, $sCurrentVersion) {
+			
+			// 20191123-2011: renamed enum values, indicating they're fallbacks and doing a specific action; even if there's only one fallback.
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_forbidden_attachments_behavior', 'fallback', 'fallback_ignore_forbidden_attachments');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_no_subject_behavior', 'fallback', 'fallback_default_subject');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_ticket_resolved_behavior', 'fallback', 'fallback_reopen');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_ticket_closed_behavior', 'fallback', 'fallback_reopen');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_unknown_caller_behavior', 'fallback', 'fallback_create_person');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_other_recipients_behavior', 'ignore_all_contacts', 'fallback_ignore_other_contacts');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_other_recipients_behavior', 'add_all_contacts', 'fallback_add_other_contacts');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_other_recipients_behavior', 'add_existing_contacts', 'fallback_add_existing_other_contacts');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_remove_pattern_behavior', 'remove', 'fallback_remove');
+			self::RenameEnumValueInDB('MailInboxStandard', 'policy_remove_pattern_behavior', 'ignore', 'do_nothing'); // Should actually be translated to policy_ignore_pattern
+			
+		}
+		
+	}
+
+}

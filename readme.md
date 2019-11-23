@@ -7,20 +7,21 @@
 This repository contains all sorts of **unofficial** examples and extensions for iTop, both finished and unfinished.
 
 There's some very basic examples about adding/changing fields; creating new object classes. 
-Advanced examples include adding menu's, entirely new dashlets, flexible reports, custom front ends, ...
+Advanced examples include adding menus, entirely new dashlets, flexible reports, custom front ends, ...
 
 
 # Folders
 - **docs**: contains info/hints on using the extensions in this repository, but also on implementing/using iTop
 - **utils**: some utilities I use for debugging and development
-- **web/extensions**: extensions which are actively maintained and which should be stable You can drop and merge this under <iTop folder>/web .
+- **web/extensions**: extensions which are actively maintained and which should be stable. You can drop and merge this under <iTop folder>/web .
 
 - **wip**: work in progress. Unfinished. Also contains some concepts.
 
 
 # Support development / freelance
 If you appreciate this work, consider a small donation.
-Also open to offers to discuss configuring or customizing your iTop or to develop new features or extensions.
+Also open to offers to discuss configuring, customizing and troubleshooting your iTop instance. 
+Or to develop new features or extensions.
 Feel free to get in touch: jbostoen.itop@outlook.com
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/jbostoen)
@@ -45,13 +46,15 @@ For any general support questions (issues/questions NOT caused by my extensions)
 # Compatibility
 I am developing ***unofficial*** extensions (simple tweaks, extra features) for iTop using PHP 7.2 and MySQL 5.7.
 
-It's unknown if these extensions work on older versions of iTop. For most of them, only minor adjustments might be enough (downgrading data model version number, dependencies).
+It's unknown if these extensions work on older versions of iTop. 
+Making minor adjustments might be enough to make them backward compatible. (downgrading version number of datamodel XML and dependencies in module PHP file).
 
 * [Support plan](https://github.com/jbostoen/iTop-custom-extensions/blob/master/docs/support%20plan.md)
 
 
 # History
-I (jbostoen) started using iTop in 2015. Since then, I've been using and customizing this application more every day. I also stimulated others to use it and also made small contributions to iTop, both in code and translations.
+I (jbostoen) started using iTop in 2015. Since then, I've been using and customizing this application more every day. 
+I also stimulated others to use it and also made small contributions to iTop, both in code and translations.
 
 In the meanwhile, my colleague [jdefoort](https://github.com/jdefoort) also became an iTop enthousiast and we often collaborate on new extensions.
 

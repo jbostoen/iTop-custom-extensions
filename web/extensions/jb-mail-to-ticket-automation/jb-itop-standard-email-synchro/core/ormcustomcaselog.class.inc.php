@@ -5,17 +5,25 @@
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  * @version     2019-11-01 17:26:09
  *
- * Custom version of ormCaseLog. Likely to be included in my fork of Mail to Ticket Automation.
- * extended AddLogEntry() to support on_behalf_of_user_id (rather than just 'on_behalf_of'). Important: NOT done so for AddLogEntryFromJSON(). If needed, do this.
- * originally intended an UpdateLogEntryAt() to support retro-active updating (meant for our own version of 'Mail to Ticket Automation'); but it would have to loop each time anyway.
- * therefore, it's better to build an ormCustomCaseLog from scratch and use AddLogEntry()
+ * Custom version of ormCaseLog.
+ * Extended AddLogEntry() to support on_behalf_of_user_id (rather than just 'on_behalf_of'). 
+ * Important: NOT implemented so for AddLogEntryFromJSON(). If needed, add this.
+ *
+ * Originally planned an UpdateLogEntryAt() to support retro-active updating (meant for custom version of 'Mail to Ticket Automation'); 
+ * but the method would have to loop over each entry every time anyway.
+ * Therefore, it's better to build an ormCustomCaseLog from scratch and use AddLogEntry()
  */
- 
 
-if( class_exists('ormCustomCaseLog') == false ) {
-	
+namespace jb_itop_extensions\components;
 
-	class ormCustomCaseLog extends ormCaseLog {
+use \AttributeDateTime;
+use \ormCaseLog;
+use \HTMLSanitizer;	   
+use \UserRights;
+
+if(class_exists('jb_itop_extensions\components\ormCustomCaseLog') == false) {
+
+	class ormCustomCaseLog extends \ormCaseLog {
 
 		/**
 		 * Add a new entry to the log or merge the given text into the currently modified entry 
@@ -62,8 +70,9 @@ if( class_exists('ormCustomCaseLog') == false ) {
 			$sSeparator = sprintf(CASELOG_SEPARATOR, $sDateTime, $sOnBehalfOf, $iUserId);
 			$iSepLength = strlen($sSeparator);
 			$iTextlength = strlen($sText);
-			$this->m_sLog = $sSeparator.$sText.$this->m_sLog; // Latest entry printed first
-			$this->m_aIndex[] = array(
+			
+			// Not looking to add duplicate entries, so
+			$aEntry =  array(
 				'user_name' => $sOnBehalfOf,
 				'user_id' => $iUserId,
 				'date' => strtotime($sDateTime),
@@ -71,7 +80,33 @@ if( class_exists('ormCustomCaseLog') == false ) {
 				'separator_length' => $iSepLength,
 				'format' => 'html',
 			);
-			$this->m_bModified = true;
+			
+			if(in_array($aEntry, $this->m_aIndex) == false) {
+			
+				$this->m_sLog = $sSeparator.$sText.$this->m_sLog; // Latest entry printed first
+				$this->m_aIndex[] = $aEntry;
+				$this->m_bModified = true;
+				
+			}
+			
+		}
+		
+		/**
+		 * Adds case log entries from a provided source ormCaseLog
+		 *
+		 * @param ormCaseLog $oSourceCaseLog Case log
+		 *
+		 * @return void
+		 */
+		public function AddLogEntriesFromCaseLog($oSourceCaseLog) {
+			
+			foreach($oSourceCaseLog->GetAsArray() as $aEntry) {
+				
+				// AddLogEntry() remains flexible; it keeps original user information and datetime
+				$this->AddLogEntry( $aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date'] );
+				
+			}
+			
 		}
 		
 		/**
@@ -105,10 +140,11 @@ if( class_exists('ormCustomCaseLog') == false ) {
 			});
 						
 			// m_aIndex AND m_sLog both need to be updated, hence this trick.
-			$oCustomCaseLog = new ormCustomCaseLog();
+			$oCustomCaseLog = new \jb_itop_extensions\components\ormCustomCaseLog();
 			
-			// Above logic is: order as requested. $aEntries contains the log entries in the wanted order.
-			// However, since adding happens on top, it needs to be reversed below.
+		// The order above might be descending, as wanted.
+		// However, if that item gets added first, iTop will add the subsequent (older) issues on top of that entry again.
+		// That's why they're added in reversed order.
 			foreach(array_reverse($aEntries) as $aEntry) {
 				$oCustomCaseLog->AddLogEntry($aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date']);
 			}
