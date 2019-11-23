@@ -11,7 +11,7 @@ Also make sure the PHP IMAP extension is enabled.
 	  1 => 'ssl',
 	  2 => 'novalidate-cert',
 	),
-```
+```# RoadmapShort term roadmap: this was my first PHP extension (fork) for iTop.Initially for a minor problem only, but it grew over time. It works, but the code is not "by the book". Expect some refactoring soon; while keeping the current options and datamodel.Also expect an **optional** link to the **ContactMethod** class you find in this repository, so a caller can have multiple email addresses.Other new features may be proposed, but are currently not planned.
 # Basics about policies
 Most of them have:
 * eMail - behavior: always 'bounce and delete', 'delete', 'mark as undesired'. Sometimes 'mark as error'. Sometimes fallbacks are possible.
