@@ -87,8 +87,9 @@ It's possible to specify both default settings and override them for any given c
   * It has to be a SinglePoint, SingleLineString or SinglePolygon. 
   * MultiPoint, MultiLineString, MultiPolygon or other geometries are unsupported.
 * Complex features with lots of points may be too large to store. (unlikely)
-* Currently stored as an AttributeString (so not a MySQL geometry field).
-
+* Currently stored as an AttributeString (so not a MySQL geometry field). This is done to limit future compatibility issues with iTop.
+* Background layers (such as OpenStreetMap) require an active internet connection. However, it's possible to run a GIS server offline.
+* Bulk modification: there's no map, just a field with a textual presentation of the coordinates.
 
 # Good to know
 * Using QGIS Desktop (open source and free), the data can be quickly visualized (not edited!) and geospatial analysis can be performed.
@@ -96,7 +97,6 @@ It's possible to specify both default settings and override them for any given c
 
 # Roadmap
 * Search bar (locate addresses)
-
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
