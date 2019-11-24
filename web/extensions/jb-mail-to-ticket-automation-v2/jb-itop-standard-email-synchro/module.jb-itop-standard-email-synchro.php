@@ -48,7 +48,7 @@ SetupWebPage::AddModule(
 		//
 		'settings' => array(
 			// Module specific settings go here, if any
-			'inline_image_max_width' => '500', // Maximum width (in px) for displaying inline images
+			'inline_image_max_width' => 500, // Maximum width (in px) for displaying inline images
 			'ticket_log' => array('UserRequest' => 'public_log', 'Incident' => 'public_log'),
 		),
 	)

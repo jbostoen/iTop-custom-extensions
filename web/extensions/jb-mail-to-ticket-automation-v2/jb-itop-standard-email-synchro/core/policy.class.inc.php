@@ -117,8 +117,8 @@ abstract class Policy implements iPolicy {
 	
 		$sUnqualifiedName = (new \ReflectionClass(get_called_class()))->getShortName();
 		if($sUnqualifiedName  != 'Policy') {
-			self::$oMailBox->Trace('Policy check starting: '.$sUnqualifiedName);
-			self::$oMailBox->Trace('. Behavior: '.self::$oMailBox->Get(get_called_class()::$sPolicyId.'_behavior'));
+			self::Trace('. Check: '.$sUnqualifiedName);
+			self::Trace('.. Behavior: '.self::$oMailBox->Get(get_called_class()::$sPolicyId.'_behavior'));
 		}
 	}
 	
@@ -132,7 +132,7 @@ abstract class Policy implements iPolicy {
 	
 		$sUnqualifiedName = (new \ReflectionClass(get_called_class()))->getShortName();
 		if($sUnqualifiedName  != 'Policy') {
-			self::$oMailBox->Trace('Policy check complete: '.$sUnqualifiedName);
+			self::Trace('. Complete: '.$sUnqualifiedName);
 		}
 	}
 	
@@ -149,18 +149,21 @@ abstract class Policy implements iPolicy {
 		// Inform the caller who doesn't follow guidelines.		
 		// User education and communicating the guideliens is great; but sometimes policies need to be enforced.
 		$sTo = self::$oEmail->sCallerEmail;
-		$sFrom = self::$oEmail->Get('notify_from'); 
+		$sFrom = self::$oMailBox->Get('notify_from'); 
 	
 		// Policy violations have a typical way of handling.
 		// The behavior is - besides some fallbacks - usually one of the following:
 		// - bounce_delete -> bounce and delete the message
 		// - bounce_mark_as_undesired -> bounce and marks the message as undesired
 		// - delete -> delete the message
+		// - do nothing -> great, lazy. For testing purposes.
 		// - mark_as_undesired -> stays in the mailbox for a few days
 		// - some sort of fallback -> doesn't matter here
 		
-		$sBehavior = self::$oMailBox->Get(self::$sPolicyId.'_behavior');
-		self::$oMailBox->Trace('. Policy violated. Behavior: '.$sBehavior);
+		$sPolicyId = get_called_class()::$sPolicyId;
+		
+		$sBehavior = self::$oMailBox->Get($sPolicyId.'_behavior');
+		self::Trace('. Policy violated. Behavior: '.$sBehavior);
 		
 		// First check if e-mail notification must be sent to caller (bounce message)
 		switch($sBehavior) {
@@ -168,24 +171,30 @@ abstract class Policy implements iPolicy {
 			// Generic cases
 			case 'bounce_delete':
 			case 'bounce_mark_as_undesired':
+			
+				self::Trace('Bounce message: '.$sPolicyId);
 				
-				$sSubject = $oMailBox->Get(self::$sPolicyId.'_subject');
-				$sBody = $oMailBox->Get(self::$sPolicyId.'_notification'); 
+				$sSubject = self::$oMailBox->Get($sPolicyId.'_subject');
+				$sBody = self::$oMailBox->Get($sPolicyId.'_notification'); 
 				
 				// Return to sender
 				if($sTo == ''){ 
-					self::$oMailBox->Trace('.. No "to" defined, skipping bounce message.');
+					self::Trace('.. No "to" defined, skipping bounce message.');
 				}
 				elseif($sFrom == ''){ 
-					self::$oMailBox->Trace('.. No "from" defined, skipping bounce message.');
+					self::Trace('.. No "from" defined, skipping bounce message.');
 				}
 				else if($oRawEmail){
 					
 					// Allow some customization in the bounce message
 					$sSubject = self::ReplaceMailPlaceholders($sSubject);
 					$sBody = self::ReplaceMailPlaceholders($sBody);
-		
-					self::Trace('Raw Email: '.$sSubject.'\n\n'.strip_tags($sBody));
+					
+					if($sSubject == '') {
+						$sSubject = 'Message bounced - not compliant with an enforced policy.';
+					}
+
+					self::Trace('Sending bounce message "'.$sSubject.'" to "'.$sTo.'"');
 					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
 				}
 				
@@ -199,26 +208,26 @@ abstract class Policy implements iPolicy {
 			case 'bounce_delete':
 			case 'delete': 
 				self::Trace('Set next action for EmailProcessor to DELETE_MESSAGE');
-				self::$setNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
+				self::$oMailBox->SetNextAction(\EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
 				break;
 				
 			// Mark as error should be irrelevant now. Keeping it just in case.
 			case 'mark_as_error': 
 				self::Trace('Set next action for EmailProcessor to MARK_MESSAGE_AS_ERROR');
-				self::$setNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
+				self::$oMailBox->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 				break;
 				 
 			case 'bounce_mark_as_undesired':
 			case 'mark_as_undesired':
 				self::Trace('Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED');
-				self::$setNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
+				self::$oMailBox->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
 				break;
 				
 			// Any other action
 			case 'do_nothing':
 			default:
 				self::Trace('Set next action for EmailProcessor to NO_ACTION');
-				self::$setNextAction(EmailProcessor::NO_ACTION);
+				self::$oMailBox->SetNextAction(\EmailProcessor::NO_ACTION);
 				
 		}
 		
@@ -248,8 +257,19 @@ abstract class Policy implements iPolicy {
 			'mail->body_format' => self::$oEmail->sBodyFormat
 		];
 		
-		$sString = \MetaModel::ApplyParams($sString, $aParams);
+		return \MetaModel::ApplyParams($sString, $aParams);
 		
+	}
+	
+	/**
+	 * For logging information about the processing of e-mails.
+	 *
+	 * @var \String $sString Input string
+	 *
+	 * @return void
+	 */
+	public static function Trace($sString) {
+		self::$oMailBox->Trace($sString);
 	}
 		 
 }
@@ -283,8 +303,8 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 		
 			$aForbiddenMimeTypes = preg_split(NEWLINE_REGEX, self::$oMailBox->Get(self::$sPolicyId.'_mimetypes'));
 		
-			self::$oMailBox->Trace('.. Forbidden MimeTypes: '. implode(' - ', $aForbiddenMimeTypes));
-			self::$oMailBox->Trace('.. # Attachments: '. count(self::$oEmail->aAttachments));
+			self::Trace('.. Forbidden MimeTypes: '. implode(' - ', $aForbiddenMimeTypes));
+			self::Trace('.. # Attachments: '. count(self::$oEmail->aAttachments));
 			
 			if(count($aForbiddenMimeTypes) > 0 && count(self::$oEmail->aAttachments) > 0) {
 				
@@ -298,11 +318,11 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 						
 						// Forbidden attachments? 
 						foreach(self::$oEmail->aAttachments as $aAttachment) { 
-							self::$oMailBox->Trace('.. Attachment MimeType: '.$aAttachment['mimeType']);
+							self::Trace('.. Attachment MimeType: '.$aAttachment['mimeType']);
 							
 							if(in_array($aAttachment['mimeType'], $aForbiddenMimeTypes) == true) {
 								
-								self::$oMailBox->Trace('... Found attachment with forbidden MimeType "'.$aAttachment['mimeType'].'"');
+								self::Trace('... Found attachment with forbidden MimeType "'.$aAttachment['mimeType'].'"');
 								self::HandleViolation();
 								
 								// No specific fallback								
@@ -318,18 +338,18 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 						// Ticket will be processed. Forbidden attachments will be removed here.
 						foreach(self::$oEmail->aAttachments as $index => $aAttachment) { 
 							if(in_array($aAttachment['mimeType'], $aForbiddenMimeTypes) == true) {
-								self::$oMailBox->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = forbidden.");
+								self::Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = forbidden.");
 								// Removing attachment
 								unset(self::$oEmail->aAttachments[$index]);
 							}
 							else {
-								self::$oMailBox->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = allowed.");
+								self::Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = allowed.");
 							}
 						}
 						break;
 						
 					default:
-						self::$oMailBox->Trace('.. Unexpected "behavior"');
+						self::Trace('.. Unexpected "behavior"');
 						break;
 				}
 		
@@ -377,7 +397,7 @@ abstract class PolicyLimitMailSize extends Policy implements iPolicy {
 			if($iMailSize > $iLimitMailSize) {
 				
 				// Mail size too big
-				self::$oMailBox->Trace('... Undesired: mail size too big: mail size = '.$iMailSize.' bytes, while limit is '.$iLimitMailSize.' bytes.');
+				self::Trace('.. Undesired: mail size too big: mail size = '.$iMailSize.' bytes, while limit is '.$iLimitMailSize.' bytes.');
 				self::HandleViolation();
 				
 				// No fallback
@@ -436,7 +456,7 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 					 case 'mark_as_undesired':
 
 						// No subject (and no fallback)
-						self::$oMailBox->Trace('... Undesired: Empty subject.');
+						self::Trace('.. Undesired: Empty subject.');
 						self::HandleViolation();
 						
 						// No fallback
@@ -451,12 +471,12 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 						// Set ticket title of e-mail message
 						// Setting the ticket title on the ticket object happens later and not in this policy!
 						$sDefaultTitle = self::$oMailBox->Get(self::$sPolicyId.'_default_subject');
-						self::$oMailBox->Trace('.. Fallback: changing empty subject to "'.$sDefaultTitle.'"');
+						self::Trace('.. Fallback: changing empty subject to "'.$sDefaultTitle.'"');
 						self::$oEmail->sSubject = $sDefaultTitle;
 						break;
 					
 					default:
-						self::$oMailBox->Trace('.. Unexpected "behavior"');
+						self::Trace('.. Unexpected "behavior"');
 						break;
 					
 				}
@@ -522,7 +542,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 						if(in_array($sCurrentEmail, $aExcludeContacts) == false) {
 							
 							// Found other contacts in To: or CC: 
-							self::$oMailBox->Trace("... Undesired: at least one other recipient (missing alias or unwanted): {$aContactInfo['email']}");
+							self::Trace(".. Undesired: at least one other recipient (missing alias or unwanted): {$aContactInfo['email']}");
 							self::HandleViolation();
 							
 							// No fallback
@@ -534,7 +554,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 
 					break; // Defensive programming
 					
-				case 'fallback_add_other_contacts':
+				case 'fallback_add_existing_other_contacts':
 			
 					foreach($aAllContacts as $aContactInfo) {
 						$sCurrentEmail = $aContactInfo['email'];
@@ -549,7 +569,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 							if($oSet->Count() == 0) {
 								
 								// Create
-								self::$oMailBox->Trace("Creating a new Person with email address {$sCallerEmail}");
+								self::Trace("Creating a new Person with email address {$sCallerEmail}");
 								$oCaller = new \Person();
 								$oCaller->Set('email', self::$oEmail->sCallerEmail);
 								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
@@ -567,14 +587,14 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 								self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
 								try
 								{
-									self::$oMailBox->Trace("Try to create user with default values");
+									self::Trace("Try to create user with default values");
 									$oCaller->DBInsert();					
 								}
 								catch(Exception $e)
 								{
 									// This is an actual error.
-									self::$oMailBox->Trace("Failed to create a Person for the email address '{$sCallerEmail}'.");
-									self::$oMailBox->Trace($e->getMessage());
+									self::Trace("Failed to create a Person for the email address '{$sCallerEmail}'.");
+									self::Trace($e->getMessage());
 									self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
 									return null;
 								}									
@@ -584,7 +604,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 					}
 					break;
 					
-				case 'fallback_add_existing_contacts':
+				case 'fallback_add_existing_other_contacts':
 				
 					// Will be added automatically later
 					break;
@@ -595,11 +615,11 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 					self::$oEmail->aTos = [];
 					self::$oEmail->aCCs = [];
 				
-					self::$oMailBox->Trace('.. Ignoring other contacts');
+					self::Trace('.. Ignoring other contacts');
 					break;
 				
 				default:
-					self::$oMailBox->Trace('.. Unexpected "behavior"');
+					self::Trace('.. Unexpected "behavior"');
 					break;
 				
 			}
@@ -639,6 +659,9 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 		// Generic 'before' actions
 		parent::BeforeComplianceCheck();
 		
+		// Todo: what is $oEmail->oRelatedObject?
+		// Is the ticket valid in the iTop database or does the number NOT match?
+		
 		// Checking if ticket reference is invalid
 			if(self::$oTicket === null) {
 			
@@ -657,17 +680,17 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 						
 						$aPatterns = explode('/\\r\\n|\\r|\\n/', $sPatterns);
 						
-						self::$oMailBox->Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
+						self::Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
 						
 						foreach($aPatterns as $sPattern) {
 							if(trim($sPattern) != '') {
 								$oPregMatch = @preg_match($sPattern, $sSubject);
 								
 								if( $oPregMatch === false) {
-									self::$oMailBox->Trace("... Invalid pattern: '{$sPattern}'");
+									self::Trace("... Invalid pattern: '{$sPattern}'");
 								}
 								elseif(preg_match($sPattern, $sSubject)) {
-									self::$oMailBox->Trace("... Removing: '{$sPattern}'");
+									self::Trace("... Removing: '{$sPattern}'");
 									$sSubject = preg_replace($sPattern, '', $sSubject);
 								}
 								else {
@@ -680,11 +703,11 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 				
 				$sPattern = self::$oMailBox->FixPattern(self::$oMailBox->Get('title_pattern'));
 				if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
-					self::$oMailBox->Trace("... Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}').");
+					self::Trace(".. Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}').");
 					return false;
 				} 
 				elseif(self::$oEmail->oRelatedObject != null ) {
-					self::$oMailBox->Trace("... Undesired: unable to find any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
+					self::Trace(".. Undesired: unable to find any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
 					return false;
 				}
 			
@@ -735,7 +758,7 @@ abstract class PolicyTicketResolved extends Policy implements iPolicy {
 						case 'do_nothing':
 						case 'mark_as_undesired':
 						
-							self::$oMailBox->Trace("... Undesired: ticket was marked as resolved before.");
+							self::Trace(".. Undesired: ticket was marked as resolved before.");
 							self::HandleViolation();
 							
 							// No fallback
@@ -747,13 +770,13 @@ abstract class PolicyTicketResolved extends Policy implements iPolicy {
 							 
 						case 'fallback_reopen': 
 							// Reopen ticket
-							self::$oMailBox->Trace("... Fallback: reopen resolved ticket."); 
+							self::Trace("... Fallback: reopen resolved ticket."); 
 							self::$oTicket->ApplyStimulus('ev_reopen');
 							break; 
 							
 						default:
 							// Should not happen.
-							self::$oMailBox->Trace("... Unknown action for resolved tickets.");
+							self::Trace("... Unknown action for resolved tickets.");
 							break; 
 						
 					}
@@ -805,7 +828,7 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 						case 'do_nothing':
 						case 'mark_as_undesired':
 						
-							self::$oMailBox->Trace("... Undesired: ticket was marked as closed before.");
+							self::Trace(".. Undesired: ticket was marked as closed before.");
 							self::HandleViolation();
 							
 							// No fallback
@@ -817,13 +840,13 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 							 
 						case 'fallback_reopen': 
 							// Reopen ticket
-							self::$oMailBox->Trace("... Fallback: reopen closed ticket."); 
+							self::Trace("... Fallback: reopen closed ticket."); 
 							self::$oTicket->ApplyStimulus('ev_reopen');
 							break; 
 							
 						default:
 							// Should not happen.
-							self::$oMailBox->Trace("... Unknown action for closed tickets.");
+							self::Trace("... Unknown action for closed tickets.");
 							break; 
 						
 					}
@@ -878,7 +901,7 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 						$oPregMatched = @preg_match($sPattern, $sMailSubject);
 						
 						if($oPregMatched === false) {
-							self::$oMailBox->Trace("... Invalid pattern: '{$sPattern}'");
+							self::Trace("... Invalid pattern: '{$sPattern}'");
 						}
 						elseif(preg_match($sPattern, $sMailSubject)) {
 							
@@ -889,7 +912,7 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 								case 'do_nothing':
 								case 'mark_as_undesired':
 								
-									self::$oMailBox->Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
+									self::Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
 									self::HandleViolation();
 									
 									// No fallback
@@ -901,14 +924,14 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 									
 								default:
 									// Should not happen.
-									self::$oMailBox->Trace("... Unknown action for closed tickets.");
+									self::Trace("... Unknown action for closed tickets.");
 									break; 
 								
 							}
 							
 						}
 						else {
-							self::$oMailBox->Trace("... Pattern '{$sPattern}' not matched");
+							self::Trace("... Pattern '{$sPattern}' not matched");
 						}
 					}
 				}
@@ -978,7 +1001,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 						case 'do_nothing':
 						case 'mark_as_undesired':
 						
-							self::$oMailBox->Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
+							self::Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
 							self::HandleViolation();
 							
 							// No fallback
@@ -991,7 +1014,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 
 						case 'fallback_create_person':
 							
-							self::$oMailBox->Trace("... Creating a new Person for the email: {$sCallerEmail}");
+							self::Trace("... Creating a new Person for the email: {$sCallerEmail}");
 							$oCaller = new \Person();
 							$oCaller->Set('email', self::$oEmail->sCallerEmail);
 							$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
@@ -1005,18 +1028,18 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 									$aDefaultValues[$sAttCode] = $sValue;
 								}
 							}
-							self::$oMailBox->Trace('... Default values: '.json_encode($aDefaultValues));
+							self::Trace('... Default values: '.json_encode($aDefaultValues));
 							self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
 							try
 							{
-								self::$oMailBox->Trace("... Try to create user with default values");
+								self::Trace("... Try to create user with default values");
 								$oCaller->DBInsert();					
 							}
 							catch(Exception $e)
 							{
 								// This is an actual error.
-								self::$oMailBox->Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
-								self::$oMailBox->Trace($e->getMessage());
+								self::Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
+								self::Trace($e->getMessage());
 								self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
 								self::$oMailBox->oCaller = $oCaller;
 								return false;
@@ -1027,7 +1050,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 					}
 				
 				default:
-					self::$oMailBox->Trace("... Found ".$oSet->Count()." callers with the same email address '{$sCallerEmail}', the first one will be used...");
+					self::Trace("... Found ".$oSet->Count()." callers with the same email address '{$sCallerEmail}', the first one will be used...");
 					// Multiple callers with the same email address !!!
 					$oCaller = $oSet->Fetch();
 			}
@@ -1082,7 +1105,7 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 						$oPregMatched = @preg_match($sPattern, $sMailSubject);
 						
 						if($oPregMatched === false) {
-							self::$oMailBox->Trace("... Invalid pattern: '{$sPattern}'");
+							self::Trace("... Invalid pattern: '{$sPattern}'");
 						}
 						elseif(preg_match($sPattern, $sMailSubject)) {
 							
@@ -1093,7 +1116,7 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 								case 'do_nothing':
 								case 'mark_as_undesired':
 								
-									self::$oMailBox->Trace("... Found unwanted pattern {$sPattern}. Removing it.");
+									self::Trace("... Found unwanted pattern {$sPattern}. Removing it.");
 									self::$oEmail->sSubject = preg_replace($sPattern, '', $sMailSubject);
 									
 									// No fallback
@@ -1105,19 +1128,19 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 									
 								case 'do_nothing':
 									// Should not happen.
-									self::$oMailBox->Trace("... Found unwanted pattern {$sPattern}. Doing nothing.");
+									self::Trace("... Found unwanted pattern {$sPattern}. Doing nothing.");
 									break; 
 									
 								default:
 									// Should not happen.
-									self::$oMailBox->Trace("... Unknown action for closed tickets.");
+									self::Trace("... Unknown action for closed tickets.");
 									break; 
 								
 							}
 							
 						}
 						else {
-							self::$oMailBox->Trace("... Pattern '{$sPattern}' not matched");
+							self::Trace("... Pattern '{$sPattern}' not matched");
 						}
 					}
 				}

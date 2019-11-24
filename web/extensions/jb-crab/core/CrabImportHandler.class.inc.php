@@ -8,7 +8,7 @@
  * Definition of Address
  */
  
-namespace jb_crab;
+namespace jb_itop_extensions\crab;
 
 	/**
 	 * Class CrabImportHandler. Contains methods to import addresses.

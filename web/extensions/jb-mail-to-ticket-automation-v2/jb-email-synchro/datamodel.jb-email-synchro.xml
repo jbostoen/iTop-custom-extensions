@@ -318,9 +318,9 @@ EOF
         </method>
         <method id="SetNextAction">
           <static>false</static>
-          <access>protected</access>
+          <access>public</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function SetNextAction($iNextAction)
+          <code><![CDATA[	public function SetNextAction($iNextAction)
 	{
 		return $this->iNextAction = $iNextAction;
 	}]]></code>

@@ -189,10 +189,10 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	// Policy: ignore parts of title
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Ignore patterns in subject', 
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:do_nothing' => 'Do nothing',
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:fallback_remove' => 'Ignore part(s) in subject',
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_behavior' => 'Ignore patterns in subject', 
+	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_behavior/Value:do_nothing' => 'Do nothing',
+	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_behavior/Value:fallback_ignore' => 'Ignore part(s) in subject',
+	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	// Headers
 	'MailInbox:Server' => 'Mailbox Configuration',
@@ -203,7 +203,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'MailInbox:PolicyMailSize' => 'Policy: Mail Size',
 	'MailInbox:PolicyForbiddenAttachments' => 'Policy: Forbidden attachments',
 	'MailInbox:PolicyUndesiredPattern' => 'Policy: Undesired title patterns',
-	'MailInbox:PolicyIgnoreRemovePattern' => 'Policy: Ignore/remove unwanted title patterns',
+	'MailInbox:PolicyRemovePattern' => 'Policy: Remove unwanted title patterns',
+	'MailInbox:PolicyIgnorePattern' => 'Policy: Ignore unwanted title patterns',
 	'MailInbox:PolicyResolvedTicket' => 'Policy: Resolved tickets',
 	'MailInbox:PolicyClosedTicket' => 'Policy: Closed tickets',
 	'MailInbox:PolicyUnknownTicket' => 'Policy: Unknown tickets',
@@ -215,6 +216,6 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Menu:MailInboxes+' => 'Configuration of Inboxes to scan for incoming e-mails',
 	 
 	'MailInboxStandard:DebugTrace' => 'Debug Trace',
-	'MailInboxStandard:DebugTraceNotActive' => 'Activate the debug on this Inbox to see the debug trace here.',
+	'MailInboxStandard:DebugTraceNotActive' => 'Activate the debug trace on this Inbox to see a detailed log of what happens.',
 	
 ));

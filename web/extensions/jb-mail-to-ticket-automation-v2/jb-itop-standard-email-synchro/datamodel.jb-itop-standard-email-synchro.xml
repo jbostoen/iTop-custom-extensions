@@ -518,7 +518,6 @@ EOF
 		// Not policy compliant? Then stop processing. 
 		if($bUndesired == true) {
 			$this->Trace('. Email is not compliant with at least one policy.');
-			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
 			return null;
 		}
 		else {
@@ -1836,8 +1835,8 @@ EOF
 							</items>
 						</item> 
 
-						<!-- Remove/ignore pattern behavior -->
-						<item id="fieldset:MailInbox:PolicyIgnoreRemovePattern">
+						<!-- Remove pattern from subject behavior -->
+						<item id="fieldset:MailInbox:PolicyRemovePattern">
 							<rank>190</rank>
 							<items>
 								<item id="policy_remove_pattern_behavior">
@@ -1849,6 +1848,18 @@ EOF
 							</items>
 						</item> 
 
+						<!-- Ignore pattern in subject behavior -->
+						<item id="fieldset:MailInbox:PolicyIgnorePattern">
+							<rank>191</rank>
+							<items>
+								<item id="policy_ignore_pattern_behavior">
+									<rank>10</rank>
+								</item> 
+								<item id="policy_ignore_pattern_patterns">
+									<rank>20</rank>
+								</item> 
+							</items>
+						</item> 
 
 					</items>
 				</details>

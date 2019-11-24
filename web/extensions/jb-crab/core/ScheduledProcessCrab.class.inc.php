@@ -8,7 +8,7 @@
  * Definition of ScheduledProcessCrabSync
  */
 
-namespace jb_crab;
+namespace jb_itop_extensions\crab;
 
 use \CoreUnexpectedValue;
 use \iScheduledProcess;
@@ -136,7 +136,7 @@ class ScheduledProcessCrabSync implements iScheduledProcess
 		// Ignore time limit, it should run nightly and it will take some time.
 		try {
 			
-			$oCrab = new \jb_crab\CrabImportHandler;
+			$oCrab = new \jb_itop_extensions\crab\CrabImportHandler;
 			$oCrab->DownloadShapeFile();
 			$oCrab->ConvertShapeFileToGeoJSON();
 			$oCrab->ImportFromGeoJSON();			
