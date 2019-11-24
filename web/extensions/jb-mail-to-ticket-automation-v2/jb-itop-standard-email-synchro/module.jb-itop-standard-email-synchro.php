@@ -27,7 +27,7 @@ SetupWebPage::AddModule(
 		'datamodel' => array(
 			'model.jb-itop-standard-email-synchro.php',
 			'core/ormcustomcaselog.class.inc.php',
-			'core/policyviolation.class.inc.php',
+			'core/policy.class.inc.php',
 		),
 		'webservice' => array(
 			

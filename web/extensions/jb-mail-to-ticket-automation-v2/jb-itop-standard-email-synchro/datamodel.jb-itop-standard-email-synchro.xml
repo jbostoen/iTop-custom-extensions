@@ -122,7 +122,6 @@
 				</field>		
 
 		<!-- All policy options -->
-
 			<!-- Mail size (attachments) too big -->
 				<field id="policy_mail_size_too_big_behavior" xsi:type="AttributeEnum">
 					<values>								
@@ -151,7 +150,6 @@
 					<default_value>10</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
-
 			<!-- Forbidden e-mail attachments -->
 				<field id="policy_forbidden_attachments_behavior" xsi:type="AttributeEnum">
 					<values>
@@ -181,10 +179,7 @@
 					<default_value>application/exe</default_value>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-
-				<!-- No subject. -->
-				<!-- option: create (ticket) with default title -->
+			<!-- No subject. -->
 				<field id="policy_no_subject_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>bounce_delete</value>
@@ -213,9 +208,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-
-				<!-- Unknown caller -->
+			<!-- Unknown caller -->
 				<field id="policy_unknown_caller_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>bounce_delete</value>
@@ -244,10 +237,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-
-
-				<!-- Additional contacts -->
+			<!-- Additional contacts -->
 				<field id="policy_other_recipients_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>bounce_delete</value>
@@ -278,9 +268,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-
-				<!-- Reference to closed ticket -->
+			<!-- Reference to closed ticket -->
 				<field id="policy_ticket_closed_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>fallback_reopen</value>
@@ -304,8 +292,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-				<!-- Reference to resolved ticket -->
+			<!-- Reference to resolved ticket -->
 				<field id="policy_ticket_resolved_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>bounce_delete</value>
@@ -329,8 +316,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-				<!-- Reference to non-existing ticket -->
+			<!-- Reference to non-existing ticket -->
 				<field id="policy_ticket_unknown_behavior" xsi:type="AttributeEnum">
 					<values> 
 						<value>bounce_delete</value>
@@ -353,8 +339,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-				<!-- Undesired title pattern, reject entire e-mail -->
+			<!-- Undesired title pattern, reject entire e-mail -->
 				<field id="policy_undesired_pattern_behavior" xsi:type="AttributeEnum">
 					<values> 
 						<value>bounce_delete</value>
@@ -382,8 +367,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-				<!-- Avoid title pattern conflicts by removing subject parts -->
+			<!-- Avoid title pattern conflicts by removing subject parts -->
 				<field id="policy_remove_pattern_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>do_nothing</value>
@@ -398,8 +382,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-				<!-- Avoid title pattern conflicts by ignoring subject parts -->
+			<!-- Avoid title pattern conflicts by ignoring subject parts -->
 				<field id="policy_ignore_pattern_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>do_nothing</value>
@@ -414,8 +397,6 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-
-
 			</fields>
 
 			<methods>
@@ -464,9 +445,9 @@ EOF
 	 * @param string $sText
 	 */</comment>
 					<static>false</static>
-					<access>protected</access>
+					<access>public</access>
 					<type>Overload-cmdbAbstractObject</type>
-					<code><![CDATA[	protected function Trace($sText)
+					<code><![CDATA[	public function Trace($sText)
 	{
 		parent::Trace($sText);
 		$iMaxTraceLength = 500*1024; // Maximum size of the Trace to keep in the database...
@@ -475,14 +456,7 @@ EOF
 		{
 			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
 			$this->Set('debug_trace', $sStampedText.mb_substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
-
-			// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
-			$oMyChange = MetaModel::NewObject("CMDBChange");
-			$oMyChange->Set("date", time());
-			$sUserString = CMDBChange::GetCurrentUserName();
-			$oMyChange->Set("userinfo", $sUserString);
-			$iChangeId = $oMyChange->DBInsert();
-			$this->DBUpdateTracked($oMyChange);
+			$this->DBUpdate();
 		}
 	}]]></code>
 				</method>
@@ -520,7 +494,7 @@ EOF
 	 * @param EmailSource $oSource The source from which this email was read
 	 * @param int $index The index of the message in the source
 	 * @param EmailMessage $oEmail The decoded email
-	 * @return Ticket|Object The ticket created or updated in response to the email or an object containing the policy violation
+	 * @return Ticket|null The ticket created or updated in response to the email or null on error
 	 */</comment>
 					<static>false</static>
 					<access>public</access>
@@ -528,34 +502,33 @@ EOF
 					<code><![CDATA[	public function ProcessNewEmail(EmailSource $oSource, $index, EmailMessage $oEmail)
 	{		
 	    $this->sLastError = null;
-		$this->Trace("Processing new eMail ( index = $index )"); 
-		$this->Trace(". UIDL ".htmlspecialchars($oEmail->sUIDL) );
-		$this->Trace(". Message-ID ".htmlspecialchars ($oEmail->sMessageId) );
+		$this->Trace("Processing new e-mail ( index = $index )"); 
+		$this->Trace('. UIDL '.htmlspecialchars($oEmail->sUIDL));
+		$this->Trace('. Message-ID '.htmlspecialchars ($oEmail->sMessageId));
 				
-		// Contrary to Combodo: First check if there is any iTop object mentioned in the headers of the eMail
-		// We will be handling null values and closed/resolved tickets in policy checks.
-        // Check whether we need to create a new ticket or to update an existing one
-		// This is more thorough than the parent method
+		// Contrary to Combodo's implementation: first check if there is any iTop object mentioned in the headers of the e-mail
+		// This fork contains policies which might reopen closed/resolved tickets and therefore needs the Ticket object.
+        // Check whether a new ticket must be initiated or an existing one updated.
         $oTicket = $this->GetRelatedTicket($oEmail);
 
-		
-		// Careful: Combodo's version implemented an IsUndesired-method in later versions (starting in v3.0.11).
-		// The method in this fork needs an additional parameter ( $oTicket ) to validate the email against some policies.
-		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
+		// Careful: Combodo's version implemented an IsUndesired() method in later versions (starting in v3.0.11).
+		// The method in this fork needs an additional parameter (Ticket object) to handle some policies (such as reopen resolved/closed tickets).
+		$bUndesired = $this->IsUndesired($oEmail, $oTicket);
 		
 		// Not policy compliant? Then stop processing. 
-		if( $oPolicy->bUndesired ) {
-			$this->Trace(". Email does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
-			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
-			return (Object)['incompliant_policy_name' => $oPolicy->sPolicyId];
+		if($bUndesired == true) {
+			$this->Trace('. Email is not compliant with at least one policy.');
+			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
+			return null;
 		}
 		else {
-			$this->Trace(". Email complies with specified policies.");
+			$this->Trace('. Email complies with specified policies.');
 		}
-		 
-		$oCaller = $oPolicy->oCaller;
-		 
-
+		
+		// In this fork, the caller object will have been determined by PolicyUnknownCaller in the IsUndesired() method 
+		// and the property will have been set on the MailInboxStandard object.
+		$oCaller = $this->oCaller;
+		
 		switch($this->Get('behavior'))
 		{
 			case 'create_only':
@@ -578,7 +551,7 @@ EOF
 			default: // both: update or create as needed
 				if (!is_object($oTicket))
 				{
-					// Let's create a new ticket
+					// Create a new ticket
 					$oTicket = $this->CreateTicketFromEmail($oEmail, $oCaller);
 				}
 				else
@@ -600,85 +573,16 @@ EOF
 	 * @see MailInboxBase::FindCaller()
 	 *
 	 * @throws Exception
+	 * @return null|Person
+	 *
+	 * @details Bypassed in this fork
 	 */</comment>
 					<static>false</static>
 					<access>protected</access>
 					<type>Overload-DBObject</type>
 					<code><![CDATA[	protected function FindCaller(EmailMessage $oEmail)
 	{
-		$oCaller = null;
-		$sContactQuery = 'SELECT Person WHERE email = :email';
-		$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
-		$sAdditionalDescription = '';
-		switch($oSet->Count())
-		{
-			case 1:
-				// Ok, the caller was found in iTop
-				$oCaller = $oSet->Fetch();
-				break;
-				
-			case 0:
-			
-				switch($this->Get('policy_unknown_caller_behavior'))
-				{
-					case 'bounce_delete': 
-					case 'bounce_mark_as_undesired':
-					case 'delete':
-					case 'mark_as_undesired':
-						// Policy violation
-						$this->Trace("No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed.");
-						$this->HandlePolicyViolation($oEmail, 'policy_unknown_caller', $oEmail->oRawEmail);
-						return null;
-						break;
-					
-					case 'fallback':
-					default:
-						$this->Trace("Creating a new Person for the email: {$oEmail->sCallerEmail}");
-						$oCaller = new Person();
-						$oCaller->Set('email', $oEmail->sCallerEmail);
-						$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
-						$aDefaults = explode("\n", $sDefaultValues);
-						$aDefaultValues = array();
-						foreach($aDefaults as $sLine)														   
-						{
-							if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-							{
-								$sAttCode = trim($aMatches[1]);
-								$sValue = trim($aMatches[2]);
-								$aDefaultValues[$sAttCode] = $sValue;
-							}
-						}
-						$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
-						try
-						{
-							$this->Trace("Try to create user with default values");
-							// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
-							$oMyChange = MetaModel::NewObject("CMDBChange");
-							$oMyChange->Set("date", time());
-							$sUserString = CMDBChange::GetCurrentUserName();
-							$oMyChange->Set("userinfo", $sUserString);
-							$iChangeId = $oMyChange->DBInsert();
-							$oCaller->DBInsertTracked($oMyChange);					
-						}
-						catch(Exception $e)
-						{
-							// This is an actual error.
-							$this->Trace("Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
-							$this->Trace($e->getMessage());
-							$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
-							return null;
-						}
-					
-				}			
-				break;
-			
-			default:
-				$this->Trace("Found ".$oSet->Count()." callers with the same email address '{$oEmail->sCallerEmail}', the first one will be used...");
-				// Multiple callers with the same email address !!!
-				$oCaller = $oSet->Fetch();
-		}
-		
-		return $oCaller;
+		throw new Exception('This part has been moved to PolicyUnknownCaller and should not be called.');
 	}]]></code>
 				</method>
 				<method id="GetRelatedTicket">
@@ -697,31 +601,42 @@ EOF
 		
 		if ( $oTicket == null )
 		{
-			// No associated ticket found by parsing the headers, check
-			// if the subject does not match a specific pattern
-			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			
 			// To find the reference, make sure subject is handled in same way as original ticket (removing unwanted pattern)
 			$sSubject = $oEmail->sSubject;
-			$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
 			
-			$this->Trace(".. Remove undesired title patterns: {$this->Get('policy_remove_pattern_patterns')}");
-			
-			foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
-				$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
+			// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
+			foreach(['policy_remove_pattern_patterns', 'policy_ignore_pattern_patterns'] as $sAttCode) {
+				$sPatterns = $this->Get($sAttCode);
 				
-				if( $oPregMatch === false) {
-					$this->Trace("... Invalid pattern to remove from title: '{$sRemoveTitlePattern}'");
+				if(trim($sPatterns) != '') {
+					
+					$aPatterns = explode('/\\r\\n|\\r|\\n/', $sPatterns);
+					
+					$this->Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
+					
+					foreach($aPatterns as $sPattern) {
+						if(trim($sPattern) != '') {
+							$oPregMatch = @preg_match($sPattern, $sSubject);
+							
+							if( $oPregMatch === false) {
+								$this->Trace("... Invalid pattern: '{$sPattern}'");
+							}
+							elseif(preg_match($sPattern, $sSubject)) {
+								$this->Trace("... Removing: '{$sPattern}'");
+								$sSubject = preg_replace($sPattern, '', $sSubject);
+							}
+							else {
+								// Just not matching
+							}
+						}
+					}
 				}
-				elseif( preg_match($sRemoveTitlePattern, $sSubject) ) {
-					$this->Trace("... Pattern to remove - found: '{$sRemoveTitlePattern}'");
-					$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
-				}
-				else {
-					// Just not matching
-				}
-				
 			}
+			
+			// No associated ticket found by parsing the headers, check
+			// if the subject does not match a specific pattern
+			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			
 			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches)))
 			{
@@ -751,6 +666,7 @@ EOF
 	 *
 	 * @return Ticket the created ticket or null in case of failure
 	 * @throws \Exception if invalid target_class
+	 *
 	 */]]></comment>
 					<static>false</static>
 					<access>public</access>
@@ -789,55 +705,11 @@ EOF
 			 
 			// Remove certain patterns from the title?
 			$sSubject = $oEmail->sSubject;
-			if( $this->Get('policy_remove_pattern_patterns') != '' && $this->Get('policy_remove_pattern_behavior') == 'delete' ) {
-			
-				$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
-				
-				foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
-					$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
-					
-					if( $oPregMatch === false) {
-						$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
-						break;
-					}
-					elseif( preg_match($sRemoveTitlePattern, $sSubject) ) {
-						$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
-					}
-					else {
-						// Just not matching
-					}
-					
-				}
-			}
-			
 			$oTicket->Set('title', substr( $sSubject , 0, $iTitleMaxSize));
 		
 		
 		$aIgnoredAttachments = array();
-		
-		
-		// Get list of forbidden file types
-		$sForbiddenMimeTypes = $this->Get('policy_forbidden_attachments_mimetypes');
-		if($sForbiddenMimeTypes != '' ) {
-			$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $sForbiddenMimeTypes);
-			
-			// Forbidden attachments? 
-			foreach($oEmail->aAttachments as $index => $aAttachment)
-			{ 
-				if ( in_array( $aAttachment['mimeType'], $aForbiddenMimeTypes ) )
-				{
-					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = forbidden.");
-					// In the Combodo version, you often see $aIgnoredAttachments ; however it's barely used. 
-					// Instead, we remove it ourselves.
-					unset( $oEmail->aAttachments[ $index ] );
-				}
-				else {
-					$this->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = allowed.");
-				}
-			}
-			
-		}
-		
+				
 		// Insert the remaining attachments so that we know their ID and can reference them in the message's body
 		$aAddedAttachments = $this->AddAttachments($oTicket, $oEmail, true, $aIgnoredAttachments);  // Cannot insert them for real since the Ticket is not saved yet (we don't know its ID)
 																									// we'll have to call UpdateAttachments once the ticket is properly saved
@@ -887,11 +759,8 @@ EOF
 		}
 		$this->InitObjectFromDefaultValues($oTicket, $aDefaultValues);
 		
-		// We will only call this if additional contacts are accepted by our policy 
-		if ( in_array($this->Get('policy_other_recipients_behavior'), ['add_existing_contacts', 'add_all_contacts'] ) == true )
-		{
-			$this->AddAdditionalContacts($oTicket, $oEmail);
-		}
+		// Policy has already removed unwanted contacts
+		$this->AddAdditionalContacts($oTicket, $oEmail);
 		
 		$this->BeforeInsertTicket($oTicket, $oEmail, $oCaller);
 		$oTicket->DBInsert();
@@ -945,11 +814,11 @@ EOF
 	}]]></code>
 				</method>
 				<method id="AddAdditionalContacts">
-					<comment>/**
+					<comment><![CDATA[/**
 	 * Add the contacts in To: or CC: as additional contacts to the ticket (if they exist in the DB)
 	 * @param Ticket $oTicket
 	 * @param EmailMessage $oEmail
-	 */</comment>
+	 */]]></comment>
 					<static>false</static>
 					<access>protected</access>
 					<type>Overload-DBObject</type>
@@ -962,9 +831,10 @@ EOF
 			$aExistingContacts[$oLnk->Get('contact_id')] = true;
 		}
 		$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs); // Take both the To: and CC:, no actual merge since the keys of the arrays are numeric (i.e. 0, 1, 2...)
+		$sCallerEmail = $oTicket->Get('caller_id->email');
 		foreach($aAdditionalContacts as $aInfo)
 		{
-			$sCallerEmail = $oTicket->Get('caller_id->email');
+			
 			// Exclude the caller from the additional contacts
 			if ($aInfo['email'] != $sCallerEmail && $aInfo['email'] != $this->Get('login'))
 			{
@@ -1099,22 +969,22 @@ EOF
 		// Try to extract what's new from the message's body
 		$this->Trace("iTop Simple Email Synchro: Updating the iTop ticket {$oTicket->GetName()} from eMail '{$oEmail->sSubject}'");
 
-		// Not policy compliant? Then stop processing. 
-		// Careful: Combodo's version implemented an IsUndesired-method in later versions (v3.0.11).
-		// Our method needs an additional parameter ( $oTicket ) to handle some policies.
-		$oPolicy = $this->IsUndesired($oEmail, $oTicket);
+		// Careful: Combodo's version implemented an IsUndesired() method in later versions (starting in v3.0.11).
+		// The method in this fork needs an additional parameter (Ticket object) to handle some policies (such as reopen resolved/closed tickets).
+		$bUndesired = $this->IsUndesired($oEmail, $oTicket);
 		
-		if( $oPolicy->bUndesired ) {
+		if($bUndesired == true) {
+			$this->Trace(". Email (update) does not comply with at least one policy.");
 			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
-			$this->Trace(". Email (update) does not comply with at least one policy ({$oPolicy->sPolicyId}) - so undesired.");
-			$this->HandlePolicyViolation($oEmail, $oPolicy->sPolicyId, $oEmail->oRawEmail);
 			return;
 		}
 		else {
-			$this->Trace(". Email (update) complies with our policies.");
+			$this->Trace(". Email (update) complies with specified policies.");
 		}
-		 
-		$oCaller = $oPolicy->oCaller;
+		
+		// In this fork, the caller object will have been determined by PolicyUnknownCaller in the IsUndesired() method 
+		// and the property will have been set on the MailInboxStandard object.
+		$oCaller = $this->oCaller;
 		
 		// Everything compliant, but we might need to perform actions.
 		
@@ -1159,10 +1029,9 @@ EOF
 		
 		$oTicket->Set($sAttCode, $oAttributeValue);
 		
-		if ( in_array( $this->Get('policy_other_recipients_behavior'), ['add_all_contacts', 'add_existing_contacts'] ) == true )
-		{
-			$this->AddAdditionalContacts($oTicket, $oEmail);
-		}
+		// Policy has already removed unwanted contacts
+		$this->AddAdditionalContacts($oTicket, $oEmail);
+		
 		$this->BeforeUpdateTicket($oTicket, $oEmail, $oCaller);
 		$oTicket->DBUpdate();			
 		$this->Trace("Ticket {$oTicket->GetName()} updated.");
@@ -1217,10 +1086,10 @@ EOF
 					<static>false</static>
 					<access>protected</access>
 					<type>Overload-DBObject</type>
-					<code>	protected function BeforeUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
+					<code><![CDATA[protected function BeforeUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
 	{
 		// Default implementation: do nothing
-	}</code>
+	}]]></code>
 				</method>
 				<method id="ApplyConfiguredStimulus">
 					<comment><![CDATA[/**
@@ -1237,7 +1106,7 @@ EOF
 		$sConf = $this->Get('stimuli');
 		
 		// In Combodo's version, this resulted in a warning?
-		// We will reopen ticket elsewhere if needed.
+		// Reopen ticket elsewhere if needed.
 		if( trim($sConf) == '' ) {
 			return;
 		}
@@ -1358,7 +1227,7 @@ EOF
 	{
 		// If there are any TriggerOnMailUpdate defined, let's activate them
 		$aClasses = MetaModel::EnumParentClasses(get_class($oTicket), ENUM_PARENT_CLASSES_ALL);
-		$sClassList = implode(", ", CMDBSource::Quote($aClasses));
+		$sClassList = implode(', ', CMDBSource::Quote($aClasses));
 		$oSet = new DBObjectSet(DBObjectSearch::FromOQL("SELECT TriggerOnMailUpdate AS t WHERE t.target_class IN ($sClassList)"));
 		while ($oTrigger = $oSet->Fetch())
 		{
@@ -1368,7 +1237,7 @@ EOF
 		// Apply a stimulus if needed, will write the ticket to the database, may launch triggers, etc...
 		$this->ApplyConfiguredStimulus($oTicket);
 		
-		// Shall we keep the email or delete it immediately?
+		// Delete the email immediately or keep it stored
 		if ($this->Get('email_storage') == 'delete')
 		{
 			// Remove the processed message from the mailbox
@@ -1650,397 +1519,52 @@ EOF
 		}
 	}]]></code>
 				</method>
-				<method id="HandlePolicyViolation">
-					<comment>/**
-	 * Policy violation handler... what to do in case of Policy violation ?
-	 * @param EmailMessage $oEmail can be null in case of decoding error (like message too big)
-	 * @param string $sPolicyViolation
-	 * @return void
-	 */</comment>
-					<static>false</static>
-					<access>public</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	public function HandlePolicyViolation($oEmail, $sPolicyViolation, $oRawEmail = null, $sAdditionalErrorMessage = '')
-	{
-	
-		// Rather than informing the admin, we need to inform the sender who doesn't follow guidelines.		
-		// You can try user education, but sometimes you need to rely on enforcing policies rather than just giving in.
-		$sTo = $oEmail->sCallerEmail;
-		$sFrom = $this->Get('notify_from'); 
-	
-		// Policy violations have a typical way of handling.
-		// The behavior is usually one of the following:
-		// - bounce and delete the message
-		// - delete the message
-		// - mark as undesired (stays in the mailbox for a few days)
-		// - fallback (usually ignoring or using default values, shouldn't end up here.)  
-		
-		$this->Trace("HandlePolicyViolation($sPolicyViolation): The behavior for {$sPolicyViolation} is {$this->Get( $sPolicyViolation.'_behavior')}");
-		
-		switch( $this->Get( $sPolicyViolation.'_behavior' ) ){
-		
-			// Generic cases
-			case 'bounce_delete':
-			case 'bounce_mark_as_undesired':
-				
-				// $oRawEmail->GetSize()." bytes) than the maximum configured size (maximum_email_size = ".EmailBackgroundProcess::$iMaxEmailSize
-								
-				$sSubject = $this->Get( $sPolicyViolation.'_subject' );
-				$sBody = $this->Get( $sPolicyViolation.'_notification'); 
-				
-				// Allow some customization in the bounce message
-				$sSubject = $this->ReplaceMailVariables($sSubject, $oEmail);
-				$sBody = $this->ReplaceMailVariables($sBody, $oEmail);
-				
-				// Return to sender.
-				if($sTo == ''){ 
-					$this->Trace("HandlePolicyViolation($sPolicyViolation): No 'to' defined, skipping.");
-				}
-				elseif($sFrom == ''){ 
-					$this->Trace("HandlePolicyViolation($sPolicyViolation): No 'from' defined, skipping.");
-				}
-				else if($oRawEmail){
-					$this->Trace("Raw Email: ".$sSubject."\n\n".strip_tags($sBody));
-					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
-				}
-				
-				switch( $this->Get( $sPolicyViolation.'_behavior' ) ) {
-					case 'bounce_delete': 
-						$this->Trace("Set next action for EmailProcessor to DELETE_MESSAGE");
-						$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
-						$sLastAction = "<p>The eMail was deleted from the mailbox after being bounced to sender (".$sTo.").</p>\n";			
-						break;
-						
-					case 'bounce_mark_as_undesired':
-						$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED");
-						$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
-						$sLastAction = "<p>The eMail is marked as undesired and will be deleted after the specified interval.</p>\n";
-						break; 
-						
-					default: 
-						// Unexpected
-					
-				}
-				break;
-				
-			case 'delete': 
-				$this->Trace("Set next action for EmailProcessor to DELETE_MESSAGE");
-				$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
-				$sLastAction = "<p>The eMail was deleted from the mailbox.</p>\n";			
-				break;
-				
-			// Mark as error should be irrelevant now. Keeping it just in case.
-			case 'mark_as_error': 
-				$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_ERROR");
-				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
-				$sLastAction = "<p>The eMail is marked as error and will be ignored in further processing of the mailbox.</p>\n";
-				break;
-				 
-			case 'mark_as_undesired': 
-				$this->Trace("Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED");
-				$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
-				$sLastAction = "<p>The eMail is marked as undesired and will be deleted after the specified interval.</p>\n";
-				break;
-				
-			// One fallback
-			// Any specific fallback (policy_other_recipients_behavior)
-			case 'fallback': 
-			default: 
-			
-				$this->Trace("HandlePolicyViolation ending up in a fallback/default for {$sPolicyViolation}");
-				 
-				
-		}
-		 
-		
-		 
-	}]]></code>
-				</method>
-
-				<!-- Start policies -->
-
 				<method id="IsUndesired">
-
 					<comment><![CDATA[/**
 	 * Check all policies to see if the email is considered as "undesired"
-	 * @param EmailMessage $oEmail The message to check
-	 * @param Ticket $oTicket The ticket which is being modified (Ticket or null)
-	 * @return Object ( boolean bUndesired, Person 'Caller' )
+	 * @param \EmailMessage $oEmail The message to check
+	 * @param null|\Ticket $oTicket The ticket which is being modified (Ticket or null)
+	 * @return Boolean
 	 *
 	 * @throws Exception
 	 */]]></comment>
 					<static>false</static>
 					<access>protected</access>
 					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function IsUndesired(EmailMessage $oEmail, /* Ticket or null */ $oTicket)
+					<code><![CDATA[	protected function IsUndesired(EmailMessage $oEmail, $oTicket)
 	{
 		
+		$oCaller = null;
+		
+		// Processes all policies
+		$aPolicyClasses = [];
+		foreach (get_declared_classes() as $sClassName) {
+		
+			if(in_array('jb_itop_extensions\mail_to_ticket\iPolicy', class_implements($sClassName))) {
+				$aPolicyClasses[] = $sClassName;
+			}
+			
+		}
+		
+		$this->Trace('.. '.count($aPolicyClasses).' policies to process...');
+			
+		// Some policies are quicker to enforce or should be run in a certain order
+		usort($aPolicyClasses, function($sClassNameA, $sClassNameB) {
+			return $sClassNameA::$iPrecedence <=> $sClassNameB::$iPrecedence;
+		});
+		
+		foreach($aPolicyClasses as $sPolicy) {
+			$sPolicy::Init($this, $oEmail, $oTicket);
+			$bCompliant = $sPolicy::IsCompliant();
+			
+			// As soon as there is one policy the email doesn't comply with, cancel further processing.
+			// Any other policy violation handling should have been performed by the class implementing the iPolicy interface.
+			if($bCompliant == false) {
+				return true; // Being incompliant = undesired
+			}
+		}
 
-		// --- Policies ---
-		// Start to check if mails are compliant with policies.  
-		// The generic HandlePolicyViolation will take care of default actions (bounce, delete, mark as undesired ...)
-		// Fallbacks are handled in specific functions. 
-		// For example 'no subject' is allowed, it will be handled later on in CreateTicketFromEmail 
-		
-		$oCaller = null; 
-		
-		
-		// ### Policy: No subject
-		$this->Trace(".. Policy: no subject");	
-		
-			if( $this->Get('policy_no_subject_behavior') == 'fallback') {
-				 // Will use default subject.
-			}
-			else {
-			
-				if( $oEmail->sSubject == '' && in_array($this->Get('policy_no_subject_behavior'), ['bounce_delete', 'bounce_mark_as_undesired', 'delete', 'mark_as_undesired']) == true ) {
-					$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it has no subject."); 
-					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_no_subject'];
-				}
-		
-			}
-		
-		// ### Policy: No other recipients 
-		$this->Trace(".. Policy: no other recipients");
-		
-			// To implement: check for other recipients in To: or CC: . 
-			// Or check if this mailbox (or aliases) are missing in 'To:' (which would happen in BCC)
-			
-			// Fallback.
-			if( in_array( $this->Get('policy_other_recipients_behavior'), ['add_existing_contacts','add_all_contacts','ignore_all_contacts'] ) ){
-				// Contacts will be added or ignored.
-			} 
-			else {
-				
-				$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs); // Take both the To: and CC:, no actual merge since the keys of the arrays are numeric (i.e. 0, 1, 2...)
-				$aExcludeContacts = array_merge( [ $oEmail->sCallerEmail ] , preg_split('/\\r\\n|\\r|\\n/' , $this->Get('mail_aliases') )  );
-
-				foreach($aAdditionalContacts as $aInfo)
-				{
-					// If we find an email address which is from a third party, and it's not:
-					// - the original caller 
-					// - an alias for this mailbox (can also be seen as: 'personal mail address from IT-staff moved to shared mailbox), 
-					// then we're dealing with an undesired message. (another person in To:, CC:)
-					if ( !in_array( $aInfo['email'] , $aExcludeContacts ) ) 
-					{
-						// Found other contacts in To: or CC: 
-						$this->Trace("... The message '{$oEmail->sSubject}' is considered as undesired, since it contains another recipient (missing alias or unwanted): {$aInfo['email']}");
-						return (object)["bUndesired" => true, 'sPolicyId' => 'policy_other_recipients'];
-					} 
-				}
-			}
-			
-		// ### Policy: No unknown ticket references
-			// null object means there was no ticket.
-			if( $oTicket === null ) {
-			
-				// We could be handling a new ticket! 
-				// So we would need to check if there was something (header or pattern in subject) which would have lead us to believe there was a ticket. 
-			 
-				// Why undesired? Because of a pattern in the subject; or an email header? 
-				
-				// Are there patterns which should be ignored/removed from the title? 
-				// To find the reference, let's remove it from our temp variable. 
-				// We'll remove it elsewhere if it really needs to be gone.
-				// Patterns should be specified 1 per line		
-				$sSubject = $oEmail->sSubject;
-				if( $this->Get('policy_remove_pattern_patterns') != '' && $this->Get('policy_remove_pattern_behavior') == 'delete' ) {
-				
-					$aRemoveTitlePatterns = explode('/\\r\\n|\\r|\\n/', $this->Get('policy_remove_pattern_patterns'));
-					
-					foreach( $aRemoveTitlePatterns as $sRemoveTitlePattern ) {
-						$oPregMatch = @preg_match($sRemoveTitlePattern, $sSubject);
-						
-						if( $oPregMatch === false) {
-							$this->Trace("... Invalid pattern: {$sRemoveTitlePattern}");
-							break;
-						}
-						elseif( $oPregMatch != false ) {
-							$sSubject = preg_replace($sRemoveTitlePattern, '', $sSubject);
-						}
-						else {
-							// Just not matching
-						}
-						
-					}
-				}
-				
-				$sPattern = $this->FixPattern($this->Get('title_pattern'));
-				if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
-					$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it could not be linked to any prior ticket despite a pattern in the subject ('{$sPattern}').");
-					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];
-				} 
-				elseif( $oEmail->oRelatedObject != null ) {
-					$this->Trace("The message '{$oEmail->sSubject}' is considered as undesired, since it could not be linked to any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
-					return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_unknown'];
-				}
-				
-			}
-		
-		// ### Policy: Resolved tickets 
-		$this->Trace(".. Policy: resolved tickets");
-		
-			if( $oTicket !== null ) {
-				if( $oTicket->Get('status') == 'resolved' ) {
-					switch( $this->Get('policy_ticket_resolved_behavior') ) { 
-						case 'bounce_delete': 
-						case 'bounce_mark_as_undesired':
-						case 'delete': 
-						case 'mark_as_undesired':
-							$this->Trace("The message '{$oEmail->sSubject}' IS undesired, since the ticket has been resolved."); 
-							return (object)["bUndesired" => true, 'sPolicyId' => 'policy_ticket_resolved'];			
-							break;
-							 
-						case 'fallback': 
-							// Reopen ticket
-							$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened."); 
-							$oTicket->ApplyStimulus('ev_reopen');
-							break; 
-							
-						default:
-							// Should not happen.
-							$this->Trace("Unknown action for resolved tickets.");
-							break; 
-						
-					}
-				}
-			}	
-		
-		// ### Policy: Closed tickets
-		$this->Trace(".. Policy: closed tickets");
-		
-			if( $oTicket !== null ) {
-				if( $oTicket->Get('status') == 'closed' ) {
-					switch( $this->Get('policy_ticket_closed_behavior') ) {
-						case 'bounce_delete': 
-						case 'bounce_mark_as_undesired':
-						case 'delete': 
-						case 'mark_as_undesired':
-							$this->Trace("The message '{$oEmail->sSubject}' IS undesired, since the ticket has been closed."); 
-							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_ticket_closed'];		
-							break; 
-							 
-						case 'fallback': 
-							// Reopen ticket
-							$this->Trace("The message '{$oEmail->sSubject}' is NOT undesired, but ticket must be reopened.");
-							$oTicket->ApplyStimulus('ev_reopen');
-							break; 
-							
-						default:
-							// Should not happen.
-							$this->Trace("Unknown action for closed tickets.");
-							break; 
-						
-					}
-				}
-			}
-		
-		// ### Policy: Undesired patterns in subject
-		$this->Trace(".. Policy: undesired patterns: '{$this->Get('policy_undesired_pattern_patterns')}' - subject: '{$oEmail->sSubject}'");
-		 		
-			if( $this->Get('policy_undesired_pattern_patterns') != '' ) { 
-			
-				// Go over each pattern and check.
-				$aUndesiredSubjectPatterns = preg_split('/\\r\\n|\\r|\\n/', $this->Get('policy_undesired_pattern_patterns') ); 
-
-				foreach($aUndesiredSubjectPatterns as $sPattern)
-				{
-					$oPregMatched = @preg_match($sPattern, $oEmail->sSubject);
-					
-					if($oPregMatched === false) {
-						$this->Trace("... Invalid pattern: '{$sPattern}'");
-					}
-					elseif (preg_match($sPattern, $oEmail->sSubject))
-					{
-						$this->Trace(".... The message '{$oEmail->sSubject}' is considered as undesired, since it matches {$sPattern}."); 
-						return (object)['bUndesired' => true, 'sPolicyId' => 'policy_undesired_pattern'];
-					}
-					else {
-						$this->Trace("... Pattern '{$sPattern}' not matched");
-					}
-				}
-			}
-		 
-		
-		// ### Policy: Unknown caller
-		$this->Trace(".. Policy: unknown caller");
-		 
-			$sContactQuery = 'SELECT Person WHERE email = :email';
-			$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $oEmail->sCallerEmail));
-			$sAdditionalDescription = '';
-			switch($oSet->Count())
-			{
-				case 1:
-					// Ok, the caller was found in iTop
-					$this->Trace(".... Contact found for the email address '{$oEmail->sCallerEmail}'");
-					$oCaller = $oSet->Fetch();
-					break;
-					
-				case 0: 
-					switch($this->Get('policy_unknown_caller_behavior'))
-					{ 
-						case 'bounce_delete': 
-						case 'bounce_mark_as_undesired':
-						case 'delete': 
-						case 'mark_as_undesired':
-							$this->Trace(".... No contact found for the email address '{$oEmail->sCallerEmail}', the email will not be processed"); 
-							return (object)['bUndesired' => true, 'sPolicyId' => 'policy_unknown_caller'];
-							break;
-						
-						case 'fallback':
-						default:
-							$this->Trace(".... Creating a new Person for the email: {$oEmail->sCallerEmail}");
-							$oCaller = new Person();
-							$oCaller->Set('email', $oEmail->sCallerEmail);
-							$sDefaultValues = $this->Get('policy_unknown_caller_default_values');
-							$aDefaults = explode("\n", $sDefaultValues);
-							$aDefaultValues = array();
-							foreach($aDefaults as $sLine)
-							{
-								if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-								{
-									$sAttCode = trim($aMatches[1]);
-									$sValue = trim($aMatches[2]);
-									$aDefaultValues[$sAttCode] = $sValue;
-								}
-							}
-							$this->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
-							try
-							{
-								// Creating a CMDBChange is no longer needed in 2.0, but let's keep doing it for compatibility with 1.x
-								$oMyChange = MetaModel::NewObject("CMDBChange");
-								$oMyChange->Set("date", time());
-								$sUserString = CMDBChange::GetCurrentUserName();
-								$oMyChange->Set("userinfo", $sUserString);
-								$iChangeId = $oMyChange->DBInsert();
-								$oCaller->DBInsertTracked($oMyChange);					
-							}
-							catch(Exception $e)
-							{
-								// This is an actual error.
-								$this->Trace(".... Failed to create a Person for the email address '{$oEmail->sCallerEmail}'.");
-								$this->Trace($e->getMessage());
-								$this->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
-								return null;
-							}
-						
-					}			
-					break;
-				
-				default:
-					$this->Trace(".... Found {$oSet->Count()} callers with the same email address '{$oEmail->sCallerEmail}.', the first one will be used.");
-					// Multiple callers with the same email address !!!
-					$oCaller = $oSet->Fetch();
-			}
-		
-		// End of checking if ticket is compliant with policies.  
-		 
-		
-		return (object)[
-			'bUndesired' => false,
-			'oCaller' => $oCaller 
-		];
-		
+		return false;
 		
 	}]]></code>
 				</method>
@@ -2055,9 +1579,9 @@ EOF
 	 * @return string The valid pattern (or an empty string)
 	 */</comment>
 					<static>false</static>
-					<access>protected</access>
+					<access>public</access>
 					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function FixPattern($sPattern)
+					<code><![CDATA[	public function FixPattern($sPattern)
 	{
 		$sReturn = $sPattern;
 		if ($sPattern != '')
@@ -2071,59 +1595,6 @@ EOF
 			}
 		}
 		return $sReturn;
-	}]]></code>
-				</method>
-
-				<method id="ReplaceMailVariables">
-					<comment>/**
-	 * Replace variables in a string with info from incoming EmailMessage 
-	 * @param string $sString The string to work with
-	 * @param string $oEmail The Email Message to derive from
-	 * @return string The string 
-	 */</comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function ReplaceMailVariables($sString, EmailMessage $oEmail )
-	{	
-		// Could be extended with properties from EmailMessage class 
-		
-		// No double quotes here (otherwise $mail is interpreted as a PHP object)	
-		// Patch string (html in body) 
-		$sString = str_ireplace('$mail-&gt;', '$mail->', $sString);
-		
-		$aFind = [
-			'$mail->UIDL',
-			'$mail->MessageId', 
-			'$mail->Subject',
-			'$mail->CallerEmail',
-			'$mail->CallerName',
-			'$mail->Recipient',
-			'$mail->Date',
-			'$mail->BodyTextPlain',
-			'$mail->BodyText',
-			'$mail->BodyFormat'
-		];
-		
-		$aReplacement = [
-			$oEmail->sUIDL,
-			$oEmail->sMessageId,
-			$oEmail->sSubject,
-			$oEmail->sCallerEmail,
-			$oEmail->sCallerName,
-			$oEmail->sRecipient,
-			$oEmail->sDate,
-			strip_tags($oEmail->sBodyText), 
-			$oEmail->sBodyText,
-			$oEmail->sBodyFormat 
-		]; 
-		 
-		// Let's not be picky (case insensitive ok)
-		// For some reason, it stays case sensitive?
-		$sString = str_ireplace($aFind, $aReplacement, $sString);
-		
-		return $sString; 
-		
 	}]]></code>
 				</method>
 			</methods>
@@ -2183,9 +1654,6 @@ EOF
 								<item id="ticket_default_values">
 									<rank>40</rank>
 								</item>
-								<!-- <item id="ticket_default_title"> -->
-								<!-- <rank>50</rank> -->
-								<!-- </item> -->
 								<item id="title_pattern">
 									<rank>60</rank>
 								</item>
@@ -2207,8 +1675,6 @@ EOF
 								</item>
 							</items>
 						</item>
-
-						<!-- ################################# POLICIES ####################### -->
 
 						<!-- Mail (attachments) size too large -->
 						<item id="fieldset:MailInbox:PolicyMailSize">

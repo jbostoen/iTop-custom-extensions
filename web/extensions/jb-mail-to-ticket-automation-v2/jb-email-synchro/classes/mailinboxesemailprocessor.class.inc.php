@@ -211,16 +211,6 @@ class MailInboxesEmailProcessor extends EmailProcessor
 						$aErrors[] = $oInbox->sLastError;
 					}
 				}
-				elseif(is_object($oResult) && method_exists($oResult, 'incompliant_policy_name') ) {
-					// Could be an object with only property incompliant_policy_name
-					// Handle as error like below, but add policy
-					$this->sLastErrorSubject = "Failed to create a ticket for the incoming email (" . __METHOD__ . ") due to incompliance with policy ({$oResult->Get('incompliant_policy_name')}).";
-					$this->sLastErrorMessage = $oInbox->sLastError;
-					$sMessage = "Email Synchro: MailInboxesEmailProcessor: Failed to create a ticket for the incoming email $index ({$oEmail->sUIDL}) due to incompliance with policy ({$oResult->Get('incompliant_policy_name')})";
-					$aErrors[] = $sMessage;
-					$aErrors[] = $oInbox->sLastError;
-					self::Trace($sMessage);
-				}
 				else
 				{
 					// Other unexpected error

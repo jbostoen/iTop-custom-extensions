@@ -1,0 +1,1133 @@
+<?php
+
+/**
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     2019-11-01 17:26:09
+ *
+ * Policy interface definition and some classes implementing it.
+ * 
+ * Additional notes:
+ * - do not alter ticket contents here, such as subject. That's done at a later phase. For this particular case: change EmailMessage's subject.
+ */
+ 
+namespace jb_itop_extensions\mail_to_ticket;
+
+const NEWLINE_REGEX = '/\\r\\n|\\r|\\n/';
+
+/**
+ * Interface iPolicy defines what the classes implementing policies should look like.
+ */
+interface iPolicy {
+	
+	/**
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant();
+	
+	/**
+	 * Runs some default functionality BEFORE checking the policy. Use case: logging some information.
+	 * Can be cascaded to subclasses.
+	 *
+	 * @return void
+	 */
+	public static function BeforeComplianceCheck();
+	
+	/**
+	 * Runs some default functionality AFTER checking the policy. Use case: logging some information.
+	 * Can be cascaded to subclasses.
+	 *
+	 * @return void
+	 */
+	public static function AfterPassedComplianceCheck();
+	
+	/**
+	 * Actions executed when the message does not comply with a policy.
+	 * The default method informs the caller that the e-mail was rejected.
+	 *
+	 * @return void
+	 */
+	public static function HandleViolation();
+	
+}
+
+abstract class Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 50;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_generic';
+		
+	/**
+	 * @var \EmailMessage $oEmail Email message
+	 */
+	public static $oEmail = null;
+	
+	/**
+	 * @var \MailInboxStandard $oMailBox Mailbox
+	 */
+	public static $oMailBox = null;
+	
+	/**
+	 * @var \Ticket $oTicket Ticket object (in iTop)
+	 */
+	public static $oTicket = null;
+	
+	/**
+	 * Constructor. Sets some widely used property values.
+	 *
+	 * @var MailInboxStandard $oMailBox Mailbox
+	 * @var EmailMessage $oEmail Email message
+	 * @var Ticket|null $oTicket Ticket found based on ticket reference (or null if not found)
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function Init(\MailInboxStandard $oMailBox, \EmailMessage $oEmail, ?\Ticket $oTicket) {
+		
+		self::$oMailBox = $oMailBox;
+		self::$oEmail = $oEmail;
+		self::$oTicket = $oTicket;
+	
+	}
+	
+	/**
+	 * Checks if mailbox, email, ticket information is compliant with a certain policy.
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Runs some default functionality BEFORE checking the policy. Use case: logging some information.
+	 * Can be cascaded to subclasses.
+	 *
+	 * @return void
+	 */
+	public static function BeforeComplianceCheck() {
+	
+		$sUnqualifiedName = (new \ReflectionClass(get_called_class()))->getShortName();
+		if($sUnqualifiedName  != 'Policy') {
+			self::$oMailBox->Trace('Policy check starting: '.$sUnqualifiedName);
+			self::$oMailBox->Trace('. Behavior: '.self::$oMailBox->Get(get_called_class()::$sPolicyId.'_behavior'));
+		}
+	}
+	
+	/**
+	 * Runs some default functionality AFTER checking the policy. Use case: logging some information.
+	 * Can be cascaded to subclasses.
+	 *
+	 * @return void
+	 */
+	public static function AfterPassedComplianceCheck() {
+	
+		$sUnqualifiedName = (new \ReflectionClass(get_called_class()))->getShortName();
+		if($sUnqualifiedName  != 'Policy') {
+			self::$oMailBox->Trace('Policy check complete: '.$sUnqualifiedName);
+		}
+	}
+	
+	/**
+	 * Actions executed when the message does not comply with a policy.
+	 * The default method informs the caller that the e-mail was rejected.
+	 *
+	 * @return void
+	 */
+	public static function HandleViolation() {
+		
+		$oRawEmail = self::$oEmail->oRawEmail;
+	
+		// Inform the caller who doesn't follow guidelines.		
+		// User education and communicating the guideliens is great; but sometimes policies need to be enforced.
+		$sTo = self::$oEmail->sCallerEmail;
+		$sFrom = self::$oEmail->Get('notify_from'); 
+	
+		// Policy violations have a typical way of handling.
+		// The behavior is - besides some fallbacks - usually one of the following:
+		// - bounce_delete -> bounce and delete the message
+		// - bounce_mark_as_undesired -> bounce and marks the message as undesired
+		// - delete -> delete the message
+		// - mark_as_undesired -> stays in the mailbox for a few days
+		// - some sort of fallback -> doesn't matter here
+		
+		$sBehavior = self::$oMailBox->Get(self::$sPolicyId.'_behavior');
+		self::$oMailBox->Trace('. Policy violated. Behavior: '.$sBehavior);
+		
+		// First check if e-mail notification must be sent to caller (bounce message)
+		switch($sBehavior) {
+		
+			// Generic cases
+			case 'bounce_delete':
+			case 'bounce_mark_as_undesired':
+				
+				$sSubject = $oMailBox->Get(self::$sPolicyId.'_subject');
+				$sBody = $oMailBox->Get(self::$sPolicyId.'_notification'); 
+				
+				// Return to sender
+				if($sTo == ''){ 
+					self::$oMailBox->Trace('.. No "to" defined, skipping bounce message.');
+				}
+				elseif($sFrom == ''){ 
+					self::$oMailBox->Trace('.. No "from" defined, skipping bounce message.');
+				}
+				else if($oRawEmail){
+					
+					// Allow some customization in the bounce message
+					$sSubject = self::ReplaceMailPlaceholders($sSubject);
+					$sBody = self::ReplaceMailPlaceholders($sBody);
+		
+					self::Trace('Raw Email: '.$sSubject.'\n\n'.strip_tags($sBody));
+					$oRawEmail->SendAsAttachment($sTo, $sFrom, $sSubject, $sBody);
+				}
+				
+				break;
+				
+		}
+		
+				
+		switch($sBehavior) {
+				
+			case 'bounce_delete':
+			case 'delete': 
+				self::Trace('Set next action for EmailProcessor to DELETE_MESSAGE');
+				self::$setNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
+				break;
+				
+			// Mark as error should be irrelevant now. Keeping it just in case.
+			case 'mark_as_error': 
+				self::Trace('Set next action for EmailProcessor to MARK_MESSAGE_AS_ERROR');
+				self::$setNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
+				break;
+				 
+			case 'bounce_mark_as_undesired':
+			case 'mark_as_undesired':
+				self::Trace('Set next action for EmailProcessor to MARK_MESSAGE_AS_UNDESIRED');
+				self::$setNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message temporarily in the mailbox, but marked as undesired
+				break;
+				
+			// Any other action
+			case 'do_nothing':
+			default:
+				self::Trace('Set next action for EmailProcessor to NO_ACTION');
+				self::$setNextAction(EmailProcessor::NO_ACTION);
+				
+		}
+		
+	}
+	
+	/**
+	 * Replace e-mail placeholders in a string.
+	 * 
+	 * @var \String $sString Input string
+	 *
+	 * @details Also exposes some properties which are not likely to be useful (body_format) at any time, but who knows?
+	 *
+	 * @return String String where the placeholders are filled in
+	 */
+	public static function ReplaceMailPlaceholders($sString) {
+		
+		$aParams = [
+			'mail->uidl' => self::$oEmail->sUIDL,
+			'mail->message_id' => self::$oEmail->sMessageId,
+			'mail->subject' => self::$oEmail->sSubject,
+			'mail->caller_email' => self::$oEmail->sCallerEmail,
+			'mail->caller_name' => self::$oEmail->sCallerName,
+			'mail->recipient' => self::$oEmail->sRecipient,
+			'mail->date' => self::$oEmail->sDate,
+			'mail->body_text_plain' => strip_tags(self::$oEmail->sBodyText),
+			'mail->body_text'  => self::$oEmail->sBodyText,
+			'mail->body_format' => self::$oEmail->sBodyFormat
+		];
+		
+		$sString = \MetaModel::ApplyParams($sString, $aParams);
+		
+	}
+		 
+}
+
+/**
+ * Class PolicyForbiddenAttachment Offers a policy to enforce some rules on the attachment.
+ */
+abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 1;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_forbidden_attachments';
+		
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if attachments are in line with configured policies.
+		
+			$aForbiddenMimeTypes = preg_split(NEWLINE_REGEX, self::$oMailBox->Get(self::$sPolicyId.'_mimetypes'));
+		
+			self::$oMailBox->Trace('.. Forbidden MimeTypes: '. implode(' - ', $aForbiddenMimeTypes));
+			self::$oMailBox->Trace('.. # Attachments: '. count(self::$oEmail->aAttachments));
+			
+			if(count($aForbiddenMimeTypes) > 0 && count(self::$oEmail->aAttachments) > 0) {
+				
+				switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) {
+					
+					case 'bounce_delete':
+					case 'bounce_mark_as_undesired':
+					case 'delete':
+					case 'do_nothing':
+					case 'mark_as_undesired':
+						
+						// Forbidden attachments? 
+						foreach(self::$oEmail->aAttachments as $aAttachment) { 
+							self::$oMailBox->Trace('.. Attachment MimeType: '.$aAttachment['mimeType']);
+							
+							if(in_array($aAttachment['mimeType'], $aForbiddenMimeTypes) == true) {
+								
+								self::$oMailBox->Trace('... Found attachment with forbidden MimeType "'.$aAttachment['mimeType'].'"');
+								self::HandleViolation();
+								
+								// No specific fallback								
+								// Stop processing any further!
+								return false;
+							}
+						}
+					
+						break; // Defensive programming
+					
+					case 'fallback_ignore_forbidden_attachments':
+					
+						// Ticket will be processed. Forbidden attachments will be removed here.
+						foreach(self::$oEmail->aAttachments as $index => $aAttachment) { 
+							if(in_array($aAttachment['mimeType'], $aForbiddenMimeTypes) == true) {
+								self::$oMailBox->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = forbidden.");
+								// Removing attachment
+								unset(self::$oEmail->aAttachments[$index]);
+							}
+							else {
+								self::$oMailBox->Trace("... Attachment Content-Id ". $aAttachment['content-id'] . " - Mime Type: {$aAttachment['mimeType']} = allowed.");
+							}
+						}
+						break;
+						
+					default:
+						self::$oMailBox->Trace('.. Unexpected "behavior"');
+						break;
+				}
+		
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyLimitMailSize Offers a policy to prevent big e-mail messages from being processed
+ */
+abstract class PolicyLimitMailSize extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 1;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_mail_size_too_big';
+		
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if mail size is not too big
+		
+			$iMailSize = self::$oEmail->oRawEmail->GetSize();
+			$iLimitMailSize = (self::$oMailBox->Get(self::$sPolicyId.'_max_size_MB') * 1024 * 1024);
+			
+			if($iMailSize > $iLimitMailSize) {
+				
+				// Mail size too big
+				self::$oMailBox->Trace('... Undesired: mail size too big: mail size = '.$iMailSize.' bytes, while limit is '.$iLimitMailSize.' bytes.');
+				self::HandleViolation();
+				
+				// No fallback
+				
+				// Stop processing any further!
+				return false;
+				
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyNoSubject Offers a policy to enforce non-empty subjects
+ */
+abstract class PolicyNoSubject extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 1;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_no_subject';
+		
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if subject is not empty.
+		
+			$sPolicyBehavior = self::$oMailBox->Get(self::$sPolicyId.'_behavior');
+			
+			if(self::$oEmail->sSubject == '') {
+				
+				switch($sPolicyBehavior) {
+					 // Will use default subject.
+					 case 'bounce_delete':
+					 case 'bounce_mark_as_undesired':
+					 case 'delete':
+					 case 'do_nothing':
+					 case 'mark_as_undesired':
+
+						// No subject (and no fallback)
+						self::$oMailBox->Trace('... Undesired: Empty subject.');
+						self::HandleViolation();
+						
+						// No fallback
+						
+						// Stop processing any further!
+						return false;
+						
+						break; // Defensive programming
+						
+					case 'fallback_default_subject':
+					
+						// Set ticket title of e-mail message
+						// Setting the ticket title on the ticket object happens later and not in this policy!
+						$sDefaultTitle = self::$oMailBox->Get(self::$sPolicyId.'_default_subject');
+						self::$oMailBox->Trace('.. Fallback: changing empty subject to "'.$sDefaultTitle.'"');
+						self::$oEmail->sSubject = $sDefaultTitle;
+						break;
+					
+					default:
+						self::$oMailBox->Trace('.. Unexpected "behavior"');
+						break;
+					
+				}
+			
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyNoOtherRecipients Offers a policy to enforce being the sole recipient (no other recipients in To:, CC:)
+ */
+abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 50;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_other_recipients';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if subject is not empty.
+		
+			$sCallerEmail = self::$oEmail->sCallerEmail;
+								
+			// Take both the To: and CC:
+			$aAllContacts = array_merge(self::$oEmail->aTos, self::$oEmail->aCCs);
+			
+			// Ignore sender; helpdesk mailbox; any helpdesk mailbox aliases
+			$aExcludeContacts = array_merge([ self::$oEmail->sCallerEmail, self::$oMailBox->Get('login') ], preg_split(NEWLINE_REGEX, self::$oMailBox->Get('mail_aliases')));
+
+			$sPolicyBehavior = self::$oMailBox->Get(self::$sPolicyId.'_behavior');
+			
+			switch($sPolicyBehavior) {
+				 // Will use default subject.
+				 case 'bounce_delete':
+				 case 'bounce_mark_as_undesired':
+				 case 'delete':
+				 case 'do_nothing':
+				 case 'mark_as_undesired':
+				
+					foreach($aAllContacts as $aContactInfo) {
+						$sCurrentEmail = $aContactInfo['email'];
+						if(in_array($sCurrentEmail, $aExcludeContacts) == false) {
+							
+							// Found other contacts in To: or CC: 
+							self::$oMailBox->Trace("... Undesired: at least one other recipient (missing alias or unwanted): {$aContactInfo['email']}");
+							self::HandleViolation();
+							
+							// No fallback
+							
+							// Stop processing any further!
+							return false;
+						}
+					}
+
+					break; // Defensive programming
+					
+				case 'fallback_add_other_contacts':
+			
+					foreach($aAllContacts as $aContactInfo) {
+						$sCurrentEmail = $aContactInfo['email'];
+						if(in_array($sCurrentEmail, $aExcludeContacts) == false) {
+									
+							// Check if this contact exists.
+							// Non-existing contacts must be created.
+							// Actual linking of contacts happens after policies have been processed.
+							$sContactQuery = 'SELECT Person WHERE email = :email';
+							$oSet = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $sContactEmail));
+							
+							if($oSet->Count() == 0) {
+								
+								// Create
+								self::$oMailBox->Trace("Creating a new Person with email address {$sCallerEmail}");
+								$oCaller = new \Person();
+								$oCaller->Set('email', self::$oEmail->sCallerEmail);
+								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
+								$aDefaults = explode('\n', $sDefaultValues);
+								$aDefaultValues = array();
+								foreach($aDefaults as $sLine)														   
+								{
+									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
+									{
+										$sAttCode = trim($aMatches[1]);
+										$sValue = trim($aMatches[2]);
+										$aDefaultValues[$sAttCode] = $sValue;
+									}
+								}
+								self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
+								try
+								{
+									self::$oMailBox->Trace("Try to create user with default values");
+									$oCaller->DBInsert();					
+								}
+								catch(Exception $e)
+								{
+									// This is an actual error.
+									self::$oMailBox->Trace("Failed to create a Person for the email address '{$sCallerEmail}'.");
+									self::$oMailBox->Trace($e->getMessage());
+									self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
+									return null;
+								}									
+								
+							}
+						}
+					}
+					break;
+					
+				case 'fallback_add_existing_contacts':
+				
+					// Will be added automatically later
+					break;
+					
+				case 'fallback_ignore_other_contacts':
+				
+					// Make sure these contacts are not processed.
+					self::$oEmail->aTos = [];
+					self::$oEmail->aCCs = [];
+				
+					self::$oMailBox->Trace('.. Ignoring other contacts');
+					break;
+				
+				default:
+					self::$oMailBox->Trace('.. Unexpected "behavior"');
+					break;
+				
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyUnknownTicketReference Offers a policy to handle unknown ticket references. Also see MailInboxStandard::GetRelatedTicket()
+ */
+abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 * @details This one must have a higher rank (=later processed) than PolicyRemoveTitlePatterns and PolicyIgnoreTitlePatterns
+	 */
+	public static $iPrecedence = 100;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_ticket_unknown';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if ticket reference is invalid
+			if(self::$oTicket === null) {
+			
+				// This could be a new ticket. Then it's logical the Ticket object is null. 
+				// So check if there was something (header or pattern in subject) which would have lead the system to believe there was a ticket. 
+				
+				// Are there patterns which should be ignored/removed from the title? 
+				// To find the reference, let's remove it from our temp variable. 
+				$sSubject = self::$oEmail->sSubject;
+				
+				// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
+				foreach(['policy_remove_pattern_patterns', 'policy_ignore_pattern_patterns'] as $sAttCode) {
+					$sPatterns = self::$oMailBox->Get($sAttCode);
+					
+					if(trim($sPatterns) != '') {
+						
+						$aPatterns = explode('/\\r\\n|\\r|\\n/', $sPatterns);
+						
+						self::$oMailBox->Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
+						
+						foreach($aPatterns as $sPattern) {
+							if(trim($sPattern) != '') {
+								$oPregMatch = @preg_match($sPattern, $sSubject);
+								
+								if( $oPregMatch === false) {
+									self::$oMailBox->Trace("... Invalid pattern: '{$sPattern}'");
+								}
+								elseif(preg_match($sPattern, $sSubject)) {
+									self::$oMailBox->Trace("... Removing: '{$sPattern}'");
+									$sSubject = preg_replace($sPattern, '', $sSubject);
+								}
+								else {
+									// Just not matching
+								}
+							}
+						}
+					}
+				}
+				
+				$sPattern = self::$oMailBox->FixPattern(self::$oMailBox->Get('title_pattern'));
+				if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
+					self::$oMailBox->Trace("... Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}').");
+					return false;
+				} 
+				elseif(self::$oEmail->oRelatedObject != null ) {
+					self::$oMailBox->Trace("... Undesired: unable to find any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
+					return false;
+				}
+			
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyTicketResolved Offers a policy to handle replies to resolved tickets
+ */
+abstract class PolicyTicketResolved extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 50;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_ticket_resolved';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if a previous ticket was found
+			if(self::$oTicket !== null) {
+				if($oTicket->Get('status') == 'resolved') {
+						
+					switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
+						case 'bounce_delete': 
+						case 'bounce_mark_as_undesired':
+						case 'delete':
+						case 'do_nothing':
+						case 'mark_as_undesired':
+						
+							self::$oMailBox->Trace("... Undesired: ticket was marked as resolved before.");
+							self::HandleViolation();
+							
+							// No fallback
+							
+							// Stop processing any further!
+							return false;
+
+							break; // Defensive programming
+							 
+						case 'fallback_reopen': 
+							// Reopen ticket
+							self::$oMailBox->Trace("... Fallback: reopen resolved ticket."); 
+							self::$oTicket->ApplyStimulus('ev_reopen');
+							break; 
+							
+						default:
+							// Should not happen.
+							self::$oMailBox->Trace("... Unknown action for resolved tickets.");
+							break; 
+						
+					}
+				}
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyTicketClosed Offers a policy to handle replies to closed tickets
+ */
+abstract class PolicyTicketClosed extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 50;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_ticket_closed';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if a previous ticket was found
+			if(self::$oTicket !== null) {
+				if($oTicket->Get('status') == 'closed') {
+						
+					switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
+						case 'bounce_delete': 
+						case 'bounce_mark_as_undesired':
+						case 'delete':
+						case 'do_nothing':
+						case 'mark_as_undesired':
+						
+							self::$oMailBox->Trace("... Undesired: ticket was marked as closed before.");
+							self::HandleViolation();
+							
+							// No fallback
+							
+							// Stop processing any further!
+							return false;
+
+							break; // Defensive programming
+							 
+						case 'fallback_reopen': 
+							// Reopen ticket
+							self::$oMailBox->Trace("... Fallback: reopen closed ticket."); 
+							self::$oTicket->ApplyStimulus('ev_reopen');
+							break; 
+							
+						default:
+							// Should not happen.
+							self::$oMailBox->Trace("... Unknown action for closed tickets.");
+							break; 
+						
+					}
+				}
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyUndesiredTitlePatterns Offers a policy to handle undesired title patterns
+ */
+abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 50;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_undesired_pattern';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if an undesired title pattern is found
+
+			if(self::$oMailBox->Get(self::$sPolicyId.'_patterns') != '' ) { 
+			
+				// Go over each pattern and check.
+				$aPatterns = preg_split(NEWLINE_REGEX, self::$oMailBox->Get(self::$sPolicyId.'_patterns')); 
+				$sMailSubject = self::$oEmail->sSubject;
+				
+				foreach($aPatterns as $sPattern) {
+					if(trim($sPattern) != '') {
+							
+						$oPregMatched = @preg_match($sPattern, $sMailSubject);
+						
+						if($oPregMatched === false) {
+							self::$oMailBox->Trace("... Invalid pattern: '{$sPattern}'");
+						}
+						elseif(preg_match($sPattern, $sMailSubject)) {
+							
+							switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
+								case 'bounce_delete': 
+								case 'bounce_mark_as_undesired':
+								case 'delete':
+								case 'do_nothing':
+								case 'mark_as_undesired':
+								
+									self::$oMailBox->Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
+									self::HandleViolation();
+									
+									// No fallback
+									
+									// Stop processing any further!
+									return false;
+
+									break; // Defensive programming
+									
+								default:
+									// Should not happen.
+									self::$oMailBox->Trace("... Unknown action for closed tickets.");
+									break; 
+								
+							}
+							
+						}
+						else {
+							self::$oMailBox->Trace("... Pattern '{$sPattern}' not matched");
+						}
+					}
+				}
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyUnknownCaller Offers a policy to handle undesired title patterns. Warning: this determines the caller in this implementation of Mail to Ticket!
+ */
+abstract class PolicyUnknownCaller extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 60;
+	
+	/**
+	 * @var \Person $oCaller Found or generated caller
+	 */
+	public static $oCaller = null;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_unknown_caller';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if there's an unknown caller
+			
+			$oCaller = null;
+			$sContactQuery = 'SELECT Person WHERE email = :email';
+			$sCallerEmail = self::$oEmail->sCallerEmail;
+			$oSet = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $sCallerEmail));
+			
+			switch($oSet->Count()) {
+				
+				case 1:
+					// Ok, the caller was found in iTop
+					$oCaller = $oSet->Fetch();
+					break;
+					
+				case 0:
+
+					// Caller was not found.
+					switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) {
+						
+						case 'bounce_delete':
+						case 'bounce_mark_as_undesired':
+						case 'delete':
+						case 'do_nothing':
+						case 'mark_as_undesired':
+						
+							self::$oMailBox->Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
+							self::HandleViolation();
+							
+							// No fallback
+							
+							// Stop processing any further!
+							self::$oMailBox->oCaller = $oCaller;
+							return false;
+
+							break; // Defensive programming
+
+						case 'fallback_create_person':
+							
+							self::$oMailBox->Trace("... Creating a new Person for the email: {$sCallerEmail}");
+							$oCaller = new \Person();
+							$oCaller->Set('email', self::$oEmail->sCallerEmail);
+							$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
+							$aDefaults = explode('\n', $sDefaultValues);
+							$aDefaultValues = array();
+							foreach($aDefaults as $sLine) {
+								if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
+								{
+									$sAttCode = trim($aMatches[1]);
+									$sValue = trim($aMatches[2]);
+									$aDefaultValues[$sAttCode] = $sValue;
+								}
+							}
+							self::$oMailBox->Trace('... Default values: '.json_encode($aDefaultValues));
+							self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
+							try
+							{
+								self::$oMailBox->Trace("... Try to create user with default values");
+								$oCaller->DBInsert();					
+							}
+							catch(Exception $e)
+							{
+								// This is an actual error.
+								self::$oMailBox->Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
+								self::$oMailBox->Trace($e->getMessage());
+								self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
+								self::$oMailBox->oCaller = $oCaller;
+								return false;
+							}
+								
+							break;
+							
+					}
+				
+				default:
+					self::$oMailBox->Trace("... Found ".$oSet->Count()." callers with the same email address '{$sCallerEmail}', the first one will be used...");
+					// Multiple callers with the same email address !!!
+					$oCaller = $oSet->Fetch();
+			}
+		
+		self::$oMailBox->oCaller = $oCaller;
+		
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+/**
+ * Class PolicyRemoveTitlePatterns Offers a policy to remove patterns in titles (in message subject and later ticket title)
+ */
+abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 999;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_remove_pattern';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if an undesired title pattern is found
+
+			if(self::$oMailBox->Get(self::$sPolicyId.'_patterns') != '' ) { 
+			
+				// Go over each pattern and check.
+				$aPatterns = preg_split(NEWLINE_REGEX, self::$oMailBox->Get(self::$sPolicyId.'_patterns')); 
+				$sMailSubject = self::$oEmail->sSubject;
+				
+				foreach($aPatterns as $sPattern) {
+					if(trim($sPattern) != '') {
+							
+						$oPregMatched = @preg_match($sPattern, $sMailSubject);
+						
+						if($oPregMatched === false) {
+							self::$oMailBox->Trace("... Invalid pattern: '{$sPattern}'");
+						}
+						elseif(preg_match($sPattern, $sMailSubject)) {
+							
+							switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
+								case 'bounce_delete': 
+								case 'bounce_mark_as_undesired':
+								case 'delete':
+								case 'do_nothing':
+								case 'mark_as_undesired':
+								
+									self::$oMailBox->Trace("... Found unwanted pattern {$sPattern}. Removing it.");
+									self::$oEmail->sSubject = preg_replace($sPattern, '', $sMailSubject);
+									
+									// No fallback
+									
+									// Stop processing any further!
+									return false;
+
+									break; // Defensive programming
+									
+								case 'do_nothing':
+									// Should not happen.
+									self::$oMailBox->Trace("... Found unwanted pattern {$sPattern}. Doing nothing.");
+									break; 
+									
+								default:
+									// Should not happen.
+									self::$oMailBox->Trace("... Unknown action for closed tickets.");
+									break; 
+								
+							}
+							
+						}
+						else {
+							self::$oMailBox->Trace("... Pattern '{$sPattern}' not matched");
+						}
+					}
+				}
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}

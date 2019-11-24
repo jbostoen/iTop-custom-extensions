@@ -378,7 +378,7 @@ EOF
 	 * @param EmailSource $oSource The source from which this email was read
 	 * @param int $index The index of the message in the source
 	 * @param EmailMessage $oEmail The decoded email
-	 * @return Ticket The ticket created or updated in response to the email
+	 * @return Ticket|null The ticket created or updated in response to the email. Null on error.
 	 */</comment>
           <static>false</static>
           <access>public</access>
@@ -436,23 +436,23 @@ EOF
 		switch($oSet->Count())
 		{
 			case 1:
-			// Ok, the caller was found in iTop
-			$oCaller = $oSet->Fetch();
-			break;
+				// Ok, the caller was found in iTop
+				$oCaller = $oSet->Fetch();
+				break;
 			
 			case 0:
-			// Here decide what to do ? Create a new user, assign the ticket to a 'fixed' Unknown Caller, reject the ticket...
-			// For now: let's do nothing, just ignore the ticket, it will be processed again later... in case the caller gets created
-			$this->Trace('No contact found for the email address ('.$oEmail->sCallerEmail.'), the email will not be processed');
-			$this->sLastError = 'No contact found for the email address ('.$oEmail->sCallerEmail.')';
-			break;
+				// Here decide what to do ? Create a new user, assign the ticket to a 'fixed' Unknown Caller, reject the ticket...
+				// For now: let's do nothing, just ignore the ticket, it will be processed again later... in case the caller gets created
+				$this->Trace('No contact found for the email address ('.$oEmail->sCallerEmail.'), the email will not be processed');
+				$this->sLastError = 'No contact found for the email address ('.$oEmail->sCallerEmail.')';
+				break;
 			
 			default:
-			$this->Trace('Found '.$oSet->Count().' callers with the same email address ('.$oEmail->sCallerEmail.'), the first one will be used...');
-			// Multiple callers with the same email address !!!
-		 	$sAdditionalDescription = "Warning:\nThere are ".$oSet->Count()." callers with the same email address (".$oEmail->sCallerEmail.") ";
-			$sAdditionalDescription = ".\nThe ticket was assigned to the first one found (at random).\n\n";
-			$oCaller = $oSet->Fetch();
+				$this->Trace('Found '.$oSet->Count().' callers with the same email address ('.$oEmail->sCallerEmail.'), the first one will be used...');
+				// Multiple callers with the same email address !!!
+				$sAdditionalDescription = "Warning:\nThere are ".$oSet->Count()." callers with the same email address (".$oEmail->sCallerEmail.") ";
+				$sAdditionalDescription = ".\nThe ticket was assigned to the first one found (at random).\n\n";
+				$oCaller = $oSet->Fetch();
 		}
 		return $oCaller;
 	}]]></code>
@@ -917,9 +917,9 @@ EOF
 	 * @param string $sText
 	 */</comment>
           <static>false</static>
-          <access>protected</access>
+          <access>public</access>
           <type>Overload-DBObject</type>
-          <code>	protected function Trace($sText)
+          <code>	public function Trace($sText)
 	{
 		MailInboxesEmailProcessor::Trace($sText);
 	}</code>

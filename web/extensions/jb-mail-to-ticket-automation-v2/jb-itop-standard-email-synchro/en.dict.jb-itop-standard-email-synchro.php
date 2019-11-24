@@ -136,7 +136,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_other_recipients_notification' => 'Bounce message',
-	'Class:MailInboxStandard/Attribute:policy_other_recipients_default_values' => 'Default values for new contacts (one per line, example: org_id:1)',
+	'Class:MailInboxStandard/Attribute:policy_other_recipients_default_values' => 'Default values for new person (one per line, example: org_id:1)',
 	
 	// Policy: closed ticket
 	'Class:MailInboxStandard/Attribute:policy_ticket_closed_behavior' => 'Behavior on violation',
@@ -197,7 +197,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	// Headers
 	'MailInbox:Server' => 'Mailbox Configuration',
 	'MailInbox:Behavior' => 'Behavior on Incoming e-mails',
-	'MailInbox:Errors' => 'E-mails in Error', 
+	'MailInbox:Errors' => 'E-mails in error', 
 	
 	// Policies
 	'MailInbox:PolicyMailSize' => 'Policy: Mail Size',
@@ -212,7 +212,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'MailInbox:PolicyOtherRecipients' => 'Policy: Other recipients',
 	
 	'Menu:MailInboxes' => 'Incoming E-mail Inboxes',
-	'Menu:MailInboxes+' => 'Configuration of Inboxes to scan for Incoming e-mail',
+	'Menu:MailInboxes+' => 'Configuration of Inboxes to scan for incoming e-mails',
 	 
 	'MailInboxStandard:DebugTrace' => 'Debug Trace',
 	'MailInboxStandard:DebugTraceNotActive' => 'Activate the debug on this Inbox to see the debug trace here.',
