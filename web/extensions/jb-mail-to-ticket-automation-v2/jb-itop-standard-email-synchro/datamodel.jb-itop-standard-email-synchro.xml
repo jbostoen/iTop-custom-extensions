@@ -60,6 +60,11 @@
 				</field> 
 				<field id="title_pattern" xsi:type="AttributeString">
 					<sql>title_pattern</sql>
+					<default_value>/R-([0-9]{6})/</default_value>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="title_pattern_ignore_patterns" xsi:type="AttributeText">
+					<sql>title_pattern_ignore_patterns</sql>
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
@@ -382,21 +387,7 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-			<!-- Avoid title pattern conflicts by ignoring subject parts -->
-				<field id="policy_ignore_pattern_behavior" xsi:type="AttributeEnum">
-					<values>
-						<value>do_nothing</value>
-						<value>fallback_ignore</value>
-					</values>
-					<sql>policy_ignore_pattern_behavior</sql>
-					<default_value>do_nothing</default_value>
-					<is_null_allowed>false</is_null_allowed>
-				</field> 
-				<field id="policy_ignore_pattern_patterns" xsi:type="AttributeText">
-					<sql>policy_ignore_pattern_patterns</sql>
-					<default_value/>
-					<is_null_allowed>true</is_null_allowed>
-				</field>
+
 			</fields>
 
 			<methods>
@@ -605,7 +596,7 @@ EOF
 			$sSubject = $oEmail->sSubject;
 			
 			// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
-			foreach(['policy_remove_pattern_patterns', 'policy_ignore_pattern_patterns'] as $sAttCode) {
+			foreach(['policy_remove_pattern_patterns', 'title_pattern_ignore_patterns'] as $sAttCode) {
 				$sPatterns = $this->Get($sAttCode);
 				
 				if(trim($sPatterns) != '') {
@@ -633,8 +624,7 @@ EOF
 				}
 			}
 			
-			// No associated ticket found by parsing the headers, check
-			// if the subject does not match a specific pattern
+			// No associated ticket found by parsing the headers, check if the subject matches a specific pattern
 			$sPattern = $this->FixPattern($this->Get('title_pattern'));
 			
 			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches)))
@@ -647,6 +637,8 @@ EOF
 				    break;
 				  }
                 }
+				
+				// @todo Might need to be revised if there's a per-class counter (commits 2.7.0)
 				$this->Trace("iTop Simple Email Synchro: Retrieving ticket {$iTicketId} (match by subject pattern)...");
 				$oTicket = MetaModel::GetObject('Ticket', $iTicketId, false);
 			}
@@ -1656,6 +1648,9 @@ EOF
 								<item id="title_pattern">
 									<rank>60</rank>
 								</item>
+								<item id="title_pattern_ignore_patterns">
+									<rank>61</rank>
+								</item> 
 								<item id="stimuli">
 									<rank>70</rank>
 								</item>
@@ -1843,19 +1838,6 @@ EOF
 									<rank>10</rank>
 								</item> 
 								<item id="policy_remove_pattern_patterns">
-									<rank>20</rank>
-								</item> 
-							</items>
-						</item> 
-
-						<!-- Ignore pattern in subject behavior -->
-						<item id="fieldset:MailInbox:PolicyIgnorePattern">
-							<rank>191</rank>
-							<items>
-								<item id="policy_ignore_pattern_behavior">
-									<rank>10</rank>
-								</item> 
-								<item id="policy_ignore_pattern_patterns">
 									<rank>20</rank>
 								</item> 
 							</items>

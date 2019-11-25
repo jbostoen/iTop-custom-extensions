@@ -56,6 +56,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:title_pattern' => 'Title Pattern',
 	'Class:MailInboxStandard/Attribute:title_pattern?' => 'Use PCRE syntax, including starting and ending delimiters',
 
+	'Class:MailInboxStandard/Attribute:title_pattern_ignore_patterns' => 'Ignore patterns in subject (regex patterns, one per line)', 
+	
 	'Class:MailInboxStandard/Attribute:stimuli' => 'Stimuli to apply',
 	'Class:MailInboxStandard/Attribute:stimuli+' => 'Apply a stimulus when the ticket is in a given state',
 	'Class:MailInboxStandard/Attribute:stimuli?' => 'Use the format <state_code>:<stimulus_code>',
@@ -179,20 +181,15 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_behavior/Value:mark_as_undesired' => 'Mark as Undesired / Temporarily keep the e-mail',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_subject' => 'Bounce subject',
 	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_notification' => 'Bounce message', 
-	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_undesired_pattern_patterns' => 'Undesired patterns in subject (regex patterns, one per line)', 
 	
 	
 	// Policy: remove parts of title
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Remove patterns from subject', 
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:do_nothing' => 'Do nothing',
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:fallback_remove' => 'Remove part(s) from subject',
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex patterns, one per line)', 
 	
-	// Policy: ignore parts of title
-	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_behavior' => 'Ignore patterns in subject', 
-	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_behavior/Value:do_nothing' => 'Do nothing',
-	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_behavior/Value:fallback_ignore' => 'Ignore part(s) in subject',
-	'Class:MailInboxStandard/Attribute:policy_ignore_pattern_patterns' => 'Undesired patterns in subject (regex, one per line)', 
 	
 	// Headers
 	'MailInbox:Server' => 'Mailbox Configuration',

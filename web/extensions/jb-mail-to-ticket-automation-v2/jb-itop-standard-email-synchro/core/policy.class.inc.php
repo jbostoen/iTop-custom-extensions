@@ -470,7 +470,7 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 					
 						// Set ticket title of e-mail message
 						// Setting the ticket title on the ticket object happens later and not in this policy!
-						$sDefaultTitle = self::$oMailBox->Get(self::$sPolicyId.'_default_subject');
+						$sDefaultTitle = self::$oMailBox->Get(self::$sPolicyId.'_default_value');
 						self::Trace('.. Fallback: changing empty subject to "'.$sDefaultTitle.'"');
 						self::$oEmail->sSubject = $sDefaultTitle;
 						break;
@@ -635,6 +635,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 
 /**
  * Class PolicyUnknownTicketReference Offers a policy to handle unknown ticket references. Also see MailInboxStandard::GetRelatedTicket()
+ * @todo Check if this works properly
  */
 abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 	
@@ -673,7 +674,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 				$sSubject = self::$oEmail->sSubject;
 				
 				// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
-				foreach(['policy_remove_pattern_patterns', 'policy_ignore_pattern_patterns'] as $sAttCode) {
+				foreach(['policy_remove_pattern_patterns', 'title_pattern_ignore_patterns'] as $sAttCode) {
 					$sPatterns = self::$oMailBox->Get($sAttCode);
 					
 					if(trim($sPatterns) != '') {
@@ -749,8 +750,10 @@ abstract class PolicyTicketResolved extends Policy implements iPolicy {
 		
 		// Checking if a previous ticket was found
 			if(self::$oTicket !== null) {
-				if($oTicket->Get('status') == 'resolved') {
-						
+				if(self::$oTicket->Get('status') == 'resolved') {
+					
+					self::Trace(".. Ticket was marked as resolved before.");
+							
 					switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
 						case 'bounce_delete': 
 						case 'bounce_mark_as_undesired':
@@ -819,7 +822,7 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 		
 		// Checking if a previous ticket was found
 			if(self::$oTicket !== null) {
-				if($oTicket->Get('status') == 'closed') {
+				if(self::$oTicket->Get('status') == 'closed') {
 						
 					switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
 						case 'bounce_delete': 
@@ -864,6 +867,7 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 
 /**
  * Class PolicyUndesiredTitlePatterns Offers a policy to handle undesired title patterns
+ * @todo Check if this works properly
  */
 abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 	
@@ -1068,6 +1072,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 
 /**
  * Class PolicyRemoveTitlePatterns Offers a policy to remove patterns in titles (in message subject and later ticket title)
+ * @todo Check if this works properly
  */
 abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 	
