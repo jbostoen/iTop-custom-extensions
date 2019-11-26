@@ -2,7 +2,7 @@
 
 Feature: report generator. Quickly add reports to different classes (detail view and list view).
 
-Work in progress. 
+Work in progress. Might need some additional PHP libraries (using composer).
 
 # Requirements
 
@@ -12,7 +12,7 @@ Required
 - Twig 2.x (iTop still uses Twig 1?)
 
 Recommended
-- optional chillerlan\QRCode
+* optional chillerlan\QRCode (using Composer)
 
 # How-to
 
@@ -21,9 +21,58 @@ Recommended
 * In this folder, you can create subfolders: *details* and/or *list*
 * Create a Twig template (basically a HTML file) and save it in the appropriate folder
 * The reports will automatically show in the details view or list view under iTop's *Other actions...*
-* The title of the report will be derived from the HTML title-tag within the report
+* The title of the report will be derived from reports.php file
 
 Some vary basic reports are included as an example.
+
+## Making reports available in iTop
+Open templates/reports.php.
+Typically it looks like this: 'iTop-class-name' => 'view' => 'setting'
+
+Settings are:
+* title (how this will be presented within iTop)
+* button: boolean (true/false). Show as separate button in toolbar right above details/list view. If false: listed under 'other actions'
+* file: name of the template (should be a similar structure in templates: templates/iTop-class-name/which-view/filename.ext)
+* optional: parameters
+** action: allows for custom actions (create a class implementing iReportGeneratorExtension. Examples: generate XML, PDF, store files, ...)
+
+
+```
+	$aReports = [
+
+		// UserRequest
+		'UserRequest' => [
+			// Allowed keys: details, list
+			'details' => [
+				[
+					// Allowed keys: 'title' (String), 'button' (true/false), 'file' (string), 'parameters' (hash table; passed in URL)
+					// Hash table parameters: 'action' (special parameter)
+					'title' => 'Sample report',
+					'button' => true,
+					'file' => 'basic_details.html'
+				],
+				[
+					'title' => 'Sample report (PDF)',
+					'button' => true,
+					'file' => 'basic_details.html',
+					'parameters' => [
+						'action' => 'show_pdf'
+					]
+				],
+				[
+					'title' => 'Sample work order',
+					'button' => true,
+					'file' => 'werkbon.twig'
+				]
+			],
+			'list' => [
+				// Other reports 
+			]
+		]
+		
+	];
+```
+
 
 ## Variables in reports
 
@@ -41,8 +90,6 @@ For lists (single or multiple objects), you can use **item** and create things l
 
 Attachments are also available for each item.
 
-## Setting report title
-* To determine the title, you can specify the report title between the <title> tags. This is what will be shown in iTop.
 
 ## Using iTop language strings
 * If you want to use iTop Language strings, you can! 

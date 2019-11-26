@@ -2,7 +2,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:26:09
+ * @version     2019-10-04 18:08:57
  *
  * Shows report; based on available Twig templates.
  *
@@ -18,8 +18,8 @@
  * type: 				String. 'details' or 'list'
 */
 
-namespace jb_report_generator;
-
+namespace jb_itop_extensions\report_generator;
+		
 	if (!defined('APPROOT')) require_once(__DIR__.'/../../approot.inc.php');
 	require_once(APPROOT.'/application/application.inc.php');
 	require_once(APPROOT.'/application/displayblock.class.inc.php');
@@ -31,7 +31,7 @@ namespace jb_report_generator;
 	
 	// Autoloader (Twig, chillerlan\QRCode, ...
 	require_once(APPROOT . '/libext/vendor/autoload.php');
-		
+	
 	// Get iTop's Dict::S('string') so it can be exposed to Twig as well 
 	// require_once( APPROOT . '/application/utils.inc.php' );
 	// require_once( APPROOT . '/core/coreexception.class.inc.php' );
@@ -50,6 +50,14 @@ namespace jb_report_generator;
 		$sFilter = \utils::ReadParam('filter', '', false, 'raw_data');
 		$sType = \utils::ReadParam('type', '', false, 'string');
 		$sTemplateName = \utils::ReadParam('template', '', false, 'string');
+		
+		// Load more (custom classes using iReportGeneratorExtension)
+		$sModuleName = \utils::GetCurrentModuleName();
+		$sModuleDir = APPROOT . '/env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleDir(0);
+		$aCustomInterfaces = glob($sModuleDir.'/clients/*/*.php');
+		foreach($aCustomInterfaces as $sFile) {
+			require_once($sFile);
+		}
 		
 		// Validation
 		// --
@@ -98,7 +106,7 @@ namespace jb_report_generator;
 			throw new \ApplicationException('Invalid OQL filter: no object(s) found');
 		}
 		
-		$aSet_Objects = \jb_report_generator\ObjectSetToArray($oSet_Objects);
+		$aSet_Objects = \jb_itop_extensions\report_generator\ObjectSetToArray($oSet_Objects);
 		
 		// Get keys to build one OQL Query
 		$aKeys = [];
@@ -109,7 +117,7 @@ namespace jb_report_generator;
 		$oFilter_Attachments = new \DBObjectSearch('Attachment');
 		$oFilter_Attachments->AddCondition('item_id', $aKeys, 'IN');
 		$oSet_Attachments = new \CMDBObjectSet($oFilter_Attachments);
-		$aSet_Attachments = \jb_report_generator\ObjectSetToArray($oSet_Attachments);
+		$aSet_Attachments = \jb_itop_extensions\report_generator\ObjectSetToArray($oSet_Attachments);
 		
 		foreach($aSet_Objects as &$aObject ) {
 			
@@ -131,7 +139,8 @@ namespace jb_report_generator;
 		// Twig
 		// --
 		
-		$aTwigData['current_contact'] = \jb_report_generator\ObjectToArray(\UserRights::GetUserObject());
+		$aTwigData['current_contact'] = \jb_itop_extensions\report_generator\ObjectToArray(\UserRights::GetUserObject());
+		$aTwigData['request'] = $_REQUEST;
 		
 		// Twig Loader
 		$loader = new \Twig_Loader_Filesystem( dirname($sReportFile) );
@@ -177,32 +186,59 @@ namespace jb_report_generator;
 				
 		}
 		
-		$sReportExtension = strtolower(pathinfo($sReportFile, PATHINFO_EXTENSION));
-		
-		$aExtensionsToContentTypes = [
-			'csv' => 'text/csv',
-			'html' => 'text/html',
-			'json' => 'application/json',
-			'twig' => 'text/html',
-			'txt' => 'text/plain',
-			'xml' => 'text/xml'
-		];
-		
-		// Set header if Content-type is known (above)
-		if(isset($aExtensionsToContentTypes[$sReportExtension]) == true) {
-			header('Content-Type: '.$aExtensionsToContentTypes[$sReportExtension]);
+		// Enrich? (using interfaces)
+		foreach (get_declared_classes() as $sClassName) {
+			if(in_array('jb_itop_extensions\report_generator\iReportGeneratorExtension', class_implements($sClassName))) {
+				if($sClassName::IsApplicable() == true) {
+					$sClassName::EnrichData($aTwigData, $oTwigEnv, $oSet_Objects);
+				}
+			}
 		}
 		
-		echo $oTwigEnv->render(basename($sReportFile), $aTwigData );	 
+		
+		$sReportExtension = strtolower(pathinfo($sReportFile, PATHINFO_EXTENSION));
+		
+		// No action = basic rendering and header based on extension
+		if(\utils::ReadParam('action', '', false, 'string') == '') {
+		
+			$aExtensionsToContentTypes = [
+				'csv' => 'text/csv',
+				'html' => 'text/html',
+				'json' => 'application/json',
+				'twig' => 'text/html',
+				'txt' => 'text/plain',
+				'xml' => 'text/xml'
+			];
+			
+			// Set header if Content-type is known (above)
+			if(isset($aExtensionsToContentTypes[$sReportExtension]) == true) {
+				header('Content-Type: '.$aExtensionsToContentTypes[$sReportExtension]);
+			}
+			
+			echo $oTwigEnv->render(basename($sReportFile), $aTwigData);
+			
+		}
+		else {
+
+			// Actions? (using interfaces)
+			foreach (get_declared_classes() as $sClassName) {
+				if(in_array('jb_itop_extensions\report_generator\iReportGeneratorExtension', class_implements($sClassName))) {
+					if($sClassName::IsApplicable() == true) {
+						$sClassName::DoExec($aTwigData, $oTwigEnv, $sReportFile);
+					}
+				}
+			}
+			
+		}
 
 	}
 	
 	catch(\Exception $e)
 	{
 		require_once(APPROOT.'/application/nicewebpage.class.inc.php');
-		$oP = new \NiceWebPage(Dict::S('UI:PageTitle:FatalError'));
-		$oP->add("<h1>".Dict::S('UI:FatalErrorMessage')."</h1>\n");	
-		$oP->add(Dict::Format('UI:Error_Details', $e->getMessage()));	
+		$oP = new \NiceWebPage(\Dict::S('UI:PageTitle:FatalError'));
+		$oP->add("<h1>".\Dict::S('UI:FatalErrorMessage')."</h1>\n");	
+		$oP->add(\Dict::Format('UI:Error_Details', $e->getMessage()));	
 		$oP->output();
 	}
 
