@@ -47,7 +47,7 @@
 					</attributes>
 				</reconciliation>
 				<uniqueness_rules>
-					<!-- Theoretically, a couple could share an email address -->
+					<!-- Theoretically, contact methods are NOT unique. People might share e-mail address, (land line) phones, ... -->
 					<rule id="unique_contact_method">
 						<attributes>
 							<attribute id="person_id"/>

@@ -3,23 +3,24 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:26:09
+ * @version     2019-08-22 12:47:48
  * @experimental
  *
- * Defines class iTop_Helper_Phone, which offers some methods to validate phone numbers. Warning: specifically for Belgian use.
+ * Defines class jb_itop_extensions\helpers\phone, which offers some methods to validate phone numbers. 
+ * Warning: specifically for Belgian use.
  *
  */
  
- namespace jb_contact_method;
+namespace jb_itop_extensions\helpers;
 	
 	/**
-	 * Class iTop_Helper_Phone. Provides some phone functions.
+	 * Class phone. Provides some phone functions.
 	 */
-	abstract class iTop_Helper_Phone {
+	abstract class phone {
 		
 		/**
 		 * @var String $allowedCharsRegex Allowed characters in phone number
-		 * @used-by \iTop_Helper_Phone::OnlyContainsAllowedCharacters
+		 * @used-by \jb_extensions\helpers\phone::OnlyContainsAllowedCharacters
 		 */
 		private static $allowedCharsRegex = '\.\/\+ 0-9]';
 		
@@ -47,7 +48,7 @@
 			// https://www.bipt.be/en/consumers/telephone/numbering/numbering-principles
 			// 046, 047, 048, 049
 			// 04 = land line too, Liège and Voeren. Less digits!
-			// That's why we check for the first 2 digits.
+			// That's why the 2 first digits are checked.
 			
 			// Strip leading country code, zero
 			$sPhone = self::ReturnDigitsWithoutLocalDigits_BE($sPhone);		
@@ -96,7 +97,7 @@
 		 *
 		 * @return Boolean
 		 */
-		public static function IsValidPhone( $sPhone ) {	
+		public static function IsValidPhone($sPhone) {	
 		
 			// No use if invalid characters are found
 			if(self::OnlyContainsAllowedCharacters($sPhone) == false) {
@@ -128,7 +129,7 @@
 		 *
 		 * @return Boolean
 		 */
-		public static function IsValidMobilePhone_BE( $sMobilePhone ) {
+		public static function IsValidMobilePhone_BE($sMobilePhone) {
 			
 			$sMobilePhone_significant_digits = self::ReturnDigitsWithoutLocalDigits_BE($sMobilePhone);
 			return ( self::OnlyContainsAllowedCharacters($sMobilePhone) == true && strlen($sMobilePhone_significant_digits) == 9 && self::IsMobilePrefix_BE($sMobilePhone) == true );
@@ -151,7 +152,7 @@
 		 *
 		 * @param String $sPhone Phone number
 		 *
-		 * @uses \iTop_Helper_Phone::$allowedCharsRegex
+		 * @uses \jb_itop_extensions\helpers\phone::$allowedCharsRegex
 		 *
 		 *
 		 * @return Boolean
@@ -183,7 +184,7 @@
 		 *
 		 * @details Significant details: the ones which make up the zone number (or mobile prefix), without leading zero and without (Belgian) country code
 		 */
-		public static function ReturnDigitsWithoutLocalDigits_BE( $sPhone ) {
+		public static function ReturnDigitsWithoutLocalDigits_BE($sPhone) {
 		
 			$sPhone = self::ReturnDigits($sPhone);
 			
@@ -205,7 +206,6 @@
 				// Possibly already stripped
 				return $sPhone;
 			}
-			
 			
 		}
 		
