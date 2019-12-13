@@ -263,7 +263,7 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 			$c = $c.replace('{{ ext_Author }}', $global:iTopConfig.extensions.Author);
 			$c = $c.replace('{{ ext_Company }}', $global:iTopConfig.extensions.Company);
 			$c = $c.replace('{{ ext_VersionMin }}', $global:iTopConfig.extensions.VersionMin);
-			$c = $c.replace('{{ ext_Version }}', $global:iTopConfig.extensions.Version -replace "\.[0-9]+$","") + "." + $(Get-Date -Format "yyMMdd");
+			$c = $c.replace('{{ ext_Version }}', ($global:iTopConfig.extensions.Version -replace "\.[0-9]+$","") + "." + $(Get-Date -Format "yyMMdd"));
 			$c = $c.replace('{{ ext_ReleaseDate }}', $global:iTopConfig.extensions.ReleaseDate);
 			$c = $c.replace('{{ ext_Year }}', $(Get-Date -Format "yyyy") );
 		
