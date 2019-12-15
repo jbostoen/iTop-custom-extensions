@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright   Copyright (C) {{ ext_Year }} {{ ext_Author }}
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:24:21
+ * @version     2019-10-28 13:58:34
  *
  * PHP Data Model definition file
  */
@@ -20,3 +20,4 @@
 // This file remains in the module's template only for the cases where there is:
 // - either no new class or menu defined in the XML file
 // - or no XML file at all supplied by the module
+

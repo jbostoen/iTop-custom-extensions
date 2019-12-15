@@ -1,6 +1,6 @@
 # copyright   Copyright (C) 2019 Jeffrey Bostoen
 # license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2019-10-04 18:08:57
+# version     2019-11-01 17:24:21
 
 # Variables
 
@@ -8,7 +8,6 @@
 # To do: make settings configurable from command line?
 # For now, let's make it $global ($global later?) so it can easily be altered
 $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\config.json" -Raw)
-
 
 # region Common
 
@@ -38,7 +37,6 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 	}
 	
 # endregion
-
 
 #region iTop (un)install related functions
 
@@ -259,11 +257,12 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 
 			# Defaults from variables
 			$c = $c.replace('{{ ext_Url }}', $global:iTopConfig.extensions.Url);
-			$c = $c.replace('{{ ext_VersionDescription }}', $global:iTopConfig.extensions.VersionDescription );	
+			$c = $c.replace('{{ ext_VersionDescription }}', $global:iTopConfig.extensions.VersionDescription);
+			$c = $c.replace('{{ ext_VersionDataModel }}', $global:iTopConfig.extensions.VersionDataModel);
 			$c = $c.replace('{{ ext_Author }}', $global:iTopConfig.extensions.Author);
 			$c = $c.replace('{{ ext_Company }}', $global:iTopConfig.extensions.Company);
 			$c = $c.replace('{{ ext_VersionMin }}', $global:iTopConfig.extensions.VersionMin);
-			$c = $c.replace('{{ ext_Version }}', ($global:iTopConfig.extensions.Version -replace "\.[0-9]+$","") + "." + $(Get-Date -Format "yyMMdd"));
+			$c = $c.replace('{{ ext_Version }}', ($global:iTopConfig.extensions.VersionMin -replace "\.[0-9]+$","") + "." + $(Get-Date -Format "yyMMdd"));
 			$c = $c.replace('{{ ext_ReleaseDate }}', $global:iTopConfig.extensions.ReleaseDate);
 			$c = $c.replace('{{ ext_Year }}', $(Get-Date -Format "yyyy") );
 		
@@ -332,6 +331,7 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 
 	 .Description
 	 Sets iTop extension release info. Goes over every PHP file, every datamodel XML and every script file (.bat, .ps1, .psm1, .sh) in the specified iTop's extension folder.
+	 Warning: ignores any files in "template" folder.
 	 
 	 .Example
 	 Set-iTopExtensionReleaseInfo
@@ -344,17 +344,17 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 		$sVersionExtensions = $($global:iTopConfig.Extensions.VersionMin -replace "\.[0-9]$", "") + '.' + (Get-Date -Format "yyMMdd")
 		
 		# Either add code to do more proper filtering or just make sure it's only applied to a subset of extenions.
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include datamodel.*.xml
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "datamodel.*.xml"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
 			$content = $content -replace '<itop_design xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance" version="1.[0-9]"', "<itop_design xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" version=`"$($global:iTopConfig.Extensions.VersionDataModel)`"" 
 			$content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include extension.xml
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "extension.xml"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
 			
 			# General iTop extension release info
@@ -368,9 +368,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 		}
 
 		# Update module files
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include module.*.php
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "module.*.php"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 			$unused_but_surpress_output = $_.Name -match "^(.*)\.(.*)\.(.*)$"
 			$sModuleShortName = $Matches[2]; # magic
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
@@ -380,9 +380,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 
 
 		# Update any PHP file
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include *.php
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "*.php"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
 			
@@ -395,9 +395,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 		# Script files
 
 		# Update any BAT file
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include *.bat
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "*.bat"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
 			
@@ -407,9 +407,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 		}
 		
 		# Update any PS1/PSM1 file
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include *.ps1, *.psm1
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "*.ps1", "*.psm1"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
 			
@@ -419,9 +419,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 		}
 
 		# Update any SH file
-		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include *.sh
+		$aFiles = Get-ChildItem -path $global:iTopConfig.extensions.Path -File -Recurse -Include "*.sh"
 
-		$aFiles | Foreach-Object {
+		$aFiles | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$content = Get-Content "$($_.Directory)\$($_.Name)"
 			
@@ -542,7 +542,6 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				
 				if($content.objects -ne $null) {
 					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object {
-					
 						# Gets the properties for each object
 						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
 						
@@ -555,7 +554,7 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 						
 						$object.fields = $recastedFields
 						
-						$objects += $object						
+						$objects += $object
 					}
 				}
 
@@ -647,8 +646,7 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				[Array]$objects = @()
 				
 				if($content.objects -ne $null) {
-					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { 
-
+					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object {
 						# Gets the properties for each object
 						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
 						
@@ -772,8 +770,7 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				[Array]$objects = @()
 				
 				if($content.objects -ne $null) {
-					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { 
-
+					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object {
 						# Gets the properties for each object
 						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
 						
@@ -876,8 +873,7 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 				[Array]$objects = @()
 				
 				if($content.objects -ne $null) {
-					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object { 
-
+					$content.objects | Get-Member -MemberType NoteProperty | ForEach-Object {
 						# Gets the properties for each object
 						$object = ($content.objects | Select-Object -ExpandProperty $_.Name)
 						

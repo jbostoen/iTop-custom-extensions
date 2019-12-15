@@ -5,10 +5,10 @@
 	<author><![CDATA[ {{ ext_Author }} ]]></author>
 	<label><![CDATA[ {{ ext_Label }} ]]></label>
 	<description><![CDATA[ {{ ext_Description }} ]]></description>
-	<version>2.6.191101</version>
+	<version><![CDATA[ {{ ext_Version }} ]]></version>
 	<release_date>2019-11-01</release_date>
 	<version_description><![CDATA[ {{ ext_VersionDescription }} ]]></version_description>
-	<itop_version_min>2.6.0</itop_version_min>
+	<itop_version_min><![CDATA[ {{ ext_VersionMin }} ]]></itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>{{ ext_Url }}</more_info_url>
