@@ -867,7 +867,6 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 
 /**
  * Class PolicyUndesiredTitlePatterns Offers a policy to handle undesired title patterns
- * @todo Check if this works properly
  */
 abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 	

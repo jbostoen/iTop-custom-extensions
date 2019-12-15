@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-mail-to-ticket-automation-v2-v2</extension_code>
+	<extension_code>jb-mail-to-ticket-automation-v2</extension_code>
 	<company></company>
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Feature: Mail to ticket automation]]></label>
