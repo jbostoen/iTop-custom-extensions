@@ -1114,13 +1114,9 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 						elseif(preg_match($sPattern, $sMailSubject)) {
 							
 							switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
-								case 'bounce_delete': 
-								case 'bounce_mark_as_undesired':
-								case 'delete':
-								case 'do_nothing':
-								case 'mark_as_undesired':
+								case 'fallback_remove':
 								
-									self::Trace("... Found unwanted pattern {$sPattern}. Removing it.");
+									self::Trace("... Found pattern to remove: {$sPattern}. Removing it.");
 									self::$oEmail->sSubject = preg_replace($sPattern, '', $sMailSubject);
 									
 									// No fallback
@@ -1132,7 +1128,7 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 									
 								case 'do_nothing':
 									// Should not happen.
-									self::Trace("... Found unwanted pattern {$sPattern}. Doing nothing.");
+									self::Trace("... Found pattern to remove: {$sPattern}. Doing nothing.");
 									break; 
 									
 								default:

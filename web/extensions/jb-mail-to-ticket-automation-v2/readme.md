@@ -2,26 +2,20 @@
 Currently working on v2.
 For people who like to play safe: v1 is included in the ZIP file.
 
-
 # What?
-
 
 This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation. 
 It was originally based on their version 3.0.7 (28th of August 2017), but also includes the changes up to 3.1.0 so far.
 Some fixes in this version were accepted by Combodo back in August 2018 and are now part of the official version.
 
-
 What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. 
 This extension offers some additional policies that can be enforced and also adds a few automated actions if those policies are violated.
 For example, it's possible to force callers to NOT have other recipients in the message sent to the helpdesk.
 
-
 One thing is important here: it's actually recommended to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
-
 
 For IMAP, here's a quick example on the configuration options (config-itop.php).
 Also make sure the PHP IMAP extension is enabled.
-
 
 ```
 	'imap_options' => array (
@@ -31,21 +25,16 @@ Also make sure the PHP IMAP extension is enabled.
 	),
 ```
 
-
 # Roadmap
 Short term roadmap: this was my first PHP extension (fork) for iTop.
 Initially for a minor problem only, but it grew over time. It works, but the code is not "by the book". 
 Expect some refactoring soon; while keeping the current options and datamodel.
 
-
 Also expect an **optional** link to the **ContactMethod** class you find in this repository, so a caller can have multiple e-mail addresses.
-
 
 Other new features may be proposed, but are currently not planned.
 
-
 Password field will be reviewed.
-
 
 # Basics about policies
 Common options are:
@@ -59,10 +48,8 @@ Common options are:
   * subject
   * message
 
-
 In the bounce message, some placeholders (variables) can be used. In fact, most (all?) strings from the EmailMessage class are supported.
 So in the bounce subject/message, it's possible to use **$mail->subject$** etc. (list below)
-
 
 ```
 body_format
@@ -76,7 +63,6 @@ recipient
 subject
 uidl
 ```
-
 
 # Configuration
 ## Mailbox Configuration
@@ -100,7 +86,6 @@ uidl
 * **Ignore patterns in subject** - regex patterns, one per line. To make other patterns ignored while processing/finding related ticket (e.g. another ticket system with IR-123456 numbering).
 * **Stimuli to apply** - example: reopen ticket?
 
-
 ```
     service_id:1
     impact:3
@@ -117,16 +102,12 @@ This handles technical issues with e-mails; not policy violations.
 * **Forward eMails (in error) To Address**
 
 
-
-
 ***
-
 
 # Available policies
 A list of included policies which can be configured.
 With some programming skills, it's easy to extend the *PolicyViolation* class.
 If it's a common use case, make a pull request to include it.
-
 
 ## E-mail Size
 * **Use case:** e-mail size is too big (often related to PHP or MySQL limits)
@@ -177,7 +158,6 @@ If it's a common use case, make a pull request to include it.
 * **Bounce subject**
 * **Bounce message**
 
-
 ## Resolved tickets
 * Use case: despite very clear warnings a ticket has been resolved, user still replies.
 * **Policy violation behavior**
@@ -201,7 +181,6 @@ If it's a common use case, make a pull request to include it.
 * **Bounce subject**
 * **Bounce message**
 
-
 ## Unknown caller
 * Use case: first time caller
 * **Policy violation behavior**
@@ -215,13 +194,11 @@ If it's a common use case, make a pull request to include it.
 * **Bounce message**
 * **Default values for new contact** - see example for minimal configuration
 
-
 ```
 	org_id:1 
 	first_name:Unknown 
 	name:Caller
 ```
-
 
 ( creates a person named 'Unknown Caller', belonging to first organization in iTop)
 	 
@@ -253,7 +230,6 @@ If it's a common use case, make a pull request to include it.
 * **Bounce message**
 * **Undesired patterns in subject** - (regex patterns, one per line)
 
-
 ## Patterns to remove from title
 * Use case: getting rid of unwanted content in subjects/titles
   * Limitation: it will still be problematic if the ticket reference pattern is exactly the same!
@@ -262,20 +238,14 @@ If it's a common use case, make a pull request to include it.
   * Do nothing
 * **Bounce subject**
 * **Bounce message**
-* **Undesired patterns in subject** - (regex patterns, one per line)
-
-
+* **Patterns to remove from subject** - (regex patterns, one per line)
 
 
 # Other improvements
 
 
-
-
 ## Minor code tweaks
 Some code was simplified.
-
-
 
 
 ## Lost IMAP connections
@@ -283,14 +253,10 @@ There's an attempt to fix issues with lost IMAP connections (to Office 365).
 Contrary to the original extension, EmailReplicas don't immediately disappear when the mail can not be seen anymore.
 It's stored for 7 more days after it's last seen.
 
-
 Benefit: if the e-mail wasn't seen due to a lost IMAP connection, the EmailReplica got deleted with the original Combodo extension.
 If in the next run the IMAP connection functions properly, the e-mail would be reprocessed as 'new' - which led to new tickets being created.
 
-
 # Cookbook
-
 
 PHP
 - how to implement renaming of columns, running queries during installation (ModuleInstallerAPI)
-

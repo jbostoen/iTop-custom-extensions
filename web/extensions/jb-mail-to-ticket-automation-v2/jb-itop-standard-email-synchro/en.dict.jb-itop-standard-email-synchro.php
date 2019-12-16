@@ -188,7 +188,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior' => 'Remove patterns from subject', 
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:do_nothing' => 'Do nothing',
 	'Class:MailInboxStandard/Attribute:policy_remove_pattern_behavior/Value:fallback_remove' => 'Remove part(s) from subject',
-	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Undesired patterns in subject (regex patterns, one per line)', 
+	'Class:MailInboxStandard/Attribute:policy_remove_pattern_patterns' => 'Patterns to remove from subject (regex patterns, one per line)', 
 	
 	
 	// Headers
