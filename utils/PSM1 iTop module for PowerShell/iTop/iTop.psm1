@@ -1,6 +1,6 @@
 # copyright   Copyright (C) 2019 Jeffrey Bostoen
 # license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2019-11-01 17:24:21
+# version     2019-12-17 11:19:21
 
 # Variables
 
@@ -477,6 +477,12 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 	 .Parameter class
 	 Name of class. Can be ommitted if parameter 'key' is a valid OQL-query.
 	 
+	 .Parameter limit
+	 Maximum umber of objects to return. Defaults to 0 (unlimited). From iTop 2.6.1 onwards.
+	 
+	 .Parameter page
+	 Number of pages to return. Defaults to 1. From iTop 2.6.1 onwards.
+	 
 	 .Parameter outputFields
 	 Comma separated list of attributes; or * (return all attributes for specified class); or *+ (all attributes - might be more for subclasses)
 	 
@@ -490,7 +496,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 		param(
 			[Parameter(Mandatory=$true)][String] $key,
 			[Parameter(Mandatory=$false)][String] $class = "",
-			[Parameter(Mandatory=$false)][String] $outputFields = ""
+			[Parameter(Mandatory=$false)][String] $outputFields = "",
+			[Parameter(Mandatory=$false)][Int64] $limit = 0,
+			[Parameter(Mandatory=$false)][Int64] $page = 1
 		)
 		
 		# Shortcut, if possible.
@@ -517,7 +525,9 @@ $global:iTopConfig = ConvertFrom-JSON (Get-Content -Path "$($PSScriptRoot)\confi
 			'operation'='core/get';
 			'key'=$key;
 			'class'=$class;
-			'output_fields'=$outputFields
+			'output_fields'=$outputFields;
+			'limit'=$limit;
+			'page'=$page
 		};
 		
 		$argData = @{
