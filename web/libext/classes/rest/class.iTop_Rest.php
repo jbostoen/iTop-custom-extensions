@@ -1,18 +1,17 @@
 <?php
+
+/**
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @version     -
+ * @see         https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
+ *
+ * Defines class iTop_Rest, which communicates with iTop REST/JSON API
+ *
+ * @details
+ * 
+ */
  
-
-	/**
-	 * Defines a PHP Class named iTop_Rest which could be an useful parent class to build upon.
-	 *
-	 * Place iTop Connector under <iTopDir>/itop-connector
-	 *
-	 * @copyright  © 2018 - 2019 jbostoen
-	 * @version    Release: 0.1.190319
-	 * @link       https://github.com/jbostoen
-	 * @see        https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
-	 */  
-
-
 	/**
 	 * Class iTop_Rest. A class to communicate with iTop API more efficiently in PHP implementations.
 	 */
@@ -21,13 +20,12 @@
 		/**
 		* @var Name which is used by default in REST comments
 		*/
-		public $name = 'iTop REST';
-		
+		public $name = 'iTop REST';		
 		
 		/**
 		 * @var String Password of the iTop user which has the REST User Profile (in iTop)
 		 */
-		public $password = 'user';
+		public $password = 'pwd';
 		
 		/* For debugging only */
 		/**
@@ -48,20 +46,20 @@
 		public $url = '';
 		
 		/**
-		 *@var String User in iTop which has the REST User Profile (in iTop)
+		 *@var String User in iTop which has the REST User Profile (in iTop). iTop REST/JSON error messages might be in the native language of the specified user.
 		 */
-		public $user = 'user';
+		public $user = 'admin';
 		
 		/**
-		 * @var String describing the REST API version. 
+		 * @var String describing the REST API version. 1.3 starting with iTop 2.2.0, still valid for iTop 2.6.0
 		 */
-		 public $version = '1.3'; /* 1.3 starting with iTop 2.2.0, still valid for iTop 2.6.0 */
+		public $version = '1.3';
 		
 		
 		public function __construct( ) {
 
-			// If url is unspecified by default and this 'itop-connector' folder is placed within iTop-directory as expected, the url property will automatically be adjusted
-			if( $this->url == '' ) {
+			// If url is unspecified by default and this file is placed within iTop-directory as expected, the url property will automatically be adjusted
+			if($this->url == '') {
 				 
 				// Assume we're in iTop directory; get definitions for APPCONF and ITOP_DEFAULT_ENV
 				$sDirName = __DIR__ ;
@@ -75,10 +73,10 @@
 						// Get iTop config file 
 						if( file_exists( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php') == true ) {
 							
-							require( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php' ); // lcoal scope
+							require( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php' ); // local scope
 							$this->url = $MySettings['app_root_url'] . 'webservices/rest.php';
 
-							break;
+							return;
 							
 						}
 						
@@ -88,14 +86,12 @@
 					$sDirName = dirname($sDirName);
 					
 				}
-					
 				
-			} 
-			
-			
+				// return hasn't happened: this means we have an error here.
+				throw new Exception('Could not automatically derive iTop Rest/JSON url');
+				
+			}
 		}
-		
-		
 		
 		/**
 		 * Shortcut to create data
@@ -129,8 +125,6 @@
 			return $this->ProcessResult( $aResult, $aParameters ); 
 			
 		}
-		
-		 
 		
 		/**
 		 * Shortcut to delete data
@@ -172,9 +166,6 @@
 			
 		}
 		
-		
-		  
-		  
 		/**
 		 * Shortcut to get data
 		 *
@@ -212,7 +203,6 @@
 			
 		} 
 	
-		
 		/**
 		 * If an OQL query is specified as a key, this will automatically detect and set the class name if it's missing.
 		 * 
@@ -247,10 +237,7 @@
 			throw new Exception('Error in ' . __METHOD__ . '(): class was not defined and it could also not be derived from key.');
 			
 		}
-			
-		  
-		
-		
+
 		/**
 		 * Sends data to the iTop REST services and returns data (decoded JSON)
 		 *
@@ -263,7 +250,6 @@
 		 */ 
 		public function Post( Array $aJSONData ) {
 			   
-			
 			//  Initiate curl
 			$ch = curl_init();
 			 
@@ -311,16 +297,13 @@
 			
 			$aResult = json_decode($sResult, true);
 			
-			if(!is_array($aResult)){
+			if(is_array($aResult) == false || isset($aResult['code']) == false){
 				throw new Exception('Invalid response from iTop API/REST. Incorrect configuration or something wrong with network or iTop?');
 			}
     
 			return $aResult; 
 		
 		}
-		
-		
-		
 		
 		/**
 		 * Shortcut to properly encode data in base64. Required to send to iTop REST/JSON services. 
@@ -348,7 +331,6 @@
 			];
 			
 		}
-		
 		
 		/**
 		 * Processes JSON data retrieved from the iTop REST/JSON services. 
@@ -385,36 +367,47 @@
 		 *   [ iTop object data ], 
 		 * 	  ...
 		 * ]
-		 *  
+		 *
 		 *  
 		 * @details Simplification happens because we only return an array of objects, either with or without key. 
 		 * If you want to check for errors, just check in the array if 'code' still exists.
 		 */
 		private function ProcessResult( Array $aServiceResponse = [], Array $aParameters = [] ) {
-						
-			if( $aServiceResponse['code'] == 0 ) {
-				
+			
+			// Valid response ('code' = 0)
+			if( isset( $aServiceResponse['code'] ) == true && $aServiceResponse['code'] == 0 ) {
+								
 				// Valid call, no results? (usually after 'operation/get'
 				if( isset( $aServiceResponse['objects'] ) == false ) {
 					return [];
 				}
 				else {
-					return ( isset( $aParameters['no_keys']) == true ? ( $aParameters['no_keys'] == true ? array_values($aServiceResponse['objects']) : $aServiceResponse['objects'] ) : $aServiceResponse['objects'] );
+					$aObjects = $aServiceResponse['objects'];
+					return ( isset( $aParameters['no_keys']) == true ? ( $aParameters['no_keys'] == true ? array_values($aObjects) : $aObjects ) : $aObjects );
 				}
 			}
 			else {
 				
 				// Service response contained an error.
-				return $aServiceResponse;
+				// Return all.
+				if( isset($aServiceResponse['code']) == true && isset($aServiceResponse['message']) == true ) {
+					// Valid response but error
+					throw new \iTop_Rest_Exception('Invalid response from iTop REST/JSON Service: '.$aServiceResponse['message'], $aServiceResponse, $aServiceResponse['code']);
+				}
+				else {
+					// Invalid response
+					// Must still have been an array or exception would have occurred earlier
+					throw new \iTop_Rest_Exception('No response from iTop REST/JSON Service. Check connection and credentials.');
+				}
+				
 			} 
 			
 		}
 		
-		
 		/**
 		 * Shortcut to update data
 		 *
-		 * @param $aParameters Array [
+		 * @param Array $aParameters Array [
 		 *  'comment'          => Optional. String. Describes the action and is stored in iTop's history tab.
 		 *  'fields'           => Required. Array. The fields and values for them that need to be updated
 		 *  'key'              => Required.
@@ -448,8 +441,5 @@
 		}
 		
 		
- 
-		
 	}
-	 
-	 
+	
