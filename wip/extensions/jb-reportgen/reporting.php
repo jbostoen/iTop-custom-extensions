@@ -141,7 +141,8 @@ namespace jb_itop_extensions\report_generator;
 		
 		$aTwigData['current_contact'] = \jb_itop_extensions\report_generator\ObjectToArray(\UserRights::GetUserObject());
 		$aTwigData['request'] = $_REQUEST;
-		
+		$aTwigData['application']['url'] = \utils::GetDefaultUrlAppRoot();
+
 		// Twig Loader
 		$loader = new \Twig_Loader_Filesystem( dirname($sReportFile) );
 		
