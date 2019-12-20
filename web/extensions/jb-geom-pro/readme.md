@@ -98,6 +98,9 @@ It's possible to specify both default settings and override them for any given c
 # Roadmap
 * Search bar (locate addresses)
 
+## Translations
+* French translation by Guillaume Lajarige (@Molkobain)
+
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
 Copyright (C) 2019 Jeffrey Bostoen
