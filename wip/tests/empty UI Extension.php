@@ -2,7 +2,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:26:09
+ * @version     2019-12-22 17:15:22
  *
  * Definition of ApplicationUIExtension_ReportGenerator. Unused after all for now.
  *

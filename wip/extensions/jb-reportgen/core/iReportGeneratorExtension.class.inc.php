@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     -
+ * @version     2019-12-22 17:15:22
  *
  * Definition of iReportGeneratorExtension
  */
