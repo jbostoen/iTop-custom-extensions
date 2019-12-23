@@ -5,6 +5,13 @@
 			<lifecycle>
 				<states>
 					<state id="validated">
+						<flags>
+							<!-- Do not enforce entering acceptance_comment (can be left empty; but is still asked) -->
+							<attribute id="acceptance_comment">
+								<mandatory _delta="delete"/>
+								<must_prompt _delta="merge"/>
+							</attribute>
+						</flags>
 						<transitions>
 							<!-- Allow transition to 'reject' even when already validated -->
 							<transition id="ev_reject" _delta="define">
@@ -23,6 +30,16 @@
 						</transitions>
 					</state>
 					<state id="plannedscheduled">
+						<flags>
+							<!-- Prevent Change's impact (comment) from being mandatory -->
+							<attribute id="impact">
+								<mandatory _delta="delete"/>
+							</attribute>
+							<!-- Prevent Change's fallback from being mandatory -->
+							<attribute id="fallback">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>				
 						<transitions>
 							<!-- Allow transition to 'reject' even when already plannedscheduled -->
 							<transition id="ev_reject" _delta="define">
@@ -82,6 +99,16 @@
 						</transitions>
 					</state>
 					<state id="plannedscheduled">
+						<flags>
+							<!-- Prevent Change's impact (comment) from being mandatory -->
+							<attribute id="impact">
+								<mandatory _delta="delete"/>
+							</attribute>
+							<!-- Prevent Change's fallback from being mandatory -->
+							<attribute id="fallback">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
 						<transitions>
 							<!-- Allow transition to 'reject' even when already plannedscheduled -->
 							<transition id="ev_reject" _delta="define">
@@ -91,6 +118,12 @@
 						</transitions>
 					</state>
 					<state id="approved">
+						<flags>
+							<!-- Prevent Change's fallback from being mandatory -->
+							<attribute id="fallback">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
 						<transitions>
 							<!-- Allow transition to 'reject' even when already approved -->
 							<transition id="ev_reject" _delta="define">
@@ -131,6 +164,14 @@
 		<class id="EmergencyChange">
 			<lifecycle>
 				<states>
+					<state id="plannedscheduled">
+						<flags>
+							<!-- Prevent Change's impact (comment) from being mandatory -->
+							<attribute id="impact">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
 					<state id="implemented">
 						<flags>
 							<!-- Prevent EmergencyChange's title becoming read-only when the state changes to implemented. -->
@@ -151,6 +192,12 @@
 			</lifecycle>
 		</class>
 		<class id="Change">
+			<fields>
+				<!-- Set default value -->
+				<field id="fallback" xsi:type="AttributeText">
+					<default_value>Restore backup</default_value>
+				</field>
+			</fields>
 			<methods>
 				<!-- 
 					Prevent automatically computed impacted items from being linked to this class.
@@ -172,7 +219,49 @@
 						}]]>
 					</code>
 				</method>
-			</methods> 
+			</methods>
+			<lifecycle>
+				<states>
+					<state id="plannedscheduled">
+						<flags>
+							<!-- Prevent Change's impact (comment) from being mandatory -->
+							<attribute id="impact">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+					<state id="notapproved">
+						<flags>
+							<!-- Prevent Change's fallback from being mandatory -->
+							<attribute id="fallback">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+					<state id="implemented">
+						<flags>
+							<!-- Prevent Change's fallback from being mandatory -->
+							<attribute id="fallback">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+				</states>
+			</lifecycle>
+		</class>
+		<class id="ApprovedChange">
+			<lifecycle>
+				<states>
+					<state id="plannedscheduled">
+						<flags>
+							<!-- Prevent Change's fallback from being mandatory -->
+							<attribute id="fallback">
+								<mandatory _delta="delete"/>
+							</attribute>
+						</flags>
+					</state>
+				</states>
+			</lifecycle>
 		</class>
 	</classes>
 </itop_design>

@@ -61,6 +61,8 @@ SetupWebPage::AddModule(
 			// Settings are similar to Combodo's authent-ldap and used as default settings for any sync rule (the specific rules can overrule this)
 			'default_sync_rule' => array(
 			
+				'create_objects' => true,
+				'update_objects' => true,
 				'host' => '127.0.0.1',
 				'port' => 389,
 				'default_user' => 'someuser@intranet.domain.org',
