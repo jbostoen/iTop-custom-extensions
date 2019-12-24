@@ -155,8 +155,11 @@
 										<item id="name">
 											<rank>5</rank>
 										</item>
-										<item id="status">
+										<item id="city_id">
 											<rank>10</rank>
+										</item>
+										<item id="status">
+											<rank>15</rank>
 										</item>
 
 										<item id="addresses_list">
@@ -213,6 +216,8 @@
 							Interesting, friendlyname of other class can be used here! 
 							Visually this will look okay and 'friendly' to users, but there may be too many spaces at the end.
 							iTop separates each column with a space; and the last columns are often empty.
+							
+							Another approach would be to have a field which is always automatically updated.
 						-->
 						<attribute id="street_id_friendlyname"/>
 						<attribute id="house_number"/>
@@ -298,7 +303,9 @@
 										<item id="crab_id">
 											<rank>5</rank>
 										</item> 
-
+										<item id="status">
+											<rank>10</rank>
+										</item>
 										<item id="street_id">
 											<rank>15</rank>
 										</item>
