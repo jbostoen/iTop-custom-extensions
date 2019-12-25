@@ -2,7 +2,7 @@
 
 ## Special note
 This extension was complex to develop and is now very feature rich, so this became a professional extension.
-If you want to use this extension and get support, get in touch please to discuss terms: jbostoen.itop@outlook.com
+If you want to use this extension and get support, get in touch please to discuss terms: **jbostoen.itop@outlook.com**
 
 
 ## What?

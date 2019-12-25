@@ -2,7 +2,7 @@
 
 First version available! (Very stable, but some advanced features are still being implemented).
 If you are interested in a quick development of this extension or a specific feature, consider getting in touch.
-Also you're interested in acquiring this extension now or to be informed when it's out of beta, contact jbostoen.itop@outlook.com
+Also you're interested in acquiring this extension now or to be informed when it's out of beta, contact **jbostoen.itop@outlook.com**
 
 ## What?
 Merges any sub class of Tickets.

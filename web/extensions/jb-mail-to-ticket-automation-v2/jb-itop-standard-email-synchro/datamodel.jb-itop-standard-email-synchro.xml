@@ -515,9 +515,8 @@ EOF
 			$this->Trace('. Email complies with specified policies.');
 		}
 		
-		// In this fork, the caller object will have been determined by PolicyUnknownCaller in the IsUndesired() method 
-		// and the property will have been set on the MailInboxStandard object.
-		$oCaller = $this->oCaller;
+		// In this fork,  EmailMessage->oCaller will have been set by PolicyUnknownCaller in the IsUndesired() method
+		$oCaller = $oEmail->oCaller;
 		
 		switch($this->Get('behavior'))
 		{
@@ -1539,19 +1538,22 @@ EOF
 		
 		$this->Trace('.. '.count($aPolicyClasses).' policies to process...');
 			
-		// Some policies are quicker to enforce or should be run in a certain order
+		// Policies must be executed in a certain order.
+		// Some policies may set info on the Ticket or derive the caller; 
+		// other policies may block further processing.
+		// The order in which these actions are executed, is important.
 		usort($aPolicyClasses, function($sClassNameA, $sClassNameB) {
 			return $sClassNameA::$iPrecedence <=> $sClassNameB::$iPrecedence;
 		});
 		
 		foreach($aPolicyClasses as $sPolicy) {
+		
 			$sPolicy::Init($this, $oEmail, $oTicket);
-			$bCompliant = $sPolicy::IsCompliant();
 			
-			// As soon as there is one policy the email doesn't comply with, cancel further processing.
+			// As soon as there is one policy where IsCompliant() returns false: cancel further processing.
 			// Any other policy violation handling should have been performed by the class implementing the iPolicy interface.
-			if($bCompliant == false) {
-				return true; // Being incompliant = undesired
+			if($sPolicy::IsCompliant() == false) {
+				return true; // Being incompliant = mark as undesired email
 			}
 		}
 

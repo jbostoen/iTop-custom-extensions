@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-mail-to-ticket-automation-v2</extension_code>
+	<extension_code>jb-framework</extension_code>
 	<company></company>
-	<author><![CDATA[jbostoen]]></author>
-	<label><![CDATA[Feature: Mail to ticket automation]]></label>
-	<description><![CDATA[Scan several mailboxes to create or update tickets.]]></description>
+	<author><![CDATA[ Jeffrey Bostoen ]]></author>
+	<label><![CDATA[ Framework (extensions by Jeffrey Bostoen) ]]></label>
+	<description><![CDATA[ Components and functions shared among extensions ]]></description>
 	<version>2.6.191225</version>
 	<release_date>2019-12-25</release_date>
-	<version_description><![CDATA[ ]]></version_description>
+	<version_description><![CDATA[  ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
 	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
 </extension>
+

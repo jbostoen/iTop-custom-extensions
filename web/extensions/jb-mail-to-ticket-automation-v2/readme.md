@@ -2,6 +2,10 @@
 Currently working on v2.
 For people who like to play safe: v1 is included in the ZIP file.
 
+## Special note
+This extension was complex to develop and is now very feature rich, yet it remains a free extension.
+If you want to use this extension and get support or custom development, get in touch please to discuss terms: **jbostoen.itop@outlook.com**
+
 # What?
 
 This **Mail to Ticket automation** is a **fork** from Combodo's Mail to Ticket Automation. 
@@ -9,10 +13,18 @@ It was originally based on their version 3.0.7 (28th of August 2017), but also i
 Some fixes in this version were accepted by Combodo back in August 2018 and are now part of the official version.
 
 What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. 
-This extension offers some additional policies that can be enforced and also adds a few automated actions if those policies are violated.
-For example, it's possible to force callers to NOT have other recipients in the message sent to the helpdesk.
+This extension offers some additional policies that can be enforced and also adds a few automated actions. 
 
-One thing is important here: it's actually recommended to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates (Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). Otherwise, configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
+Sometimes a policy just tells how an email should be handled (setting caller or ticket information); 
+most of the provided policies can also block further processing (policy is violated and someone is informed about it: the caller or administrator).
+For example, it's possible to prevent callers from adding other recipients in the message sent to the helpdesk.
+
+# Configuration
+
+Configuration settings are mostly similar to https://www.itophub.io/wiki/page?id=extensions%3Aticket-from-email
+
+One thing is important here: it's actually recommended to set **use_message_id_as_uid** to 'true' in the config file in a lot of cases to avoid duplicates 
+(Combodo sets it to 'false' by default but this could be very undesired for IMAP connections!). 
 
 For IMAP, here's a quick example on the configuration options (config-itop.php).
 Also make sure the PHP IMAP extension is enabled.
@@ -260,3 +272,13 @@ If in the next run the IMAP connection functions properly, the e-mail would be r
 
 PHP
 - how to implement renaming of columns, running queries during installation (ModuleInstallerAPI)
+
+# Creating new additional policies
+Enforcing certain rules or simply adding your own basic logic to set Ticket info or derive a caller (Person) can be done by writing your own class implementing the **iPolicy** interface.
+
+The most important things about the interface:
+* implement the ```Init()``` method
+* specify a ```rank``` (order in which policies are executed. Not necessary to make this unique)
+* implement the ```IsCompliant()``` method. true = continue processing; false = stop processing this email (marked as undesired)
+
+

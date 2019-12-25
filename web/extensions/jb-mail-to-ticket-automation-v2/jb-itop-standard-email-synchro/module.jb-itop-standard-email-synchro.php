@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-itop-standard-email-synchro/2.6.191222',
+	'jb-itop-standard-email-synchro/2.6.191225',
 	array(
 		// Identification
 		//
@@ -15,6 +15,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
+			'jb-framework/2.6.191216',
 			'jb-email-synchro/2.6.190110',
 			// no other dependency is listed, for backward 1.x compatibility... though this module uses implicitely the Ticket's derived classes...
 		),
@@ -26,7 +27,6 @@ SetupWebPage::AddModule(
 		//
 		'datamodel' => array(
 			'model.jb-itop-standard-email-synchro.php',
-			'core/ormcustomcaselog.class.inc.php',
 			'core/policy.class.inc.php',
 		),
 		'webservice' => array(

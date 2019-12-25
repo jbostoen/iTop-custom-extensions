@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-12-22 17:15:22
+ * @version     2019-12-25 20:06:30
  *
  * Policy interface definition and some classes implementing it.
  * 
@@ -22,7 +22,7 @@ interface iPolicy {
 	
 	/**
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant();
 	
@@ -82,11 +82,11 @@ abstract class Policy implements iPolicy {
 	/**
 	 * Constructor. Sets some widely used property values.
 	 *
-	 * @var MailInboxStandard $oMailBox Mailbox
-	 * @var EmailMessage $oEmail Email message
-	 * @var Ticket|null $oTicket Ticket found based on ticket reference (or null if not found)
+	 * @var \MailInboxStandard $oMailBox Mailbox
+	 * @var \EmailMessage $oEmail Email message
+	 * @var \Ticket|null $oTicket Ticket found based on ticket reference (or null if not found)
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function Init(\MailInboxStandard $oMailBox, \EmailMessage $oEmail, ?\Ticket $oTicket) {
 		
@@ -99,7 +99,7 @@ abstract class Policy implements iPolicy {
 	/**
 	 * Checks if mailbox, email, ticket information is compliant with a certain policy.
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -292,7 +292,7 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -382,7 +382,7 @@ abstract class PolicyLimitMailSize extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -434,7 +434,7 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -510,7 +510,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -643,7 +643,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 * @details This one must have a higher rank (=later processed) than PolicyRemoveTitlePatterns and PolicyIgnoreTitlePatterns
 	 */
-	public static $iPrecedence = 100;
+	public static $iPrecedence = 200;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -653,7 +653,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -724,7 +724,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyTicketResolved Offers a policy to handle replies to resolved tickets
+ * Class PolicyTicketResolved Offers a policy to handle replies to resolved tickets.
  */
 abstract class PolicyTicketResolved extends Policy implements iPolicy {
 	
@@ -741,7 +741,7 @@ abstract class PolicyTicketResolved extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -796,7 +796,7 @@ abstract class PolicyTicketResolved extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyTicketClosed Offers a policy to handle replies to closed tickets
+ * Class PolicyTicketClosed Offers a policy to handle replies to closed tickets.
  */
 abstract class PolicyTicketClosed extends Policy implements iPolicy {
 	
@@ -813,7 +813,7 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -866,7 +866,7 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyUndesiredTitlePatterns Offers a policy to handle undesired title patterns
+ * Class PolicyUndesiredTitlePatterns Offers a policy to handle undesired title patterns.
  */
 abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 	
@@ -883,7 +883,7 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -950,19 +950,14 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyUnknownCaller Offers a policy to handle undesired title patterns. Warning: this determines the caller in this implementation of Mail to Ticket!
+ * Class PolicyUnknownCaller Offers a policy to find the caller and create a Person with default values if the caller appears to be unknown.
  */
 abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 60;
-	
-	/**
-	 * @var \Person $oCaller Found or generated caller
-	 */
-	public static $oCaller = null;
+	public static $iPrecedence = 100;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -972,7 +967,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
@@ -980,85 +975,192 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 		parent::BeforeComplianceCheck();
 		
 		// Checking if there's an unknown caller
-			
-			$oCaller = null;
-			$sContactQuery = 'SELECT Person WHERE email = :email';
-			$sCallerEmail = self::$oEmail->sCallerEmail;
-			$oSet = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $sCallerEmail));
-			
-			switch($oSet->Count()) {
+		
+			if(isset(self::$oEmail->oCaller) == false || self::$oEmail->oCaller === null) {
 				
-				case 1:
-					// Ok, the caller was found in iTop
-					$oCaller = $oSet->Fetch();
-					break;
+				$oCaller = null;
+				$sContactQuery = 'SELECT Person WHERE email = :email';
+				$sCallerEmail = self::$oEmail->sCallerEmail;
+				$oSet = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $sCallerEmail));
+				
+				switch($oSet->Count()) {
 					
-				case 0:
-
-					// Caller was not found.
-					switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) {
+					case 1:
+						// Ok, the caller was found in iTop
+						$oCaller = $oSet->Fetch();
+						break;
 						
-						case 'bounce_delete':
-						case 'bounce_mark_as_undesired':
-						case 'delete':
-						case 'do_nothing':
-						case 'mark_as_undesired':
-						
-							self::Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
-							self::HandleViolation();
-							
-							// No fallback
-							
-							// Stop processing any further!
-							self::$oMailBox->oCaller = $oCaller;
-							return false;
+					case 0:
 
-							break; // Defensive programming
-
-						case 'fallback_create_person':
+						// Caller was not found.
+						switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) {
 							
-							self::Trace("... Creating a new Person for the email: {$sCallerEmail}");
-							$oCaller = new \Person();
-							$oCaller->Set('email', self::$oEmail->sCallerEmail);
-							$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
-							$aDefaults = explode('\n', $sDefaultValues);
-							$aDefaultValues = array();
-							foreach($aDefaults as $sLine) {
-								if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-								{
-									$sAttCode = trim($aMatches[1]);
-									$sValue = trim($aMatches[2]);
-									$aDefaultValues[$sAttCode] = $sValue;
-								}
-							}
-							self::Trace('... Default values: '.json_encode($aDefaultValues));
-							self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
-							try
-							{
-								self::Trace("... Try to create user with default values");
-								$oCaller->DBInsert();					
-							}
-							catch(Exception $e)
-							{
-								// This is an actual error.
-								self::Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
-								self::Trace($e->getMessage());
-								self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
+							case 'bounce_delete':
+							case 'bounce_mark_as_undesired':
+							case 'delete':
+							case 'do_nothing':
+							case 'mark_as_undesired':
+							
+								self::Trace("... The message '{$sMailSubject}' is considered as undesired, the caller was not found.");
+								self::HandleViolation();
+								
+								// No fallback
+								
+								// Stop processing any further!
 								self::$oMailBox->oCaller = $oCaller;
 								return false;
-							}
+
+								break; // Defensive programming
+
+							case 'fallback_create_person':
 								
-							break;
-							
-					}
-				
-				default:
-					self::Trace("... Found ".$oSet->Count()." callers with the same email address '{$sCallerEmail}', the first one will be used...");
-					// Multiple callers with the same email address !!!
-					$oCaller = $oSet->Fetch();
+								self::Trace("... Creating a new Person for the email: {$sCallerEmail}");
+								$oCaller = new \Person();
+								$oCaller->Set('email', self::$oEmail->sCallerEmail);
+								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
+								$aDefaults = explode('\n', $sDefaultValues);
+								$aDefaultValues = array();
+								foreach($aDefaults as $sLine) {
+									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
+									{
+										$sAttCode = trim($aMatches[1]);
+										$sValue = trim($aMatches[2]);
+										$aDefaultValues[$sAttCode] = $sValue;
+									}
+								}
+								self::Trace('... Default values: '.json_encode($aDefaultValues));
+								self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
+								try
+								{
+									self::Trace("... Try to create user with default values");
+									$oCaller->DBInsert();					
+								}
+								catch(Exception $e)
+								{
+									// This is an actual error.
+									self::Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
+									self::Trace($e->getMessage());
+									self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
+									// self::$oMailBox->oCaller = $oCaller;
+									return false;
+								}
+									
+								break;
+								
+						}
+					
+					default:
+						self::Trace("... Found ".$oSet->Count()." callers with the same email address '{$sCallerEmail}', the first one will be used...");
+						// Multiple callers with the same email address !!!
+						$oCaller = $oSet->Fetch();
+						
+				}
+			}
+			else {
+				self::Trace("... Caller already determined by previous policy. Skip.");
 			}
 		
-		self::$oMailBox->oCaller = $oCaller;
+		// Set caller for email
+		self::$oEmail->oCaller = $oCaller;
+		
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+}
+
+
+/**
+ * Class PolicyFindCallerByContactMethod Offers a policy to find the caller based on ContactMethod (where contact_method = 'email' and caller_detail = 'the email address of the caller')
+ *
+ */
+abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 * @details Should be run before PolicyUnknownCaller
+	 */
+	public static $iPrecedence = 99;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_find_caller_by_contact_method';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
+	 */
+	public static function IsCompliant() {
+		
+		// Note: even if a caller is NOT found, this method should always return "true".
+		// Further processing will use the default PolicyUnknownCaller method which will block further processing if truly necessary.
+		
+		// Don't even bother if jb-contactmethod is not enabled as an extension.
+		if(class_exists('ContactMethod') == false) {
+			return true;
+		}
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if there's an unknown caller
+		
+			if(isset(self::$oEmail->oCaller) == false || self::$oEmail->oCaller === null) {
+				
+				$oCaller = null;
+				$sContactMethodQuery = 'SELECT ContactMethod WHERE contact_method = "email" AND contact_detail LIKE ":email"';
+				$sCallerEmail = self::$oEmail->sCallerEmail;
+				$oSet_ContactMethod = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactMethodQuery), array(), array('email' => $sCallerEmail));
+				
+				switch($oSet_ContactMethod->Count()) {
+					
+					case 1:
+						
+						// Ok, the ContactMethod was found in iTop
+						$oContactMethod = $oSet->Fetch();
+						self::Trace("... Found ContactMethod: ID ".$oContactMethod->GetKey());
+						
+						$sContactMethodQuery = 'SELECT Person WHERE id = ":id"';
+						$oSet_Person = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery, array(), array('id' => $oContactMethod->Get('person_id'))));
+						
+						// Should be 1
+						if($oSet_Person->Count() == 1) {
+							self::Trace("... Identified caller as Person: ID ".$oSet_Person->GetKey()." -> ".$oSet->Get('friendlyname'));
+							
+							// @todo How easily can it be assumed this is the same caller? Implement check on Person first_name, name in Email's subject or body?
+							$oCaller = $oSet_Person->Fetch();
+						}
+						else {
+							self::Trace("... Unidentified caller");
+						}
+						
+						break;
+						
+					case 0:
+		
+						// ContactMethod was not found.
+						self::Trace("... ContactMethod not found.");
+					
+					default:
+						self::Trace("... Found multiple ContactMthods.");
+						
+						// @todo How easily can it be assumed this is the same caller? Implement check on Person first_name, name in Email's subject or body?
+						
+						
+				}
+				
+				// Set caller for email
+				self::$oEmail->oCaller = $oCaller;
+		
+			}
+			else {
+				self::Trace("... Caller already determined by previous policy. Skip.");
+			}
 		
 		// Generic 'after' actions
 		parent::AfterPassedComplianceCheck();
@@ -1077,6 +1179,7 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 * @details Do this as late as possible.
 	 */
 	public static $iPrecedence = 999;
 	
@@ -1088,7 +1191,7 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 	/**
 	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
 	 *
-	 * @return boolean Whether this is compliant with a specified policy
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
 	 */
 	public static function IsCompliant() {
 		
