@@ -35,10 +35,10 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabStreet/Attribute:status' => 'Status',
 	'Class:CrabStreet/Attribute:status+' => 'Status',
 	
-	'Class:CrabStreet/Attribute:status/Value:1' => 'proposed',
-	'Class:CrabStreet/Attribute:status/Value:2' => 'reserved',
-	'Class:CrabStreet/Attribute:status/Value:3' => 'in use',
-	'Class:CrabStreet/Attribute:status/Value:4' => 'no longer in use', 
+	'Class:CrabStreet/Attribute:status/Value:1' => 'Proposed',
+	'Class:CrabStreet/Attribute:status/Value:2' => 'Reserved',
+	'Class:CrabStreet/Attribute:status/Value:3' => 'In use',
+	'Class:CrabStreet/Attribute:status/Value:4' => 'No longer in use', 
 	 
 	'Class:CrabStreet/Attribute:addresses_list' => 'Address list',
 	'Class:CrabStreet/Attribute:addresses_list+' => 'Address list',
@@ -63,8 +63,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabAddress/Attribute:house_number' => 'House number',
 	'Class:CrabAddress/Attribute:house_number+' => 'House number',
 	
-	'Class:CrabAddress/Attribute:apartment_number' => 'Appartement number',
-	'Class:CrabAddress/Attribute:apartment_number+' => 'Appartement number',
+	'Class:CrabAddress/Attribute:apartment_number' => 'Apartment number',
+	'Class:CrabAddress/Attribute:apartment_number+' => 'Apartment number',
 	
 	'Class:CrabAddress/Attribute:sub_number' => 'Sub number',
 	'Class:CrabAddress/Attribute:sub_number+' => 'Sub number (usually for multiple mailboxes)',
@@ -75,12 +75,12 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:CrabAddress/Attribute:geom' => 'Geometry',
 	'Class:CrabAddress/Attribute:geom+' => 'XY-coordinates',
 	
-	'Class:CrabAddress/Attribute:status/Value:1' => 'proposed',
-	'Class:CrabAddress/Attribute:status/Value:2' => 'reserved',
-	'Class:CrabAddress/Attribute:status/Value:3' => 'in use',
-	'Class:CrabAddress/Attribute:status/Value:4' => 'no longer in use', 
-	'Class:CrabAddress/Attribute:status/Value:5' => 'unofficially',   
-	'Class:CrabAddress/Attribute:status/Value:99' => 'no longer in data source (Flanders)',   
+	'Class:CrabAddress/Attribute:status/Value:1' => 'Proposed',
+	'Class:CrabAddress/Attribute:status/Value:2' => 'Reserved',
+	'Class:CrabAddress/Attribute:status/Value:3' => 'In use',
+	'Class:CrabAddress/Attribute:status/Value:4' => 'No longer in use', 
+	'Class:CrabAddress/Attribute:status/Value:5' => 'Unofficially',   
+	'Class:CrabAddress/Attribute:status/Value:99' => 'No longer in data source (Flanders)',   
 	 
 	'Class:Location/Attribute:geom' => 'Geometry', 
 	

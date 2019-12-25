@@ -38,10 +38,10 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabAddress/Attribute:geom' => 'Geometrie',
 	'Class:CrabAddress/Attribute:geom+' => 'XY-coördinaten',
 	
-	'Class:CrabStreet/Attribute:status/Value:1' => 'voorgesteld',
-	'Class:CrabStreet/Attribute:status/Value:2' => 'gereserveerd',
-	'Class:CrabStreet/Attribute:status/Value:3' => 'in gebruik',
-	'Class:CrabStreet/Attribute:status/Value:4' => 'niet meer in gebruik', 
+	'Class:CrabStreet/Attribute:status/Value:1' => 'Voorgesteld',
+	'Class:CrabStreet/Attribute:status/Value:2' => 'Gereserveerd',
+	'Class:CrabStreet/Attribute:status/Value:3' => 'In gebruik',
+	'Class:CrabStreet/Attribute:status/Value:4' => 'Niet meer in gebruik', 
 	 
 	'Class:CrabStreet/Attribute:addresses_list' => 'Adreslijst',
 	'Class:CrabStreet/Attribute:addresses_list+' => 'Adreslijst',
@@ -75,12 +75,12 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	'Class:CrabAddress/Attribute:status' => 'Status',
 	'Class:CrabAddress/Attribute:status+' => 'Status',
 	
-	'Class:CrabAddress/Attribute:status/Value:1' => 'voorgesteld',
-	'Class:CrabAddress/Attribute:status/Value:2' => 'gereserveerd',
-	'Class:CrabAddress/Attribute:status/Value:3' => 'in gebruik',
-	'Class:CrabAddress/Attribute:status/Value:4' => 'niet meer in gebruik', 
-	'Class:CrabAddress/Attribute:status/Value:5' => 'onofficieel', 
-	'Class:CrabAddress/Attribute:status/Value:99' => 'niet meer in dataset Vlaanderen', 
+	'Class:CrabAddress/Attribute:status/Value:1' => 'Voorgesteld',
+	'Class:CrabAddress/Attribute:status/Value:2' => 'Gereserveerd',
+	'Class:CrabAddress/Attribute:status/Value:3' => 'In gebruik',
+	'Class:CrabAddress/Attribute:status/Value:4' => 'Niet meer in gebruik', 
+	'Class:CrabAddress/Attribute:status/Value:5' => 'Onofficieel', 
+	'Class:CrabAddress/Attribute:status/Value:99' => 'Niet meer in dataset Vlaanderen', 
 	 
 	'Class:Location/Attribute:geom' => 'Geometrie', 
 	

@@ -376,6 +376,7 @@
 
 	<!-- Adds a link to the ConfigManagement Overview -->
 	<menus>
+	<!--
 		<menu id="NewCrabStreet" xsi:type="NewObjectMenuNode" _delta="define">
 			<rank>901</rank>
 			<parent>ConfigManagement</parent>
@@ -397,6 +398,7 @@
 			<parent>ConfigManagement</parent>
 			<class>CrabAddress</class> 
 		</menu>
+	-->
 	</menus>
 
 	<profiles/>
