@@ -22,7 +22,7 @@ Advanced examples include adding menus, entirely new dashlets, flexible reports,
 If you appreciate this work, consider a small donation.
 Also open to offers to discuss configuring, customizing and troubleshooting your iTop instance. 
 Or to develop new features or extensions.
-Feel free to get in touch: jbostoen.itop@outlook.com
+Feel free to get in touch: **jbostoen.itop@outlook.com**
 
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/jbostoen)
 
@@ -31,14 +31,12 @@ Feel free to get in touch: jbostoen.itop@outlook.com
 "iTop stands for IT Operational Portal. iTop is an Open Source web application for the day to day operations of an IT environment. At the heart of iTop is the CMDB (Configuration Management Data Base), this is originally the first part of iTop that was developed." 
 
 It's developed by a great team at Combodo.
-
-For any general support questions (issues/questions NOT caused by my extensions):
-- [GitHub](https://github.com/Combodo/iTop) (as of end of August, 2018)
-- [SourceForge](https://sourceforge.net/p/itop/discussion/)
+- [GitHub](https://github.com/Combodo/iTop) (as of end of August, 2018: development)
+- [SourceForge](https://sourceforge.net/p/itop/discussion/) (bug reports = tickets and discussion board)
 
 
 # Compatibility / branches
-I am developing ***unofficial*** extensions (simple tweaks, extra features) for iTop using PHP 7.2 and MySQL 5.7.
+These are ***unofficial*** extensions (tweaks and extra features; both simple and complex) for iTop using PHP 7.2 and MySQL 5.7.
 
 It's unknown if these extensions work on older versions of iTop or other configurations.
 Making minor adjustments might be enough to make them backward compatible. (downgrading version number of datamodel XML and dependencies in module PHP file).

@@ -7,10 +7,9 @@ If iTop adds, changes or removes certain features or parts of the datamodel, som
 * these customizations **might** not be compatible with other extensions (including official ones). 
 * if there are known incompatibility issues (only with **official** extensions), it will be clearly mentioned.
 
-# Updates
-
-## Branches
-The current plan is to create a new branch for each iTop version which is not just a maintenance release.
+# Updates and branches
+The current plan is to create a new branch for each iTop version which is at least a minor release (second number in version).
+There won't be a separate branch for maintenance releases (third number in version).
 
 This GitHub was created to host extensions (tweaks, extra features) which were originally developed for iTop 2.3.x-releases. 
 
@@ -28,13 +27,13 @@ Major changes are not expected when it comes to compatibility in 2.8 when it com
 *IF* I move to newer iTop versions, the same scenario as above will be used for branches.
 There will be maximum 3 branches:
 * 'master' (current iTop release or work focused on compatibility with an iTop beta)
-* 'itop-<last main version>'
-* 'itop-<last LTS version>'
+* 'itop-last_main_version'
+* 'itop-last_long_term_support_version'
 
 
-# User support
+# Support
 These extensions are developed for internal use at the organization I work for.
 I'll be testing them personally, but support is not guaranteed.
 
-Most extensions were originally created to alter the default datamodel and adapt workflows to our situation.
-New classes and features have been added as well - but evaluated regularly. Use these type of extensions at your own risk.
+Some extensions simply alter the default datamodel and adapt workflows to our situation.
+New classes and features have been added as well - but they are evaluated regularly. Use these type of extensions at your own risk.

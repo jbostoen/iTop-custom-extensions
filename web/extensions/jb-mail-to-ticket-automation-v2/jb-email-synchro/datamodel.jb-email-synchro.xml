@@ -993,9 +993,9 @@ EOF
 	 * @param hash $aValues The values to set attcode => value
 	 */]]></comment>
           <static>false</static>
-          <access>protected</access>
+          <access>public</access>
           <type>Overload-DBObject</type>
-          <code><![CDATA[	protected function InitObjectFromDefaultValues($oObj, $aValues)
+          <code><![CDATA[	public function InitObjectFromDefaultValues($oObj, $aValues)
 	{
 		foreach($aValues as $sAttCode => $value)
 		{

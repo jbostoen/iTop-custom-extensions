@@ -573,7 +573,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 								$oCaller = new \Person();
 								$oCaller->Set('email', self::$oEmail->sCallerEmail);
 								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
-								$aDefaults = explode('\n', $sDefaultValues);
+								$aDefaults = preg_split('/\r\n|\r|\n/', $sDefaultValues);
 								$aDefaultValues = array();
 								foreach($aDefaults as $sLine)														   
 								{
@@ -679,7 +679,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 					
 					if(trim($sPatterns) != '') {
 						
-						$aPatterns = explode('/\\r\\n|\\r|\\n/', $sPatterns);
+						$aPatterns = preg_split('/\r\n|\r|\n/', $sPatterns);
 						
 						self::Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
 						
@@ -1018,11 +1018,10 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 								$oCaller = new \Person();
 								$oCaller->Set('email', self::$oEmail->sCallerEmail);
 								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
-								$aDefaults = explode('\n', $sDefaultValues);
+								$aDefaults = preg_split('/\r\n|\r|\n/', $sDefaultValues);
 								$aDefaultValues = array();
 								foreach($aDefaults as $sLine) {
-									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-									{
+									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
 										$sAttCode = trim($aMatches[1]);
 										$sValue = trim($aMatches[2]);
 										$aDefaultValues[$sAttCode] = $sValue;
