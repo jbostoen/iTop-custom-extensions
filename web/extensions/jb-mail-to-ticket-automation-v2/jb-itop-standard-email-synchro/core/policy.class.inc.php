@@ -13,7 +13,7 @@
  
 namespace jb_itop_extensions\mail_to_ticket;
 
-const NEWLINE_REGEX = '/\\r\\n|\\r|\\n/';
+const NEWLINE_REGEX = '/\r\n|\r|\n/';
 
 /**
  * Interface iPolicy defines what the classes implementing policies should look like.
@@ -118,12 +118,18 @@ abstract class Policy implements iPolicy {
 		$sUnqualifiedName = (new \ReflectionClass(get_called_class()))->getShortName();
 		if($sUnqualifiedName  != 'Policy') {
 			self::Trace('. Check: '.$sUnqualifiedName);
-			self::Trace('.. Behavior: '.self::$oMailBox->Get(get_called_class()::$sPolicyId.'_behavior'));
+			
+			try {
+				self::Trace('.. Behavior: '.self::$oMailBox->Get(get_called_class()::$sPolicyId.'_behavior'));
+			}
+			catch(\Exception $e) {
+				// Most likely cause: no '_behavior'
+			}
 		}
 	}
 	
 	/**
-	 * Runs some default functionality AFTER checking the policy. Use case: logging some information.
+	 * Runs some default functionality AFTER checking the policy IF IsCompliant() returned 'true'. Use case: logging some information.
 	 * Can be cascaded to subclasses.
 	 *
 	 * @return void
@@ -573,7 +579,7 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 								$oCaller = new \Person();
 								$oCaller->Set('email', self::$oEmail->sCallerEmail);
 								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
-								$aDefaults = preg_split('/\r\n|\r|\n/', $sDefaultValues);
+								$aDefaults = preg_split(NEWLINE_REGEX, $sDefaultValues);
 								$aDefaultValues = array();
 								foreach($aDefaults as $sLine)														   
 								{
@@ -679,7 +685,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 					
 					if(trim($sPatterns) != '') {
 						
-						$aPatterns = preg_split('/\r\n|\r|\n/', $sPatterns);
+						$aPatterns = preg_split(NEWLINE_REGEX, $sPatterns);
 						
 						self::Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
 						
@@ -1018,7 +1024,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 								$oCaller = new \Person();
 								$oCaller->Set('email', self::$oEmail->sCallerEmail);
 								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
-								$aDefaults = preg_split('/\r\n|\r|\n/', $sDefaultValues);
+								$aDefaults = preg_split(NEWLINE_REGEX, $sDefaultValues);
 								$aDefaultValues = array();
 								foreach($aDefaults as $sLine) {
 									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
