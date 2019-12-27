@@ -1,6 +1,6 @@
 # Warning
-Currently working on v2.
-For people who like to play safe: v1 is included in the ZIP file.
+Currently working on version 2..
+Work in progress; for now: use version 1 which is included in the ZIP file.
 
 ## Special note
 This extension was complex to develop and is now very feature rich, yet it remains a free extension.
@@ -13,11 +13,14 @@ It was originally based on their version 3.0.7 (28th of August 2017), but also i
 Some fixes in this version were accepted by Combodo back in August 2018 and are now part of the official version.
 
 What is different? In a few cases, Combodo's implementation of Mail to Ticket Automation was not sufficient enough. 
-This extension offers some additional policies that can be enforced and also adds a few automated actions. 
+This extension works in steps. Those steps are called **policies** and they **can** do two things: 
 
-Sometimes a policy just tells how an email should be handled (setting caller or ticket information); 
-most of the provided policies can also block further processing (policy is violated and someone is informed about it: the caller or administrator).
-For example, it's possible to prevent callers from adding other recipients in the message sent to the helpdesk.
+* **determine if further processing should be blocked**
+  * Examples: bouncing emails without subjects, with other people as recipient, ...
+* **perform an automated action**
+  * Examples: determining and linking additional contacts, saving emails to a folder, ...
+  * Info should only be set by one policy. That's why some of the default policies check whether some information (such as related contacts) hasn't been set yet.
+  
 
 # Configuration
 
@@ -37,10 +40,12 @@ Also make sure the PHP IMAP extension is enabled.
 	),
 ```
 
-# Roadmap
-Short term roadmap: this was my first PHP extension (fork) for iTop.
-Initially for a minor problem only, but it grew over time. It works, but the code is not "by the book". 
-Expect some refactoring soon; while keeping the current options and datamodel.
+# Roadmap and history
+Short term roadmap: this was my first PHP extension (fork) for iTop, somewhere in 2015.
+Initially for a minor improvement only, but it grew over time. It works, but the code was not "by the book".
+
+At the end of 2019, a refactoring attempt is being made. 
+It will keep the current options and datamodel.
 
 Also expect an **optional** link to the **ContactMethod** class you find in this repository, so a caller can have multiple e-mail addresses.
 

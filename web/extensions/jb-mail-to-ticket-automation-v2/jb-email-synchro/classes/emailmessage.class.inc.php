@@ -42,6 +42,16 @@ class EmailMessage {
 	public $aTos;
 	public $aCCs;
 	
+	/**
+	 * @var \Person[] $aInternal_Additional_Contacts Set by a Policy. Zero or more Person objects.
+	 */
+	public $aInternal_Additional_Contacts = [];
+	
+	/**
+	 * @var \Person $oInternal_Contact Set by a Policy. Person object.
+	 */
+	public $oInternal_Contact = null;
+	
 	const NEW_LINE_MARKER = '__NEWLINE__'; // unlikely to be found in the body of an email message
 	
 	public function __construct($sUIDL, $sMessageId, $sSubject, $sCallerEmail, $sCallerName, $sRecipient, $aReferences, $sThreadIndex, $sBodyText, $sBodyFormat, $aAttachments, $oRelatedObject, $aHeaders, $sDecodeStatus, $sDate = '', $aTos = array(), $aCCs = array())

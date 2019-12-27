@@ -11,6 +11,10 @@
  * - do not alter ticket contents here, such as subject. That's done at a later phase. For this particular case: change EmailMessage's subject.
  */
  
+// @todo Get rid of MailInboxBase::AddAttachments() and MailInboxBase::UpdateAttachments()
+// @todo Review MailInboxBase::FitTextIn()
+// @todo Revise PolicyNoOtherRecipients: should this one be creating contacts as a fallback?
+		
 namespace jb_itop_extensions\mail_to_ticket;
 
 const NEWLINE_REGEX = '/\r\n|\r|\n/';
@@ -57,7 +61,7 @@ abstract class Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 50;
+	public static $iPrecedence = 20;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -119,11 +123,9 @@ abstract class Policy implements iPolicy {
 		if($sUnqualifiedName  != 'Policy') {
 			self::Trace('. Check: '.$sUnqualifiedName);
 			
-			try {
-				self::Trace('.. Behavior: '.self::$oMailBox->Get(get_called_class()::$sPolicyId.'_behavior'));
-			}
-			catch(\Exception $e) {
-				// Most likely cause: no '_behavior'
+			$sAttCode = get_called_class()::$sPolicyId.'_behavior');
+			if(\MetaModel::IsValidAttCode(get_class(self::$oMailBox), $sAttCode) == true) {
+				self::Trace('.. Behavior: '.self::$oMailBox->Get($sAttCode);
 			}
 		}
 	}
@@ -288,7 +290,7 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 1;
+	public static $iPrecedence = 10;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -378,7 +380,7 @@ abstract class PolicyLimitMailSize extends Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 1;
+	public static $iPrecedence = 10;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -430,7 +432,7 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 1;
+	public static $iPrecedence = 10;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -499,14 +501,14 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyNoOtherRecipients Offers a policy to enforce being the sole recipient (no other recipients in To:, CC:)
+ * Class PolicyNoOtherRecipients Offers a policy to enforce being the sole recipient (no other recipients in To:, CC:). Does NOT change "related contacts"!
  */
 abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 50;
+	public static $iPrecedence = 20;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -520,20 +522,23 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 	 */
 	public static function IsCompliant() {
 		
+		$oEmail = self::$oEmail;
+		$oMailBox = self::$oMailBox;
+		
 		// Generic 'before' actions
 		parent::BeforeComplianceCheck();
 		
 		// Checking if subject is not empty.
 		
-			$sCallerEmail = self::$oEmail->sCallerEmail;
+			$sCallerEmail = $oEmail->sCallerEmail;
 								
 			// Take both the To: and CC:
-			$aAllContacts = array_merge(self::$oEmail->aTos, self::$oEmail->aCCs);
+			$aAllContacts = array_merge($oEmail->aTos, $oEmail->aCCs);
 			
 			// Ignore sender; helpdesk mailbox; any helpdesk mailbox aliases
-			$aExcludeContacts = array_merge([ self::$oEmail->sCallerEmail, self::$oMailBox->Get('login') ], preg_split(NEWLINE_REGEX, self::$oMailBox->Get('mail_aliases')));
+			$aExcludeContacts = array_merge([ $oEmail->sCallerEmail, $oMailBox->Get('login') ], preg_split(NEWLINE_REGEX, $oMailBox->Get('mail_aliases')));
 
-			$sPolicyBehavior = self::$oMailBox->Get(self::$sPolicyId.'_behavior');
+			$sPolicyBehavior = $oMailBox->Get(self::$sPolicyId.'_behavior');
 			
 			switch($sPolicyBehavior) {
 				 // Will use default subject.
@@ -577,31 +582,28 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 								// Create
 								self::Trace("Creating a new Person with email address {$sCallerEmail}");
 								$oCaller = new \Person();
-								$oCaller->Set('email', self::$oEmail->sCallerEmail);
-								$sDefaultValues = self::$oMailBox->Get(self::$sPolicyId.'_default_values');
+								$oCaller->Set('email', $oEmail->sCallerEmail);
+								$sDefaultValues = $oMailBox->Get(self::$sPolicyId.'_default_values');
 								$aDefaults = preg_split(NEWLINE_REGEX, $sDefaultValues);
 								$aDefaultValues = array();
-								foreach($aDefaults as $sLine)														   
-								{
-									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-									{
+								foreach($aDefaults as $sLine) {
+									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
 										$sAttCode = trim($aMatches[1]);
 										$sValue = trim($aMatches[2]);
 										$aDefaultValues[$sAttCode] = $sValue;
 									}
 								}
-								self::$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
-								try
-								{
+								
+								$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
+								try {
 									self::Trace("Try to create user with default values");
 									$oCaller->DBInsert();					
 								}
-								catch(Exception $e)
-								{
+								catch(Exception $e) {
 									// This is an actual error.
 									self::Trace("Failed to create a Person for the email address '{$sCallerEmail}'.");
 									self::Trace($e->getMessage());
-									self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
+									$oMailBox->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
 									return null;
 								}									
 								
@@ -618,8 +620,8 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 				case 'fallback_ignore_other_contacts':
 				
 					// Make sure these contacts are not processed.
-					self::$oEmail->aTos = [];
-					self::$oEmail->aCCs = [];
+					$oEmail->aTos = [];
+					$oEmail->aCCs = [];
 				
 					self::Trace('.. Ignoring other contacts');
 					break;
@@ -647,9 +649,8 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
-	 * @details This one must have a higher rank (=later processed) than PolicyRemoveTitlePatterns and PolicyIgnoreTitlePatterns
 	 */
-	public static $iPrecedence = 200;
+	public static $iPrecedence = 10;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -663,62 +664,67 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 	 */
 	public static function IsCompliant() {
 		
+		$oMailBox = self::$oMailBox;
+		$oEmail = self::$oEmail;
+		$oTicket = self::$oTicket;
+		
 		// Generic 'before' actions
 		parent::BeforeComplianceCheck();
 		
-		// Todo: what is $oEmail->oRelatedObject?
+		// @todo: what is $oEmail->oRelatedObject? A Ticket object?
 		// Is the ticket valid in the iTop database or does the number NOT match?
 		
 		// Checking if ticket reference is invalid
-			if(self::$oTicket === null) {
+		// Due to an earlier GetRelatedTicket() call in MailInboxStandard, Ticket would NOT have been null if there was a valid reference.
+		if($oTicket === null) {
+		
+			// This could be a new ticket. Then it's logical the Ticket object is null. 
+			// So check if there was something (header or pattern in subject) which would have lead the system to believe there was a ticket. 
 			
-				// This could be a new ticket. Then it's logical the Ticket object is null. 
-				// So check if there was something (header or pattern in subject) which would have lead the system to believe there was a ticket. 
+			// Are there patterns which should be ignored/removed from the title? 
+			// To find the reference, let's remove it from our temp variable. 
+			$sSubject = $oEmail->sSubject;
+			
+			// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
+			foreach(['policy_remove_pattern_patterns', 'title_pattern_ignore_patterns'] as $sAttCode) {
+				$sPatterns = $oMailBox->Get($sAttCode);
 				
-				// Are there patterns which should be ignored/removed from the title? 
-				// To find the reference, let's remove it from our temp variable. 
-				$sSubject = self::$oEmail->sSubject;
-				
-				// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
-				foreach(['policy_remove_pattern_patterns', 'title_pattern_ignore_patterns'] as $sAttCode) {
-					$sPatterns = self::$oMailBox->Get($sAttCode);
+				if(trim($sPatterns) != '') {
 					
-					if(trim($sPatterns) != '') {
-						
-						$aPatterns = preg_split(NEWLINE_REGEX, $sPatterns);
-						
-						self::Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
-						
-						foreach($aPatterns as $sPattern) {
-							if(trim($sPattern) != '') {
-								$oPregMatch = @preg_match($sPattern, $sSubject);
-								
-								if( $oPregMatch === false) {
-									self::Trace("... Invalid pattern: '{$sPattern}'");
-								}
-								elseif(preg_match($sPattern, $sSubject)) {
-									self::Trace("... Removing: '{$sPattern}'");
-									$sSubject = preg_replace($sPattern, '', $sSubject);
-								}
-								else {
-									// Just not matching
-								}
+					$aPatterns = preg_split(NEWLINE_REGEX, $sPatterns);
+					
+					self::Trace(".. Removing undesired title patterns: {$sPatterns}");
+					
+					foreach($aPatterns as $sPattern) {
+						if(trim($sPattern) != '') {
+							$oPregMatch = @preg_match($sPattern, $sSubject);
+							
+							if( $oPregMatch === false) {
+								self::Trace("... Invalid pattern: '{$sPattern}'");
+							}
+							elseif(preg_match($sPattern, $sSubject)) {
+								self::Trace("... Removing: '{$sPattern}'");
+								$sSubject = preg_replace($sPattern, '', $sSubject);
+							}
+							else {
+								// Just not matching
 							}
 						}
 					}
 				}
-				
-				$sPattern = self::$oMailBox->FixPattern(self::$oMailBox->Get('title_pattern'));
-				if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
-					self::Trace(".. Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}').");
-					return false;
-				} 
-				elseif(self::$oEmail->oRelatedObject != null ) {
-					self::Trace(".. Undesired: unable to find any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
-					return false;
-				}
-			
 			}
+			
+			$sPattern = $oMailBox->FixPattern($oMailBox->Get('title_pattern'));
+			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
+				self::Trace(".. Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}').");
+				return false;
+			} 
+			elseif($oEmail->oRelatedObject != null ) {
+				self::Trace(".. Undesired: unable to find any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
+				return false;
+			}
+		
+		}
 			
 		// Generic 'after' actions
 		parent::AfterPassedComplianceCheck();
@@ -737,7 +743,7 @@ abstract class PolicyTicketResolved extends Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 50;
+	public static $iPrecedence = 20;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -809,7 +815,7 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 50;
+	public static $iPrecedence = 20;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -879,7 +885,7 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 50;
+	public static $iPrecedence = 20;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -956,17 +962,18 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyUnknownCaller Offers a policy to find the caller and create a Person with default values if the caller appears to be unknown.
+ * Class PolicyFindCaller Offers a policy to find the caller and create a Person with default values if the caller appears to be unknown.
  */
-abstract class PolicyUnknownCaller extends Policy implements iPolicy {
+abstract class PolicyFindCaller extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
 	 */
-	public static $iPrecedence = 100;
+	public static $iPrecedence = 110;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
+	 * @details Note: different short name because of (legacy) attribute fields!
 	 */
 	public static $sPolicyId = 'policy_unknown_caller';
 	
@@ -982,7 +989,7 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 		
 		// Checking if there's an unknown caller
 		
-			if(isset(self::$oEmail->oCaller) == false || self::$oEmail->oCaller === null) {
+			if(isset(self::$oEmail->oInternal_Contact) == false || self::$oEmail->oInternal_Contact === null) {
 				
 				$oCaller = null;
 				$sContactQuery = 'SELECT Person WHERE email = :email';
@@ -1046,7 +1053,6 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 									self::Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
 									self::Trace($e->getMessage());
 									self::$oMailBox->HandleError(self::$oEmail, 'failed_to_create_contact', self::$oEmail->oRawEmail);
-									// self::$oMailBox->oCaller = $oCaller;
 									return false;
 								}
 									
@@ -1060,13 +1066,14 @@ abstract class PolicyUnknownCaller extends Policy implements iPolicy {
 						$oCaller = $oSet->Fetch();
 						
 				}
+				
+				// Set caller for email
+				self::$oEmail->oInternal_Contact = $oCaller;
+				
 			}
 			else {
 				self::Trace("... Caller already determined by previous policy. Skip.");
 			}
-		
-		// Set caller for email
-		self::$oEmail->oCaller = $oCaller;
 		
 		// Generic 'after' actions
 		parent::AfterPassedComplianceCheck();
@@ -1086,9 +1093,9 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
-	 * @details Should be run before PolicyUnknownCaller
+	 * @details Should be run before PolicyUnknownCaller; so this $iPrecedence should be lower than that of PolicyUnknownCaller
 	 */
-	public static $iPrecedence = 99;
+	public static $iPrecedence = 95;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -1115,7 +1122,7 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 		
 		// Checking if there's an unknown caller
 		
-			if(isset(self::$oEmail->oCaller) == false || self::$oEmail->oCaller === null) {
+			if(isset(self::$oEmail->oInternal_Contact) == false || self::$oEmail->oInternal_Contact === null) {
 				
 				$oCaller = null;
 				$sContactMethodQuery = 'SELECT ContactMethod WHERE contact_method = "email" AND contact_detail LIKE ":email"';
@@ -1160,7 +1167,7 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 				}
 				
 				// Set caller for email
-				self::$oEmail->oCaller = $oCaller;
+				self::$oEmail->oInternal_Contact = $oCaller;
 		
 			}
 			else {
@@ -1184,9 +1191,9 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
-	 * @details Do this as late as possible.
+	 * @details Do this as late as possible; but before PolicyUnknownTicketReference
 	 */
-	public static $iPrecedence = 999;
+	public static $iPrecedence = 110;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -1204,12 +1211,15 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 		parent::BeforeComplianceCheck();
 		
 		// Checking if an undesired title pattern is found
+		
+			$oMailBox = self::$oMailBox;
+			$oEmail = self::$oEmail;
 
-			if(self::$oMailBox->Get(self::$sPolicyId.'_patterns') != '' ) { 
+			if($oMailBox->Get(self::$sPolicyId.'_patterns') != '' ) { 
 			
 				// Go over each pattern and check.
-				$aPatterns = preg_split(NEWLINE_REGEX, self::$oMailBox->Get(self::$sPolicyId.'_patterns')); 
-				$sMailSubject = self::$oEmail->sSubject;
+				$aPatterns = preg_split(NEWLINE_REGEX, $oMailBox->Get(self::$sPolicyId.'_patterns')); 
+				$sMailSubject = $oEmail->sSubject;
 				
 				foreach($aPatterns as $sPattern) {
 					if(trim($sPattern) != '') {
@@ -1221,11 +1231,11 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 						}
 						elseif(preg_match($sPattern, $sMailSubject)) {
 							
-							switch(self::$oMailBox->Get(self::$sPolicyId.'_behavior')) { 
+							switch($oMailBox->Get(self::$sPolicyId.'_behavior')) { 
 								case 'fallback_remove':
 								
 									self::Trace("... Found pattern to remove: {$sPattern}. Removing it.");
-									self::$oEmail->sSubject = preg_replace($sPattern, '', $sMailSubject);
+									$oEmail->sSubject = preg_replace($sPattern, '', $sMailSubject);
 									
 									// No fallback
 									
@@ -1262,3 +1272,515 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 	}
 	
 }
+
+/**
+ * Class PolicyCreateOrUpdateTicket Special policy; at this point the Ticket is created or updated.
+ * @details Replaces Combodo's MailInboxStandard::UpdateTicketFromEmail() and MailInboxStandard::UpdateTicketFromEmail()
+ */
+abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 * 
+	 * @details This is a special policy which takes care of only basic Ticket creation or update. 
+	 * Any real checks that block Ticket creation or update, should have been run by now. 
+	 * Any policies following this one, should not be blocking!
+	 */
+	public static $iPrecedence = 120;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_create_or_update_ticket';
+	
+	/*
+	 * @var \Array $aAddedAttachments Array containing info on any attachments in the e-mail
+	 */
+	public static $aAddedAttachments = [];
+	
+	/*
+	 * @var \Array $aIgnoredAttachments Array containing info on any attachments in the e-mail
+	 */
+	public static $aIgnoredAttachments = [];
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox.
+	 * Heavily inspired by Combodo's MailInboxStandard::CreateTicketFromEmail()
+	 *
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		$sBehavior = self::$oMailBox->Get('behavior');
+		$oEmail = self::$oEmail;
+		
+		switch($sBehavior)
+		{
+			case 'create_only':
+				self::CreateTicketFromEmail();
+				break;
+			
+			case 'update_only':
+				if (!is_object($oTicket))
+				{
+					// No ticket associated with the incoming email, nothing to update, reject the email
+					self::$oMailBox->HandleError($oEmail, 'nothing_to_update', $oEmail->oRawEmail);
+				}
+				else {
+					// Update the ticket with the incoming eMail
+					self::UpdateTicketFromEmail();
+				}
+				break;
+			
+			default: // both: update or create as needed
+				if(is_object($oTicket) == false) {
+					// Create a new ticket
+					self::CreateTicketFromEmail();
+				}
+				else {
+					// Update the ticket with the incoming eMail
+					self::UpdateTicketFromEmail();
+				}
+				break;			
+		}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Function inspired by Combodo's MailInboxStandard::CreateTicketFromEmail()
+	 */
+	public static function CreateTicketFromEmail() {
+		
+		$oEmail = self::$oEmail;
+		$oMailBox = self::$oMailBox;
+		$oTicket = self::$oTicket;
+		
+		// In case of error (exception...) set the behavior
+		if ($oMailBox->Get('error_behavior') == 'delete') {
+			 // Remove the message from the mailbox
+			$oMailBox->SetNextAction(\EmailProcessor::DELETE_MESSAGE);
+		}
+		else {
+			 // Keep the message in the mailbox, but marked as error
+			$oMailBox->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_ERROR);
+		}
+		
+		self::Trace(".. Creating a new Ticket from eMail {$oEmail->sSubject}");
+		$sTargetClass = $oMailBox->Get('target_class');
+			
+		if(\MetaModel::IsValidClass($sTargetClass) == false) {
+			$sErrorMessage = "... Invalid 'ticket_class' configured: {$sTargetClass} is not a valid class. Cannot create such an object.";
+			self::Trace($sErrorMessage);
+			throw new Exception($sErrorMessage);
+		}
+		
+		if($oEmail->oInternal_Contact === null || get_class($oEmail->oInternal_Contact)) {
+			$sErrorMessage = "... Invalid caller specified: Cannot create Ticket without valid Person.";
+			self::Trace($sErrorMessage);
+			throw new Exception($sErrorMessage);			
+		}
+		
+		$oTicket = \MetaModel::NewObject($sTargetClass);
+		$oTicket->Set('org_id', $oEmail->oInternal_Contact->Get('org_id'));
+		if(\MetaModel::IsValidAttCode($sTargetClass, 'caller_id')) {
+			$oTicket->Set('caller_id', $oCaller->GetKey());
+		}
+		if(\MetaModel::IsValidAttCode($sTargetClass, 'origin')) {
+			$oTicket->Set('origin', 'mail');
+		}
+		
+		// Max length for title
+		$oTicketTitleAttDef = \MetaModel::GetAttributeDef($sTargetClass, 'title');
+		$iTitleMaxSize = $oTicketTitleAttDef->GetMaxSize();
+		$sSubject = $oEmail->sSubject;
+		$oTicket->Set('title', substr($sSubject, 0, $iTitleMaxSize));
+		
+		// Insert the remaining attachments so that their ID is known and the attachments can be referenced in the message's body
+		// Cannot insert them for real since the Ticket is not saved yet (so Ticket id is unknown)
+		// UpdateAttachments() will be called once the ticket is properly saved
+		self::$aAddedAttachments = $oMailBox->AddAttachments($oTicket, $oEmail, true, self::$aIgnoredAttachments);
+		
+		// Seems to be for backward compatibility / plain text.																							
+		$oTicketDescriptionAttDef = \MetaModel::GetAttributeDef($sTargetClass, 'description');
+		$bForPlainText = true; // Target format is plain text (by default)
+		if ($oTicketDescriptionAttDef instanceof \AttributeHTML) {
+			// Target format is HTML
+			$bForPlainText = false;
+		}
+		elseif($oTicketDescriptionAttDef instanceof \AttributeText) {
+			$aParams = $oTicketDescriptionAttDef->GetParams();
+			if(array_key_exists('format', $aParams) && ($aParams['format'] == 'html')) {
+				// Target format is HTML
+				$bForPlainText = false;
+			}
+		}
+		
+		self::Trace(".. Target format for 'description': ".($bForPlainText ? 'text/plain' : 'text/html'));
+		self::Trace(".. Email body format: ".$oEmail->sBodyFormat);
+		
+		$sTicketDescription = self::BuildDescription($bForPlainText);
+
+		$iDescriptionMaxSize = $oTicketDescriptionAttDef->GetMaxSize();
+		if(strlen($sTicketDescription) > $iDescriptionMaxSize) {
+			$oEmail->aAttachments[] = [
+				'content' => $sTicketDescription, 
+				'filename' => ($bForPlainText == true ? 'original message.txt' : 'original message.html'), 
+				'mimeType' => ($bForPlainText == true ? 'text/plain' : 'text/html')
+			];
+		}
+		
+		// Keep some room just in case... (in case of what?)
+		$oTicket->Set('description', $oMailBox->FitTextIn($sTicketDescription, $iDescriptionMaxSize - 1000)); 
+		
+		// Default values
+		$sDefaultValues = $oMailBox->Get('ticket_default_values');
+		$aDefaults = preg_split(NEWLINE_REGEX, $sDefaultValues);
+		$aDefaultValues = [];
+		foreach($aDefaults as $sLine) {
+			if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
+				$sAttCode = trim($aMatches[1]);
+				$sValue = trim($aMatches[2]);
+				$aDefaultValues[$sAttCode] = $sValue;
+			}
+		}
+		$oMailBox->InitObjectFromDefaultValues($oTicket, $aDefaultValues);
+		
+		self::AddAdditionalContacts();
+		
+		self::BeforeInsertTicket();
+		$oTicket->DBInsert();
+		self::Trace(".. Ticket ".$oTicket->GetName()." created.");
+		self::AfterInsertTicket();
+		
+	}
+	
+	/**
+	 * Function inspired by Combodo's MailInboxStandard::BeforeInsertTicket().
+	 * Called right before a Ticket is created.
+	 *
+	 * @return void
+	 */
+	public static function BeforeInsertTicket() {
+		 
+		// Do nothing
+	
+	}
+	
+	/**
+	 * Function inspired by Combodo's MailInboxStandard::AfterInsertTicket().
+	 * Called right after a Ticket is created.
+	 *
+	 * @return void
+	 */
+	public static function AfterInsertTicket() {
+		 
+		// Process attachments now the ID is known
+		self::$oMailBox->UpdateAttachments(self::$aAttachments, self::$oTicket);
+		
+		// Shall we delete the source email immediately?
+		if(self::$oMailBox->Get('email_storage') == 'delete') {
+			// Remove the processed message from the mailbox
+			self::Trace(".. Ticket created, deleting the source eMail '{$oEmail->sSubject}'");
+			self::$oMailBox->SetNextAction(\EmailProcessor::DELETE_MESSAGE);		
+		}
+		else {
+			// Keep the message in the mailbox
+			self::$oMailBox->SetNextAction(\EmailProcessor::NO_ACTION);		
+		}	
+	
+	}
+	 
+	/**
+	 * Function inspired by Combodo's MailInboxStandard::BuildDescription().
+	 * Returns a description for a new Ticket.
+	 *
+	 * @param \Boolean $bForPlainText True if the desired output format is plain text, false if HTML
+	 * @return \String Ticket description
+	 */
+	public static function BuildDescription($bForPlainText) {
+		
+		$sTicketDescription = '';
+		
+		if(self::$oEmail->sBodyFormat == 'text/html') {
+			// Original message is in HTML
+			self::Trace("... Managing inline images...");
+			$sTicketDescription = self::ManageInlineImages(self::$oEmail->sBodyText, $bForPlainText);
+			if($bForPlainText == true) {
+				self::Trace("... Converting HTML to text using \utils::HtmlToText...");
+				$sTicketDescription = \utils::HtmlToText(self::$oEmail->sBodyText);
+			}
+		}
+		else
+		{
+			// Original message is in plain text
+			$sTicketDescription = \utils::TextToHtml(self::$oEmail->sBodyText);
+			if($bForPlainText == false) {
+				self::Trace("... Converting text to HTML using utils::TextToHtml...");
+				$sTicketDescription = \utils::TextToHtml(self::$oEmail->sBodyText);
+			}
+		}
+
+		if(empty($sTicketDescription) == true) {
+			// Will use language of the user under which the cron job is being executed.
+			$sTicketDescription = \Dict::S('MailPolicy:CreateOrUpdateTicket:NoDescriptionProvided');
+		}
+		
+		return $sTicketDescription;
+		
+	}
+	
+	/**
+	 * Function inspired by Combodo's MailInboxStandard::ManageInlineImages().
+	 *
+	 * @param \String $sBodyText Body text
+	 * @param \Boolean $bForPlainText Plain text (true) or HTML (false)
+	 * 
+	 * @return \String Body text
+	 */
+	public static function ManageInlineImages($sBodyText, $bForPlainText) {
+		 
+		// Search for inline images: i.e. <img tags containing an src="cid:...." or without double quotes e.g. src=cid:xyzxyzx
+		// Note: (?: ... ) is used for grouping the alternative without creating a "matching group"
+		if(preg_match_all('/<img[^>]+src=(?:"cid:([^"]+)"|cid:([^ >]+))[^>]*>/i', $sBodyText, $aMatches, PREG_OFFSET_CAPTURE)) {
+			$aInlineImages = []
+			foreach ($aMatches[0] as $idx => $aInfo) {
+				$aInlineImages[$idx] = array(
+					'position' => $aInfo[1]
+				);
+			}
+			foreach ($aMatches[1] as $idx => $aInfo) {
+				$sCID = $aInfo[0];
+				if(array_key_exists($sCID, self::$aAddedAttachments) == false && array_key_exists($sCID, self::$aIgnoredAttachments) == false) {
+					self::Trace(".... Info: inline image: {$sCID} not found as an attachment. Ignored.");
+				}
+				elseif(array_key_exists($sCID, self::$aAddedAttachments)) {
+					$aInlineImages[$idx]['cid'] = $sCID;
+					self::Trace(".... Inline image cid:$sCID stored as ".get_class(self::$aAddedAttachments[$sCID])."::".self::$aAddedAttachments[$sCID]->GetKey());
+				}
+			}
+			if(defined('ATTACHMENT_DOWNLOAD_URL') == false) {
+				define('ATTACHMENT_DOWNLOAD_URL', 'pages/ajax.render.php?operation=download_document&class=Attachment&field=contents&id=');
+			}
+			if($bForPlainText == true) {
+				// The target form is text/plain, so the HTML tags will be stripped
+				// Insert the URLs to the attachments, just before the <img tag so that the hyperlink remains (as plain text) at the right position
+				// when the HTML tags will be stripped
+				// Start from the end of the text to preserve the positions of the <img tags AFTER the insertion
+				$sWholeText = $sBodyText;
+				$idx = count($aInlineImages);
+				while ($idx > 0) {
+					$idx --;
+					if (array_key_exists('cid', $aInlineImages[$idx]))
+					{
+						$sBefore = substr($sWholeText, 0, $aInlineImages[$idx]['position']);
+						$sAfter = substr($sWholeText, $aInlineImages[$idx]['position']);
+						$oAttachment = self::$aAddedAttachments[$aInlineImages[$idx]['cid']];
+						$sUrl = \utils::GetAbsoluteUrlAppRoot().ATTACHMENT_DOWNLOAD_URL.$oAttachment->GetKey();
+						$sWholeText = $sBefore.' '.$sUrl.' '. $sAfter;
+					}
+				}
+			}
+			else {
+				// The target format is text/html, keep the formatting, but just change the URLs
+				$aSearches = [];
+				$aReplacements = [];
+				foreach(self::$aAddedAttachments as $sCID => $oAttachment)
+				{
+					$aSearches[] = 'src="cid:'.$sCID.'"';
+					if(class_exists('InlineImage') == true && $oAttachment instanceof \InlineImage) {
+						// Inline images have a special download URL requiring the 'secret' token
+						$aReplacements[] = 'src="'.\utils::GetAbsoluteUrlAppRoot().INLINEIMAGE_DOWNLOAD_URL.$oAttachment->GetKey().'&s='.$oAttachment->Get('secret').'"';
+					}
+					else {
+						$aReplacements[] = 'src="'.\utils::GetAbsoluteUrlAppRoot().ATTACHMENT_DOWNLOAD_URL.$oAttachment->GetKey().'"';
+					}
+					
+					$aSearches[] = 'src=cid:'.$sCID; // Same without quotes
+					if (class_exists('InlineImage') == true && ($oAttachment instanceof InlineImage)) {
+						// Inline images have a special download URL requiring the 'secret' token
+						$aReplacements[] = 'src="'.\utils::GetAbsoluteUrlAppRoot().INLINEIMAGE_DOWNLOAD_URL.$oAttachment->GetKey().'&s='.$oAttachment->Get('secret').'" '; // Beware: add a space at the end
+					}
+					else {
+						$aReplacements[] = 'src="'.\utils::GetAbsoluteUrlAppRoot().ATTACHMENT_DOWNLOAD_URL.$oAttachment->GetKey().'" '; // Beware: add a space at the end
+					}
+				}
+				$sWholeText = str_replace($aSearches, $aReplacements, $sBodyText);
+			}
+			$sBodyText = $sWholeText;
+		}
+		else {
+			self::Trace("... Inline Images: no inline-image found in the message");
+		}
+		return $sBodyText;
+		
+	}
+	 
+	/**
+	 * Function inspired by Combodo's MailInboxStandard::AddAdditionalContacts()
+	 * Adds additional contacts in the e-mail as related contacts in the Ticket.
+	 *
+	 * @return void
+	 */
+	public static function AddAdditionalContacts() {
+		
+		$oTicket = self::$oTicket;
+		$oEmail = self::$oEmail;
+		
+		$sTargetClass = get_class($oTicket);
+		if\MetaModel::IsValidAttCode($sTargetClass, 'contacts_list') == false) {
+			return;
+		}
+		
+		$oContactsSet = $oTicket->Get('contacts_list');
+		$aExistingContacts = [];
+		
+		while($oLnk = $oContactsSet->Fetch()) {
+			$aExistingContacts[$oLnk->Get('contact_id')] = true;
+		}
+
+		foreach($oEmail->aInternal_Additional_Contacts as $oContact) {
+			
+			if(\MetaModel::IsValidAttCode($sTargetClass, 'caller_id') == true && $oContact->GetKey() != $oTicket->Get('caller_id')) {
+				$oLnk = new \lnkContactToTicket();
+				$oLnk->Set('contact_id', $oContact->GetKey());
+				$oContactsSet->AddObject($oLnk);
+			}
+			else {
+				$sContactName = $oContact->GetName();
+				self::Trace(".... Skipping '{$sContactName}' as additional contact since it is the caller.");
+			}
+		}
+		$oTicket->Set('contacts_list', $oContactsSet);
+		
+	}
+	
+}
+
+abstract class PolicyFindAdditionalContactsByContactMethod implements iPolicy {
+
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 * @details Level should be higher than PolicyFindCallerByContactMethod and lower than the default PolicyFindAdditionalPerson
+	 */
+	public static $iPrecedence = 96;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_find_additional_contacts_by_contact_method';
+	
+	/**
+	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
+	 *
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
+	 */
+	public static function IsCompliant() {
+		
+		if(class_exists('ContactMethod') == false) {
+			return;
+		}
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Find by ContactMethod
+		$oEmail = self::$oEmail;
+		$oMailBox = self::$oMailBox;
+		$oTicket = self::$oTicket;
+		
+		if(count($oEmail->aInternal_Additional_Contacts) > 0) {
+			self::Trace(".. Skipping, another policy already determined additional contacts.");
+			return;
+		}
+			
+		// Looking into these email properties:
+		$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs);
+		
+		// If a ContactMethod is found, it's *Person* should not be in $oEmail->aInternal_Additional_Contacts yet.
+		$aExistingContactIds = [];
+		
+		if(\MetaModel::IsValidAttCode($oMailBox->Get('target_class', 'caller_id') == true) {
+			$oTicket->Get('caller_id') 
+		}
+		
+		foreach($oEmail->aInternal_Additional_Contacts as $oContact) {
+			$aExistingContactIds[] = $oContact->GetKey();
+		}
+		
+		// List of e-mail addresses to exclude
+		$aExcludeMailAddresses = array_map('strtolower', preg_split(NEWLINE_REGEX, $oMailBox->Get('mail_aliases'));
+		$aExcludeMailAddresses[] = strtolower($oMailBox->Get('login'));
+		
+		foreach($aAdditionalContacts as $aInfo) {
+			
+			$sEmail_LowerCase = strtolower($aInfo['email']);
+			
+			// If not an excluded e-mail address (login, mail alias for mailbox ...)
+			if(in_array($sEmail_LowerCase, $aExcludeMailAddresses) == false) {
+				
+				// Lookup
+				$oFilter_ContactMethod = \DBObjectSearch::FromOQL('SELECT ContactMethod WHERE contact_method = "email" AND contact_detail LIKE "'.$sEmail_LowerCase.'"');
+				$oSet_Contact_Methods = new \DBObjectSet($oFilter_ContactMethod);
+					
+				// If not already added with this e-mail address or an alias:
+				if($oSet_ContactMethods->Count() == 1) {
+					
+					self::Trace("... Found additional Contact for '{$aInfo['email']}'");
+					
+					$oContactMethod = $oSet_ContactMethods->Fetch();
+					
+					if($oContactMethod->Get('person_id') != $oEmail->oInternal_Contact->GetKey() && in_array($oContactMethod->Get('person_id'), $aExistingContactIds) == false) {
+						
+						try {
+							
+							// Fetch Contact
+							$oFilter_Contact = \DBObjectSearch::FromOQL('SELECT Person WHERE id = '.$oContactMethod->Get('person_id'));
+							$oSet_Contacts = new \DBObjectSet($oFilter_Contact);
+							$oContact = $oSet_Contacts->Fetch();
+						
+							$oEmail->aInternal_Additional_Contacts[] = $oContact;
+							$aExistingContactIds[] = $oContactMethod->Get('person_id');
+						}
+						catch(\Exception $e) {
+							// ContactMethod person_id can not be null. Database integrity issue?
+							self::Trace("... Unexpected issue. Problem with integrity of ContactMethod?");
+						}
+			
+					}
+				}
+				else {
+					// This doesn't matter. If there's no Contact found by ContactMethod; there is still the default PolicyFindAdditionalContacts
+					self::Trace("... Did not find an additional Contact for '{$aInfo['email']}'");
+				}
+			
+			}
+			else {
+				self::Trace("... Ignoring '{$aInfo['email']}' = e-mail address for this mailbox");	
+			}
+			
+		}
+		
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+}
+
+/*
+abstract class PolicyFindAdditionalContacts implements iPolicy {
+	// @todo Implement method to add Person objects to related contacts based on Person class
+	// Create CC people which were not found?
+}
+*/
+
