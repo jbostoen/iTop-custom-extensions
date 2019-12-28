@@ -250,7 +250,7 @@
 						<value>delete</value>
 						<value>do_nothing</value>
 						<value>fallback_add_other_contacts</value>
-						<value>fallback_add_existing_contacts</value>
+						<value>fallback_add_existing_other_contacts</value>
 						<value>fallback_ignore_other_contacts</value>
 						<value>mark_as_undesired</value>
 					</values>
@@ -440,12 +440,13 @@ EOF
 					<type>Overload-cmdbAbstractObject</type>
 					<code><![CDATA[	public function Trace($sText)
 	{
+	
 		parent::Trace($sText);
 		$iMaxTraceLength = 500*1024; // Maximum size of the Trace to keep in the database...
 		
 		if ($this->Get('trace') == 'yes')
 		{
-			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
+			$sStampedText = date('Y-m-d H:i:s').' - '.htmlentities($sText)."\n";
 			$this->Set('debug_trace', $sStampedText.mb_substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
 			$this->DBUpdate();
 		}
@@ -466,7 +467,7 @@ EOF
 					<comment>/**
 	 * Initial dispatching of an incoming email: determines what to do with the email
 	 * @param EmailReplica $oEmailReplica The EmailReplica associated with the email. A new replica (i.e. not yet in DB) one for new emails
-	 * @return int An action code from EmailProcessor
+	 * @return int An action code from \EmailProcessor
 	 */</comment>
 					<static>false</static>
 					<access>public</access>
@@ -494,15 +495,15 @@ EOF
 	{		
 	    $this->sLastError = null;
 		$this->Trace("Processing new e-mail ( index = $index )"); 
-		$this->Trace('. UIDL '.htmlspecialchars($oEmail->sUIDL));
-		$this->Trace('. Message-ID '.htmlspecialchars ($oEmail->sMessageId));
+		$this->Trace(". UIDL ".htmlspecialchars($oEmail->sUIDL));
+		$this->Trace(". Message-ID ".htmlspecialchars ($oEmail->sMessageId));
 				
 		// Contrary to Combodo's implementation: first check if there is any iTop object mentioned in the headers of the e-mail
 		// This fork contains policies which might reopen closed/resolved tickets and therefore needs the Ticket object.
         // Check whether a new ticket must be initiated or an existing one updated.
         $oTicket = $this->GetRelatedTicket($oEmail);
 
-		$this->ProcessPolicies($oEmail, $oTicket);
+		$oTicket = $this->ProcessPolicies($oEmail, $oTicket);
 
 		return $oTicket;
 		
@@ -528,30 +529,30 @@ EOF
 			// To find the reference, make sure subject is handled in same way as original ticket (removing unwanted pattern)
 			$sSubject = $oEmail->sSubject;
 			
-			// Here the removal/ignoring of patterns happens; on a copy of the subject string; only to find related tickets.
-			foreach(['policy_remove_pattern_patterns', 'title_pattern_ignore_patterns'] as $sAttCode) {
-				$sPatterns = $this->Get($sAttCode);
+			// Here it's possible to ignore patterns.
+			// @todo Move this to a policy.
+		
+			$sPatterns = $this->Get('title_pattern_ignore_patterns');
+			
+			if(trim($sPatterns) != '') {
 				
-				if(trim($sPatterns) != '') {
-					
-					$aPatterns = explode('/\\r\\n|\\r|\\n/', $sPatterns);
-					
-					$this->Trace(".. GetRelatedTicket() - Removing undesired title patterns: {$sPatterns}");
-					
-					foreach($aPatterns as $sPattern) {
-						if(trim($sPattern) != '') {
-							$oPregMatch = @preg_match($sPattern, $sSubject);
-							
-							if( $oPregMatch === false) {
-								$this->Trace("... Invalid pattern: '{$sPattern}'");
-							}
-							elseif(preg_match($sPattern, $sSubject)) {
-								$this->Trace("... Removing: '{$sPattern}'");
-								$sSubject = preg_replace($sPattern, '', $sSubject);
-							}
-							else {
-								// Just not matching
-							}
+				$aPatterns = explode('/\\r\\n|\\r|\\n/', $sPatterns);
+				
+				$this->Trace(".. GetRelatedTicket() - Ignoring patterns: {$sPatterns}");
+				
+				foreach($aPatterns as $sPattern) {
+					if(trim($sPattern) != '') {
+						$oPregMatch = @preg_match($sPattern, $sSubject);
+						
+						if( $oPregMatch === false) {
+							$this->Trace("... Invalid pattern: '{$sPattern}'");
+						}
+						elseif(preg_match($sPattern, $sSubject)) {
+							$this->Trace("... Removing: '{$sPattern}'");
+							$sSubject = preg_replace($sPattern, '', $sSubject);
+						}
+						else {
+							// Just not matching
 						}
 					}
 				}
@@ -580,442 +581,6 @@ EOF
 		return $oTicket;
 	}]]></code>
 				</method>
-				<method id="CreateTicketFromEmail">
-					<comment><![CDATA[/**
-	 * Actual creation of the ticket from the incoming email. Overload this method
-	 * to implement your own behavior, if needed
-	 *
-	 * @param EmailMessage $oEmail The decoded incoming email
-	 * @param Contact $oCaller The contact corresponding to the "From" email address
-	 *
-	 * @return Ticket the created ticket or null in case of failure
-	 * @throws \Exception if invalid target_class
-	 *
-	 */]]></comment>
-					<static>false</static>
-					<access>public</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	public function CreateTicketFromEmail(EmailMessage $oEmail, Contact $oCaller)
-	{
-		throw new Exception('Deprecated in this fork. Implemented using PolicyCreateOrUpdateTicket.')
-	}]]></code>
-				</method>
-				<method id="BuildDescription">
-					<comment><![CDATA[/**
-	 * Build the 'description' of the ticket when creating a new ticket
-	 * @param EmailMessage $oEmail The incoming Email
-	 * @param bool $bForPlainText True if the desired output format is plain text, false if HTML
-	 * @return string
-	 */]]></comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function BuildDescription(EmailMessage $oEmail, $aAddedAttachments, $aIgnoredAttachments, $bForPlainText)
-	{
-		throw new Exception('Moved to PolicyCreateOrUpdateTicket in this fork.');
-	}]]></code>
-				</method>
-				<method id="AddAdditionalContacts">
-					<comment><![CDATA[/**
-	 * Add the contacts in To: or CC: as additional contacts to the ticket (if they exist in the DB)
-	 * @param Ticket $oTicket
-	 * @param EmailMessage $oEmail
-	 */]]></comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function AddAdditionalContacts(Ticket $oTicket, EmailMessage $oEmail)
-	{
-		$oContactsSet = $oTicket->Get('contacts_list');
-		$aExistingContacts = array();
-		while($oLnk = $oContactsSet->Fetch())
-		{
-			$aExistingContacts[$oLnk->Get('contact_id')] = true;
-		}
-		$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs); // Take both the To: and CC:, no actual merge since the keys of the arrays are numeric (i.e. 0, 1, 2...)
-		$sCallerEmail = $oTicket->Get('caller_id->email');
-		foreach($aAdditionalContacts as $aInfo)
-		{
-			
-			// Exclude the caller from the additional contacts
-			if ($aInfo['email'] != $sCallerEmail && $aInfo['email'] != $this->Get('login'))
-			{
-				$oContact = $this->FindAdditionalContact($aInfo['email']);
-				if (($oContact != null) && !array_key_exists($oContact->GetKey(), $aExistingContacts))
-				{
-					$oLnk = new lnkContactToTicket();
-					$oLnk->Set('contact_id', $oContact->GetKey());
-					$oContactsSet->AddObject($oLnk);
-				}
-			}
-			else
-			{
-				$this->Trace("Skipping '{$aInfo['email']}' from the email address in To/CC since it is the same as the caller's email.");
-			}
-		}
-		$oTicket->Set('contacts_list', $oContactsSet);
-	}]]></code>
-				</method>
-				<method id="FindAdditionalContact">
-					<comment>/**
-	 * Search if the CC email is an existing contact in iTop, if so return it, otherwise ignore it
-	 * @param $sEmail string The email address to search
-	 * @return Contact | null
-	 */</comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function FindAdditionalContact($sEmail)
-	{
-		$oContact = null;
-		$sContactQuery = 'SELECT Person WHERE email = :email';
-		$oSet = new DBObjectSet(DBObjectSearch::FromOQL($sContactQuery), array(), array('email' => $sEmail));
-		switch($oSet->Count())
-		{
-			case 1:
-				// Ok, the caller was found in iTop
-				$oContact = $oSet->Fetch();
-				$this->Trace("Found Contact: ID {$oContact->GetKey()} ({$oContact->GetName()}) from the email address in To/CC '{$sEmail}'.");
-				break;
-			
-			case 0:
-				$this->Trace("No contact found with the email address in To/CC '{$sEmail}', email address ignored.");
-				break;
-			
-			default:
-				// Multiple contacts with the same email address!
-				$this->Trace("Found {$oSet->Count()} contacts with the same email address in To/CC '{$sEmail}', the first one will be used.");
-				$oCaller = $oSet->Fetch();
-		}
-		return $oContact;
-	}]]></code>
-				</method>
-				<method id="UpdateTicketFromEmail">
-					<comment><![CDATA[/**
-	 * Actual update of a ticket from the incoming email. Overload this method
-	 * to implement your own behavior, if needed
-	 * @param Ticket $oTicket The ticket to update
-	 * @param EmailMessage $oEmail The decoded incoming email
-	 * @param Contact $oCaller The contact corresponding to the "From" email address
-	 * @return void
-	 */]]></comment>
-					<static>false</static>
-					<access>public</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	public function UpdateTicketFromEmail(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
-	{
-		// In case of error (exception...) set the behavior
-		if ($this->Get('error_behavior') == 'delete')
-		{
-			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
-		}
-		else
-		{
-			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
-		}		
-		
-		// Check that the ticket is of the expected class
-		if (!is_a($oTicket, $this->Get('target_class')))
-		{
-			$this->Trace("iTop Simple Email Synchro: Error: the incoming email refers to the ticket ".$oTicket->GetName()." of class {get_class($oTicket)}, but this mailbox is configured to process only tickets of class {$this->Get('target_class')}");
-			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
-			return;
-		}
-		
-		// Try to extract what's new from the message's body
-		$this->Trace("iTop Simple Email Synchro: Updating the iTop ticket {$oTicket->GetName()} from eMail '{$oEmail->sSubject}'");
-
-		// Careful: Combodo's version implemented an IsUndesired() method in later versions (starting in v3.0.11).
-		// The method in this fork needs an additional parameter (Ticket object) to handle some policies (such as reopen resolved/closed tickets).
-		$bUndesired = $this->IsUndesired($oEmail, $oTicket);
-		
-		if($bUndesired == true) {
-			$this->Trace(". Email (update) does not comply with at least one policy.");
-			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
-			return;
-		}
-		else {
-			$this->Trace(". Email (update) complies with specified policies.");
-		}
-		
-		// In this fork, the caller object will have been determined by PolicyUnknownCaller in the IsUndesired() method 
-		// and the property will have been set on the MailInboxStandard object.
-		$oCaller = $this->oCaller;
-		
-		// Everything compliant, but we might need to perform actions.
-		
-		// Process attachments
-		$aIgnoredAttachments = array();
-		$aAddedAttachments = $this->AddAttachments($oTicket, $oEmail, true, $aIgnoredAttachments);
-		
-		$sCaseLogEntry = $this->BuildCaseLogEntry($oEmail, $aAddedAttachments, $aIgnoredAttachments);
-		
-		$this->Trace($oEmail->sTrace);
-		
-		// Write the log on behalf of the caller
-		$sCallerName = $oEmail->sCallerName;
-		if (empty($sCallerName))
-		{
-			$sCallerName = $oEmail->sCallerEmail;
-		}
-					
-		// Determine which field to update
-		$sAttCode = 'public_log';
-		$aAttCodes = MetaModel::GetModuleSetting('jb-itop-standard-email-synchro', 'ticket_log', array('UserRequest' => 'public_log', 'Incident' => 'public_log'));
-		if (array_key_exists(get_class($oTicket), $aAttCodes))
-		{
-			$sAttCode = $aAttCodes[get_class($oTicket)];
-		}
-		
-		$oCaseLog = $oTicket->Get($sAttCode);
-		$oAttributeValue = new \jb_itop_extensions\components\ormCustomCaseLog();
-		
-		// GetForJSON() actually returns an array of each entry
-		foreach($oCaseLog->GetAsArray() as $aEntry) {
-			
-			// CustomCaseLog's AddLogEntry remains flexible; keeps original user information and datetime
-			$oAttributeValue->AddLogEntry( $aEntry['message_html'], $aEntry['user_login'], $aEntry['user_id'], $aEntry['date'] );
-			
-		}
-		
-		$oAttributeValue->AddLogEntry($sCaseLogEntry, $sCallerName, null, '');
-		
-		// Sort chronologically. NOT ascending (true), but descending (false)!
-		$oAttributeValue = $oAttributeValue->ToSortedCaseLog(false);
-		
-		$oTicket->Set($sAttCode, $oAttributeValue);
-		
-		// Policy has already removed unwanted contacts
-		$this->AddAdditionalContacts($oTicket, $oEmail);
-		
-		$this->BeforeUpdateTicket($oTicket, $oEmail, $oCaller);
-		$oTicket->DBUpdate();			
-		$this->Trace("Ticket {$oTicket->GetName()} updated.");
-		$this->AfterUpdateTicket($oTicket, $oEmail, $oCaller);
-				
-		return $oTicket;		
-	}]]></code>
-				</method>
-				<method id="BuildCaseLogEntry">
-					<comment>/**
-	 * Build the text/html to be inserted in the case log when the ticket is updated
-	 * Starting with iTop 2.3.0, the format is always HTML
-	 * @param EmailMessage $oEmail
-	 * @return string The HTML text to be inserted in the case log
-	 */</comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function BuildCaseLogEntry(EmailMessage $oEmail, $aAddedAttachments, $aIgnoredAttachments)
-	{
-		$sCaseLogEntry = '';
-		$this->Trace("Email body format: ".$oEmail->sBodyFormat);
-		if ($oEmail->sBodyFormat == 'text/html')
-		{
-			$this->Trace("Extracting the new part using GetNewPartHTML...");
-			$sCaseLogEntry = $oEmail->GetNewPartHTML($oEmail->sBodyText);
-			if (strip_tags($sCaseLogEntry) == '')
-			{
-				// No new part (only blank tags)... we'd better use the whole text of the message
-				$sCaseLogEntry = $oEmail->sBodyText;
-			}
-			$this->Trace("Managing inline images...");
-			$sCaseLogEntry = $this->ManageInlineImages($sCaseLogEntry, $aAddedAttachments, $aIgnoredAttachments, false /* $bForPlainText */);
-		}
-		else
-		{
-			$this->Trace("Extracting the new part using GetNewPart...");
-			$sCaseLogEntry = $oEmail->GetNewPart($oEmail->sBodyText, $oEmail->sBodyFormat); // GetNewPart always returns a plain text version of the message
-			$sCaseLogEntry = utils::TextToHtml($sCaseLogEntry);
-		}
-		return $sCaseLogEntry;
-	}]]></code>
-				</method>
-				<method id="BeforeUpdateTicket">
-					<comment>/**
-	 * Handler called before updating a ticket in the database
-	 * Overload this method to alter the ticket at your will
-	 * @param Ticket $oTicket
-	 * @param EmailMessage $oEmail
-	 * @param Contact $oCaller
-	 */</comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[protected function BeforeUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
-	{
-		// Default implementation: do nothing
-	}]]></code>
-				</method>
-				<method id="ApplyConfiguredStimulus">
-					<comment><![CDATA[/**
-	 * Read the configuration in the 'stimuli' field (format: <state_code>:<stimulus_code>, one per line)
-	 * and apply the corresponding stimulus according to the current state of the ticket
-	 * @param ticket $oTicket
-	 */]]></comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function ApplyConfiguredStimulus(ticket $oTicket)
-	{
-	
-		$sConf = $this->Get('stimuli');
-		
-		// In Combodo's version, this resulted in a warning?
-		// Reopen ticket elsewhere if needed.
-		if( trim($sConf) == '' ) {
-			return;
-		}
-	
-		$aConf = explode("\n", $sConf);
-		$aStateToStimulus = array();
-		foreach($aConf as $sLine)
-		{
-			if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches))
-			{
-				$sState = trim($aMatches[1]);
-				$sStimulus = trim($aMatches[2]);
-				$aStateToStimulus[$sState] = $sStimulus;
-			}
-			elseif (!empty($sLine))
-			{
-				$this->Trace("Invalid line in the 'stimuli' configuration: '{$sLine}'. The expected format for each line is <state_code>:<stimulus_code>");
-			}
-		}
-		if (array_key_exists($oTicket->GetState(), $aStateToStimulus))
-		{
-			$sStimulusCode = $aStateToStimulus[$oTicket->GetState()];
-			$this->Trace("About to apply the stimulus: ".$sStimulusCode." for the ticket in state: ".$oTicket->GetState());
-			
-			// Check that applying the stimulus will not break the data integrity constaints (mandatory, must change)
-			$aTransitions = $oTicket->EnumTransitions();
-			$bCanApplyStimulus = true;
-			if (!isset($aTransitions[$sStimulusCode]))
-			{
-				$bCanApplyStimulus = false;
-				$this->Trace("The Stimulus {$sStimulusCode} for ".get_class($oTicket)." in state {$oTicket->GetState()} has no effect (no transition). Ignored.");
-			}
-			else
-			{
-				
-				$aTransitionDef = $aTransitions[$sStimulusCode];
-				$sTargetState = $aTransitionDef['target_state'];
-				$aTargetStates = MetaModel::EnumStates(get_class($oTicket));
-				$aTargetStateDef = $aTargetStates[$sTargetState];
-				$aExpectedAttributes = $aTargetStateDef['attribute_list'];
-				foreach($aExpectedAttributes as $sAttCode => $iExpectCode)
-				{
-					$oAttDef = MetaModel::GetAttributeDef(get_class($oTicket), $sAttCode);
-					if (($iExpectCode & OPT_ATT_MANDATORY) && ($oAttDef->IsNull($oTicket->Get($sAttCode))))
-					{
-						// Check if there is just one possible value, in which case, use it				
-						$aArgs = array('this' => $oTicket);
-						// If the field is mandatory, set it to the only possible value
-						if ($oAttDef->IsExternalKey())
-						{
-							$oAllowedValues = MetaModel::GetAllowedValuesAsObjectSet(get_class($oTicket), $sAttCode, $aArgs);
-							if ($oAllowedValues->Count() == 1)
-							{
-								$oRemoteObj = $oAllowedValues->Fetch();
-								$oTicket->Set($sAttCode, $oRemoteObj->GetKey());
-								$this->Trace("Setting the mandatory External Key {$sAttCode} to the only allowed value: {$oRemoteObj->GetKey()}");
-							}
-							else
-							{
-								$this->Trace("Cannot apply the stimulus since the attribute {$sAttCode} is mandatory in the target state {$sTargetState} and is neither currently set nor has just one allowed value.");
-								$bCanApplyStimulus = false;
-							}
-						}
-						else
-						{
-							$aAllowedValues = MetaModel::GetAllowedValues_att(get_class($oTicket), $sAttCode, $aArgs);
-							if (count($aAllowedValues) == 1)
-							{
-								$aValues = array_keys($aAllowedValues);
-								$oTicket->Set($sAttCode, $aValues[0]);
-								$this->Trace("Setting the mandatory attribute {$sAttCode} to the only allowed value: ".(string)$aValues[0]);
-							}
-							else
-							{
-								$this->Trace("Cannot apply the stimulus since the attribute {$sAttCode} is mandatory in the target state {$sTargetState} and is neither currently set nor has just one allowed value.");
-								$bCanApplyStimulus = false;
-							}
-						}
-					}
-					if ($iExpectCode & OPT_ATT_MUSTCHANGE)
-					{
-						$this->Trace("Cannot apply the stimulus since the value of the attribute {$sAttCode} must be modified (manually) during the transition to the target state {$sTargetState}.");
-						$bCanApplyStimulus = false;
-					}
-				}
-			}
-			
-			if ($bCanApplyStimulus)
-			{
-				try
-				{
-					$this->Trace("Actually applying the stimulus: {$sStimulusCode} for the ticket in state: {$oTicket->GetState()}");
-					$oTicket->ApplyStimulus($sStimulusCode);
-				}
-				catch(Exception $e)
-				{
-					$this->Trace("ApplyStimulus failed: {$e->getMessage()}");
-				}
-			}
-			else
-			{
-				$this->Trace("ApplyStimulus ignored.");
-			}
-		}
-	}]]></code>
-				</method>
-				<method id="AfterUpdateTicket">
-					<comment>/**
-	 * Finalize the processing after the update of the ticket in the database
-	 * @param Ticket $oTicket The ticket being written
-	 * @param EmailMessage $oEmail The source email
-	 * @param Contact $oCaller The caller for this ticket, as passed to UpdateTicket
-	 */</comment>
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function AfterUpdateTicket(Ticket $oTicket, EmailMessage $oEmail, Contact $oCaller)
-	{
-		// If there are any TriggerOnMailUpdate defined, let's activate them
-		$aClasses = MetaModel::EnumParentClasses(get_class($oTicket), ENUM_PARENT_CLASSES_ALL);
-		$sClassList = implode(', ', CMDBSource::Quote($aClasses));
-		$oSet = new DBObjectSet(DBObjectSearch::FromOQL("SELECT TriggerOnMailUpdate AS t WHERE t.target_class IN ($sClassList)"));
-		while ($oTrigger = $oSet->Fetch())
-		{
-			$oTrigger->DoActivate($oTicket->ToArgs('this'));
-		}
-
-		// Apply a stimulus if needed, will write the ticket to the database, may launch triggers, etc...
-		$this->ApplyConfiguredStimulus($oTicket);
-		
-		// Delete the email immediately or keep it stored
-		if ($this->Get('email_storage') == 'delete')
-		{
-			// Remove the processed message from the mailbox
-			$this->Trace("Ticket updated, deleting the source eMail '{$oEmail->sSubject}'");
-			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE);		
-		}
-		else
-		{
-			// Keep the message in the mailbox
-			$this->SetNextAction(EmailProcessor::NO_ACTION);		
-		}
-	}]]></code>
-				</method>
-				<method id="ManageInlineImages">
-					<static>false</static>
-					<access>protected</access>
-					<type>Overload-DBObject</type>
-					<code><![CDATA[	protected function ManageInlineImages($sBodyText, $aAddedAttachments, $aIgnoredAttachments, $bForPlainText = true)
-	{
-		throw new \Exception('Deprecated');
-	}]]></code>
-				</method>
 				<method id="HandleError">
 					<comment>/**
 	 * Error handler... what to do in case of error ??
@@ -1034,12 +599,12 @@ EOF
 		// The behavior is overriden in case of undesired_message
 		if ($this->Get('error_behavior') == 'delete')
 		{
-			$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
+			$this->SetNextAction(\EmailProcessor::DELETE_MESSAGE); // Remove the message from the mailbox
 			$sLastAction = "<p>The eMail was deleted from the mailbox.</p>\n";
 		}
 		else
 		{
-			$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
+			$this->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_ERROR); // Keep the message in the mailbox, but marked as error
 			$sLastAction = "<p>The eMail is marked as error and will be ignored in further processing of the mailbox.</p>\n";
 		}
 		
@@ -1160,11 +725,11 @@ EOF
 			case 'undesired_message':
 				if (MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7) == 0)
 				{
-					$this->SetNextAction(EmailProcessor::DELETE_MESSAGE); // immediate delete when delay is 0
+					$this->SetNextAction(\EmailProcessor::DELETE_MESSAGE); // immediate delete when delay is 0
 				}
 				else
 				{
-					$this->SetNextAction(EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message in the mailbox, but marked as undesired
+					$this->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message in the mailbox, but marked as undesired
 				}
 				$this->sLastError = 'Undesired email';
 				$oRawEmail = null; // No feedback on undesired emails
@@ -1195,7 +760,7 @@ EOF
 	 * Check all policies to see if the email is considered as "undesired"
 	 * @param \EmailMessage $oEmail The message to check
 	 *
-	 * @return void
+	 * @return \Ticket|null Ticket object (or subclass of Ticket) or null
 	 *
 	 * @throws \Exception
 	 */]]></comment>
@@ -1227,17 +792,29 @@ EOF
 			return $sClassNameA::$iPrecedence <=> $sClassNameB::$iPrecedence;
 		});
 		
+		$aPreviouslyExecutedPolicies = [];
+		
 		foreach($aPolicyClasses as $sPolicy) {
 		
 			// Always overrule each time this is used. Avoid leftovers from previous e-mails!
-			$sPolicy::Init($this, $oEmail, $oTicket);
+			$sPolicy::Init($this, $oEmail, $oTicket, $aPreviouslyExecutedPolicies);
 			
 			// As soon as there is one policy where IsCompliant() returns false: cancel further processing.
 			// Any other policy violation handling should have been performed by the class implementing the iPolicy interface.
 			if($sPolicy::IsCompliant() == false) {
-				return true; // Being incompliant = mark as undesired email
+				// Being incompliant = mark as undesired email
+				$this->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_UNDESIRED);
+				return; // Stop further processing
 			}
+			
+			$aPreviouslyExecutedPolicies[] = $sPolicy;
+			
+			// At some point (PolicyCreateOrUpdateTicket), a new Ticket might have been created.
+			$oTicket = $sPolicy::$oTicket;
+		
 		}
+		
+		return $oTicket;
 		
 	}]]></code>
 				</method>

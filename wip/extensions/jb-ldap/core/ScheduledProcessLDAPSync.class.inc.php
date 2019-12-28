@@ -48,12 +48,10 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 	 */
 	public function GetNextOccurrence() {
 		$bEnabled = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_ENABLED, static::DEFAULT_MODULE_SETTING_ENABLED);
-		if (!$bEnabled)
-		{
+		if($bEnabled == false) {
 			$oRet = new DateTime('3000-01-01');
 		}
-		else
-		{
+		else {
 			$sRunTime = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_TIME, static::DEFAULT_MODULE_SETTING_TIME);
 			if (!preg_match('/^([01]?\d|2[0-3]):([0-5]?\d)(?::([0-5]?\d))?$/', $sRunTime, $aMatches))
 			{
@@ -73,13 +71,10 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 			//
 			$oNow = new \DateTime();
 			$iNextPos = false;
-			for ($iDay = $oNow->format('N'); $iDay <= 7; $iDay++)
-			{
+			for ($iDay = $oNow->format('N'); $iDay <= 7; $iDay++) {
 				$iNextPos = array_search($iDay, $aDays);
-				if ($iNextPos !== false)
-				{
-					if (($iDay > $oNow->format('N')) || ($oNow->format('H:i') < $sRunTime))
-					{
+				if ($iNextPos !== false) {
+					if (($iDay > $oNow->format('N')) || ($oNow->format('H:i') < $sRunTime)) {
 						break;
 					}
 					$iNextPos = false; // necessary on sundays
@@ -88,8 +83,7 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 
 			// 3rd - Compute the result
 			//
-			if ($iNextPos === false)
-			{
+			if ($iNextPos === false) {
 				// Jump to the first day within the next week
 				$iFirstDayOfWeek = $aDays[0];
 				$iDayMove = $oNow->format('N') - $iFirstDayOfWeek;
@@ -97,8 +91,7 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 				$oRet->modify('-'.$iDayMove.' days');
 				$oRet->modify('+1 weeks');
 			}
-			else
-			{
+			else {
 				$iNextDayOfWeek = $aDays[$iNextPos];
 				$iMove = $iNextDayOfWeek - $oNow->format('N');
 				$oRet = clone $oNow;
@@ -121,6 +114,13 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 	 * @throws \OQLException
 	 */
 	public function Process($iTimeLimit) {
+		
+		$bEnabled = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_ENABLED, static::DEFAULT_MODULE_SETTING_ENABLED);
+		if($bEnabled == false) {
+			$this->Trace("Call to Process() was made, but this task is set to disabled.");
+			return;
+		}
+		
 		// Increase limits, temporarily.
 		$iTimeLimit_PHP = ini_get('max_execution_time');
 		$iMemoryLimit_PHP = ini_get('memory_limit');
@@ -159,7 +159,7 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 	 * @throws \CoreUnexpectedValue
 	 */
 	public function InterpretWeekDays() {
-		static $aWEEKDAYTON = array(
+		static $aWEEKDAYTON = [
 			'monday' => 1,
 			'tuesday' => 2,
 			'wednesday' => 3,
@@ -167,27 +167,22 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 			'friday' => 5,
 			'saturday' => 6,
 			'sunday' => 7,
-		);
-		$aDays = array();
+		];
+		$aDays = [];
 		$sWeekDays = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::KEY_MODULE_SETTING_WEEKDAYS, static::DEFAULT_MODULE_SETTING_WEEKDAYS);
-		if ($sWeekDays != '')
-		{
+		if ($sWeekDays != '') {
 			$aWeekDaysRaw = explode(',', $sWeekDays);
-			foreach ($aWeekDaysRaw as $sWeekDay)
-			{
+			foreach ($aWeekDaysRaw as $sWeekDay) {
 				$sWeekDay = strtolower(trim($sWeekDay));
-				if (array_key_exists($sWeekDay, $aWEEKDAYTON))
-				{
+				if (array_key_exists($sWeekDay, $aWEEKDAYTON)) {
 					$aDays[] = $aWEEKDAYTON[$sWeekDay];
 				}
-				else
-				{
+				else {
 					throw new CoreUnexpectedValue(static::MODULE_CODE.": wrong format for setting 'week_days' (found '$sWeekDay')");
 				}
 			}
 		}
-		if (count($aDays) == 0)
-		{
+		if (count($aDays) == 0) {
 			throw new CoreUnexpectedValue(static::MODULE_CODE.": missing setting 'week_days'");
 		}
 		$aDays = array_unique($aDays);
@@ -203,8 +198,7 @@ class ScheduledProcessLDAPSync implements \iScheduledProcess
 	 */
 	protected function Trace($sMessage) {
 		// In the CRON output
-		if ($this->bDebug)
-		{
+		if($this->bDebug == true) {
 			echo $sMessage . PHP_EOL;
 		}
 	}

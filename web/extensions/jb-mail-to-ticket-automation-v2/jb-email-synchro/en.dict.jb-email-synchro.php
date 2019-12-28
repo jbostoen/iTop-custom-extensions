@@ -68,6 +68,5 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:TriggerOnMailUpdate' => 'Trigger (when updated by mail)',
 	'Class:TriggerOnMailUpdate+' => 'Trigger activated when a ticket is updated by processing an incoming email',
 	
-	'MailPolicy:CreateOrUpdateTicket:NoDescriptionProvided' => 'No description provided';
 	
 ));
