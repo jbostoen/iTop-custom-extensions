@@ -263,7 +263,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 								else if ($oEmailReplica->Get('status') == 'undesired')
 								{
 									$this->Trace("\nUndesired message: uidl=$sUIDL index=$iMessage");
-									$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7) * 86400;
+									$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired_purge_delay', 7) * 86400;
 									if ($iDelay > 0)
 									{
 										$sDate = $oEmailReplica->Get('message_date');
@@ -276,7 +276,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 									}
 									if ($iDelay <= 0)
 									{
-										$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7);
+										$iDelay = MetaModel::GetModuleSetting('jb-email-synchro', 'undesired_purge_delay', 7);
 										$this->Trace("\nDeleting undesired message (AND replica) due to purge delay threshold ({$iDelay}): uidl={$sUIDL} index={$iMessage}");
 										$iTotalDeleted++;
 										$ret = $oSource->DeleteMessage($iMessage);

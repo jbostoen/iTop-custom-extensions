@@ -155,8 +155,29 @@
 					<default_value>10</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
+			<!-- Attachments - image dimensions -->
+				<field id="policy_attachment_image_dimensions_min_width" xsi:type="AttributeInteger">
+					<sql>policy_attachment_image_dimensions_min_width</sql>
+					<default_value>100</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_attachment_image_dimensions_min_height" xsi:type="AttributeInteger">
+					<sql>policy_attachment_image_dimensions_min_height</sql>
+					<default_value>100</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_attachment_image_dimensions_max_width" xsi:type="AttributeInteger">
+					<sql>policy_attachment_image_dimensions_min_width</sql>
+					<default_value>1000</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="policy_attachment_image_dimensions_max_height" xsi:type="AttributeInteger">
+					<sql>policy_attachment_image_dimensions_max_height</sql>
+					<default_value>1000</default_value>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
 			<!-- Forbidden e-mail attachments -->
-				<field id="policy_forbidden_attachments_behavior" xsi:type="AttributeEnum">
+				<field id="policy_attachment_forbidden_mimetype_behavior" xsi:type="AttributeEnum">
 					<values>
 						<value>bounce_delete</value> 
 						<value>bounce_mark_as_undesired</value>
@@ -165,22 +186,22 @@
 						<value>fallback_ignore_forbidden_attachments</value>
 						<value>mark_as_undesired</value>
 					</values>
-					<sql>policy_forbidden_attachments_behavior</sql>
+					<sql>policy_attachment_forbidden_mimetype_behavior</sql>
 					<default_value>do_nothing</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
-				<field id="policy_forbidden_attachments_subject" xsi:type="AttributeString">
-					<sql>policy_forbidden_attachments_subject</sql>
+				<field id="policy_attachment_forbidden_mimetype_subject" xsi:type="AttributeString">
+					<sql>policy_attachment_forbidden_mimetype_subject</sql>
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-				<field id="policy_forbidden_attachments_notification" xsi:type="AttributeHTML">
-					<sql>policy_forbidden_attachments_notification</sql>
+				<field id="policy_attachment_forbidden_mimetype_notification" xsi:type="AttributeHTML">
+					<sql>policy_attachment_forbidden_mimetype_notification</sql>
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-				<field id="policy_forbidden_attachments_mimetypes" xsi:type="AttributeText">
-					<sql>policy_forbidden_attachments_mimetypes</sql>
+				<field id="policy_attachment_forbidden_mimetype_mimetypes" xsi:type="AttributeText">
+					<sql>policy_attachment_forbidden_mimetype_mimetypes</sql>
 					<default_value>application/exe</default_value>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
@@ -723,12 +744,10 @@ EOF
 				break;
 				
 			case 'undesired_message':
-				if (MetaModel::GetModuleSetting('jb-email-synchro', 'undesired-purge-delay', 7) == 0)
-				{
+				if(\MetaModel::GetModuleSetting('jb-email-synchro', 'undesired_purge_delay', 7) == 0) {
 					$this->SetNextAction(\EmailProcessor::DELETE_MESSAGE); // immediate delete when delay is 0
 				}
-				else
-				{
+				else {
 					$this->SetNextAction(\EmailProcessor::MARK_MESSAGE_AS_UNDESIRED); // Keep the message in the mailbox, but marked as undesired
 				}
 				$this->sLastError = 'Undesired email';
@@ -948,21 +967,39 @@ EOF
 							</items>
 						</item> 
 
-
-						<!-- Mail (attachments) size too large -->
-						<item id="fieldset:MailInbox:PolicyForbiddenAttachments">
+						<!-- Image attachments: min/max dimensions -->
+						<item id="fieldset:MailInbox:PolicyAttachmentImageDimensions">
 							<rank>120</rank>
 							<items>
-								<item id="policy_forbidden_attachments_behavior">
+								<item id="policy_attachment_image_dimensions_min_width">
 									<rank>10</rank>
 								</item>
-								<item id="policy_forbidden_attachments_subject">
+								<item id="policy_attachment_image_dimensions_max_width">
 									<rank>15</rank>
 								</item>
-								<item id="policy_forbidden_attachments_notification">
+								<item id="policy_attachment_image_dimensions_min_height">
 									<rank>20</rank>
 								</item>
-								<item id="policy_forbidden_attachments_mimetypes">
+								<item id="policy_attachment_image_dimensions_max_height">
+									<rank>30</rank>
+								</item>
+							</items>
+						</item>
+
+						<!-- Mail (attachments) size too large -->
+						<item id="fieldset:MailInbox:PolicyAttachmentForbiddenMimeType">
+							<rank>120</rank>
+							<items>
+								<item id="policy_attachment_forbidden_mimetype_behavior">
+									<rank>10</rank>
+								</item>
+								<item id="policy_attachment_forbidden_mimetype_subject">
+									<rank>15</rank>
+								</item>
+								<item id="policy_attachment_forbidden_mimetype_notification">
+									<rank>20</rank>
+								</item>
+								<item id="policy_attachment_forbidden_mimetype_mimetypes">
 									<rank>30</rank>
 								</item>
 							</items>

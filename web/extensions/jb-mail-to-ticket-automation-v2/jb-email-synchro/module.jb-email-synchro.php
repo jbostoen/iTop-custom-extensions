@@ -27,26 +27,26 @@ SetupWebPage::AddModule(
 		),
 		'data.sample' => array(
 		),
+		
 		// Documentation
 		'doc.manual_setup' => '', // No manual installation required
 		'doc.more_information' => '', // None
+		
 		// Default settings
 		'settings' => array(
+		
+			// Note: some of these settings are still here from the original Combodo version.
+			// Some of them no longer have any effect.
+			
 			'notify_errors_to' => '', // mandatory to track errors not handled by the email processing module
 			'notify_errors_from' => '', // mandatory as well (can be set at the same value as notify_errors_to)
 			'debug' => false, // Set to true to turn on debugging
 			'periodicity' => 30, // interval at which to check for incoming emails (in s)
-			'undesired-purge-delay' => 7, // interval (in days) after which undesired emails are deleted in the mailbox
 			'body_parts_order' => 'text/html,text/plain', // Order in which to read the parts of the incoming emails
 			'pop3_auth_option' => 'USER',
-			'maximum_email_size' => '10M', // Maximum allowed size for incoming emails
+			'maximum_email_size' => '25M', // Maximum allowed size for incoming emails. Set to 0 for unlimited size.
 			'big_files_dir' => '',
-			// Lines to be removed just above the 'new part' in a reply-to message... add your own patterns below
-			'introductory-patterns' => array(
-				'/^le .+ a écrit :$/i', // Thunderbird French
-				'/^on .+ wrote:$/i', // Thunderbird English
-				'|^[0-9]{4}/[0-9]{1,2}/[0-9]{1,2} .+:$|', // Gmail style
-			),
+
 			// Some patterns which delimit the previous message in case of a Reply
 			// The "new" part of the message is the text before the pattern
 			// Add your own multi-line patterns (use \\R for a line break)
@@ -58,14 +58,30 @@ SetupWebPage::AddModule(
 				'/\\RDe : .+\\RDate d\'envoi : .+\\R/m', // Outlook French, plain text
 				'/\\R-----Message d\'origine-----\\R/m',
 			),
-			'use_message_id_as_uid' => true, // Do NOT change this unless you known what you are doing!! Despite being 'false' in the Combodo version (3.0.5), it works better if set to true on IMAP connections.
-			'images_minimum_size' => '100x20', // Images smaller than these dimensions will be ignored (signatures...)
-			'images_maximum_size' => '', // Images bigger than these dimensions will be resized before uploading into iTop,
+			
+			'use_message_id_as_uid' => true, // Do NOT change this unless you known what you are doing! Despite being 'false' in Combodo's Mail to Ticket Automation (3.0.5), it works better if set to true on IMAP connections.
+			
 			'imap_options' => array (
 				'imap',
 				'ssl',
 				'novalidate-cert',
 			),
+			
+			// These settings existed with a - instead of _ 
+			// To make them more consistent:
+			
+			// Lines to be removed just above the 'new part' in a reply-to message... add your own patterns below
+			'introductory-patterns' => array(
+				'/^le .+ a écrit :$/i', // Thunderbird French
+				'/^on .+ wrote:$/i', // Thunderbird English
+				'|^[0-9]{4}/[0-9]{1,2}/[0-9]{1,2} .+:$|', // Gmail style
+			),
+			
+			'undesired_purge_delay' => 7, // Warning: Combodo's version had an inconsistent undesired-purge-delay setting. Renamed. Interval (in days) after which undesired emails are deleted in the mailbox
+			
+			// Deprecated settings:
+			'images_minimum_size' => '100x20', // Images smaller than these dimensions will be ignored (signatures...)
+			'images_maximum_size' => '', // Images bigger than these dimensions will be resized before uploading into iTop,
 		),
 	)
 );

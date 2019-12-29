@@ -673,15 +673,6 @@ EOF
 				// Here for compatibility with original Combodo Mail to Ticket Automation configuration
 				self::$aExcludeAttachments = MetaModel::GetModuleSetting('jb-email-synchro', 'exclude_attachment_types', array());
 				
-				// Subclass of MailInboxBase?
-				if(is_a($this, 'MailInboxStandard') == true) {
-					$sForbiddenMimeTypes = $this->Get('policy_forbidden_attachments_mimetypes');
-					if($sForbiddenMimeTypes != '' ) {
-						$aForbiddenMimeTypes = preg_split('/\\r\\n|\\r|\\n/', $sForbiddenMimeTypes);
-					}
-					self::$aExcludeAttachments = array_merge(self::$aExcludeAttachments, $aForbiddenMimeTypes);
-				}
-				
 			}
 			if (!in_array($aAttachment['mimeType'], self::$aExcludeAttachments))
 			{

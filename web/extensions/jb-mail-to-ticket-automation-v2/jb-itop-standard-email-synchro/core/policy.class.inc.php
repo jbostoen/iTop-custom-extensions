@@ -321,11 +321,6 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 	 */
 	public static $aAddedAttachments = [];
 	
-	/*
-	 * @var \Array $aIgnoredAttachments Array containing info on any attachments in the email
-	 */
-	public static $aIgnoredAttachments = [];
-	
 	/**
 	 * Initiator. Sets some widely used property values.
 	 *
@@ -342,7 +337,6 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 	
 		// Reset for each email that is processed
 		self::$aAddedAttachments = [];
-		self::$aIgnoredAttachments = [];
 	}
 	
 	/**
@@ -471,8 +465,8 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 			}
 		}
 		
-		self::Trace(".. Target format for 'description': ".($bForPlainText ? 'text/plain' : 'text/html'));
-		self::Trace(".. Email body format: ".$oEmail->sBodyFormat);
+		self::Trace("... Email body format: ".$oEmail->sBodyFormat);
+		self::Trace("... Target format for 'description': ".($bForPlainText ? 'text/plain' : 'text/html'));
 		
 		$sTicketDescription = self::BuildDescription($bForPlainText);
 
@@ -542,10 +536,9 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 		self::Trace("... Updating Ticket '{$oTicket->GetName()}' from email '{$oEmail->sSubject}'");
 		
 		// Process attachments
-		self::$aIgnoredAttachments = [];
 		self::AddAttachments(true);
 		
-		$sCaseLogEntry = self::BuildCaseLogEntry($oEmail, self::$aAddedAttachments, self::$aIgnoredAttachments);
+		$sCaseLogEntry = self::BuildCaseLogEntry();
 		
 		self::Trace("... ".$oEmail->sTrace);
 		
@@ -620,12 +613,12 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 		// Shall we delete the source email immediately?
 		if(self::$oMailBox->Get('email_storage') == 'delete') {
 			// Remove the processed message from the mailbox
-			self::Trace(".. Ticket created, deleting the source email");
+			self::Trace(".. Deleting the source email");
 			self::$oMailBox->SetNextAction(\EmailProcessor::DELETE_MESSAGE);		
 		}
 		else {
 			// Keep the message in the mailbox
-			self::Trace(".. Ticket created, keeping the source email");
+			self::Trace(".. Keeping the source email");
 			self::$oMailBox->SetNextAction(\EmailProcessor::NO_ACTION);		
 		}	
 	
@@ -691,7 +684,7 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 			}
 			foreach ($aMatches[1] as $idx => $aInfo) {
 				$sCID = $aInfo[0];
-				if(array_key_exists($sCID, self::$aAddedAttachments) == false && array_key_exists($sCID, self::$aIgnoredAttachments) == false) {
+				if(array_key_exists($sCID, self::$aAddedAttachments) == false) {
 					self::Trace(".... Info: inline image: {$sCID} not found as an attachment. Ignored.");
 				}
 				elseif(array_key_exists($sCID, self::$aAddedAttachments)) {
@@ -833,12 +826,12 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 		// Delete the email immediately or keep it stored
 		if($oMailBox->Get('email_storage') == 'delete') {
 			// Remove the processed message from the mailbox
-			self::Trace("Ticket updated, deleting the source email");
+			self::Trace(".. Deleting the source email");
 			self::SetNextAction(\EmailProcessor::DELETE_MESSAGE);		
 		}
 		else {
 			// Keep the message in the mailbox
-			self::Trace("Ticket updated, keeping the source email");
+			self::Trace(".. Keeping the source email");
 			self::SetNextAction(\EmailProcessor::NO_ACTION);		
 		}
 		
@@ -1000,6 +993,8 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 	 * @throws \OQLException
 	 *
 	 * @return void
+	 *
+	 * @todo Test what happens if the same file is attached twice to an e-mail?
 	 */
 	public static function AddAttachments($bNoDuplicates = true) {
 		 
@@ -1206,7 +1201,7 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 	/**
 	 * @var \String $sPolicyId Shortname for policy
 	 */
-	public static $sPolicyId = 'policy_forbidden_attachments';
+	public static $sPolicyId = 'policy_attachment_forbidden_mimetype';
 		
 	/**
 	 * Checks if all information within the email is compliant with the policies defined for this mailbox
@@ -1790,7 +1785,7 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 						$oPregMatched = @preg_match($sPattern, $sMailSubject);
 						
 						if($oPregMatched === false) {
-							self::Trace("... Invalid pattern: '{$sPattern}'");
+							self::Trace(".. Invalid pattern: '{$sPattern}'");
 						}
 						elseif(preg_match($sPattern, $sMailSubject)) {
 							
@@ -1801,7 +1796,7 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 								case 'do_nothing':
 								case 'mark_as_undesired':
 								
-									self::Trace("... The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
+									self::Trace(".. The message '{$sMailSubject}' is considered as undesired, since it matches {$sPattern}.");
 									self::HandleViolation();
 									
 									// No fallback
@@ -1813,14 +1808,14 @@ abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
 									
 								default:
 									// Should not happen.
-									self::Trace("... Unknown action for closed tickets.");
+									self::Trace(".. Unknown action for closed tickets.");
 									break; 
 								
 							}
 							
 						}
 						else {
-							self::Trace("... Pattern '{$sPattern}' not matched");
+							self::Trace(".. Pattern '{$sPattern}' not matched");
 						}
 					}
 				}
@@ -2054,7 +2049,7 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 							
 						}
 						else {
-							self::Trace("... Pattern '{$sPattern}' not matched");
+							self::Trace(".. Pattern '{$sPattern}' not matched");
 						}
 					}
 				}
@@ -2213,21 +2208,274 @@ abstract class PolicyFindAdditionalContacts extends Policy implements iPolicy {
 	
 }
 
+/**
+ * Class PolicyAttachmentImageDimensions Offers a policy to ignore small image sizes (likely elements of an email signature) or resize larger images.
+ */
+abstract class PolicyAttachmentImageDimensions extends Policy implements iPolicy {
+	
+	/**
+	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
+	 */
+	public static $iPrecedence = 20;
+	
+	/**
+	 * @var \String $sPolicyId Shortname for policy
+	 */
+	public static $sPolicyId = 'policy_attachment_image_dimensions';
+	
+	/**
+	 * Function inspired by Combodo's MailInboxBase::AddAttachments()
+	 * Removes image attachments which are too small and also resizes images which are too large using php-gd
+	 *
+	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
+	 */
+	public static function IsCompliant() {
+		
+		// Generic 'before' actions
+		parent::BeforeComplianceCheck();
+		
+		// Checking if an undesired title pattern is found
+		
+			$oMailBox = self::$oMailBox;
+			$oEmail = self::$oEmail;
+			
+			// Ignore attachment or downsize?
+			$iMinWidth = $oMailBox->Get(self::$sPolicyId.'_min_width');
+			$iMaxWidth = $oMailBox->Get(self::$sPolicyId.'_max_width');
+			$iMinHeight = $oMailBox->Get(self::$sPolicyId.'_min_height');
+			$iMaxHeight = $oMailBox->Get(self::$sPolicyId.'_max_height');
+			
+			self::Trace(".. Min/max dimensions: {$iMinWidth}x{$iMinHeight} / {$iMaxWidth}x{$iMaxHeight}");
+						
+			$bCheckImageDimensionTooSmall = true;
+			$bCheckImageDimensionTooLarge = true;
+			
+			// Remove images which are too small
+			if($iMinWidth < 1 || $iMinWidth < 1) {
+				self::Trace(".. Min dimensions can not be negative and should be at least 1x1 px.");
+				$bCheckTooSmall = false;
+			}
+			
+			if($iMaxWidth < 0 || $iMaxHeight < 0) {
+				self::Trace(".. Max dimensions can not be negative.");
+				$bCheckImageDimensionTooLarge = false;
+			}
+			
+			if(function_exists('imagecopyresampled') == false) {
+				self::Trace(".. php-gd seems to be missing. Resizing is not possible.");
+				$bCheckImageDimensionTooLarge = false;
+			}
+
+			foreach($oEmail->aAttachments as $sAttachmentRef => &$aAttachment) {
+				
+				if(self::IsImage($aAttachment['mimeType']) == true) {
+					
+					$aImgInfo = self::GetImageSize($aAttachment['content'], $aImgInfo);
+					if($aImgInfo !== false) {
+						
+						$iWidth = $aImgInfo[0];
+						$iHeight = $aImgInfo[1];
+						
+						// Image too small?
+						if($bCheckImageDimensionTooSmall == true && ($iWidth < $iMinWidth || $iHeight < $iMinHeight)) {
+							
+							// Unset
+							self::Trace("... Image too small; unsetting {$sAttachmentRef}");
+							unset($oEmail->aAttachments[$sAttachmentRef]);
+							continue;
+							
+						}
+						else {
+							self::Trace("... Image not too small.");
+						}
+						
+						// Image too large?
+						if($bCheckImageDimensionTooLarge == true && ($iWidth > $iMaxWidth || $iHeight > $iMaxHeight)) {
+							
+							// Resize
+							self::Trace("... Image too large; resizing {$sAttachmentRef}");
+							$aAttachment = self::ResizeImageToFit($aAttachment, $iWidth, $iHeight, $iMaxWidth, $iMaxHeight);
+							
+						}
+						else {
+							self::Trace("... Image not too large.");
+						}
+					
+					}
+					else {
+						self::Trace("... Could not determine dimensiosn of {$aAttachment['filename']}");
+					}
+					
+				}
+				else {
+					self::Trace("... Attachment {$aAttachment['filename']} is not an image.");
+				}
+				
+			}
+			
+		// Generic 'after' actions
+		parent::AfterPassedComplianceCheck();
+		
+		return true;
+		
+	}
+	
+	/**
+	 * Function inspired by Combodo's MailInboxBase::IsImage()
+	 * Checks whether a MimeType is an image which can be processed by iTop (PHP GD)
+	 *
+	 * @param \String $sMimeType
+	 *
+	 * @return \Boolean
+	 */
+	public static function IsImage($sMimeType) {
+				
+		if(function_exists('gd_info') == false) {
+			return false; // no image processing capability on this system
+		}
+		
+		$bRet = false;
+		$aInfo = gd_info(); // What are the capabilities
+		switch($sMimeType)
+		{
+			case 'image/gif':
+				return $aInfo['GIF Read Support'];
+				break;
+			
+			case 'image/jpeg':
+				return $aInfo['JPEG Support'];
+				break;
+			
+			case 'image/png':
+				return $aInfo['PNG Support'];
+				break;
+
+		}
+		
+		return $bRet;
+	}
+	
+	/*
+	 * Function inspired by Combodo's MailInboxBase::ResizeImageToFit()
+	 * Resize an image attachment so that it fits in the given dimensions.
+	 *
+	 * @param \Array $aAttachment The original image stored as an attached array (content / mimetype / filename)
+	 * @param \Int $iWidth image's original width
+	 * @param \Int $iHeight image's original height
+	 * @param \Int $iMaxImageWidth Maximum width for the resized image
+	 * @param \Int $iMaxImageHeight Maximum height for the resized image
+	 *
+	 * @return \Array The modified attachment array with the resized image in the 'content'
+	 */
+	public static function ResizeImageToFit($aAttachment, $iWidth, $iHeight, $iMaxImageWidth, $iMaxImageHeight)
+	{
+		$img = false;
+		switch($aAttachment['mimeType']) {
+			case 'image/gif':
+			case 'image/jpeg':
+			case 'image/png':
+				$img = @imagecreatefromstring($aAttachment['content']);
+				break;
+			
+			default:
+				// Unsupported image type, return the image as-is
+				self::Trace("... Warning: unsupported image type: '{$aAttachment['mimeType']}'. Cannot resize the image, original image will be used.");
+				return $aAttachment;
+		}
+		if ($img === false) {
+			self::Trace("... Warning: corrupted image: '{$aAttachment['filename']} / {$aAttachment['mimeType']}'. Cannot resize the image, original image will be used.");
+			return $aAttachment;
+		}
+		else {
+			// Let's scale the image, preserving the transparency for GIFs and PNGs
+			$fScale = min($iMaxImageWidth / $iWidth, $iMaxImageHeight / $iHeight);
+
+			$iNewWidth = $iWidth * $fScale;
+			$iNewHeight = $iHeight * $fScale;
+			
+			self::Trace("... Resizing image from ($iWidth x $iHeight) to ($iNewWidth x $iNewHeight) px");
+			$new = imagecreatetruecolor($iNewWidth, $iNewHeight);
+			
+			// Preserve transparency
+			if(($aAttachment['mimeType'] == 'image/gif') || ($aAttachment['mimeType'] == 'image/png'))
+			{
+				imagecolortransparent($new, imagecolorallocatealpha($new, 0, 0, 0, 127));
+				imagealphablending($new, false);
+				imagesavealpha($new, true);
+			}
+			
+			imagecopyresampled($new, $img, 0, 0, 0, 0, $iNewWidth, $iNewHeight, $iWidth, $iHeight);
+			
+			ob_start();
+			switch ($aAttachment['mimeType']) {
+				case 'image/gif':
+					imagegif($new); // send image to output buffer
+					break;
+				
+				case 'image/jpeg':
+					imagejpeg($new, null, 80); // null = send image to output buffer, 80 = good quality
+					break;
+				 
+				case 'image/png':
+					imagepng($new, null, 5); // null = send image to output buffer, 5 = medium compression
+					break;
+			}
+			$aAttachment['content'] = ob_get_contents();
+			@ob_end_clean();
+			
+			imagedestroy($img);
+			imagedestroy($new);
+			
+			self::Trace("... Resized image is ".strlen($aAttachment['content'])." bytes long.");
+				
+			return $aAttachment;
+		}
+				
+	}
+		
+	
+	/*
+	 * Function inspired by Combodo's MailInboxBase::GetImageSize()
+	 * Resize an image attachment so that it fits in the given dimensions.
+	 *
+	 * @param \String $sImageData Image data
+	 *
+	 * @return \Array Array with image dimensions
+	 */
+	public static function GetImageSize($sImageData)
+	{
+		if(function_exists('getimagesizefromstring') == true ) {
+			// PHP 5.4.0 or higher
+			$aRet = @getimagesizefromstring($sImageData);
+		}
+		elseif(ini_get('allow_url_fopen')) {
+			// work around to avoid creating a tmp file
+			$sUri = 'data://application/octet-stream;base64,'.base64_encode($sImageData);
+			$aRet = @getimagesize($sUri);
+		}
+		else {
+			// Damned, need to create a tmp file
+			$sTempFile = tempnam(\SetupUtils::GetTmpDir(), 'img-');
+			@file_put_contents($sTempFile, $sImageData);
+			$aRet = @getimagesize($sTempFile);
+			@unlink($sTempFile);
+		}
+		return $aRet;
+	}
+	
+}
+
+
 /*
 @todo 
 
-abstract class PolicyAttachmentImageResizer implements iPolicy {
-	// ignored for now, as jb-compress-image-attachments will do the same thing for ALL tickets, even not coming from mail.
-	// one reason to implement it straight away, 
-	// is because this extension won't be able to spot duplicate attachments if resizing is postponed or different!
-}
 
 abstract class PolicyAttachmentSize implements iPolicy {
 	// attachment too big
 }
 
 abstract class PolicyAttachmentVirusCheck implements iPolicy {
-	// could be an example implementing ClamAv
+	// could be an example implementing ClamAv, similar to what's mentioned in MailInboxBase
 }
 
 */

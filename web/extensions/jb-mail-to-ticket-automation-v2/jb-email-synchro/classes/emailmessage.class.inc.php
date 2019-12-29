@@ -376,11 +376,10 @@ class EmailMessage {
 			'/^>.*$/' => false, // Old fashioned mail clients: continue processing the lines, each of them is preceded by >
 		);
 
-		if (class_exists('MetaModel'))
-		{
-			$aIntroductoryPatterns = MetaModel::GetModuleSetting('jb-email-synchro', 'introductory-patterns', $aIntroductoryPatterns);	
-			$aGlobalDelimiterPatterns = MetaModel::GetModuleSetting('jb-email-synchro', 'multiline-delimiter-patterns', $aGlobalDelimiterPatterns);
-			$aDelimiterPatterns = MetaModel::GetModuleSetting('jb-email-synchro', 'delimiter-patterns', $aDelimiterPatterns);
+		if (class_exists('MetaModel')) {
+			$aIntroductoryPatterns = MetaModel::GetModuleSetting('jb-email-synchro', 'introductory_patterns', $aIntroductoryPatterns);	
+			$aGlobalDelimiterPatterns = MetaModel::GetModuleSetting('jb-email-synchro', 'multiline_delimiter_patterns', $aGlobalDelimiterPatterns);
+			$aDelimiterPatterns = MetaModel::GetModuleSetting('jb-email-synchro', 'delimiter_patterns', $aDelimiterPatterns);
 		}
 		
 		if ($sBodyFormat == 'text/html')
