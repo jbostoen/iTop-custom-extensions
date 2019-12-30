@@ -1850,6 +1850,8 @@ abstract class PolicyFindCaller extends Policy implements iPolicy {
 	 * Checks if all information within the email is compliant with the policies defined for this mailbox
 	 *
 	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
+	 *
+	 * @todo Test if default values properly support mail placeholders
 	 */
 	public static function IsCompliant() {
 		
@@ -1917,6 +1919,7 @@ abstract class PolicyFindCaller extends Policy implements iPolicy {
 											if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
 												$sAttCode = trim($aMatches[1]);
 												$sValue = trim($aMatches[2]);
+												$sValue = self::ReplaceMailPlaceholders($sValue)
 												$aDefaultValues[$sAttCode] = $sValue;
 											}
 										}
@@ -2085,6 +2088,8 @@ abstract class PolicyFindAdditionalContacts extends Policy implements iPolicy {
 	 * Checks if all information within the email is compliant with the policies defined for this mailbox
 	 *
 	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
+	 *
+	 * @todo Test if mail placeholders work
 	 */
 	public static function IsCompliant() {
 		
@@ -2142,6 +2147,7 @@ abstract class PolicyFindAdditionalContacts extends Policy implements iPolicy {
 									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
 										$sAttCode = trim($aMatches[1]);
 										$sValue = trim($aMatches[2]);
+										$sValue = self::ReplaceMailPlaceholders($sValue);
 										$aDefaultValues[$sAttCode] = $sValue;
 									}
 								}
