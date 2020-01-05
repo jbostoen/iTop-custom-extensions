@@ -1189,9 +1189,9 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 
 
 /**
- * Class PolicyForbiddenAttachment Offers a policy to enforce some rules on the attachment.
+ * Class PolicyBounceAttachmentForbiddenMimeType Offers a policy to enforce some rules on the attachment.
  */
-abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
+abstract class PolicyBounceAttachmentForbiddenMimeType extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
@@ -1287,9 +1287,9 @@ abstract class PolicyForbiddenAttachment extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyLimitMailSize Offers a policy to prevent big email messages from being processed
+ * Class PolicyBounceLimitMailSize Offers a policy to prevent big email messages from being processed
  */
-abstract class PolicyLimitMailSize extends Policy implements iPolicy {
+abstract class PolicyBounceLimitMailSize extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
@@ -1339,9 +1339,9 @@ abstract class PolicyLimitMailSize extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyNoSubject Offers a policy to enforce non-empty subjects
+ * Class PolicyBounceNoSubject Offers a policy to enforce non-empty subjects
  */
-abstract class PolicyNoSubject extends Policy implements iPolicy {
+abstract class PolicyBounceNoSubject extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
@@ -1415,10 +1415,10 @@ abstract class PolicyNoSubject extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyNoOtherRecipients Offers a policy to enforce being the sole recipient (no other recipients in To:, CC:). 
+ * Class PolicyBounceOtherRecipients Offers a policy to enforce being the sole recipient (no other recipients in To:, CC:). 
  * Does NOT change "related contacts" or create new ones!
  */
-abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
+abstract class PolicyBounceOtherRecipients extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
@@ -1509,10 +1509,10 @@ abstract class PolicyNoOtherRecipients extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyUnknownTicketReference Offers a policy to handle unknown ticket references. Also see MailInboxStandard::GetRelatedTicket()
+ * Class PolicyBounceUnknownTicketReference Offers a policy to handle unknown ticket references. Also see MailInboxStandard::GetRelatedTicket()
  * @todo Check if this works properly
  */
-abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
+abstract class PolicyBounceUnknownTicketReference extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
@@ -1538,9 +1538,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 		// Generic 'before' actions
 		parent::BeforeComplianceCheck();
 		
-		// @todo: what is $oEmail->oRelatedObject? A Ticket object?
 		// Is the ticket valid in the iTop database or does the number NOT match?
-		
 		// Checking if ticket reference is invalid
 		// Due to an earlier GetRelatedTicket() call in MailInboxStandard, Ticket would NOT have been null if there was a valid reference.
 		if($oTicket === null) {
@@ -1560,7 +1558,7 @@ abstract class PolicyUnknownTicketReference extends Policy implements iPolicy {
 					
 					$aPatterns = preg_split(NEWLINE_REGEX, $sPatterns);
 					
-					self::Trace(".. Removing undesired title patterns: {$sPatterns}");
+					self::Trace(".. Ignoring patterns (defined in {$sAttCode}): {$sPatterns}");
 					
 					foreach($aPatterns as $sPattern) {
 						if(trim($sPattern) != '') {
@@ -1745,9 +1743,9 @@ abstract class PolicyTicketClosed extends Policy implements iPolicy {
 }
 
 /**
- * Class PolicyUndesiredTitlePatterns Offers a policy to handle undesired title patterns.
+ * Class PolicyBounceUndesiredTitlePatterns Offers a policy to handle undesired title patterns.
  */
-abstract class PolicyUndesiredTitlePatterns extends Policy implements iPolicy {
+abstract class PolicyBounceUndesiredTitlePatterns extends Policy implements iPolicy {
 	
 	/**
 	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
