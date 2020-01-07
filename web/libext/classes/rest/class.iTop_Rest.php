@@ -3,12 +3,11 @@
 /**
  * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-12-22 17:15:22
+ * @version     -
  * @see         https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
  *
  * Defines class iTop_Rest, which communicates with iTop REST/JSON API
  *
- * @details
  * 
  */
  
@@ -56,7 +55,7 @@
 		public $version = '1.3';
 		
 		
-		public function __construct( ) {
+		public function __construct() {
 
 			// If url is unspecified by default and this file is placed within iTop-directory as expected, the url property will automatically be adjusted
 			if($this->url == '') {
@@ -64,11 +63,15 @@
 				// Assume we're in iTop directory; get definitions for APPCONF and ITOP_DEFAULT_ENV
 				$sDirName = __DIR__ ;
 				
-				while( $sDirName != dirname($sDirName) ) {
+				while($sDirName != dirname($sDirName)) {
 					
-					if( file_exists( $sDirName . '/approot.inc.php' ) == true ) {
+					$sFile = $sDirName.'/approot.inc.php';
+					if(file_exists($sFile) == true ) {
 
-						require_once( $sDirName . '/approot.inc.php');
+						// Compatibility with iTop 2.7; NOT loading Twig etc. Defaults!
+						defined('APPROOT') || define('APPROOT', dirname($sFile).'/');
+						defined('APPCONF') || define('APPCONF', APPROOT.'conf/');
+						defined('ITOP_DEFAULT_ENV') || define('ITOP_DEFAULT_ENV', 'production');
 						
 						// Get iTop config file 
 						if( file_exists( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php') == true ) {
@@ -81,14 +84,14 @@
 						}
 						
 					}
-						
+					
 					// folder up
 					$sDirName = dirname($sDirName);
 					
 				}
 				
 				// return hasn't happened: this means we have an error here.
-				throw new Exception('Could not automatically derive iTop Rest/JSON url');
+				throw new \Exception('Could not automatically derive iTop Rest/JSON url');
 				
 			}
 		}
@@ -234,7 +237,7 @@
 				
 			}
 			
-			throw new Exception('Error in ' . __METHOD__ . '(): class was not defined and it could also not be derived from key.');
+			throw new \Exception('Error in ' . __METHOD__ . '(): class was not defined and it could also not be derived from key.');
 			
 		}
 
@@ -298,7 +301,7 @@
 			$aResult = json_decode($sResult, true);
 			
 			if(is_array($aResult) == false || isset($aResult['code']) == false){
-				throw new Exception('Invalid response from iTop API/REST. Incorrect configuration or something wrong with network or iTop?');
+				throw new \Exception('Invalid response from iTop API/REST. Incorrect configuration or something wrong with network or iTop?');
 			}
     
 			return $aResult; 
