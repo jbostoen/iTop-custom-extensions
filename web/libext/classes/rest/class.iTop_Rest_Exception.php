@@ -37,7 +37,7 @@
 			parent::__construct($sMessage, $iCode, $oPreviousException);
 			
 			// Extend
-			$this->aDetails = $aDetails;
+			$this->aDetails = $aResponseFromAPI;
 		}
 		
 		

@@ -84,7 +84,7 @@
 						}
 						
 					}
-					
+						
 					// folder up
 					$sDirName = dirname($sDirName);
 					
@@ -191,7 +191,7 @@
 		 * @return Array - see processResult()
 		 * 
 		 */ 
-		public function Get( Array $aParameters = [] ) {
+		public function Get(Array $aParameters = []) {
 			
 			$sClassName = $this->GetClassName( $aParameters );
 			 			
@@ -213,7 +213,7 @@
 		 * @return String $sInput Class name.
 		 *
 		 */
-		private function GetClassName( Array $aInput = [] ) {
+		private function GetClassName(Array $aInput = []) {
 							
 			if( isset( $aInput['class'] ) == true ) {
 				
@@ -251,8 +251,8 @@
 		 * 
 		 * @return Array containing the data obtained from the iTop REST Services
 		 */ 
-		public function Post( Array $aJSONData ) {
-			   
+		public function Post(Array $aJSONData = []) {
+			
 			//  Initiate curl
 			$ch = curl_init();
 			 
@@ -263,20 +263,19 @@
 			
 
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-			curl_setopt($ch, CURLOPT_USERPWD, $this->user . ':' . $this->password );
+			curl_setopt($ch, CURLOPT_USERPWD, $this->user . ':' . $this->password);
 
 			 
 			// Set the url
-			curl_setopt($ch, CURLOPT_URL, $this->url );
+			curl_setopt($ch, CURLOPT_URL, $this->url);
 			
 			// You need to use URL encode here. If you don't, you might end up with issues. A base64 string easily includes plus signs which need to be escaped
 			$sPostString = ''.
 				'&version='.$this->version.
 				'&auth_user='.$this->user.
 				'&auth_pwd='.$this->password.
-				'&json_data='.urlencode(json_encode( $aJSONData ));
-			 
-				
+				'&json_data='.urlencode(json_encode($aJSONData));
+	
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $sPostString);                                                                  
 			curl_setopt($ch, CURLOPT_HTTPHEADER, [                                                                                
 				'Content-Length: ' . strlen($sPostString)                                                                       
@@ -286,15 +285,13 @@
 				echo 'Request:' . PHP_EOL .json_encode($aJSONData, JSON_PRETTY_PRINT ); 				
 			}
 			
-						
 			// Execute
 			$sResult = curl_exec($ch);
-			 			
 			
 			// Closing
 			curl_close($ch);
   
-			if( $this->showResponse == true ) { 
+			if($this->showResponse == true) { 
 				echo 'Response: ' . PHP_EOL  .$sResult;  
 			}
 			
@@ -320,7 +317,7 @@
 		 *  'filename'        => Filename (short)
 		 * ];
 		 */ 
-		public function PrepareFile( String $sFileName ) {
+		public function PrepareFile(String $sFileName) {
 			
 			$sFileName = $sFileName;
 			$sType = mime_content_type($sFileName);
@@ -375,18 +372,18 @@
 		 * @details Simplification happens because we only return an array of objects, either with or without key. 
 		 * If you want to check for errors, just check in the array if 'code' still exists.
 		 */
-		private function ProcessResult( Array $aServiceResponse = [], Array $aParameters = [] ) {
+		private function ProcessResult(Array $aServiceResponse = [], Array $aParameters = []) {
 			
 			// Valid response ('code' = 0)
 			if( isset( $aServiceResponse['code'] ) == true && $aServiceResponse['code'] == 0 ) {
 								
 				// Valid call, no results? (usually after 'operation/get'
-				if( isset( $aServiceResponse['objects'] ) == false ) {
+				if(isset($aServiceResponse['objects'] ) == false) {
 					return [];
 				}
 				else {
 					$aObjects = $aServiceResponse['objects'];
-					return ( isset( $aParameters['no_keys']) == true ? ( $aParameters['no_keys'] == true ? array_values($aObjects) : $aObjects ) : $aObjects );
+					return (isset( $aParameters['no_keys']) == true ? ( $aParameters['no_keys'] == true ? array_values($aObjects) : $aObjects ) : $aObjects);
 				}
 			}
 			else {
@@ -395,7 +392,7 @@
 				// Return all.
 				if( isset($aServiceResponse['code']) == true && isset($aServiceResponse['message']) == true ) {
 					// Valid response but error
-					throw new \iTop_Rest_Exception('Invalid response from iTop REST/JSON Service: '.$aServiceResponse['message'], $aServiceResponse, $aServiceResponse['code']);
+					throw new \iTop_Rest_Exception('Invalid response from iTop REST/JSON Service: '.$aServiceResponse['message'], $aServiceResponse['code'], null, $aServiceResponse);
 				}
 				else {
 					// Invalid response
@@ -426,7 +423,7 @@
 		 * @return Array - see processResult()
 		 *
 		 */ 
-		public function Update( Array $aParameters = [] ) {
+		public function Update(Array $aParameters = []) {
 			
 			$sClassName = $this->GetClassName( $aParameters );
 			
