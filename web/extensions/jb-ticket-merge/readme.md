@@ -2,7 +2,7 @@
 
 First version available! (Very stable, but some advanced features are still being implemented).
 If you are interested in a quick development of this extension or a specific feature, consider getting in touch.
-Also you're interested in acquiring this extension now or to be informed when it's out of beta, contact **jbostoen.itop@outlook.com**
+If you want to use this extension and get support, please get in touch to discuss the terms: **jbostoen.itop@outlook.com**
 
 ## What?
 Merges any sub class of Tickets.
@@ -10,9 +10,9 @@ Merges any sub class of Tickets.
 One Ticket is chosen as "target" Ticket. User decides which ticket will be kept as main Ticket, and which ones will be merged.
 
 The attribute types to be merged are:
-* AttributeCaseLog - merges case log entries (sorted chronologically!) + possible append/prepend
+* AttributeCaseLog - merges case log entries (sorted chronologically!)
 * AttributeLinkedSet - related WorkOrders, ...
-* AttributeLinkedSetIndirect - related functional CIs, functional Contacts, ...
+* AttributeLinkedSetIndirect - related functional CIs, Contacts, ...
 
 Attachments may be copied to the target Ticket.
 
@@ -38,7 +38,7 @@ Attachments may be copied to the target Ticket.
 
 * perform actions on target object as well as merged objects, similar to Combodo's User Actions Configurator.
   * on all objects: apply stimulus (so they can be resolved/closed automatically), set attributes, append text, ...
-  * place holders: $this for the actual object; $source_object for copying data from the target Ticket to the merged Ticket
+  * place holders: $this->attcode$ for the actual object; $source_object->attcode$ for copying data from the target Ticket to the merged Ticket
 
 
 ## Out of scope
@@ -58,19 +58,16 @@ Ideas which will only get implemented when sponsored:
 
 ## Cookbook
 
-XML:
-- something
-
 PHP:
-- how to introduce custom iTop pages
-- how to add a menu item in the Other Actions menu
-- how to add custom triggers (Action and EventNotification)
-- use built-in iTop methods to obtain attribute list for a class
-- use built-in iTop methods to display lists
-- use built-in iTop methods to check user rights
-- use built-in iTop methods to prevent malicious actions
-- use DBObject::Fingerprint() for various tasks: to uniquely identify objects or look for very similar ones or see if attributes changed
-- ...
+* how to introduce custom iTop pages
+* how to add a menu item in the Other Actions menu
+* how to add custom triggers (Action and EventNotification)
+* use built-in iTop methods to obtain attribute list for a class
+* use built-in iTop methods to display lists
+* use built-in iTop methods to check user rights
+* use built-in iTop methods to prevent malicious actions
+* use DBObject::Fingerprint() for various tasks: to uniquely identify objects or look for very similar ones or see if attributes changed
+* ...
 
 ## Settings
 
@@ -94,16 +91,7 @@ $aModuleSettings = [
 	],
 	
 	'target_object' => [
-	
-		// Similar to Combodo's User Actions Configurator. Runs actions on the target Ticket.
-		'actions' => [
-		],
-		
-		'actions' => [
-			'apply_stimulus' => 'some_stimulus', // Similar to Combodo's User Actions Configurator. String. Stimulus code
-			'copy' => 'some_attribute_code'
-		],
-		
+			
 		// Add callers of the merged tickets to 'related Contacts' (those Contacts could be used in Notification)
 		'add_callers_to_related_contacts' => true, 
 		
@@ -116,13 +104,8 @@ $aModuleSettings = [
 	],
 	
 	'merged_objects' => [
-		// Similar to Combodo's User Actions Configurator. Runs actions on the Tickets that were merged, except Target ticket.
-		'actions' => [
-			'apply_stimulus(some_stimulus)',
-			'set(attribute_name,some_value)',
-			'set(attribute_name,$source_object->title$)', // $source_object->attribute_name$ is generic; it reads data from the Target ticket (which is the $source_object here)
-		],
 		'delete' => true, // Delete objects after merging
+		
 	],
 	
 	// CSV list of profiles which may merge Tickets.
@@ -140,4 +123,4 @@ $aModuleSettings = [
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
-Copyright (C) 2019 Jeffrey Bostoen
+Copyright (C) 2019-2020 Jeffrey Bostoen

@@ -19,5 +19,5 @@ If you run this PowerShell and leave it open, it will make the config file writa
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
-Copyright (C) 2019 Jeffrey Bostoen
+Copyright (C) 2019-2020 Jeffrey Bostoen
 

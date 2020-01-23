@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-12-22 17:15:22
+ * @version     2020-01-23 11:41:53
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-tweaks-incident-mgmt-itil/2.6.191222',
+	'jb-tweaks-incident-mgmt-itil/2.6.200123',
 	array(
 		// Identification
 		//

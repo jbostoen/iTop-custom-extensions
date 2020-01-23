@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     See license.md
- * @version     2019-12-25 20:03:05
+ * @version     2020-01-23 11:41:53
  *
  * iTop front-end ajax handler. Based on pages/ajax.searchform.php
  *

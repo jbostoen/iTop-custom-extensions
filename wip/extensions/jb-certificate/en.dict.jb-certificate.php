@@ -1,8 +1,8 @@
 <?php
 /**
- * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-12-22 17:15:22
+ * @version     2020-01-23 11:41:53
  *
  * Localized data
  */

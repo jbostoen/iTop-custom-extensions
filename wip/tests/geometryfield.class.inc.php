@@ -1,6 +1,6 @@
 <?php
 
-//	Copyright (C) 2019 Jeffrey Bostoen
+//	Copyright (C) 2019-2020 Jeffrey Bostoen
 //
 //	This is an unofficial extension for Combodo's iTop.
 //
