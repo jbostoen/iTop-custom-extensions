@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-27 19:00:07
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-framework/2.6.200123',
+        'jb-framework/2.6.200127',
         array(
                 // Identification
                 //
@@ -30,6 +30,7 @@ SetupWebPage::AddModule(
 					'components/ApplicationHelper.class.inc.php',
 					'components/CMDBChangeHelper.class.inc.php',
 					'components/ormCustomCaseLog.class.inc.php',
+					'components/ScheduledProcess.class.inc.php',
                 ),
                 'webservice' => array(
 
