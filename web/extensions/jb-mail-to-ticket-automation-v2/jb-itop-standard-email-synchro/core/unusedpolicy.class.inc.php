@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-29 14:37:35
  *
  * A demo of a class which could store e-mails automatically.
  */
@@ -72,3 +72,23 @@ abstract class PolicyExampleSaveEmailsToPath extends Policy implements iPolicy {
 	}
 
 }
+
+
+/*
+@todo 
+
+
+abstract class PolicyAttachmentSize implements iPolicy {
+	// attachment too big
+}
+
+abstract class PolicyAttachmentVirusCheck implements iPolicy {
+	// could be an example implementing ClamAv, similar to what's mentioned in MailInboxBase
+}
+
+abstract class PolicyStatistics implements iPolicy {
+	// could be an example of keeping track of statistics. Number of processed e-mails per inbox etc.
+}
+
+*/
+

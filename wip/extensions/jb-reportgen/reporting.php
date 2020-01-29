@@ -1,8 +1,8 @@
 <?php
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-29 14:37:35
  *
  * Shows report; based on available Twig templates.
  *
@@ -14,8 +14,11 @@
  * $_REQUEST should contain: 
  * class:               String. Class name
  * filter:              String. OQL Query
- * template: 			String. Report name. For convenience, use detail/<filename>.twig and list/<filename>.twig
  * type: 				String. 'details' or 'list'
+ *
+ * Optional:
+ * template: 			String. Report name. For convenience, use detail/<filename>.twig and list/<filename>.twig . Default report (HTML)
+ * action:				String. Name of custom action ('show_pdf')
 */
 
 namespace jb_itop_extensions\report_generator;
@@ -47,11 +50,10 @@ namespace jb_itop_extensions\report_generator;
 		
 		// utils::ReadParam( $sName, $defaultValue = "", $bAllowCLI = false, $sSanitizationFilter = 'parameter' )
 		$sClassName = \utils::ReadParam('class', '', false, 'class');
-		$sFilter = \utils::ReadParam('filter', '', false, 'raw_data');
 		$sType = \utils::ReadParam('type', '', false, 'string');
-		$sTemplateName = \utils::ReadParam('template', '', false, 'string');
+		$sFilter = \utils::ReadParam('filter', '', false, 'raw_data');
 		
-		// Load more (custom classes using iReportGeneratorExtension)
+		// Load ReportGeneratorExtensions (implementations of iReportGeneratorExtension)
 		$sModuleName = \utils::GetCurrentModuleName();
 		$sModuleDir = APPROOT . '/env-' . \utils::GetCurrentEnvironment() . '/' . \utils::GetCurrentModuleDir(0);
 		$aCustomInterfaces = glob($sModuleDir.'/clients/*/*.php');
@@ -63,20 +65,16 @@ namespace jb_itop_extensions\report_generator;
 		// --
 		
 		// Check if right parameters have been given
-		if ( empty($sClassName) == true ) {
+		if(empty($sClassName) == true) {
 			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'class'));
 		}
 		
-		if ( empty($sFilter) == true ) {
+		if(empty($sFilter) == true) {
 			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'filter'));
 		}
 		
-		if ( empty($sType) == true ) {
+		if(empty($sType) == true) {
 			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'type'));
-		}
-		
-		if ( empty($sTemplateName) == true ) {
-			throw new \ApplicationException(\Dict::Format('UI:Error:1ParametersMissing', 'template'));
 		}
 		
 		// Valid type?
@@ -84,27 +82,18 @@ namespace jb_itop_extensions\report_generator;
 			throw new \ApplicationException('Valid values for type are: details, list');
 		}
 		
-		$sReportDir = __DIR__ . '/templates/'.$sClassName.'/'.$sType;
-		$sReportFile = $sReportDir.'/'.$sTemplateName;
-		
-		// Prevent local file inclusion
-		if( __DIR__ != dirname(dirname(dirname(dirname($sReportFile)))) ) {
-			throw new \ApplicationException('Invalid type or template');
-		}
-		elseif( file_exists($sReportFile) == false ) {
-			throw new \ApplicationException('Template does not exist: ' .$sReportFile);
-		}
-		
 		$oFilter = \DBObjectSearch::unserialize($sFilter);
-		$aAllArgs = \MetaModel::PrepareQueryArguments($oFilter->GetInternalParams());
+		// $aAllArgs = \MetaModel::PrepareQueryArguments($oFilter->GetInternalParams());
 		// $oFilter->ApplyParameters($aAllArgs); // Thought this was necessary for :current_contact_id. Guess not?
-		$oSet_Objects = new \CMDBObjectSet($oFilter);
-		
+		$oSet_Objects = new \CMDBObjectSet($oFilter);		
 		
 		// Valid object(s)?
-		if($oSet_Objects->Count() == 0 ) {
-			throw new \ApplicationException('Invalid OQL filter: no object(s) found');
-		}
+		// 20200115-0849: This check seems pointless if there's more automation and a query returns no results
+		/*
+			if($oSet_Objects->Count() == 0) {
+				throw new \ApplicationException('Invalid OQL filter: no object(s) found');
+			}
+		*/
 		
 		$aSet_Objects = \jb_itop_extensions\report_generator\ObjectSetToArray($oSet_Objects);
 		
@@ -130,112 +119,50 @@ namespace jb_itop_extensions\report_generator;
 		}
 		
 		if($sType == 'details') {
-			$aTwigData['item'] = array_values($aSet_Objects)[0];
+			$aReportData['item'] = array_values($aSet_Objects)[0];
 		}
 		else {
-			$aTwigData['items'] = $aSet_Objects;
+			$aReportData['items'] = $aSet_Objects;
 		}
 		
-		// Twig
+		// Expose some variables
 		// --
 		
-		$aTwigData['current_contact'] = \jb_itop_extensions\report_generator\ObjectToArray(\UserRights::GetUserObject());
-		$aTwigData['request'] = $_REQUEST;
-		$aTwigData['application']['url'] = \utils::GetDefaultUrlAppRoot();
-
-		// Twig Loader
-		$loader = new \Twig_Loader_Filesystem( dirname($sReportFile) );
+		$aReportData['current_contact'] = \jb_itop_extensions\report_generator\ObjectToArray(\UserRights::GetUserObject());
+		$aReportData['request'] = $_REQUEST;
+		$aReportData['application']['url'] = \utils::GetDefaultUrlAppRoot();
 		
-		// Twig environment options
-		$oTwigEnv = new \Twig_Environment($loader, [
-			'autoescape' => false
-		]); 
-
-		// Combodo uses this filter, so let's use it the same way for our report generator
-		$oTwigEnv->addFilter(new \Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
-				return \Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
-			})
-		);
-		
-		// Relies on chillerlan/php-qrcode
-		if( class_exists('chillerlan\QRCode\QRCode') == true ) {
-			
-			$oTwigEnv->addFilter(new \Twig_SimpleFilter('qr', function ($sString) {
-
-					$aOptions = new \chillerlan\QRCode\QROptions([
-						'version'    => 5,
-						'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_MARKUP_SVG,
-						'eccLevel'   => \chillerlan\QRCode\QRCode::ECC_L,
-						'scale'		 => 3 // Note: scale is for SVG, IMAGE_*. output. Irrelevant for HTML output; use CSS
-					]);
-
-					// invoke a fresh QRCode instance
-					$oQRCode = new \chillerlan\QRCode\QRCode($aOptions);
-
-					// and dump the output 
-					return $oQRCode->render($sString);		
-			
-				})
-			);
-				
-		}
-		else {
-			
-			$oTwigEnv->addFilter(new \Twig_SimpleFilter('qr', function ($sString) {
-				return $sString . ' (QR library missing)';
-			}));
-				
-		}
-		
-		// Enrich? (using interfaces)
-		foreach (get_declared_classes() as $sClassName) {
-			if(in_array('jb_itop_extensions\report_generator\iReportGeneratorExtension', class_implements($sClassName))) {
-				if($sClassName::IsApplicable() == true) {
-					$sClassName::EnrichData($aTwigData, $oTwigEnv, $oSet_Objects);
-				}
+		// Get all classes implementing iReportTool
+		$aReportGeneratorExtensions = [];
+		foreach(get_declared_classes() as $sClassName) {
+			if(in_array('jb_itop_extensions\report_generator\tools\iReportTool', class_implements($sClassName))) {
+				$aReportGeneratorExtensions[] = $sClassName;
 			}
 		}
 		
-		
-		$sReportExtension = strtolower(pathinfo($sReportFile, PATHINFO_EXTENSION));
-		
-		// No action = basic rendering and header based on extension
-		if(\utils::ReadParam('action', '', false, 'string') == '') {
-		
-			$aExtensionsToContentTypes = [
-				'csv' => 'text/csv',
-				'html' => 'text/html',
-				'json' => 'application/json',
-				'twig' => 'text/html',
-				'txt' => 'text/plain',
-				'xml' => 'text/xml'
-			];
-			
-			// Set header if Content-type is known (above)
-			if(isset($aExtensionsToContentTypes[$sReportExtension]) == true) {
-				header('Content-Type: '.$aExtensionsToContentTypes[$sReportExtension]);
+		// Enrich
+		foreach($aReportGeneratorExtensions as $sClassName) {
+			if($sClassName::IsApplicable() == true) {
+				$sClassName::EnrichData($aReportData, $oSet_Objects);
 			}
-			
-			echo $oTwigEnv->render(basename($sReportFile), $aTwigData);
-			
 		}
-		else {
-
-			// Actions? (using interfaces)
-			foreach (get_declared_classes() as $sClassName) {
-				if(in_array('jb_itop_extensions\report_generator\iReportGeneratorExtension', class_implements($sClassName))) {
-					if($sClassName::IsApplicable() == true) {
-						$sClassName::DoExec($aTwigData, $oTwigEnv, $sReportFile);
-					}
-				}
+		
+		// Sort based on 'rank' of each class
+		// Use case: block further processing
+		usort($aReportGeneratorExtensions, function($a, $b) {
+			return $a::$rank <=> $b::$rank;
+		});
+		
+		
+		// Execute each ReportExtension
+		foreach($aReportGeneratorExtensions as $sClassName) {
+			if($sClassName::IsApplicable() == true) {
+				$sClassName::DoExec($aReportData, $oSet_Objects);
 			}
-			
 		}
 
 	}
-	
-	catch(\Exception $e)
-	{
+	catch(\Exception $e) {
 		require_once(APPROOT.'/application/nicewebpage.class.inc.php');
 		$oP = new \NiceWebPage(\Dict::S('UI:PageTitle:FatalError'));
 		$oP->add("<h1>".\Dict::S('UI:FatalErrorMessage')."</h1>\n");	
@@ -261,8 +188,7 @@ namespace jb_itop_extensions\report_generator;
 			$aShowFields[$sClass][] = $sAttCode;
 		}
 		
-		while ($oObject = $oObjectSet->Fetch())
-		{
+		while($oObject = $oObjectSet->Fetch()) {
 			$oResult->AddObject(0, '', $oObject, $aShowFields);
 		}
 		
@@ -290,8 +216,7 @@ namespace jb_itop_extensions\report_generator;
 		$aShowFields = [];
 		$sClass = get_class($oObject);
 		
-		foreach (\MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef)
-		{
+		foreach (\MetaModel::ListAttributeDefs($sClass) as $sAttCode => $oAttDef) {
 			$aShowFields[$sClass][] = $sAttCode;
 		}
 		

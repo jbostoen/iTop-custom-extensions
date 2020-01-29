@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-29 14:37:35
  *
  * Policy interface definition and some classes implementing it.
  * 
@@ -128,7 +128,7 @@ abstract class Policy implements iPolicy {
 		$sUnqualifiedName = (new \ReflectionClass($sCalledClass))->getShortName();
 		if($sUnqualifiedName != 'Policy') {
 			
-			$sLog = '. Check #'.(count(self::$aPreviouslyExecutedPolicies)+1).'(precedence: '.$sCalledClass::$iPrecedence.'): '.$sUnqualifiedName;
+			$sLog = '. Check #'.(count(self::$aPreviouslyExecutedPolicies)+1).' (precedence: '.$sCalledClass::$iPrecedence.'): '.$sUnqualifiedName;
 			
 			// Some classes fake their $sPolicyId to recycle settings
 			$sAttCode = $sCalledClass::$sPolicyId.'_behavior';
@@ -151,7 +151,7 @@ abstract class Policy implements iPolicy {
 	
 		$sUnqualifiedName = (new \ReflectionClass(get_called_class()))->getShortName();
 		if($sUnqualifiedName  != 'Policy') {
-			self::Trace('. Complete: '.$sUnqualifiedName);
+			self::Trace('.. Complete: '.$sUnqualifiedName);
 		}
 	}
 	
@@ -309,7 +309,7 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 	 * Any real checks that block Ticket creation or update, should have been run by now. 
 	 * Any policies following this one, should not be blocking!
 	 */
-	public static $iPrecedence = 120;
+	public static $iPrecedence = 200;
 	
 	/**
 	 * @var \String $sPolicyId Shortname for policy
@@ -540,7 +540,7 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 		
 		$sCaseLogEntry = self::BuildCaseLogEntry();
 		
-		self::Trace("... ".$oEmail->sTrace);
+		self::Trace("... Trace: ".$oEmail->sTrace);
 		
 		// Write the log on behalf of the caller.
 		// Fallback to e-mail address if name is unknown.
@@ -821,18 +821,18 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 		}
 
 		// Apply a stimulus if needed, will write the ticket to the database, may launch triggers, etc...
-		$oMailBox->ApplyConfiguredStimulus($oTicket);
+		self::ApplyConfiguredStimulus($oTicket);
 		
 		// Delete the email immediately or keep it stored
 		if($oMailBox->Get('email_storage') == 'delete') {
 			// Remove the processed message from the mailbox
 			self::Trace(".. Deleting the source email");
-			self::SetNextAction(\EmailProcessor::DELETE_MESSAGE);		
+			$oMailBox->SetNextAction(\EmailProcessor::DELETE_MESSAGE);		
 		}
 		else {
 			// Keep the message in the mailbox
 			self::Trace(".. Keeping the source email");
-			self::SetNextAction(\EmailProcessor::NO_ACTION);		
+			$oMailBox->SetNextAction(\EmailProcessor::NO_ACTION);		
 		}
 		
 	}
@@ -1581,14 +1581,20 @@ abstract class PolicyBounceUnknownTicketReference extends Policy implements iPol
 			
 			$sPattern = $oMailBox->FixPattern($oMailBox->Get('title_pattern'));
 			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches))) {
-				self::Trace(".. Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}').");
+				self::Trace(".. Undesired: unable to find any prior ticket despite a matching ticket reference pattern in the subject ('{$sPattern}'). ".http_build_query($aMatches));
 				return false;
-			} 
+			}
 			elseif($oEmail->oRelatedObject != null ) {
 				self::Trace(".. Undesired: unable to find any prior ticket despite an email header ({$oEmail->oRelatedObject}).");
 				return false;
 			}
+			else {
+				self::Trace(".. Not undesired? Pattern = ".$sPattern." - subject: ".$sSubject);
+			}
 		
+		}
+		else {
+			self::Trace(".. Already linked to a Ticket");
 		}
 			
 		// Generic 'after' actions
@@ -1914,15 +1920,15 @@ abstract class PolicyFindCaller extends Policy implements iPolicy {
 										$aDefaultValues = [];
 										
 										foreach($aDefaults as $sLine) {
-											if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
+											if(preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
 												$sAttCode = trim($aMatches[1]);
 												$sValue = trim($aMatches[2]);
-												$sValue = self::ReplaceMailPlaceholders($sValue)
+												$sValue = self::ReplaceMailPlaceholders($sValue);
 												$aDefaultValues[$sAttCode] = $sValue;
 											}
 										}
 										
-										self::Trace('... Default values: '.json_encode($aDefaultValues));
+										self::Trace('... Default values: '.http_build_query($aDefaultValues));
 										$oMailBox->InitObjectFromDefaultValues($oCaller, $aDefaultValues);
 										
 										self::Trace("... Create user with default values");
@@ -1948,7 +1954,8 @@ abstract class PolicyFindCaller extends Policy implements iPolicy {
 								break;
 								
 						}
-					
+						break;
+						
 					default:
 						self::Trace("... Found ".$oSet->Count()." callers with the same email address '{$sCallerEmail}', the first one will be used...");
 						// Multiple callers with the same email address!
@@ -2274,7 +2281,7 @@ abstract class PolicyAttachmentImageDimensions extends Policy implements iPolicy
 				
 				if(self::IsImage($aAttachment['mimeType']) == true) {
 					
-					$aImgInfo = self::GetImageSize($aAttachment['content'], $aImgInfo);
+					$aImgInfo = self::GetImageSize($aAttachment['content']);
 					if($aImgInfo !== false) {
 						
 						$iWidth = $aImgInfo[0];
@@ -2470,17 +2477,4 @@ abstract class PolicyAttachmentImageDimensions extends Policy implements iPolicy
 }
 
 
-/*
-@todo 
-
-
-abstract class PolicyAttachmentSize implements iPolicy {
-	// attachment too big
-}
-
-abstract class PolicyAttachmentVirusCheck implements iPolicy {
-	// could be an example implementing ClamAv, similar to what's mentioned in MailInboxBase
-}
-
-*/
 

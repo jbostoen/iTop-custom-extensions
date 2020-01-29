@@ -467,7 +467,8 @@ EOF
 		
 		if ($this->Get('trace') == 'yes')
 		{
-			$sStampedText = date('Y-m-d H:i:s').' - '.htmlentities($sText)."\n";
+			// htmlentities($sText) might be applied again on AJAX page.
+			$sStampedText = date('Y-m-d H:i:s').' - '.$sText."\n";
 			$this->Set('debug_trace', $sStampedText.mb_substr($this->Get('debug_trace'), 0, $iMaxTraceLength));
 			$this->DBUpdate();
 		}
@@ -585,12 +586,13 @@ EOF
 			if(($sPattern != '') && (preg_match($sPattern, $sSubject, $aMatches)))
 			{
 				$iTicketId = 0;
-				foreach ($aMatches as $sMatch){
-				  sscanf($sMatch, '%d', $iTicketId);
-				  if ($iTicketId != 0)
-				  {
-				    break;
-				  }
+				foreach($aMatches as $sMatch) {
+					$sMatch = preg_replace('/[^\d]/', '', $sMatch);
+					sscanf($sMatch, '%d', $iTicketId);
+					if ($iTicketId != 0)
+					{
+						break;
+					}
                 }
 				
 				// @todo Might need to be revised if there's a per-class counter (commits 2.7.0)

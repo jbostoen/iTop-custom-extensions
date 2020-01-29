@@ -218,7 +218,7 @@ class EmailBackgroundProcess implements iBackgroundProcess
 						{
 							if($oSource instanceof IMAPEmailSource) 
 							{
-								$this->Trace("Undelete message (IMAP) {$iMessage}");
+								// $this->Trace("Undelete message (IMAP) {$iMessage}");
 								$ret = $oSource->UndeleteMessage($iMessage);
 							}
 								

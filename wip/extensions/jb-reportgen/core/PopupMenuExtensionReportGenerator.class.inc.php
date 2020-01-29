@@ -1,9 +1,9 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-29 14:37:35
  *
  * Definition of PopupMenuExtension_ReportGenerator
  */
@@ -14,7 +14,7 @@ namespace jb_itop_extensions\report_generator;
  * Class PopupMenuExtension_ReportGenerator. 
  * Adds items to popup menu of to 'Details' view, to generate reports.
  */
-class PopupMenuExtension_ReportGenerator implements \iPopupMenuExtension {
+class PopupMenuExtensionReportGenerator implements \iPopupMenuExtension {
 	
 	/**
 	 * @var \Array $extensions List of extensions to search for when looking for templates.

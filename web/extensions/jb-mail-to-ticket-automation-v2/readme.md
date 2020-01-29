@@ -276,6 +276,7 @@ If it's a common use case, make a pull request to include it.
 ## Minor code tweaks
 Some code was simplified.
 
+Also more flexible in title patterns (no regex group required).
 
 ## Lost IMAP connections
 There's an attempt to fix issues with lost IMAP connections (to Office 365).
@@ -288,15 +289,18 @@ If in the next run the IMAP connection functions properly, the e-mail would be r
 # Cookbook
 
 PHP
-- how to rename value enums by running queries during installation (ModuleInstallerAPI)
-- how to columns value enums by running queries during installation (ModuleInstallerAPI)
+* how to rename value enums by running queries during installation (ModuleInstallerAPI)
+* how to columns value enums by running queries during installation (ModuleInstallerAPI)
 
 # Creating new additional policies
 Enforcing certain rules or simply adding your own basic logic to set Ticket info or derive a caller (Person) can be done by writing your own class implementing the **iPolicy** interface.
 
 The most important things about the interface:
 * implement the ```Init()``` method
-* specify a ```$iPrecedence``` (order in which policies are executed. Lower = first, higher  = later. Not necessary to make this unique)
+* specify a ```$iPrecedence``` method.
+  * This is the order in which policies are executed. Lower = first, higher  = later. 
+  * Not necessary to make this unique.
+  * $iPrecedence = 200 is used for ticket creation/update.
 * implement the ```IsCompliant()``` method. true = continue processing; false = stop processing this email (marked as undesired)
 
 

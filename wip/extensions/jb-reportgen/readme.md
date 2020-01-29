@@ -2,17 +2,18 @@
 
 Feature: report generator. Quickly add reports to different classes (detail view and list view).
 
-Work in progress. Might need some additional PHP libraries (using composer).
+Work in progress. Needs some tweaking to make it work in other environments!
 
 # Requirements
-
+This extension uses some PHP packages.
 * iTop-dir/web/libext/vendor/autoload.php should be present. Use 'libext' from this repository and run composer update to install all required packages.
 
-Required
-- Twig 2.x (iTop still uses Twig 1?)
+Required PHP libraries (autoload in 'libext' folder)
+* Twig 2.x (iTop still uses Twig 1?)
 
-Recommended
-* optional chillerlan\QRCode (using Composer)
+Recommended (autoload in 'libext' folder)
+* chillerlan\QRCode (support for generating QR-codes)
+* mikeheartl\phpwkhtmltopdf (support for generating PDF -> needs wkhtmltopdf and some configuration)
 
 # How-to
 
@@ -75,7 +76,8 @@ Settings are:
 
 ### Single item (details view)
 
-For details (single object), use the variable *item*. It exposes *key* and *fields* (see iTop REST Documentation). Example: item.fields.description 
+For details (single object), use the variable **item**. It exposes **key** and **fields** (see iTop REST Documentation). 
+Example: **item.fields.description**
  
 As a bonus: it's possible to use *item.attachments*. 
 **{% for attachment in item.attachments %} ... {% endfor %}** exposes the attachment's field properties:
@@ -96,7 +98,6 @@ There's a Twig Filter named **dict_s** in templates.
 Where in iTop code this would be ```Dict::S('languagestring')```, 
 but it's the same as in iTop Portal templates, for example: {{ 'UI:Menu:ReportGenerator:ShowReport'|dict_s }} or {{ 'Class:Ticket/Attribute:ref'|dict_s }}
 
-Hint: you can also use this for the title of the report.
 
 ## Using QR codes
 A Twig filter is available to convert text/URLs to QR-code. {{ 'this string will be converted'|qr }}
@@ -104,12 +105,12 @@ A Twig filter is available to convert text/URLs to QR-code. {{ 'this string will
 ## Cookbook
 
 PHP
-- how to add an item to iTop's "Other actions" menu in both list view and detail view
-- how to obtain iTop from data and render it using a Twig template
-- how to add custom filters to Twig
+* how to add an item to iTop's "Other actions" menu in both list view and detail view
+* how to obtain iTop from data and render it using a Twig template
+* how to add custom filters to Twig
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
-Copyright (C) 2019-2020 Jeffrey Bostoen
+Copyright (C) 2019 Jeffrey Bostoen
 
 

@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-29 14:37:35
  *
  * iTop module definition file
  */
  
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-reportgen/2.6.200123',
+        'jb-reportgen/2.6.200129',
         array(
                 // Identification
                 //
@@ -28,8 +28,11 @@ SetupWebPage::AddModule(
                 //
                 'datamodel' => array(
 					// 'model.jb-reportgen.php',
-					'core/PopupMenuExtension_ReportGenerator.class.inc.php',
-					'core/iReportGeneratorExtension.class.inc.php'
+					'core/PopupMenuExtensionReportGenerator.class.inc.php',
+					'core/iReportTool.int.inc.php',
+					'core/RTParent.class.inc.php',
+					'core/RTTwig.class.inc.php',
+					'core/RTPDF.class.inc.php',
                 ),
                 'webservice' => array(
 

@@ -25,10 +25,26 @@
 					'title' => 'Sample work order',
 					'button' => true,
 					'file' => 'werkbon.twig'
-				]
+				],
+				[
+					'title' => 'Demo XML',
+					'button' => true,
+					'file' => 'demo.xml'
+				],
+				
 			],
 			'list' => [
 				// Other reports 
+			]
+		],
+		
+		'LeisureCheck' => [
+			'list' => [
+				[
+					'title' => 'test',
+					'button' => true,
+					'file' => 'test.xml'
+				]
 			]
 		]
 		
