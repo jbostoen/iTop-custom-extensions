@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-23 11:41:53
+ * @version     2020-01-27 19:00:07
  *
  * Custom version of ormCaseLog.
  * - Extended AddLogEntry() to support on_behalf_of_user_id (rather than just 'on_behalf_of'). 
@@ -98,7 +98,7 @@ if(class_exists('jb_itop_extensions\components\ormCustomCaseLog') == false) {
 		 *
 		 * @return void
 		 */
-		public function AddLogEntriesFromCaseLog($oSourceCaseLog) {
+		public function AddLogEntriesFromCaseLog(\ormCaseLog $oSourceCaseLog) {
 			
 			foreach($oSourceCaseLog->GetAsArray() as $aEntry) {
 				
