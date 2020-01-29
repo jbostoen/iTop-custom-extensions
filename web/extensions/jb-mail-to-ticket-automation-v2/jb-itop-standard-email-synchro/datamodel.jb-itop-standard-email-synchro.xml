@@ -167,7 +167,7 @@
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="policy_attachment_image_dimensions_max_width" xsi:type="AttributeInteger">
-					<sql>policy_attachment_image_dimensions_min_width</sql>
+					<sql>policy_attachment_image_dimensions_max_width</sql>
 					<default_value>1000</default_value>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
