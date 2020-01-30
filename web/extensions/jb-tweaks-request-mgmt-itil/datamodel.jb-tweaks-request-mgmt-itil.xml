@@ -11,6 +11,18 @@
 						<attribute id="phone"/>
 					</dependencies>
 				</field>
+				<!-- Add reminder field -->
+				<field id="reminder" xsi:type="AttributeDateTime" _delta="define">
+					<sql>reminder</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<!-- Add third_party_ref -->
+				<field id="third_party_ref" xsi:type="AttributeString" _delta="define">
+					<sql>third_party_ref</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
 				<!-- Always show lookup fields for Incident, Change, Problem -->
 				<field id="parent_request_id" xsi:type="AttributeExternalKey">
 					<max_combo_length _delta="define">0</max_combo_length>
@@ -41,12 +53,12 @@
 					<state id="new">
 						<flags>
 
-							<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. So disable this at first. -->
+							<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. -->
 							<attribute id="public_log">
-								<read_only>true</read_only>
+								<hidden/>
 							</attribute>
 
-							<!-- Hide solution, solution_code. Often trouble shooting and final solution are in the private log instead. -->
+							<!-- Hide solution, solution_code. We log things in private log instead. -->
 							<attribute id="solution">
 								<hidden _delta="merge"/>
 							</attribute>
@@ -58,7 +70,7 @@
 					</state>
 					<state id="assigned">
 
-						<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. Disabled at first, enabled again here. -->
+						<!-- Public log in 'new' state: often you comment in public log, but the notification will never be sent. Only after creating/assigning the ticket, this will work properly. -->
 						<flags>
 							<attribute id="public_log"/>
 						</flags>
@@ -94,6 +106,17 @@
 							</attribute>
 						</flags>
 					</state>
+					<state id="closed">
+						<flags>
+							<!-- Never make changing categories read-only -->
+							<attribute id="service_id">
+								<read_only _delta="delete"/>
+							</attribute>
+							<attribute id="servicesubcategory_id">
+								<read_only _delta="delete"/>
+							</attribute>						
+						</flags>
+					</state>
 				</states>
 			</lifecycle>
 			<methods>
@@ -123,11 +146,35 @@
 					<items>
 						<item id="col:col1">
 							<items>
-								<!-- Add a field to sohw the caller's phone number -->
+								<!-- Add a field to show the caller's phone number -->
 								<item id="fieldset:Ticket:baseinfo">
 									<items>
 										<item id="caller_phone" _delta="define">
 											<rank>21</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+						<item id="col:col2">
+							<items>
+								<!-- Add reminder field to presentation -->
+								<item id="fieldset:Ticket:date">
+									<items>
+										<item id="reminder" _delta="define">
+										  <rank>69</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+						<item id="col:col3">
+							<items>
+								<item id="fieldset:UserRequest:ThirdParty" _delta="define">
+									<rank>110</rank>
+									<items>
+										<item id="third_party_ref">
+											<rank>1</rank>
 										</item>
 									</items>
 								</item>
