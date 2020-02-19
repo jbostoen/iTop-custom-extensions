@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
  * @version     2020-01-29 14:37:35
  *
@@ -276,7 +276,14 @@ abstract class Policy implements iPolicy {
 			'mail->body_format' => self::$oEmail->sBodyFormat
 		];
 		
-		return \MetaModel::ApplyParams($sString, $aParams);
+		// Extend
+		$aParamsExtended = [];
+		foreach($aParams as $sParam => $sValue) {
+			$aParamsExtended[$sParam] = $sValue;
+			$aParamsExtended[htmlentities($sParam)] = $sValue;
+		}
+		
+		return \MetaModel::ApplyParams($sString, $aParamsExtended);
 		
 	}
 	
@@ -644,8 +651,7 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 				$sTicketDescription = \utils::HtmlToText(self::$oEmail->sBodyText);
 			}
 		}
-		else
-		{
+		else {
 			// Original message is in plain text
 			$sTicketDescription = \utils::TextToHtml(self::$oEmail->sBodyText);
 			if($bForPlainText == false) {
@@ -997,7 +1003,7 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 	 * @todo Test what happens if the same file is attached twice to an e-mail?
 	 */
 	public static function AddAttachments($bNoDuplicates = true) {
-		 
+		
 		$oEmail = self::$oEmail;
 		$oTicket = self::$oTicket;
 		
@@ -1103,6 +1109,8 @@ abstract class PolicyCreateOrUpdateTicket extends Policy implements iPolicy {
 			}
 		}
 		
+		$iCount = count(self::$aAddedAttachments);
+		self::Trace(".. Added {$iCount} attachments".($iCount > 0 ? " ".implode(', ', array_keys(self::$aAddedAttachments)) : ""));
 		
 	 }
 	 
