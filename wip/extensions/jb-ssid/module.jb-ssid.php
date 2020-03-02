@@ -20,7 +20,7 @@ SetupWebPage::AddModule(
                 // Setup
                 //
                 'dependencies' => array(
-					'itop-request-mgmt-itil/2.6.0'
+					
                 ),
                 'mandatory' => false,
                 'visible' => true,
