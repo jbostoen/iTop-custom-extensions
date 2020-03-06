@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jd-class-printersupply</extension_code>
+	<company></company>
+	<author><![CDATA[Jelle Defoort, Jeffrey Bostoen]]></author>
+	<label><![CDATA[Datamodel: Printer supply management]]></label>
+	<description><![CDATA[Adds printer supply types and printer supplies.]]></description>
+	<version>2.6.200302</version>
+	<release_date>2020-03-02</release_date>
+	<version_description><![CDATA[ ]]></version_description>
+	<itop_version_min>2.6.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jdefoort/iTopExtensions</more_info_url>
+</extension>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code>jb-tweaks-teemip</extension_code>
+	<company></company>
+	<author><![CDATA[Jeffrey Bostoen]]></author>
+	<label><![CDATA[Datamodel: TeemIP - tweaks]]></label>
+	<description><![CDATA[* less strict OQL-filter for IP addresses]]></description>
+	<version>2.6.190818</version>
+	<release_date>2019-08-18</release_date>
+	<version_description><![CDATA[  ]]></version_description>
+	<itop_version_min>2.6.0</itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
+</extension>
+
+

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!-- 
+ * @copyright   Copyright (C) 2020 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+-->
+	<classes>
+		<class id="Location">
+			<!-- Change friendlyname to add an organization -->
+			<properties>
+				<naming>
+					<attributes _delta="redefine">
+						<attribute id="name"/>
+						<attribute id="org_code"/>
+					</attributes>
+				</naming>
+			</properties>
+			<fields>
+				<field id="org_code" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>org_id</extkey_attcode>
+					<target_attcode>code</target_attcode>
+					<dependencies>
+						<attribute id="org_id"/>
+					</dependencies>
+				</field>
+				<!-- temporary (?) bad workaround -->
+				<field id="parent_org_id" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>org_id</extkey_attcode>
+					<target_attcode>parent_id</target_attcode>
+					<dependencies>
+						<attribute id="org_id"/>
+					</dependencies>
+				</field>
+			</fields>
+		</class>
+
+		<class id="PhysicalDevice">
+			<fields>
+				<!-- temporary (?) bad workaround -->
+				<field id="parent_org_id" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>org_id</extkey_attcode>
+					<target_attcode>parent_id</target_attcode>
+					<dependencies>
+						<attribute id="org_id"/>
+					</dependencies>
+				</field>
+				<field id="location_id" xsi:type="AttributeExternalKey">
+					<!-- Take a look at the parent organization of the PhysicalDevice to show dropdown list of locations -->
+					<filter _delta="redefine">
+						<![CDATA[
+							SELECT Location AS L
+							WHERE L.org_id = :this->org_id OR L.parent_org_id = :this->parent_org_id
+						]]>
+					</filter>
+				</field>
+			</fields>
+		</class>
+
+		<class id="Person">
+			<fields>
+				<!-- temporary (?) bad workaround -->
+				<field id="parent_org_id" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>org_id</extkey_attcode>
+					<target_attcode>parent_id</target_attcode>
+					<dependencies>
+						<attribute id="org_id"/>
+					</dependencies>
+				</field>
+				<field id="location_id" xsi:type="AttributeExternalKey">
+					<!-- Take a look at the parent organization of the PhysicalDevice to show dropdown list of locations -->
+					<filter _delta="redefine">
+						<![CDATA[
+							SELECT Location AS L
+							WHERE L.org_id = :this->org_id OR L.parent_org_id = :this->parent_org_id
+						]]>
+					</filter>
+				</field>
+			</fields>
+		</class>
+		
+	</classes>
+
+</itop_design>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!-- 
+ * @copyright   Copyright (C) 2020 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+-->
+	<classes>
+		<class id="DatacenterDevice" _delta="must_exist">
+			<fields>
+				<!-- Open up OQL -->
+				<field id="managementip_id" xsi:type="AttributeExternalKey">
+					<filter _delta="delete"/>
+				</field>
+			</fields>
+		</class>
+	</classes>
+
+</itop_design>
+
+
