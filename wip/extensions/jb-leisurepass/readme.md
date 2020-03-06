@@ -2,6 +2,7 @@
 
 ## What
 An attempt at converting our inventory of leisure passes and checks from a legacy program to iTop.
+( we worked around this, leaving this example as a test case )
 
 Stuck due to a bug in iTop.
 
