@@ -1,0 +1,957 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!-- 
+ * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @details     Prefixed tables to avoid conflicts with existing ones.
+-->
+	<classes>
+
+		<class id="izSoftware" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>izsoftware</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<column id="name" ascending="true"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</reconciliation>
+				<icon>images/software.png</icon>
+				<uniqueness_rules>
+					<rule id="unique_software">
+						<attributes>
+							<attribute id="name"/>
+						</attributes>
+						<is_blocking>true</is_blocking>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<field id="name" xsi:type="AttributeString">
+					<sql>name</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>					
+				</field>
+				<field id="vendor" xsi:type="AttributeString">
+					<sql>vendor</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>
+				</field>
+				<field id="type" xsi:type="AttributeEnum">
+					<values>
+						<value id="client_software">client_software</value>
+						<value id="cloud_software">cloud_software</value>
+						<value id="server_software">server_software</value>
+						<value id="operating_system">operating_system</value>
+					</values>
+					<sql>type</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>list</display_style>
+				</field>
+				<field id="versions_list" xsi:type="AttributeLinkedSet">
+					<linked_class>izSoftwareVersion</linked_class>
+					<ext_key_to_me>software_id</ext_key_to_me>
+					<edit_mode>add_only</edit_mode>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="vendor">
+							<rank>11</rank>
+						</item>
+						<item id="type">
+							<rank>21</rank>
+						</item>
+						<item id="versions_list">
+							<rank>901</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="type">
+							<rank>21</rank>
+						</item>
+					</items>
+				</search>
+				<default_search>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="vendor">
+							<rank>11</rank>
+						</item>
+						<item id="type">
+							<rank>21</rank>
+						</item>
+					</items>
+				</default_search>
+				<list>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="vendor">
+							<rank>11</rank>
+						</item>
+						<item id="type">
+							<rank>21</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+
+		<class id="izSoftwareVersion" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>izsoftwareversion</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="software_id_friendlyname"/>
+						<attribute id="version"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<attribute id="software_id"/>
+						<attribute id="version"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attribute id="software_id"/>
+						<attribute id="version"/>
+					</attributes>
+				</reconciliation>
+				<icon>images/software.png</icon>
+				<uniqueness_rules>
+					<rule id="unique_software_version">
+						<attributes>
+							<attribute id="software_id"/>
+							<attribute id="version"/>
+						</attributes>
+						<is_blocking>true</is_blocking>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<field id="software_id" xsi:type="AttributeExternalKey">
+					<sql>software_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>izSoftware</target_class>
+					<allow_target_creation>true</allow_target_creation>
+				</field>
+				<field id="software_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>software_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="version" xsi:type="AttributeString">
+					<sql>version</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>					
+				</field>
+				<field id="installations_list" xsi:type="AttributeLinkedSet">
+					<linked_class>izSoftwareInstallation</linked_class>
+					<ext_key_to_me>softwareversion_id</ext_key_to_me>
+					<edit_mode>add_only</edit_mode>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="software_id">
+							<rank>11</rank>
+						</item>
+						<item id="version">
+							<rank>21</rank>
+						</item>
+						<item id="installations_list">
+							<rank>901</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="software_id">
+							<rank>11</rank>
+						</item>
+						<item id="version">
+							<rank>21</rank>
+						</item>
+					</items>
+				</search>
+				<default_search>
+					<items>
+						<item id="software_id">
+							<rank>11</rank>
+						</item>
+						<item id="version">
+							<rank>21</rank>
+						</item>
+					</items>
+				</default_search>
+				<list>
+					<items>
+						<item id="software_id">
+							<rank>11</rank>
+						</item>
+						<item id="version">
+							<rank>21</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+		<class id="izSoftwareInstallation" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>izsoftwareinstallation</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="softwareversion_id_friendlyname"/>
+						<attribute id="functionalci_id_friendlyname"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<attribute id="softwareversion_id"/>
+						<attribute id="functionalci_id"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attribute id="softwareversion_id"/>
+						<attribute id="functionalci_id"/>
+					</attributes>
+				</reconciliation>
+				<icon>images/software.png</icon>
+				<uniqueness_rules>
+					<rule id="unique_software_installation_per_org">
+						<attributes>
+							<attribute id="org_id"/>
+							<attribute id="softwareversion_id"/>
+							<attribute id="functionalci_id"/>
+						</attributes>
+						<is_blocking>true</is_blocking>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<!-- 2020-02-18: 
+					It might be interesting to have a dependency for FunctionalCI and izSoftwareVersion to be within org_id.
+					However, some organizations may share a license.
+				-->
+				<field id="org_id" xsi:type="AttributeExternalKey">
+					<sql>org_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Organization</target_class>
+				</field>
+				<field id="functionalci_id" xsi:type="AttributeExternalKey">
+					<sql>functionalci_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>FunctionalCI</target_class>
+					<filter>SELECT FunctionalCI WHERE finalclass IN ('Hypervisor', 'NetworkDevice', 'Printer', 'PC', 'Server', 'VirtualMachine')</filter>
+				</field>
+				<field id="functionalci_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>functionalci_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="softwareversion_id" xsi:type="AttributeExternalKey">
+					<sql>softwareversion_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>izSoftwareVersion</target_class>
+				</field>
+				<field id="softwareversion_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>softwareversion_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="license_id" xsi:type="AttributeExternalKey">
+					<sql>license_id</sql>
+					<!-- Not all software has a license -->
+					<is_null_allowed>true</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>izLicense</target_class>
+					<!-- Don't apply this filter, otherwise "downgrade" rights won't work. -->
+					<!-- <filter>SELECT izLicense WHERE softwareversion_id = :this->softwareversion_id</filter> -->
+					<dependencies>
+						<attribute id="softwareversion_id"/>
+					</dependencies>
+				</field>
+				<field id="license_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>license_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="version_details" xsi:type="AttributeString">
+					<sql>version_details</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>					
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="org_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>21</rank>
+						</item>
+						<item id="license_id">
+							<rank>22</rank>
+						</item>
+						<item id="version_details">
+							<rank>31</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="org_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>21</rank>
+						</item>
+						<item id="license_id">
+							<rank>22</rank>
+						</item>
+						<item id="version_details">
+							<rank>31</rank>
+						</item>
+					</items>
+				</search>
+				<default_search>
+					<items>
+						<item id="org_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>21</rank>
+						</item>
+						<item id="license_id">
+							<rank>22</rank>
+						</item>
+						<item id="version_details">
+							<rank>31</rank>
+						</item>
+					</items>
+				</default_search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>1</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>11</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>21</rank>
+						</item>
+						<item id="license_id">
+							<rank>22</rank>
+						</item>
+						<item id="version_details">
+							<rank>31</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+
+
+		<class id="izLicense" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<category>bizmodel,searchable,structure</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>izlicense</db_table>
+				<db_key_field>id</db_key_field>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<order>
+					<columns>
+						<attribute id="name"/>
+					</columns>
+				</order>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</reconciliation>
+				<icon>images/license.png</icon>
+				<uniqueness_rules>
+					<rule id="unique_license_per_org">
+						<attributes>
+							<attribute id="org_id"/>
+							<attribute id="name"/>
+						</attributes>
+						<is_blocking>false</is_blocking>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<field id="name" xsi:type="AttributeString">
+					<sql>name</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="org_id" xsi:type="AttributeExternalKey">
+					<sql>org_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Organization</target_class>
+				</field>
+				<field id="provider_org_id" xsi:type="AttributeExternalKey">
+					<sql>provider_org_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Organization</target_class>
+				</field>
+				<field id="softwareversion_id" xsi:type="AttributeExternalKey">
+					<sql>softwareversion_id</sql>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>izSoftwareVersion</target_class>
+				</field>
+				<field id="comment" xsi:type="AttributeHTML">
+					<sql>comment</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="start_date" xsi:type="AttributeDate">
+					<sql>start_date</sql>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="end_date" xsi:type="AttributeDate">
+					<sql>end_date</sql>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="reminder_date" xsi:type="AttributeDate">
+					<sql>reminder_date</sql>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="type" xsi:type="AttributeEnum">
+					<values>
+						<value id="single_user">single_user</value>
+						<value id="concurrent_user">concurrent_user</value>
+						<value id="organization">organization</value>
+						<value id="device">device</value>
+					</values>
+					<sql>type</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>radio_vertical</display_style>
+				</field>
+				<field id="purchase_type" xsi:type="AttributeEnum">
+					<values>
+						<value id="one_time">one_time</value>
+						<value id="limited">limited</value>
+						<value id="autorenewal">autorenewal</value>
+					</values>
+					<sql>purchase_type</sql>
+					<default_value/>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>radio_vertical</display_style>
+				</field>
+				<field id="amount" xsi:type="AttributeInteger">
+					<sql>amount</sql>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="serial" xsi:type="AttributeString">
+					<sql>serial</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="installations_list" xsi:type="AttributeLinkedSet">
+					<linked_class>izSoftwareInstallation</linked_class>
+					<ext_key_to_me>license_id</ext_key_to_me>
+					<edit_mode>add_only</edit_mode>
+				</field>
+				<field id="contacts_list" xsi:type="AttributeLinkedSetIndirect">
+					<linked_class>lnkIzLicenseToContact</linked_class>
+					<ext_key_to_me>license_id</ext_key_to_me>
+					<ext_key_to_remote>contact_id</ext_key_to_remote>
+					<duplicates>false</duplicates>
+				</field>
+				<field id="documents_list" xsi:type="AttributeLinkedSetIndirect">
+					<linked_class>lnkIzLicenseToDocument</linked_class>
+					<ext_key_to_me>license_id</ext_key_to_me>
+					<ext_key_to_remote>document_id</ext_key_to_remote>
+					<duplicates>false</duplicates>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>21</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>22</rank>
+						</item>
+						<item id="comment">
+							<rank>31</rank>
+						</item>
+						<item id="type">
+							<rank>201</rank>
+						</item>
+						<item id="purchase_type">
+							<rank>202</rank>
+						</item>
+						<item id="amount">
+							<rank>211</rank>
+						</item>
+						<item id="serial">
+							<rank>221</rank>
+						</item>
+						<item id="start_date">
+							<rank>311</rank>
+						</item>
+						<item id="end_date">
+							<rank>321</rank>
+						</item>
+						<item id="reminder_date">
+							<rank>331</rank>
+						</item>
+						<item id="installations_list">
+							<rank>901</rank>
+						</item>
+						<item id="contacts_list">
+							<rank>911</rank>
+						</item>
+						<item id="documents_list">
+							<rank>921</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>21</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>22</rank>
+						</item>
+						<item id="comment">
+							<rank>31</rank>
+						</item>
+						<item id="type">
+							<rank>201</rank>
+						</item>
+						<item id="purchase_type">
+							<rank>202</rank>
+						</item>
+						<item id="amount">
+							<rank>211</rank>
+						</item>
+						<item id="serial">
+							<rank>221</rank>
+						</item>
+						<item id="start_date">
+							<rank>311</rank>
+						</item>
+						<item id="end_date">
+							<rank>321</rank>
+						</item>
+						<item id="reminder_date">
+							<rank>331</rank>
+						</item>
+					</items>
+				</search>
+				<default_search>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>21</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>22</rank>
+						</item>
+						<item id="comment">
+							<rank>31</rank>
+						</item>
+						<item id="type">
+							<rank>201</rank>
+						</item>
+						<item id="purchase_type">
+							<rank>202</rank>
+						</item>
+						<item id="amount">
+							<rank>211</rank>
+						</item>
+						<item id="serial">
+							<rank>221</rank>
+						</item>
+						<item id="start_date">
+							<rank>311</rank>
+						</item>
+						<item id="end_date">
+							<rank>321</rank>
+						</item>
+						<item id="reminder_date">
+							<rank>331</rank>
+						</item>
+					</items>
+				</default_search>
+				<list>
+					<items>
+						<item id="name">
+							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>11</rank>
+						</item>
+						<item id="provider_org_id">
+							<rank>21</rank>
+						</item>
+						<item id="softwareversion_id">
+							<rank>22</rank>
+						</item>
+						<item id="comment">
+							<rank>31</rank>
+						</item>
+						<item id="type">
+							<rank>201</rank>
+						</item>
+						<item id="purchase_type">
+							<rank>202</rank>
+						</item>
+						<item id="amount">
+							<rank>211</rank>
+						</item>
+						<item id="serial">
+							<rank>221</rank>
+						</item>
+						<item id="start_date">
+							<rank>311</rank>
+						</item>
+						<item id="end_date">
+							<rank>321</rank>
+						</item>
+						<item id="reminder_date">
+							<rank>331</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+
+		<class id="lnkIzLicenseToContact" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<is_link>1</is_link>
+				<category>bizmodel</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>lnkizlicensetocontact</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="license_id_friendlyname"/>
+						<attribute id="contact_id_friendlyname"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon/>
+				<reconciliation>
+					<attributes>
+						<attribute id="license_id"/>
+						<attribute id="contact_id"/>
+					</attributes>
+				</reconciliation>
+				<uniqueness_rules>
+					<rule id="unique_contact_per_license">
+						<attributes>
+							<attribute id="license_id"/>
+							<attribute id="contact_id"/>
+						</attributes>
+						<is_blocking>true</is_blocking>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<field id="license_id" xsi:type="AttributeExternalKey">
+					<sql>license_id</sql>
+					<target_class>izLicense</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="license_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>license_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="contact_id" xsi:type="AttributeExternalKey">
+					<sql>contact_id</sql>
+					<target_class>Contact</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="contact_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>contact_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="comment" xsi:type="AttributeString">
+					<sql>comment</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="license_id">
+							<rank>10</rank>
+						</item>
+						<item id="contact_id">
+							<rank>20</rank>
+						</item>
+						<item id="comment">
+							<rank>30</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="license_id">
+							<rank>10</rank>
+						</item>
+						<item id="contact_id">
+							<rank>20</rank>
+						</item>
+						<item id="comment">
+							<rank>30</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="license_id">
+							<rank>10</rank>
+						</item>
+						<item id="contact_id">
+							<rank>20</rank>
+						</item>
+						<item id="comment">
+							<rank>30</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+
+
+		<class id="lnkIzLicenseToDocument" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<is_link>1</is_link>
+				<category>bizmodel</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>lnkizlicensetodocument</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="license_id_friendlyname"/>
+						<attribute id="document_id_friendlyname"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon/>
+				<reconciliation>
+					<attributes>
+						<attribute id="license_id"/>
+						<attribute id="document_id"/>
+					</attributes>
+				</reconciliation>
+				<uniqueness_rules>
+					<rule id="unique_document_per_license">
+						<attributes>
+							<attribute id="license_id"/>
+							<attribute id="document_id"/>
+						</attributes>
+						<is_blocking>true</is_blocking>
+					</rule>
+				</uniqueness_rules>
+			</properties>
+			<fields>
+				<field id="license_id" xsi:type="AttributeExternalKey">
+					<sql>license_id</sql>
+					<target_class>izLicense</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="license_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>license_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="document_id" xsi:type="AttributeExternalKey">
+					<sql>document_id</sql>
+					<target_class>Document</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="document_id_friendlyname" xsi:type="AttributeExternalField">
+					<extkey_attcode>document_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="comment" xsi:type="AttributeString">
+					<sql>comment</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="license_id">
+							<rank>10</rank>
+						</item>
+						<item id="document_id">
+							<rank>20</rank>
+						</item>
+						<item id="comment">
+							<rank>30</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="license_id">
+							<rank>10</rank>
+						</item>
+						<item id="document_id">
+							<rank>20</rank>
+						</item>
+						<item id="comment">
+							<rank>30</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="license_id">
+							<rank>10</rank>
+						</item>
+						<item id="document_id">
+							<rank>20</rank>
+						</item>
+						<item id="comment">
+							<rank>30</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+
+		<!-- Simply overrule softwares_list on FunctionalCI -->
+		<class id="FunctionalCI">
+			<fields>
+				<field id="softwares_list" xsi:type="AttributeLinkedSet">
+					<linked_class _delta="redefine">izSoftwareInstallation</linked_class>
+					<ext_key_to_me _delta="redefine">functionalci_id</ext_key_to_me>
+					<edit_mode _delta="redefine">add_only</edit_mode>
+				</field>
+			</fields>
+		</class>
+
+
+
+	</classes>
+	<!--
+	<menus>
+		<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="x" xsi:type="DashboardMenuNode">
+		  <definition>
+			<cells>
+			  <cell id="x">
+				<dashlets>
+				  <dashlet id="x" xsi:type="DashletBadge" _delta="define">
+					<rank>101</rank>
+					<class>x</class>
+				  </dashlet>
+				</dashlets>
+			  </cell>
+			</cells>
+		  </definition>
+		</menu>
+	</menus>	
+	-->
+</itop_design>
