@@ -48,7 +48,7 @@
 					<target_class>Contact</target_class>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
-					<filter><![CDATA[SELECT Person WHERE org_id = :this->org_id]]></filter>
+					<filter>SELECT Person WHERE org_id = :this->org_id</filter>
 					<dependencies>
 						<attribute id="org_id"/>
 					</dependencies>
