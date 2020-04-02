@@ -13,7 +13,7 @@ $Environments | ForEach-Object {
 	$EnvName = $_.Name -Replace ".json", ""
 	$global:iTopEnvironments."$EnvName" = ConvertFrom-JSON (Get-Content -Path $_.FullName -Raw)
 	
-	Write-Host "Loaded $EnvName"
+	# Write-Host "Loaded environment $EnvName"
 }
 
 # region Common
@@ -209,13 +209,14 @@ $Environments | ForEach-Object {
 		$LanguageFiles = Get-ChildItem -Path $EnvSettings.App.Path -Recurse -Include @("*.dict.*.php", "*.dictionary.*.php")
 
 		# Exclude languages that must be kept
-		$Regex = "^(" + ($EnvSettings.App.Languages -Join "|") + ").*\.(dict|dictionary)\.(.*?)\.php$"
+		$KeepLanguages = $EnvSettings.App.Languages -Join "|"
+		$Regex = "^(" + $KeepLanguages + ").*\.(dict|dictionary)\.(.*?)\.php$"
 		
 		$LanguageFiles_Remove = $LanguageFiles | Where-Object { 
 			($_.Name -notmatch $Regex)
 		}
 		
-		Write-Host "Languages to keep: $($EnvSettings.App.Languages -Join "|"))"
+		Write-Host "Languages to keep: $($KeepLanguages)"
 		
 		if($Confirm -eq $False) {
 			# Just list
@@ -225,7 +226,7 @@ $Environments | ForEach-Object {
 		else {
 			# Delete
 			$LanguageFiles_Remove | Remove-Item		
-			Write-Host "Removed all languages except: " + $($EnvSettings.App.Languages -join ", ")
+			Write-Host "Removed all other languages"
 		}
 
 	}
