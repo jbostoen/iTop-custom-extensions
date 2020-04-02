@@ -1,10 +1,9 @@
 # PSM1 iTop module for PowerShell
 
 ## What?
-Custom PowerShell module. 
-Intended to replace some stand-alone scripts.
+Custom PowerShell module.
+Note: this is my very first PowerShell module.
 
-Note`: this is my very first PowerShell module. I realize 'iTop' should be capitalized in the commands, but this wasn't done because of readability.
 Written to automate some tasks which are repeated a lot in development.
 
 **iTop API (REST/JSON) functions**
@@ -25,25 +24,78 @@ This also inherits the limitations present in the iTop API.
 * `Start-iTopCron`: starts iTop cron jobs
 
 Also exposes variable
-* `$global:iTopConfig` - contains all the settings needed for the functions above. 
-  * Retrieved from config.json. Can be overwritten during session.
+* `$global:iTopEnvironments` - contains all the settings needed for the functions above. Loaded during initialization of PowerShell ISE or Console.
+  * Retrieved from JSON files containing configuration (see below). Can be overwritten during session with PowerShell.
   * Highly advised to import this from an encrypted file rather than from the demo JSON file provided.
 
 
-## Where to put this module
-In PowerShell, enter `$env:PSModulePath` to find out.
-Most likely C:\Users\username\Documents\WindowsPowerShell\Modules
 
-## Info on commands
-In PowerShell, after doing the above, to see a list of all commands:
-`Get-iTopCommand`
+## Configuration example
 
-To get help, use `Get-Help` and the name of the command
-`Get-Help Set-iTopConfigWritable`
+"default" is the name of the default environment and should always be included.
+You can add more environments by adding a 'environment-name.json' file in %UserProfile%\Documents\WindowsPowerShell\Modules\iTop\environments
+
+**API settings** are useful in all cases.
+All other settings are primarily when you have iTop installed on the same machine as where you are running the PowerShell module on.
 
 
-## Important security note
-The config file is provided as a pointer to what settings are available.
+```
+{
+
+		 
+	
+	"API": {
+		"Url":  "http://127.0.0.1/itop/web/webservices/rest.php",
+		"Version":  "1.3",
+		"Password":  "admin",
+		"Output_Fields":  "*",
+		"User":  "admin"
+	},
+	
+	"App":  {
+		"Path":  "C:\\xampp\\htdocs\\iTop\\web", 
+		"ConfigFile":  "C:\\xampp\\htdocs\\iTop\\web\\conf\\production\\config-itop.php", 
+		
+		
+		"UnattendedInstall": {
+			"Script":  "C:\\xampp\\htdocs\\iTop\\web\\toolkit\\unattended_install.php", 
+			"XML":  "C:\\xampp\\htdocs\\iTop\\web\\toolkit\\unattended_install.xml" 
+		},
+		 
+		"Languages": [
+			"en",
+			"nl"
+		] 
+	},
+	
+	"Extensions": {
+	   "Path":  "C:\\xampp\\htdocs\\iTop\\web\\extensions", 
+	   "Url":  "https:
+	   "VersionMin":  "2.6.0", 
+	   "VersionDataModel":  "1.6", 
+	   "Author":  "Jeffrey Bostoen", 
+	   "Company":  "", 
+	   "VersionDescription":  "" 
+	},
+	
+	"Cron": {
+		"User": "admin",
+		"Password": "admin"
+	}
+	
+}
+
+```
+
+
+## Upgrade notes
+
+**To version 2020-04-02 and higher:**
+You may need to rewrite some scripts. Config.json needs adjustments.
+This version was made to better support different iTop environments (for instance test and production).
+
+* Remove-iTopLanguages is now named Remove-iTopLanguage
+* config.json: supports multiple environments now. Must be reconfigured, see example. Preferably make sure there's at least an environment named "default"
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html

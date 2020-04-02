@@ -1,13 +1,14 @@
 <?php
+
 /**
  * @copyright   Copyright (C) {{ ext_Year }} {{ ext_Author }}
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2019-11-01 17:24:21
+ * @version     {{ ext_TimeStamp }}
  *
  * Localized data
  */
 
-Dict::Add('EN US', 'English', 'English', array(
+Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 
 	//	'Class:SomeClass' => 'Class name',
 	//	'Class:SomeClass+' => 'More info on class name',
