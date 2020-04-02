@@ -212,7 +212,7 @@ $Environments | ForEach-Object {
 		$Regex = "^(" + ($EnvSettings.App.Languages -Join "|") + ").*\.(dict|dictionary)\.(.*?)\.php$"
 		
 		$LanguageFiles_Remove = $LanguageFiles | Where-Object { 
-			($_.Name -notcontains $Regex)
+			($_.Name -notmatch $Regex)
 		}
 		
 		Write-Host "Languages to keep: $($EnvSettings.App.Languages -Join "|"))"
@@ -276,7 +276,7 @@ $Environments | ForEach-Object {
 		
 		# Prevent issues with filename
 		# This may be more limiting than what Combodo allows
-		If( $Name -notcontains "^[A-z][A-z0-9\-]{1,}$" ) {
+		If( $Name -notmatch "^[A-z][A-z0-9\-]{1,}$" ) {
 			throw "The extension's name preferably starts with an alphabetical character. Furthermore, it preferably consists of alphanumerical characters or hyphens (-) only."
 		}
 
@@ -297,9 +297,9 @@ $Environments | ForEach-Object {
 		Copy-Item -Path $Extension_Source -Destination $Extension_Destination -Recurse -Container 
 
 		# Rename some files
-		$AFiles = Get-ChildItem -Path $Extension_Destination
-		$AFiles | Foreach-Object {
-			Move-Item -Path "$($Extension_Destination)\$($_.Name)" -Destination "$($Extension_Destination)\$( $_.Name -replace "template", $Name )"
+		$Files = Get-ChildItem -Path $Extension_Destination
+		$Files | Foreach-Object {
+			Move-Item -Path "$($Extension_Destination)\$($_.Name)" -Destination "$($Extension_Destination)\$( $_.Name -Replace "template", $Name )"
 		}
 
 		# Replace variables in template files
@@ -321,7 +321,7 @@ $Environments | ForEach-Object {
 			$C = $C.replace('{{ ext_Author }}', $EnvSettings.Extensions.Author);
 			$C = $C.replace('{{ ext_Company }}', $EnvSettings.Extensions.Company);
 			$C = $C.replace('{{ ext_VersionMin }}', $EnvSettings.Extensions.VersionMin);
-			$C = $C.replace('{{ ext_Version }}', ($EnvSettings.Extensions.VersionMin -replace "\.[0-9]+$","") + "." + $(Get-Date -Format "yyMMdd"));
+			$C = $C.replace('{{ ext_Version }}', ($EnvSettings.Extensions.VersionMin -Replace "\.[0-9]+$","") + "." + $(Get-Date -Format "yyMMdd"));
 			
 			$C = $C.replace('{{ ext_ReleaseDate }}', $(Get-Date -Format "yyyy-MM-dd"));
 			$C = $C.replace('{{ ext_Year }}', $(Get-Date -Format "yyyy"));
@@ -388,7 +388,7 @@ $Environments | ForEach-Object {
 			$C | Set-Content "$($Path)\$($To)\$($_.Name)"
 		
 			# Rename 
-			Move-Item -Path "$($Path)\$($To)\$($_.Name)" -Destination "$($Path)\$($To)\$($_.Name -replace $($From),$($To) )"
+			Move-Item -Path "$($Path)\$($To)\$($_.Name)" -Destination "$($Path)\$($To)\$($_.Name -Replace $($From),$($To) )"
 		
 		}
 
@@ -425,51 +425,51 @@ $Environments | ForEach-Object {
 		$EnvSettings = $global:iTopEnvironments."$Environment"
 		
 		$sVersionTimeStamp = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
-		$sVersionExtensions = $($EnvSettings.Extensions.VersionMin -replace "\.[0-9]$", "") + '.' + (Get-Date -Format "yyMMdd")
+		$sVersionExtensions = $($EnvSettings.Extensions.VersionMin -Replace "\.[0-9]$", "") + '.' + (Get-Date -Format "yyMMdd")
 		
 		# Either add code to do more proper filtering or just make sure it's only applied to a subset of extenions.
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "datamodel.*.xml"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "datamodel.*.xml"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"
-			$Content = $Content -replace '<itop_design xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance" version="1.[0-9]"', "<itop_design xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" version=`"$($EnvSettings.Extensions.VersionDataModel)`"" 
+			$Content = $Content -Replace '<itop_design xmlns:xsi="http:\/\/www\.w3\.org\/2001\/XMLSchema-instance" version="1.[0-9]"', "<itop_design xmlns:xsi=`"http://www.w3.org/2001/XMLSchema-instance`" version=`"$($EnvSettings.Extensions.VersionDataModel)`"" 
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "extension.xml"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "extension.xml"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"
 			
 			# General iTop extension release info
-			$Content = $Content -replace "<version>.*<\/version>", "<version>$($sVersionExtensions)</version>" 
-			$Content = $Content -replace "<company>.*<\/company>", "<company>$($sCompany)</company>" 
-			$Content = $Content -replace "<release_date>.*<\/release_date>", "<release_date>$(Get-Date -Format 'yyyy-MM-dd')</release_date>" 
-			$Content = $Content -replace "<itop_version_min>.*<\/itop_version_min>", "<itop_version_min>$($EnvSettings.Extensions.VersionMin)</itop_version_min>"
+			$Content = $Content -Replace "<version>.*<\/version>", "<version>$($sVersionExtensions)</version>" 
+			$Content = $Content -Replace "<company>.*<\/company>", "<company>$($sCompany)</company>" 
+			$Content = $Content -Replace "<release_date>.*<\/release_date>", "<release_date>$(Get-Date -Format 'yyyy-MM-dd')</release_date>" 
+			$Content = $Content -Replace "<itop_version_min>.*<\/itop_version_min>", "<itop_version_min>$($EnvSettings.Extensions.VersionMin)</itop_version_min>"
 			
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 			
 		}
 
 		# Update module files
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "module.*.php"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "module.*.php"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 			$unused_but_surpress_output = $_.Name -match "^(.*)\.(.*)\.(.*)$"
 			$sModuleShortName = $Matches[2]; # magic
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"
-			$Content = $Content -replace "'$($sModuleShortName)\/(.*)',", "'$($sModuleShortName)/$($sVersionExtensions)',"
+			$Content = $Content -Replace "'$($sModuleShortName)\/(.*)',", "'$($sModuleShortName)/$($sVersionExtensions)',"
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 
 
 		# Update any PHP file
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.php"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.php"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"			
-			$Content = $Content -replace "^ \* @version     .*", " * @version     $($sVersionTimeStamp)"			
+			$Content = $Content -Replace "^ \* @version     .*", " * @version     $($sVersionTimeStamp)"			
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 		
@@ -477,32 +477,32 @@ $Environments | ForEach-Object {
 		# Script files
 
 		# Update any BAT file
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.bat"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.bat"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"			
-			$Content = $Content -replace "^REM version     .*", "REM version     $($sVersionTimeStamp)"			
+			$Content = $Content -Replace "^REM version     .*", "REM version     $($sVersionTimeStamp)"			
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 		
 		# Update any PS1/PSM1 file
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.ps1", "*.psm1"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.ps1", "*.psm1"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"			
-			$Content = $Content -replace "^# version     .*", "# version     $($sVersionTimeStamp)"			
+			$Content = $Content -Replace "^# version     .*", "# version     $($sVersionTimeStamp)"			
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 
 		# Update any SH file
-		$AFiles = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.sh"
+		$Files = Get-ChildItem -path $EnvSettings.Extensions.Path -File -Recurse -Include "*.sh"
 
-		$AFiles | Where-Object { $_.DirectoryName -notcontains '\\template$' } | Foreach-Object {
+		$Files | Where-Object { $_.DirectoryName -notmatch '\\template$' } | Foreach-Object {
 
 			$Content = Get-Content "$($_.Directory)\$($_.Name)"			
-			$Content = $Content -replace "^# version     .*", "# version     $($sVersionTimeStamp)"			
+			$Content = $Content -Replace "^# version     .*", "# version     $($sVersionTimeStamp)"			
 			$Content | Set-Content "$($_.Directory)\$($_.Name)"
 		}
 
