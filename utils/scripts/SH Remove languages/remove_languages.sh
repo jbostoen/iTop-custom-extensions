@@ -1,18 +1,12 @@
-# copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
-# license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2020-01-23 11:41:53
+# Beware: files will be deleted if you uncomment the line with "Deleted" in it.
+# Adjust path of iTop directory
+# Adjust the line with (en|nl) to languages you want to keep. Example (en|fr|nl)
+iTopDir="/var/www/html/itop_2_6_1/web"
+find $iTopDir -type f -regex ".*/.+\.dict\..+\.php" -exec bash -c '
+        for item do
+                short_name=${item##*/}
 
-iTopDir=/var/www/html/itop_2_6_1/web
-
-# Warning: add/remove.
-# By default, we will not remove English "en" and Dutch "nl"
-removeLang=("cs" "da" "de" "es_cr" "fr" "hu" "it" "ja" "pt_br" "ru" "tr" "zh")
-
-# To avoid mistakes, test first and confirm that the files listed can be deleted.
-# -delete is commented by default
-for i in "${removeLang[@]}"
-do
-   find $iTopDir -type f -name "$i.dict.*" #-delete
-   find $iTopDir -type f -name "$i.dictionary.*" #-delete
-   # do whatever on $i
-done
+                [[ $short_name =~ ^[a-z_]+\.(dict|dictionary)\..* && ! $short_name =~ ^(en|nl) ]] && echo "[X] $short_name" || echo "[ ] $short_name"
+                # [[ $short_name =~ ^[a-z_]+\.(dict|dictionary)\..* && ! $short_name =~ ^(en|nl) ]] && rm $item &&  echo "    Deleted"
+        done
+' bash {} +
