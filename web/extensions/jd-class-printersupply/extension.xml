@@ -5,8 +5,8 @@
 	<author><![CDATA[Jelle Defoort, Jeffrey Bostoen]]></author>
 	<label><![CDATA[Datamodel: Printer supply management]]></label>
 	<description><![CDATA[Adds printer supply types and printer supplies.]]></description>
-	<version>2.6.200302</version>
-	<release_date>2020-03-02</release_date>
+	<version>2.6.200409</version>
+	<release_date>2020-04-09</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>

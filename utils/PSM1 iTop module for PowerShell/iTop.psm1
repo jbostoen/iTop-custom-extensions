@@ -1,6 +1,6 @@
 # copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
 # license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2020-04-02 12:17:00
+# version     2020-04-09 17:01:06
 
 # Variables
 
@@ -76,8 +76,8 @@ $Environments | ForEach-Object {
 		
 		$EnvSettings = $global:iTopEnvironments."$Environment"
 		
-		$installScript = $EnvSettings.UnattendedInstall.Script
-		$installXML = $EnvSettings.UnattendedInstall.XML
+		$installScript = $EnvSettings.App.UnattendedInstall.Script
+		$installXML = $EnvSettings.App.UnattendedInstall.XML
 		$phpExe = $EnvSettings.PHP.Path
 		
 		If((Test-Path -Path $installScript) -eq $False) {
@@ -404,7 +404,7 @@ $Environments | ForEach-Object {
 
 	 .Description
 	 Sets iTop extension release info. Goes over every PHP file, every datamodel XML and every script file (.bat, .ps1, .psm1, .sh) in the specified iTop's extension folder.
-	 Warning: ignores any files in "template" folder.
+	 Warning: ignores any files in folders containing the word "template".
 	 
 	 .Parameter Environment
 	 Environment name

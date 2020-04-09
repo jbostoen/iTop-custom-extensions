@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-poc-class-document-subtypes/2.6.200123',
+        'jb-poc-class-document-subtypes/2.6.200409',
         array(
                 // Identification
                 //

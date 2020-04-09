@@ -2,7 +2,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-01-29 14:37:35
+ * @version     2020-04-09 17:01:06
  *
  * Localized data
  */
@@ -25,6 +25,9 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:Certificate/Attribute:description' => 'Description',
 	'Class:Certificate/Attribute:certificate' => 'Certificate',
 	'Class:Certificate/Attribute:password' => 'Password',
+	'Class:Certificate/Attribute:renewal' => 'Renewal',
+	'Class:Certificate/Attribute:renewal/Value:automatically' => 'Automatically',
+	'Class:Certificate/Attribute:renewal/Value:manually' => 'Manually',
 	'Class:Certificate/Attribute:functionalcis_list' => 'CIs',
 	'Class:Certificate/Attribute:webservers_list' => 'WebServers',
 	

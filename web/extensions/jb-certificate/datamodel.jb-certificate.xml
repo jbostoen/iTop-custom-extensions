@@ -46,9 +46,9 @@
 				<field id="creator_id" xsi:type="AttributeExternalKey">
 					<sql>creator_id</sql>
 					<target_class>Contact</target_class>
-					<is_null_allowed>false</is_null_allowed>
+					<is_null_allowed>true</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
-					<filter>SELECT Person WHERE org_id = :this->org_id</filter>
+					<filter><![CDATA[SELECT Person WHERE org_id = :this->org_id]]></filter>
 					<dependencies>
 						<attribute id="org_id"/>
 					</dependencies>
@@ -70,7 +70,7 @@
 				<field id="password" xsi:type="AttributeEncryptedString">
 					<sql>password</sql>
 					<default_value/>
-					<is_null_allowed>false</is_null_allowed>
+					<is_null_allowed>true</is_null_allowed>
 				</field>
 				<field id="description" xsi:type="AttributeText">
 					<sql>description</sql>
@@ -78,6 +78,16 @@
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 				<field id="certificate" xsi:type="AttributeBlob"/>
+				<field id="renewal" xsi:type="AttributeEnum">
+					<values>
+						<value id="manually">manually</value>
+						<value id="automatically">automatically</value>
+					</values>
+					<sql>renewal</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+					<display_style>radio_vertical</display_style>
+				</field>
 				<field id="functionalcis_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
 					<linked_class>lnkCertificateToFunctionalCI</linked_class>
 					<ext_key_to_remote>functionalci_id</ext_key_to_remote>
@@ -123,8 +133,11 @@
 						<item id="description">
 							<rank>71</rank>
 						</item>
-						<item id="certificate">
+						<item id="renewal">
 							<rank>81</rank>
+						</item>
+						<item id="certificate">
+							<rank>91</rank>
 						</item>
 						<item id="functionalcis_list">
 							<rank>101</rank>
@@ -263,7 +276,7 @@
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
 					<target_class>FunctionalCI</target_class>
-					<filter><![CDATA[ SELECT FunctionalCI WHERE finalclass IN ('Server', 'VirtualMachine') ]]></filter>
+					<filter><![CDATA[SELECT FunctionalCI WHERE finalclass IN ('Server', 'VirtualMachine')]]></filter>
 				</field>
 			</fields>
 			<methods/>
