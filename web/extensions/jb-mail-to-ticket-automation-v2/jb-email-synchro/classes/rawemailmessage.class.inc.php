@@ -578,7 +578,8 @@ class RawEmailMessage
 			{
 				if (isset($aRawFields[$sCurrentHeader]))
 				{
-					$aRawFields[$sCurrentHeader] .= substr($sLine, 1);
+					// Fix for long subjects where spaces get lost on split header lines. At the moment, Combodo's version doesn't have this.
+					$aRawFields[$sCurrentHeader] .= ($sCurrentHeader == 'subject' ? $sLine : substr($sLine, 1));
 				}
 			}
 			$idx++;

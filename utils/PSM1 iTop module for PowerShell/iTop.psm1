@@ -1,6 +1,6 @@
 # copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
 # license     https://www.gnu.org/licenses/gpl-3.0.en.html
-# version     2020-04-09 17:01:06
+# version     2020-04-02 12:17:00
 
 # Variables
 
@@ -404,7 +404,7 @@ $Environments | ForEach-Object {
 
 	 .Description
 	 Sets iTop extension release info. Goes over every PHP file, every datamodel XML and every script file (.bat, .ps1, .psm1, .sh) in the specified iTop's extension folder.
-	 Warning: ignores any files in folders containing the word "template".
+	 Warning: ignores any files in "template" folder.
 	 
 	 .Parameter Environment
 	 Environment name
@@ -641,7 +641,9 @@ $Environments | ForEach-Object {
 			'json_data'=(ConvertTo-JSON $JsonData)
 		}
 		
-		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"}
+		$SecurePassword = ConvertTo-SecureString $EnvSettings.API.Password -AsPlainText -Force
+		$Credential = New-Object System.Management.Automation.PSCredential($EnvSettings.API.User, $SecurePassword)
+		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"} -Credential $Credential
 
 		# Valid HTTP response?
 		If($Request.StatusCode -eq 200) {
@@ -758,7 +760,9 @@ $Environments | ForEach-Object {
 			'json_data'=(ConvertTo-JSON $JsonData)
 		}
 		
-		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"}
+		$SecurePassword = ConvertTo-SecureString $EnvSettings.API.Password -AsPlainText -Force
+		$Credential = New-Object System.Management.Automation.PSCredential($EnvSettings.API.User, $SecurePassword)
+		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"} -Credential $Credential
 
 		# Valid HTTP response?
 		If($Request.StatusCode -eq 200) {
@@ -895,7 +899,9 @@ $Environments | ForEach-Object {
 			'json_data'=(ConvertTo-JSON $JsonData)
 		}
 		
-		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"}
+		$SecurePassword = ConvertTo-SecureString $EnvSettings.API.Password -AsPlainText -Force
+		$Credential = New-Object System.Management.Automation.PSCredential($EnvSettings.API.User, $SecurePassword)
+		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"} -Credential $Credential
 
 		# Valid HTTP response?
 		If($Request.StatusCode -eq 200) {
@@ -1010,7 +1016,9 @@ $Environments | ForEach-Object {
 			'json_data'=(ConvertTo-JSON $JsonData)
 		}
 		
-		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"}
+		$SecurePassword = ConvertTo-SecureString $EnvSettings.API.Password -AsPlainText -Force
+		$Credential = New-Object System.Management.Automation.PSCredential($EnvSettings.API.User, $SecurePassword)
+		$Request = Invoke-WebRequest $EnvSettings.API.Url -Method "POST" -Body $ArgData -Headers @{"Cache-Control"="no-cache"} -Credential $Credential
 
 		# Valid HTTP response?
 		If($Request.StatusCode -eq 200) {
