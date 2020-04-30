@@ -18,7 +18,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:UserRequest/Attribute:caller_phone' => 'Phone',
 	
 	'Class:UserRequest/Attribute:reminder' => 'Reminder',
-	'Class:UserRequest/Attribute:third_party' => 'Third party',
+	'Class:UserRequest/Attribute:third_party_org_id' => 'Third party org',
 	'Class:UserRequest/Attribute:third_party_ref' => 'Their ref',
 	
 	'UserRequest:ThirdParty' => 'Third party',

@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * Policy interface definition and some classes implementing it.
  * 
@@ -1464,7 +1464,6 @@ abstract class PolicyBounceOtherRecipients extends Policy implements iPolicy {
 			
 			// Ignore sender; helpdesk mailbox; any helpdesk mailbox aliases
 			$aExcludeContacts = array_merge([$oEmail->sCallerEmail, $oMailBox->Get('login')], $aMailBoxAliases);
-			$aExcludeContacts = array_map('strtolower', $aExcludeContacts);
 			$aExcludeContacts = array_unique($aExcludeContacts);
 
 			$sPolicyBehavior = $oMailBox->Get(self::$sPolicyId.'_behavior');
@@ -1478,17 +1477,31 @@ abstract class PolicyBounceOtherRecipients extends Policy implements iPolicy {
 				
 					foreach($aAllContacts as $aContactInfo) {
 						$sCurrentEmail = $aContactInfo['email'];
-						if(in_array(strtolower($sCurrentEmail), $aExcludeContacts) == false) {
+						
+						foreach($aExcludeContacts as $sPattern) {
 							
-							// Found other contacts in To: or CC: 
-							self::Trace(".. Undesired: at least one other recipient (missing alias or unwanted other recipient): {$aContactInfo['email']}");
-							self::HandleViolation();
+							// Regular e-mail address? Make case insensitive pattern
+							if(filter_var($sPattern, FILTER_VALIDATE_EMAIL) == true) {
+								$sPattern = '/^'.preg_quote($sPattern).'$/i';
+							}
+							$oPregMatch = @preg_match($sPattern, $sCurrentEmail);
 							
-							// No fallback
+							if($oPregMatch === false) {
+								self::Trace(".. Invalid pattern: '{$sPattern}'");
+							}
+							elseif(preg_match($sPattern, $sCurrentEmail)) {
+								
+								// Found other contacts in To: or CC: 
+								self::Trace(".. Undesired: at least one other recipient (missing alias or unwanted other recipient): {$aContactInfo['email']}");
+								self::HandleViolation();
+								
+							}
+							else {
+								// Just not matching
+							}
 							
-							// Stop processing any further!
-							return false;
 						}
+						
 					}
 
 					break; // Defensive programming
@@ -1572,7 +1585,7 @@ abstract class PolicyBounceUnknownTicketReference extends Policy implements iPol
 						if(trim($sPattern) != '') {
 							$oPregMatch = @preg_match($sPattern, $sSubject);
 							
-							if( $oPregMatch === false) {
+							if($oPregMatch === false) {
 								self::Trace("... Invalid pattern: '{$sPattern}'");
 							}
 							elseif(preg_match($sPattern, $sSubject)) {
@@ -2041,14 +2054,17 @@ abstract class PolicyRemoveTitlePatterns extends Policy implements iPolicy {
 							switch($oMailBox->Get(self::$sPolicyId.'_behavior')) { 
 								case 'fallback_remove':
 								
-									self::Trace("... Found pattern to remove: {$sPattern}. Removing it.");
-									$oEmail->sSubject = preg_replace($sPattern, '', $sMailSubject);
+									$sNewMailSubject = preg_replace($sPattern, '', $sMailSubject);
 									
-									// No fallback
+									if($sMailSubject == $sNewMailSubject) {
+										self::Trace("... Found pattern to remove: {$sPattern}. Nothing to remove.");
+									}
+									else {
+										self::Trace("... Found pattern to remove: {$sPattern}. Removing it.");
+									}
 									
-									// Stop processing any further!
-									return false;
-
+									$oEmail->sSubject = $sNewMailSubject;
+									
 									break; // Defensive programming
 									
 								case 'do_nothing':
@@ -2123,7 +2139,6 @@ abstract class PolicyFindAdditionalContacts extends Policy implements iPolicy {
 			
 			// Ignore sender; helpdesk mailbox; any helpdesk mailbox aliases
 			$aExcludeContacts = array_merge([$oEmail->sCallerEmail, $oMailBox->Get('login')], $aMailBoxAliases);
-			$aExcludeContacts = array_map('strtolower', $aExcludeContacts);
 			$aExcludeContacts = array_unique($aExcludeContacts);
 
 			$sPolicyBehavior = $oMailBox->Get(self::$sPolicyId.'_behavior');
@@ -2137,56 +2152,73 @@ abstract class PolicyFindAdditionalContacts extends Policy implements iPolicy {
 						
 						$sCurrentEmail = $aContactInfo['email'];
 						
-						if(in_array(strtolower($sCurrentEmail), $aExcludeContacts) == false) {
+						foreach($aExcludeContacts as $sPattern) {
 							
-							self::Trace(".. Looking up Person with email address '{$sCallerEmail}'");
-									
-							// Check if this contact exists.
-							// Non-existing contacts must be created.
-							// Actual linking of contacts happens after policies have been processed.
-							$sContactQuery = 'SELECT Person WHERE email = :email';
-							$oSet = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery), [], ['email' => $sContactEmail]);
+							// Regular e-mail address? Make case insensitive pattern
+							if(filter_var($sPattern, FILTER_VALIDATE_EMAIL) == true) {
+								$sPattern = '/^'.preg_quote($sPattern).'$/i';
+							}
+							$oPregMatch = @preg_match($sPattern, $sCurrentEmail);
 							
-							if($oSet->Count() == 0) {
+							if($oPregMatch === false) {
+								self::Trace(".. Invalid pattern: '{$sPattern}'");
+							}
+							elseif(preg_match($sPattern, $sCurrentEmail)) {
 								
-								// Create
-								self::Trace(".. Creating a new Person with email address '{$sCallerEmail}'");
-								$oContact = new \Person();
-								$oContact->Set('email', $oEmail->sCallerEmail);
-								$sDefaultValues = $oMailBox->Get(self::$sPolicyId.'_default_values');
-								$aDefaults = preg_split(NEWLINE_REGEX, $sDefaultValues);
-								$aDefaultValues = array();
-								foreach($aDefaults as $sLine) {
-									if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
-										$sAttCode = trim($aMatches[1]);
-										$sValue = trim($aMatches[2]);
-										$sValue = self::ReplaceMailPlaceholders($sValue);
-										$aDefaultValues[$sAttCode] = $sValue;
+								// Found other contacts in To: or CC:
+								self::Trace(".. Looking up Person with email address '{$sCallerEmail}'");
+										
+								// Check if this contact exists.
+								// Non-existing contacts must be created.
+								// Actual linking of contacts happens after policies have been processed.
+								$sContactQuery = 'SELECT Person WHERE email = :email';
+								$oSet = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery), [], ['email' => $sContactEmail]);
+								
+								if($oSet->Count() == 0) {
+									
+									// Create
+									self::Trace(".. Creating a new Person with email address '{$sCallerEmail}'");
+									$oContact = new \Person();
+									$oContact->Set('email', $oEmail->sCallerEmail);
+									$sDefaultValues = $oMailBox->Get(self::$sPolicyId.'_default_values');
+									$aDefaults = preg_split(NEWLINE_REGEX, $sDefaultValues);
+									$aDefaultValues = array();
+									foreach($aDefaults as $sLine) {
+										if (preg_match('/^([^:]+):(.*)$/', $sLine, $aMatches)) {
+											$sAttCode = trim($aMatches[1]);
+											$sValue = trim($aMatches[2]);
+											$sValue = self::ReplaceMailPlaceholders($sValue);
+											$aDefaultValues[$sAttCode] = $sValue;
+										}
 									}
-								}
-								
-								$oMailBox->InitObjectFromDefaultValues($oContact, $aDefaultValues);
-								try {
-									self::Trace("... Try to create user with default values");
-									$oContact->DBInsert();
+									
+									$oMailBox->InitObjectFromDefaultValues($oContact, $aDefaultValues);
+									try {
+										self::Trace("... Try to create user with default values");
+										$oContact->DBInsert();
 
-									// Add Person to list of additional Contacts
-									$oEmail->aInternal_Additional_Contacts[] = $oContact;
+										// Add Person to list of additional Contacts
+										$oEmail->aInternal_Additional_Contacts[] = $oContact;
+										
+									}
+									catch(\Exception $e) {
+										// This is an actual error.
+										self::Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
+										self::Trace($e->getMessage());
+										$oMailBox->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
+										return null;
+									}									
 									
 								}
-								catch(\Exception $e) {
-									// This is an actual error.
-									self::Trace("... Failed to create a Person for the email address '{$sCallerEmail}'.");
-									self::Trace($e->getMessage());
-									$oMailBox->HandleError($oEmail, 'failed_to_create_contact', $oEmail->oRawEmail);
-									return null;
-								}									
+								elseif($oSet->Count() == 1) {
+									// Add Person to list of additional Contacts
+									$oContact = $oSet->Fetch();
+									$oEmail->aInternal_Additional_Contacts[] = $oContact;
+								}
 								
 							}
-							elseif($oSet->Count() == 1) {
-								// Add Person to list of additional Contacts
-								$oContact = $oSet->Fetch();
-								$oEmail->aInternal_Additional_Contacts[] = $oContact;
+							else {
+								// Just not matching
 							}
 							
 						}

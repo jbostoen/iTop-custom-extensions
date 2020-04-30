@@ -936,22 +936,51 @@
 
 
 	</classes>
-	<!--
 	<menus>
-		<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="x" xsi:type="DashboardMenuNode">
-		  <definition>
-			<cells>
-			  <cell id="x">
-				<dashlets>
-				  <dashlet id="x" xsi:type="DashletBadge" _delta="define">
-					<rank>101</rank>
-					<class>x</class>
-				  </dashlet>
-				</dashlets>
-			  </cell>
-			</cells>
-		  </definition>
+		<menu id="ConfigManagementOverview" xsi:type="DashboardMenuNode">
+			<rank>1.1</rank>
+			<parent>ConfigManagement</parent>
+			<definition>
+				<cells>
+					<cell id="3">
+						<dashlets>
+							<!-- Avoid re-using official dashlet IDs -->
+							<dashlet id="sw_1" xsi:type="DashletBadge" _delta="define">
+								<rank>1.1</rank>
+								<class>izSoftware</class>
+							</dashlet>
+							<dashlet id="sw_2" xsi:type="DashletBadge" _delta="define">
+								<rank>1.2</rank>
+								<class>izSoftwareVersion</class>
+							</dashlet>
+							<dashlet id="sw_3" xsi:type="DashletBadge" _delta="define">
+								<rank>1.3</rank>
+								<class>izSoftwareInstallation</class>
+							</dashlet>
+							<dashlet id="sw_4" xsi:type="DashletBadge" _delta="define">
+								<rank>1.4</rank>
+								<class>izLicense</class>
+							</dashlet>
+							
+							<!-- Remove traditional items from overview -->
+							<dashlet id="5" xsi:type="DashletBadge" _delta="delete"/><!-- Middleware -->
+							<dashlet id="6" xsi:type="DashletBadge" _delta="delete"/><!-- DBServer -->
+							<dashlet id="7" xsi:type="DashletBadge" _delta="delete"/><!-- WebServer -->
+							<dashlet id="8" xsi:type="DashletBadge" _delta="delete"/><!-- PCSoftware -->
+							<dashlet id="9" xsi:type="DashletBadge" _delta="delete"/><!-- OtherSoftware -->
+							<dashlet id="10" xsi:type="DashletBadge" _delta="delete"/><!-- MiddlewareInstance -->
+							<!-- 11 = DatabaseSchema (keep), 12 = WebApplication (?), 13 = Patch (?) -->
+							<dashlet id="14" xsi:type="DashletBadge" _delta="delete"/><!-- License -->
+							
+						</dashlets>
+					</cell>
+				</cells>
+			</definition>
 		</menu>
-	</menus>	
-	-->
+		
+		<!-- Remove traditional Software catalog menu. More items must be deleted. -->
+		<menu id="Software" xsi:type="OQLMenuNode" _delta="delete"/>
+	</menus>
+
+
 </itop_design>

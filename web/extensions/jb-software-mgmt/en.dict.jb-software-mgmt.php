@@ -2,7 +2,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * Localized data
  */
@@ -15,7 +15,7 @@ Dict::Add('EN US', 'English', 'English', array(
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value' => 'your translation for a value',
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for more info on the value',
 	
-	'Class:izSoftware' => 'izSoftware',
+	'Class:izSoftware' => 'Software',
 	'Class:izSoftware+' => 'Generic name for the software',
 	'Class:izSoftware/Attribute:name' => 'Name of the software',
 	'Class:izSoftware/Attribute:name+' => 'Main name of the software, such as MS Office, MS Windows Server. Does not include version info or a year.',
@@ -32,7 +32,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:izSoftware/Attribute:versions_list' => 'Versions',
 	'Class:izSoftware/Attribute:versions_list+' => 'Versions',
 	
-	'Class:izSoftwareVersion' => 'izSoftwareVersion',
+	'Class:izSoftwareVersion' => 'SoftwareVersion',
 	'Class:izSoftwareVersion+' => 'Software version',
 	'Class:izSoftwareVersion/Attribute:org_id' => 'Organization',
 	'Class:izSoftwareVersion/Attribute:org_id+' => 'Organization where this software is used',
@@ -43,7 +43,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:izSoftwareVersion/Attribute:installations_list' => 'Installations',
 	'Class:izSoftwareVersion/Attribute:installations_list+' => 'Installations of this software version on physical or virtual devices',
 	
-	'Class:izSoftwareInstallation' => 'izSoftwareInstallation',
+	'Class:izSoftwareInstallation' => 'SoftwareInstallation',
 	'Class:izSoftwareInstallation+' => 'Software installation on a physical or virtual device.',
 	'Class:izSoftwareInstallation/Name' => '%1$s | %2$s',
 	'Class:izSoftwareInstallation/Attribute:org_id' => 'Organization',
@@ -57,7 +57,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:izSoftwareInstallation/Attribute:version_details' => 'Version detail',
 	'Class:izSoftwareInstallation/Attribute:version_details+' => 'Detailed version info',
 	
-	'Class:izLicense' => 'izLicense',
+	'Class:izLicense' => 'License',
 	'Class:izLicense+' => 'License',
 	'Class:izLicense/Attribute:name' => 'Name',
 	'Class:izLicense/Attribute:name+' => 'Short name of this license',
@@ -116,6 +116,16 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:lnkIzLicenseToDocument/Attribute:document_id+' => 'Document related to this license.',
 	'Class:lnkIzLicenseToDocument/Attribute:comment' => 'Comment',
 	'Class:lnkIzLicenseToDocument/Attribute:comment+' => 'Comment. Extra info can be added here.',
+	
+	// Temporary
+	'Class:Software' => 'Software (original)',
+	'Class:Middleware' => 'Middleware (original)',
+	'Class:MiddlewareInstance' => 'Middleware instance (original)',
+	'Class:PCSoftware' => 'PC Software (original)',
+	'Class:OtherSoftware' => 'Other Software (original)',
+	'Class:DBServer' => 'Database Server (original)',
+	'Class:WebServer' => 'Web Server (original)',
+	'Class:License' => 'License (original)',
 	
 ));
 

@@ -2,6 +2,7 @@
 [![License](https://img.shields.io/github/license/jbostoen/iTop-custom-extensions)](https://github.com/jbostoen/iTop-custom-extensions/blob/master/license.md)
 [![Release](https://img.shields.io/github/release/jbostoen/iTop-custom-extensions)](https://github.com/jbostoen/iTop-custom-extensions/releases)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/jbostoen)
+🍻 ☕
 
 # About this repo
 This repository contains all sorts of **unofficial** examples and extensions for iTop, both finished and unfinished.

@@ -55,7 +55,12 @@
 				</field>
 				<field id="ticket_default_values" xsi:type="AttributeText">
 					<sql>ticket_default_values</sql>
-					<default_value/>
+					<default_value>
+<![CDATA[impact:3
+agent_id:1
+team_id:1
+status:assigned]]>
+					</default_value>
 					<is_null_allowed>true</is_null_allowed>
 				</field> 
 				<field id="title_pattern" xsi:type="AttributeString">
@@ -260,7 +265,12 @@
 				</field>
 				<field id="policy_unknown_caller_default_values" xsi:type="AttributeText">
 					<sql>policy_unknown_caller_default_values</sql>
-					<default_value/>
+					<default_value>
+<![CDATA[impact:3
+org_id:1
+first_name:-
+name:Unknown caller - $mail->caller_name$]]>
+					</default_value>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
 			<!-- Additional contacts -->

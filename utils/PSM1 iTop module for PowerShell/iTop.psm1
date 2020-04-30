@@ -542,10 +542,10 @@ $Environments | ForEach-Object {
 		$EnvSettings = $global:iTopEnvironments."$Environment"
 		
 		# c:\xampp\php\php.exe c:\xampp\htdocs\itop\web\webservices\cron.php --auth_user=admin --auth_pwd=admin --verbose=1
-		$Expression = "$($EnvSettings.PHP.Path) $($EnvSettings.App.Path)\webservices\cron.php" 
-			+ " --auth_user=$($EnvSettings.Cron.User)"
-			+ " --auth_pwd=$($EnvSettings.Cron.Password)"
-			+ "--verbose=1"
+		$Expression = "$($EnvSettings.PHP.Path) $($EnvSettings.App.Path)\webservices\cron.php" +
+			" --auth_user=$($EnvSettings.Cron.User)" +
+			" --auth_pwd=$($EnvSettings.Cron.Password)" +
+			" --verbose=1"
 		Invoke-Expression $Expression
 		
 	}

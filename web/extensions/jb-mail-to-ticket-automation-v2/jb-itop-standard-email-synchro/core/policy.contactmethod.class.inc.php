@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * Classes implementing iPolicy. These policies use ContactMethod objects to find Contacts (caller, additional contacts)
  * 
@@ -16,8 +16,37 @@ namespace jb_itop_extensions\mail_to_ticket;
 */
 abstract class PolicyHelper_ContactMethod {
 	
+	// @todo Move this to configuration
 	/**
-	 * Returns a regex pattern without / at the front or end.
+	 * @var \String[] Array of patterns to search which indicates a closing line
+	 */
+	public $aEndSearchPatterns = [
+		
+		// Dutch phrases pointing to end of message
+		'/(groeten|groetjes)/i',
+		'/^hoogachtend/i',
+		'/^alvast/i',
+		'/dank bij voorbaat/i',
+		'/^m(|\.)v(|\.)g/i'
+	];
+	
+	
+	/**
+	 * Additional tracing during development
+	 */
+	public static function ExtraTrace($sInput) {
+		
+		// For extra debugging
+		// echo '... Extra trace: '.$sInput;
+		
+		$fp = fopen('C:/temp/policy_ContactMethod.txt', 'a');//opens file in append mode.
+		fwrite($fp, $sInput);
+		fclose($fp);
+		
+	}
+	
+	/**
+	 * Returns a regex pattern (without slashes at the front or end).
 	 * Replaces non A-z characters; gives some room for spaces.
 	 *
 	 * @param \String $sInput Input
@@ -26,7 +55,10 @@ abstract class PolicyHelper_ContactMethod {
 	 */
 	public static function GetRegexForName($sInput) {
 		
+		$sInput = trim($sInput);
+		
 		// Strip out atypical characters, be slightly forgiving (allow up to 3 characters instead of 1)
+		// Potential issue: 'José' => 'Joske' would also match
 		$sInput = str_replace('[^A-Za-z]', '.{1,3}', $sInput);
 		
 		// Be forgiving in number of spaces in between
@@ -44,32 +76,32 @@ abstract class PolicyHelper_ContactMethod {
 	 *
 	 * @return \Integer Value (numbers of consecutive characters matched)
 	 *
-	 * @details Does not simply look at 'from:' name since this might for instance be the husband's name while the wife's sending an e-mail
+	 * @details Does not simply look at 'from:' name since this might for instance be the husband's name while the wife is sending an e-mail
 	 *
-	 * @uses PolicyHelper_ContactMethod::$aPersonDetailsFound
 	 */
 	public static function GetScoreOfPersonNameInEmailBody(\EmailMessage $oEmail, \Person $oCaller) {
+		
+		$iLength = -1; // Nothing found
 		
 		// Do something about accents; only keep A-z and add LIMITED wildcard(s)
 		
 		// Run on plain text
-		$sBodyText = trim(\utils::HtmlToText($oEmail->sBodyText));
+		$sBodyText = \utils::HtmlToText($oEmail->sBodyText);
 		$aLines = preg_split(NEWLINE_REGEX, $sBodyText);
 		
-		$sFirstName = self::GetRegexForName($oCaller->Get('first_name'));
-		$sLastName = self::GetRegexForName($oCaller->Get('name'));
+		$sPattern_FirstName = self::GetRegexForName($oCaller->Get('first_name'));
+		$sPattern_LastName = self::GetRegexForName($oCaller->Get('name'));
 		
 		// Put the needles in order of preference.
 		// Method will exit on first match!
-		$aNeedles = [
-			$oCaller->Get('first_name').' '.$oCaller->Get('last_name'),
-			$oCaller->Get('name').' '.$oCaller->Get('first_name'),
+		$aSearchPatterns = [
+			'/^('.$sPattern_FirstName.' '.$sPattern_LastName.')$/',
+			'/^('.$sPattern_LastName.' '.$sPattern_FirstName.')$/',
 			
 			// Ending with ...
-			$oCaller->Get('name'), // last names are usually longer than first names (?)
-			$oCaller->Get('first_name'), // Might be too common: 'an' in 'anders', 'ben' in 'ik ben', ... Should almost be the last line; but how to know it's a name and not a sentence?
+			'/^('.$sPattern_LastName.')$/', // last names are usually longer than first names (?). Less likely to be the only content of a line though
+			'/^('.$sPattern_Firstname.')(?![A-z]+).*$/', // Might be too common: 'an' in 'anders', 'ben' in 'ik ben', ... Should almost be the last line; but how to know it's a name and not a sentence?
 		];
-		
 		
 		// Name is most likely to be at the end of the e-mail
 		// Usually e-mails end with contact details including name (sometimes disclaimer)
@@ -77,24 +109,34 @@ abstract class PolicyHelper_ContactMethod {
 		
 		foreach($aLines as $sLine) {
 			
-			self::Trace("... TEMP DEV line = /^{$sLine}$/");
+			$sLine = trim($sLine);
+			$sLine = preg_replace('/\n\s+/', '\n', rtrim(html_entity_decode(strip_tags($sLine)))); // Plain text
+			
+			self::ExtraTrace("Line = {$sLine}");
 				
-			foreach($aNeedles as $sNeedle) {
+			foreach($aSearchPatterns as $sSearchPattern) {
 				
-				$sNeedle = trim($sNeedle);
-				
-				self::Trace("... TEMP DEV find = /^{$sNeedle}$/");
+				self::ExtraTrace("Search pattern = {$sSearchPattern}");
 					
 				// Find as complete line
-				if(preg_match('/^'.$sNeedle.'$/', $sLine, $aMatches)) {
+				if(preg_match_all($sSearchPattern, $sLine, $aMatches)) {
 					
 					// Found something!
-					self::Trace("... TEMP DEV found = {$aMatches[0]}");
+					// In a preg_match_all, the first group should be found in [0][0]
+					self::ExtraTrace("Found = {$aMatches[0][0]}");
 		
-					// Order of $aNeedles matters; so now return the length of what was found (one or multiple times)
-					$iLength = strlen($aMatches[0]);
+					// Order of $aSearchPatterns matters; so now return the length of what was found (one or multiple times)
+					$iLength = strlen($aMatches[0][0]);
 					break 2;
 					
+				}
+			
+			}
+			
+			foreach(self::$aEndSearchPatterns as $sEndSearchPattern) {
+			
+				if(preg_match($sEndSearchPattern, $sLine)) {
+					break 2; // Stop searching; break out of foreach's
 				}
 			
 			}
@@ -102,7 +144,7 @@ abstract class PolicyHelper_ContactMethod {
 		}		
 		
 		// Return
-		self::Trace("... TEMP DEV length = {$iLength}");
+		self::ExtraTrace("Length = {$iLength}");
 		return $iLength;
 		
 	}
@@ -115,17 +157,18 @@ abstract class PolicyHelper_ContactMethod {
  * @details Runs OQL: SELECT ContactMethod WHERE contact_method = 'email' and caller_detail = 'the email address of the caller'
  *
  * Keep in mind: e-mail address might be shared by multiple people.
- * One approach could be to set a caller anyway since the e-mail will arrive properly and people obviously trust each other enough to share.
+ * One approach could be to set a caller anyway since the e-mail will arrive properly and people obviously trust each other enough to share the e-mail address.
  * Another approach might be to NOT set a caller if an appropriate match is not found? But what if people don't use their name?
  * It would create another Person (caller) which might not be necessary.
  *
  * If at least one ContactMethod is found, it will check if a combination of both the first_name and name of the Person are in the body text of the e-mail.
- * If no ContactMethod is found, nothing will be done and the next processing (creating a Person -> resulting in creation of ContactMethod for future use) 
- * will happen in PolicyFindCaller::IsCompliant()
+ * If no ContactMethod is found, nothing will be done and further processing will happen in PolicyFindCaller::IsCompliant():
+ * creating a Person -> resulting in creation of ContactMethod for future use
+ * 
  *
  * Also incorporate existing Ticket caller_id!
  * Only on incoming emails where caller is unidentified?
- * What if caler was already linked?
+ * What if caller was already linked to the ticket?
  *
  */
 abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy {
@@ -168,7 +211,7 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 				$oCaller = null;
 				$sContactMethodQuery = 'SELECT ContactMethod WHERE contact_method = "email" AND contact_detail LIKE ":email"';
 				$sCallerEmail = self::$oEmail->sCallerEmail;
-				$oSet_ContactMethod = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactMethodQuery), array(), array('email' => $sCallerEmail));
+				$oSet_ContactMethod = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactMethodQuery), [], ['email' => $sCallerEmail]);
 				
 				switch($oSet_ContactMethod->Count()) {
 					
@@ -179,15 +222,17 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 						self::Trace("... Found ContactMethod: ID ".$oContactMethod->GetKey());
 						
 						$sContactMethodQuery = 'SELECT Person WHERE id = ":id"';
-						$oSet_Person = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery, array(), array('id' => $oContactMethod->Get('person_id'))));
+						$oSet_Person = new \DBObjectSet(\DBObjectSearch::FromOQL($sContactQuery, [], ['id' => $oContactMethod->Get('person_id')]));
 						
-						// Should be 1
+						// Should be 1 Person
 						if($oSet_Person->Count() == 1) {
+							
 							self::Trace("... Possible Person ID ".$oSet_Person->GetKey()." -> ".$oSet->Get('friendlyname'));
 							
 							// Check if this Person's name comes close enough
 							$oCaller = $oSet_Person->Fetch();
 							
+							// What score is acceptable?
 							if(PolicyHelper_ContactMethod::GetScoreOfPersonNameInEmailBody(self::$oEmail, $oCaller) > 0) {
 								self::Trace("... Match is very likely.");
 							}
@@ -201,7 +246,8 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 							
 						}
 						else {
-							self::Trace("... Unidentified caller");
+							// Person deleted? ContactMethod should not exist.
+							self::Trace("... ContactMethod found, but caller has not been identified");
 						}
 						
 						break;
@@ -214,7 +260,7 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 					
 					default:
 					
-						self::Trace("... Found multiple ContactMethods.");
+						self::Trace("... Found multiple ContactMethod objects.");
 							
 						// Find out if this Ticket was already mapped to a user.
 						// Sure: someone else could be replying instead now from the same shared email address.
@@ -270,12 +316,17 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 						
 						}
 						
-						// Still null?
+						// Still null?						
+						// Same dilemma as the default iPolicy "PolicyFindCaller": 
+						// What to do if caller is not (likely) identified? Return Person linked to first ContactMethod?
+						// Current design choice: leave caller for now and let another policy handle this.
 						
-						// Same dilemma: what to do if caller is not (likely) identified? Person linked to first ContactMethod?
-							
 				}
-				
+		
+				if($oCaller === null) {
+					self::Trace("... Caller has not been identified (or without enough certainty).");
+				}
+		
 				// Set caller for email
 				self::$oEmail->oInternal_Contact = $oCaller;
 		
@@ -293,129 +344,7 @@ abstract class PolicyFindCallerByContactMethod extends Policy implements iPolicy
 	
 }
 
+// Originally there was an idea to add PolicyFindAdditionalContactsByContactMethod
+// However: email addresses can be easily linked, but it will be much more difficult (especially if they're not mentioned in the email) to know 
+// if the right Person is found.
 
-abstract class PolicyFindAdditionalContactsByContactMethod implements iPolicy {
-
-	/**
-	 * @var \Integer $iPrecedence It's not necessary that this number is unique; but when all policies are listed; they will be sorted ascending (intended to make sure some checks run first; before others).
-	 * @details Level should be higher than PolicyFindCallerByContactMethod and lower than the default PolicyFindAdditionalPerson
-	 */
-	public static $iPrecedence = 96;
-	
-	/**
-	 * @var \String $sPolicyId Shortname for policy
-	 */
-	public static $sPolicyId = 'policy_find_additional_contacts_by_contact_method';
-	
-	/**
-	 * Checks if all information within the e-mail is compliant with the policies defined for this mailbox
-	 *
-	 * @return boolean Whether this is compliant with a specified policy. Returning 'false' blocks further processing.
-	 */
-	public static function IsCompliant() {
-		
-		// @todo Finish this policy and make it scan the email's content for first_name, name and compare it with the person's first_name, name?
-		return true;
-		
-		if(class_exists('ContactMethod') == false) {
-			return true;
-		}
-		
-		// Generic 'before' actions
-		parent::BeforeComplianceCheck();
-		
-		$oEmail = self::$oEmail;
-		$oMailBox = self::$oMailBox;
-		$oTicket = self::$oTicket;
-		
-		$sBehavior = $oMailBox->Get('policy_other_recipients_behavior');
-		
-		if(count($oEmail->aInternal_Additional_Contacts) > 0) {
-			self::Trace(".. Skipping, another policy already determined additional contacts.");
-		}
-		elseif($sBehavior == 'fallback_ignore_other_contacts') {
-			self::Trace(".. Skipping, policy_other_recipients_behavior is set to fallback_ignore_other_contacts");
-		}
-		else {
-			
-			// Looking into these email properties:
-			$aAdditionalContacts = array_merge($oEmail->aTos, $oEmail->aCCs);
-			
-			// If a ContactMethod is found, it's *Person* should not be in $oEmail->aInternal_Additional_Contacts yet.
-			$aExistingContactIds = [];
-			
-			if(\MetaModel::IsValidAttCode($oMailBox->Get('target_class', 'caller_id') == true) {
-				$oTicket->Get('caller_id') 
-			}
-			
-			foreach($oEmail->aInternal_Additional_Contacts as $oContact) {
-				$aExistingContactIds[] = $oContact->GetKey();
-			}
-			
-			// List of e-mail addresses to exclude
-			$aExcludeMailAddresses = array_map('strtolower', preg_split(NEWLINE_REGEX, $oMailBox->Get('mail_aliases'));
-			$aExcludeMailAddresses[] = strtolower($oMailBox->Get('login'));
-			
-			foreach($aAdditionalContacts as $aInfo) {
-				
-				$sEmail_LowerCase = strtolower($aInfo['email']);
-				
-				// If not an excluded e-mail address (login, mail alias for mailbox ...)
-				if(in_array($sEmail_LowerCase, $aExcludeMailAddresses) == false) {
-					
-					self::Trace("... Looking for '{$aInfo['email']}'");
-				
-					// Lookup
-					$oFilter_ContactMethod = \DBObjectSearch::FromOQL('SELECT ContactMethod WHERE contact_method = "email" AND contact_detail LIKE "'.$sEmail_LowerCase.'"');
-					$oSet_ContactMethods = new \DBObjectSet($oFilter_ContactMethod);
-						
-					// If not already added with this e-mail address or an alias:
-					if($oSet_ContactMethods->Count() == 1) {
-						
-						self::Trace("... Found additional Contact for '{$aInfo['email']}'");
-						
-						$oContactMethod = $oSet_ContactMethods->Fetch();
-						
-						if($oContactMethod->Get('person_id') != $oEmail->oInternal_Contact->GetKey() && in_array($oContactMethod->Get('person_id'), $aExistingContactIds) == false) {
-							
-							try {
-								
-								// Fetch Contact
-								$oFilter_Contact = \DBObjectSearch::FromOQL('SELECT Person WHERE id = '.$oContactMethod->Get('person_id'));
-								$oSet_Contacts = new \DBObjectSet($oFilter_Contact);
-								$oContact = $oSet_Contacts->Fetch();
-							
-								$oEmail->aInternal_Additional_Contacts[] = $oContact;
-								$aExistingContactIds[] = $oContactMethod->Get('person_id');
-							}
-							catch(\Exception $e) {
-								// ContactMethod person_id can not be null. Database integrity issue?
-								self::Trace("... Unexpected issue. Problem with integrity of ContactMethod?");
-							}
-				
-						}
-					}
-					else {
-						// This doesn't matter. If there's no Contact found by ContactMethod; there is still the default PolicyFindAdditionalContacts
-						self::Trace("... Did not find an additional Contact for '{$aInfo['email']}'. This policy won't create one.");
-						
-						// Check setting if new Contact should be created
-						
-					}
-				
-				}
-				else {
-					self::Trace("... Ignoring '{$aInfo['email']}' = e-mail address for this mailbox");	
-				}
-				
-			}
-		
-		}
-			
-		// Generic 'after' actions
-		parent::AfterPassedComplianceCheck();
-		
-		return true;
-		
-	}
-}

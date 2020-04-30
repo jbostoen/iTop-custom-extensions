@@ -96,7 +96,7 @@ uidl
 * **Mail From Address** - errors/bounce messages are sent 'from'
 * **Active** - check mailbox
 * **Debug trace** - debug log
-* **Mail Aliases** - one per line. List each email address (minimum 1)
+* **Mail Aliases** - one per line. Regex patterns allowed. List each email address (minimum 1)
 	 
 # Behavior on Incoming eMails
 * **Policy violation behavior** - create only, update only or both

@@ -17,7 +17,14 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-				<!-- Add third_party_ref -->
+				<!-- Add third party org and ref -->
+				<field id="third_party_org_id" xsi:type="AttributeExternalKey" _delta="define">
+					<sql>third_party_org_id</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Organization</target_class>
+				</field>
 				<field id="third_party_ref" xsi:type="AttributeString" _delta="define">
 					<sql>third_party_ref</sql>
 					<default_value/>
@@ -140,6 +147,65 @@
 						}]]>
 					</code>
 				</method>
+				 <methods>
+				<method id="PrefillCreationForm" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<arguments>
+						<argument id="1">
+							<type>reference</type>
+							<mandatory>true</mandatory>
+						</argument>
+					</arguments>
+					<code><![CDATA[
+					
+					public function PrefillTransitionForm(&$aContextParam) {
+						
+						// Automatically set '(re)assign' to current user
+						// Example from https://www.itophub.io/wiki/page?id=2_7_0%3Acustomization%3Aform_prefill#prefill_transition_form
+					
+						$oPerson = \UserRights::GetContactObject();
+						// If we have a Person associated with the current User 
+						// and we are in an assignment transition 
+						if($oPerson && ($aContextParam['stimulus'] == 'ev_assign' || $aContextParam['stimulus'] == 'ev_reassign')) {
+							
+							$iTicketAgentId = $this->Get('agent_id');
+							$iPersonId = $oPerson->GetKey();
+
+							// If the agent is not already the current user
+							if($iTicketAgentId != $iPersonId) {
+							
+								// Check if the current Contact can be assigned to this ticket
+								// = There is a team and Contact is part of that team
+								$iTicketTeamId = $this->Get('team_id'); 
+
+								$oTeamLinkSet = $oPerson->Get('team_list');
+								$bIsInTeam = false;
+								while($oTeamLink = $oTeamLinkSet->Fetch()) {
+									// We don't use GetKey as it would return the key of the link object
+									$iTeam = $oTeamLink->Get('team_id');
+									if ($iTicketTeamId == $iTeam) { 
+										$bIsInTeam = true;
+										break;
+									}
+								}
+								if($bIsInTeam == true) {
+									$this->Set('agent_id',$iPersonId);
+									// As we modified a potential MUST CHANGE value, we'll take care of it by removing this flag
+									if(array_key_exists('agent_id', $aContextParam['expected_attributes'])) {
+										$aContextParam['expected_attributes']['agent_id'] = ~OPT_ATT_MUSTCHANGE & $aContextParam['expected_attributes']['agent_id'];
+									}
+								}
+								
+							}
+						}
+					}
+					
+						]]>
+					</code>
+					</method>
+				</methods>
 			</methods>
 			<presentation>
 				<details>
@@ -173,8 +239,11 @@
 								<item id="fieldset:UserRequest:ThirdParty" _delta="define">
 									<rank>110</rank>
 									<items>
-										<item id="third_party_ref">
+										<item id="third_party_org_id">
 											<rank>1</rank>
+										</item>
+										<item id="third_party_ref">
+											<rank>11</rank>
 										</item>
 									</items>
 								</item>

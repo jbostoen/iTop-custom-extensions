@@ -19,7 +19,8 @@ Modifies UserRequest:
   * no mandatory solution (follow-up and solution is in private log)
   * the 'Email Reply' extension can send the contents of public log entries to the caller of a UserRequest. However, an agent might immediately write something in the public_log . That email never arrives. The new behavior is to prevent writing anything in the public log before the ticket is created.
   * don't make service, service subcategory read-only for closed UserRequests
+  * during assign and reassign, it suggests the currently logged in user as the new assigned agent
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
-Copyright (C) 2019 Jeffrey Bostoen
+Copyright (C) 2019-2020 Jeffrey Bostoen

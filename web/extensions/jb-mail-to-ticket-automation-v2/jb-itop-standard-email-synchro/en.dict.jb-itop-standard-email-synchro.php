@@ -22,6 +22,9 @@
  */
 
 Dict::Add('EN US', 'English', 'English', array(
+
+	// Hopefully iTop 2.8 brings console tooltips out of the box?
+
 	// Dictionary entries go here
 	'Class:MailInboxStandard' => 'Standard Mail Inbox',
 	'Class:MailInboxStandard+' => 'Source of incoming e-mails',
@@ -50,7 +53,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:debug_trace' => 'Debug trace',
 	'Class:MailInboxStandard/Attribute:debug_trace+' => '',
 
-	'Class:MailInboxStandard/Attribute:ticket_default_values' => 'Ticket Default Values',
+	'Class:MailInboxStandard/Attribute:ticket_default_values' => 'Default values for new Ticket',
 	'Class:MailInboxStandard/Attribute:ticket_default_title' => 'Default Title (if subject is empty)',
 	'Class:MailInboxStandard/Attribute:title_pattern+' => 'Pattern to match in the subject',
 	'Class:MailInboxStandard/Attribute:title_pattern' => 'Title Pattern',
@@ -76,7 +79,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:MailInboxStandard/Attribute:notify_errors_to' => 'Forward e-mails (in error) To Address',
 	'Class:MailInboxStandard/Attribute:notify_from' => 'Mail From Address',
 	
-	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases (one per line)',
+	'Class:MailInboxStandard/Attribute:mail_aliases' => 'Mail Aliases',
+	'Class:MailInboxStandard/Attribute:mail_aliases+' => 'Mail Aliases: one per line. Regex patterns are allowed.',
 	 
 	
 	// Policy: mail size too large
