@@ -285,7 +285,7 @@ $Environments | ForEach-Object {
 		$Extension_Destination = "$($EnvSettings.Extensions.Path)\$($Name)"
 
 		# Prevent issues with copy-item, running second time
-		If( (Test-Path -Path $Extension_Source) -eq $true ) {
+		If( (Test-Path -Path $Extension_Source) -eq $false ) {
 			throw "The source folder $($Extension_Source) does not exist. So there is no template available."
 		}
 		

@@ -125,7 +125,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:OtherSoftware' => 'Other Software (original)',
 	'Class:DBServer' => 'Database Server (original)',
 	'Class:WebServer' => 'Web Server (original)',
-	'Class:License' => 'License (original)',
+	'Class:Licence' => 'License (original)',
 	
 ));
 

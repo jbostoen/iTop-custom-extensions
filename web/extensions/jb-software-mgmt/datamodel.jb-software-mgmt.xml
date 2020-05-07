@@ -970,7 +970,7 @@
 							<dashlet id="9" xsi:type="DashletBadge" _delta="delete"/><!-- OtherSoftware -->
 							<dashlet id="10" xsi:type="DashletBadge" _delta="delete"/><!-- MiddlewareInstance -->
 							<!-- 11 = DatabaseSchema (keep), 12 = WebApplication (?), 13 = Patch (?) -->
-							<dashlet id="14" xsi:type="DashletBadge" _delta="delete"/><!-- License -->
+							<dashlet id="14" xsi:type="DashletBadge" _delta="delete"/><!-- Licence -->
 							
 						</dashlets>
 					</cell>

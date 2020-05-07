@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code><![CDATA[{{ e{{ ext_Name }}]]></extension_code>
+	<extension_code><![CDATA[{{ ext_Name }}]]></extension_code>
 	<company><![CDATA[{{ ext_Company }}]]></company>
 	<author><![CDATA[{{ ext_Author }}]]></author>
 	<label><![CDATA[{{ ext_Label }}]]></label>

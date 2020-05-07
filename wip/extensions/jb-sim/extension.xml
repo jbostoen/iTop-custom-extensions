@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension format="1.0">
+	<extension_code><![CDATA[jb-sim]]></extension_code>
+	<company><![CDATA[]]></company>
+	<author><![CDATA[Jeffrey Bostoen]]></author>
+	<label><![CDATA[Datamodel: SIM card]]></label>
+	<description><![CDATA[* Adds a new class (SIMCard). MobilePhone is altered, the phonenumber attribute is hidden and at the same place you can link MobilePhone to a SIMCard.]]></description>
+	<version><![CDATA[2.6.200506]]></version>
+	<release_date><![CDATA[2020-05-06]]></release_date>
+	<version_description><![CDATA[]]></version_description>
+	<itop_version_min><![CDATA[2.6.0]]></itop_version_min>
+	<status>stable</status>
+	<mandatory>false</mandatory>
+	<more_info_url><![CDATA[https://jbostoen.github.io/iTop-extensions-documentation/]]></more_info_url>
+</extension>
