@@ -816,7 +816,11 @@ $Environments | ForEach-Object {
 
 	 .Description
 	 Uses iTop REST/JSON API to update object (core/update)
-	 
+	
+	 .Parameter Batch
+	 Boolean, defaults to 0. If $true: allows to update multiple objects at once.
+	 Note: this launches multiple HTTP requests, since iTop only supports updating one iTop object at a time.
+	 If an error occurs, any further updating is halted.
 	 
 	 .Parameter Class
 	 Name of class. Can be ommitted if parameter 'key' is a valid OQL-query.
@@ -834,10 +838,11 @@ $Environments | ForEach-Object {
 	 Comma separated list of attributes; or * (return all attributes for specified class); or *+ (all attributes - might be more for subclasses)
 	 	 
 	 .Example
-	 Set-iTopObject -id 1 -class "UserRequest" -Fields @{'title'='something', 'description'='some description', 'caller_id'="SELECT Organization WHERE name = 'demo'", 'org_id'=1} -OutputFields "*"
+	 Set-iTopObject -Key 1 -Class "UserRequest" -Fields @{'title'='something', 'description'='some description', 'caller_id'="SELECT Organization WHERE name = 'demo'", 'org_id'=1} -OutputFields "*"
 
 	 .Notes
 	 2020-04-01: added parameter Environment (optional)
+	 2020-05-14: added parameter Batch (optional) - boolean to allow batch updates through PS1.
 	#>
 		param(
 			[Parameter(Mandatory=$true)][String] $Key,
@@ -845,6 +850,7 @@ $Environments | ForEach-Object {
 			[Parameter(Mandatory=$true)][HashTable] $Fields = $Null,
 			[Parameter(Mandatory=$False)][String] $OutputFields = "",
 			[Parameter(Mandatory=$False)][String] $Comment = "",
+			[Parameter(Mandatory=$False)][Boolean] $Batch = $False,
 			[Alias('env')][String] $Environment = "default"
 		)
 		
@@ -882,7 +888,19 @@ $Environments | ForEach-Object {
 		if($Comment -eq "") {
 			$Comment = $EnvSettings.API.Comment
 		}	
+		
+		# Batch (must be after 'key'/'class' check)
+		if($Batch -eq $True) {
 			
+			$Objects = Get-iTopObject -environment $Environment -key $Key -class $Class
+			$Objects | ForEach-Object {
+				Set-iTopObject -environment $Environment -key "SELECT $($_.Class) WHERE id = $($_.Key)" -fields $Fields -outputFields $OutputFields -comment $Comment
+			}
+			
+			Return
+			
+		}
+		
 		$JsonData = @{
 			'operation'='core/update';
 			'key'=$Key;
@@ -955,6 +973,12 @@ $Environments | ForEach-Object {
 
 	 .Description
 	 Uses iTop REST/JSON API to delete object (core/delete)
+	 Warning: might delete related objects automatically (just as a normal iTop delete operation would do).
+	 
+	 .Parameter Batch
+	 Boolean, defaults to 0. If $true: allows to update multiple objects at once.
+	 Note: this launches multiple HTTP requests, since iTop only supports updating one iTop object at a time.
+	 If an error occurs, any further updating is halted.
 	 
 	 .Parameter Class
 	 Name of class. Can be ommitted if parameter 'key' is a valid OQL-query.
@@ -966,15 +990,17 @@ $Environments | ForEach-Object {
 	 ID of iTop object or OQL-query
 	 
 	 .Example
-	 Remove-iTopObject -id 1 -class "UserRequest"
+	 Remove-iTopObject -key 1 -class "UserRequest"
 
 	 .Notes
 	 2020-04-01: added parameter Environment (optional)
+	 2020-05-14: added parameter Batch (optional) - boolean to allow batch deleting through PS1.
 	#>
 		param(
 			[Parameter(Mandatory=$true)][String] $Key,
 			[Parameter(Mandatory=$False)][String] $Class = "",
 			[Parameter(Mandatory=$False)][String] $Comment = "",
+			[Parameter(Mandatory=$False)][Boolean] $Batch = $False,
 			[Alias('env')][String] $Environment = "default"
 		)
 		
@@ -1002,11 +1028,25 @@ $Environments | ForEach-Object {
 		if($Comment -eq "") {
 			$Comment = $EnvSettings.API.Comment
 		}	
+		
+		
+		# Batch
+		if($Batch -eq $True) {
 			
+			$Objects = Get-iTopObject -environment $Environment -key $Key -class $Class
+			$Objects | ForEach-Object {
+				Remove-iTopObject -environment $Environment -key "SELECT $($_.Class) WHERE id = $($_.Key)" -comment $Comment
+			}
+			
+			Return
+			
+		}
+		
 		$JsonData = @{
 			'operation'='core/delete';
 			'key'=$Key;
-			'class'=$Class
+			'class'=$Class;
+			'comment'=$Comment
 		};
 		
 		$ArgData = @{

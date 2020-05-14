@@ -1,14 +1,12 @@
 # jb-sim
 
 ## What?
-* Adds a new class (SIMCard). MobilePhone is altered, the phonenumber attribute is hidden and at the same place you can link MobilePhone to a SIMCard.
+* Adds a new class (SIMCard)
 
 ## Cookbook
 
 XML:
 * create a new class
-* hide a field of an existing class
-* add a new field to an existing class
 
 
 ## License

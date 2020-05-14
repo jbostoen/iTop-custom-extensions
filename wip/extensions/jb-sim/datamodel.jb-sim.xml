@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
-	<!-- 
+<!-- 
  * @copyright   Copyright (C) 2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+ * @details     1:1 relationship is supposed to come in iTop 2.8. Then it might be useful to add a field to MobilePhone, Tablet, maybe PC to link the SimCard there too.
+                Currently not bothering about workarounds.
 -->
 	<classes>
 		<class id="SimCard" _delta="define">
@@ -12,7 +14,7 @@
 				<category>bizmodel,searchable,structure</category>
 				<abstract>false</abstract>
 				<key_type>autoincrement</key_type>
-				<db_table>SimCard</db_table>
+				<db_table>simcard</db_table>
 				<db_key_field>id</db_key_field>
 				<naming>
 					<attributes>
@@ -35,6 +37,14 @@
 				<field id="sim" xsi:type="AttributeString">
 					<sql>sim</sql>
 					<is_null_allowed>false</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="contact_id" xsi:type="AttributeExternalKey">
+					<sql>contact_id</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<allow_target_creation>true</allow_target_creation>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<target_class>Contact</target_class>
 				</field>
 				<field id="functionalci_id" xsi:type="AttributeExternalKey">
 					<sql>functionalci_id</sql>
@@ -42,14 +52,39 @@
 					<allow_target_creation>true</allow_target_creation>
 					<on_target_delete>DEL_AUTO</on_target_delete>
 					<target_class>FunctionalCI</target_class>
-					<filter>SELECT FunctionalCI WHERE finalclass IN ('MobilePhone', 'Tablet')</filter>
+					<filter>SELECT FunctionalCI WHERE finalclass IN ('MobilePhone', 'PC', 'Tablet')</filter>
+				</field>
+				<field id="phone_number" xsi:type="AttributeString">
+					<sql>phone_number</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="pin" xsi:type="AttributeString">
+					<sql>pin</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="puk" xsi:type="AttributeString">
+					<sql>puk</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="pin2" xsi:type="AttributeString">
+					<sql>pin2</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+				</field>
+				<field id="puk2" xsi:type="AttributeString">
+					<sql>puk2</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
 				</field>
 			</fields>
 			<methods/>
 			<presentation>
 				<details>
 					<items>
-						<item  id="fieldset:SimCard:info">
+						<item id="fieldset:SimCard:info">
 							<rank>1</rank>
 							<items>
 								<item id="name">
@@ -67,11 +102,32 @@
 								<item id="location_id">
 									<rank>32</rank>
 								</item>
-								<item id="functionalci_id">
+								<item id="contact_id">
 									<rank>33</rank>
+								</item>
+								<item id="functionalci_id">
+									<rank>34</rank>
 								</item>
 								<item id="description">
 									<rank>41</rank>
+								</item>
+								<item id="phone_number">
+									<rank>50</rank>
+								</item>
+								<item id="pin">
+									<rank>51</rank>
+								</item>
+								<item id="pin2">
+									<rank>51</rank>
+								</item>
+								<item id="puk">
+									<rank>52</rank>
+								</item>
+								<item id="puk2">
+									<rank>52</rank>
+								</item>
+								<item id="move2production">
+									<rank>61</rank>
 								</item>
 								<item id="contacts_list">
 									<rank>170</rank>
@@ -106,8 +162,11 @@
 						<item id="location_id">
 							<rank>32</rank>
 						</item>
-						<item id="functionalci_id">
+						<item id="contact_id">
 							<rank>33</rank>
+						</item>
+						<item id="functionalci_id">
+							<rank>34</rank>
 						</item>
 					</items>
 				</search>
@@ -140,6 +199,9 @@
 						</item>
 						<item id="sim">
 							<rank>3</rank>
+						</item>
+						<item id="phone_number">
+							<rank>4</rank>
 						</item>
 						<item id="status">
 							<rank>31</rank>
