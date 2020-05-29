@@ -1,0 +1,1237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!--
+		Special note: this is highly experimental. It completely redefines the default datamodel's IPPhone and you may lose data using this.
+		I didn't get the logic of an IPPhone where you could link nothing to; while our IP Phones are actually intermediate devices (switch <- IP Phone also acting as small switch -> PC).
+		Also, I wanted to add a generic IP Device class, because we often discuss whether some technical device is actually a server (or some sort of client but not really a workstation either).
+		That's why there's an IPDevice (parent) class, an IPDeviceGeneric (all sorts of IP devices), an alternative take on the IPPhone class and an IPCamera class
+	-->
+	<classes>
+		<!-- 
+			Add proper models. IPPhone already exists. 
+		-->
+		<class id="Model"> 
+			<fields>
+				<field id="type" xsi:type="AttributeEnum">
+					<values>
+						<!-- 
+							Don't add the abstract parent class IPDevice here, only non-abstract instances.
+							IPPhone already exists here from the default iTop datamodel.
+						-->
+						<value id="IPDeviceGeneric" _delta="define">IPDeviceGeneric</value>
+						<value id="IPCamera" _delta="define">IPCamera</value>
+					</values>
+				</field>
+			</fields>
+		</class>
+		<!-- 
+			This class is very similar to the lnkConnectableCIToNetworkDevice.
+			However, we want more: we want to link our ConnectableCI (parent of DatacenterDevics such as NAS, NetworkDevice, Server, SANSwitch, StorageSystem, TypeLibrary...) 
+			to other ConnectableCIs
+		-->
+		<class id="lnkConnectableCIToConnectableCI" _delta="define">
+			<parent>cmdbAbstractObject</parent>
+			<properties>
+				<is_link>1</is_link>
+				<category>bizmodel</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>lnkconnectablecitonetworkdevice</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="networkdevice_id"/>
+						<attribute id="connectableci_id"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon/>
+				<reconciliation>
+					<attributes>
+						<attribute id="networkdevice_id"/>
+						<attribute id="connectableci_id"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields>
+				<field id="networkdevice_id" xsi:type="AttributeExternalKey">
+					<sql>networkdevice_id</sql>
+					<target_class>ConnectableCI</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="networkdevice_name" xsi:type="AttributeExternalField">
+					<extkey_attcode>networkdevice_id</extkey_attcode>
+					<target_attcode>name</target_attcode>
+				</field>
+				<field id="connectableci_id" xsi:type="AttributeExternalKey">
+					<sql>connectableci_id</sql>
+					<target_class>ConnectableCI</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_AUTO</on_target_delete>
+				</field>
+				<field id="connectableci_name" xsi:type="AttributeExternalField">
+					<extkey_attcode>connectableci_id</extkey_attcode>
+					<target_attcode>name</target_attcode>
+				</field>
+				<field id="network_port" xsi:type="AttributeString">
+					<sql>network_port</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="device_port" xsi:type="AttributeString">
+					<sql>device_port</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="connection_type" xsi:type="AttributeEnum">
+					<values>
+						<value id="uplink">uplink</value>
+						<value id="downlink">downlink</value>
+					</values>
+					<sql>type</sql>
+					<default_value>downlink</default_value>
+					<is_null_allowed>false</is_null_allowed>
+					<display_style>list</display_style>
+				</field>
+				<field id="patch_label" xsi:type="AttributeString" _delta="define">
+					<sql>patch_label</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+			</fields>
+			<methods>  
+				<method id="AddConnectedNetworkDevice">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-cmdbAbstractObject</type>
+					<code><![CDATA[	protected function AddConnectedNetworkDevice()
+	{
+		/* 
+			Explanation:
+			
+			ConnectableCI has a field 'networkdevice_list'. It's an indirect set, meaning multiple connections are possible. 
+			networkdevice_list (originally lnkConnectableCIToNetworkDevice) uses connectableci_id to refer to itself (NAS, Server, ...) and networkdevice_id to point to what's remotely connected.
+			The logic below is easier if you think from the perspective of the original lnkConnectableCIToNetworkDevice class.
+			
+			Example 1: from the details view of a PC, a link with a network device is added.
+			- AddConnectedNetworkDevice() is triggered. Type of connectableci_id = pc; networkdevice_id = NetworkDevice (switch).
+			- $oDevice is an object (pc).
+			- It should however not be of the right class ('NetworkDevice', 'IPPhone'); so the opposite link is NOT created.
+			  
+			Example 2: from the details view of a Network Device (or IP Phone = switch), a link with a network device is added.
+			- AddConnectedNetworkDevice() is triggered. Type of connectableci_id = NetworkDevice; networkdevice_id = NetworkDevice (switch).
+			- $oDevice is an object (NetworkDevice). It's of the right type (!= NAS, Server, ...).
+			- $oConnectionSet starts with a search filter (DBObjectSearch::FromOQL()), has no ordering ( Array() ). Next part are the search query parameters to be replaced in OQL query.
+			  $oConnectionSet is likely empty (unless an identical opposite link exists, which shouldn't be the case)
+			  The opposite connection is created (reversed ports, reversed IDs, opposite connection type) -> reason: change 'downlink' <-> 'uplink' for this kind of device (NetworkDevice)
+			  
+			
+			So how is this handled in the datamodel?
+			- ConnectableCI has an AttributeLinkedSetIndirect -> networkdevice_list -> ext_key_to_me = connectableci_id ; ext_key_to_remote = network_id (PCs, Server etc)
+			- NetworkDevice has an AttributeLinkedSetIndirect -> connectablecis_list -> ext_key_to_me = network_id ; ext_key_to_remote = connectableci_id
+			  NetworkDevice still has networkdevice_list, but it's hidden in presentation. (see data model viewer)
+			
+			
+		*/
+	
+		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
+		if (is_object($oDevice) && in_array(get_class($oDevice), Array('NetworkDevice', 'IPPhone')) )
+		{
+			$sOQL = "SELECT lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
+							array(),
+							array(
+								'network' => $this->Get('connectableci_id'),
+								'device' => $this->Get('networkdevice_id'),
+								'devport' => $this->Get('network_port'),
+								'nwport' => $this->Get('device_port'),
+								'patch_label' => $this->Get('patch_label'),
+								)
+			);	
+			if ($oConnectionSet->Count() == 0)
+			{
+				$sLink = $this->Get('connection_type');
+				$sConnLink = ($sLink == 'uplink') ? 'downlink' : 'uplink';
+
+				$oNewLink = new lnkConnectableCIToConnectableCI();
+				$oNewLink->Set('networkdevice_id', $this->Get('connectableci_id'));
+				$oNewLink->Set('connectableci_id', $this->Get('networkdevice_id'));
+				$oNewLink->Set('network_port', $this->Get('device_port'));
+				$oNewLink->Set('device_port', $this->Get('network_port'));
+				$oNewLink->Set('patch_label', $this->Get('patch_label'));
+				$oNewLink->Set('connection_type', $sConnLink);
+				$oNewLink->DBInsert();	
+			}
+		}
+	}]]></code>
+				</method>
+				<method id="UpdateConnectedNetworkDevice">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-cmdbAbstractObject</type>
+					<code><![CDATA[	protected function UpdateConnectedNetworkDevice()
+	{
+		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'));
+		if (is_object($oDevice) && in_array(get_class($oDevice), Array('NetworkDevice', 'IPPhone')) )
+		{
+			// Note: in case a port has been changed, search with the original values
+			$sOQL = "SELECT lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
+							array(),
+							array(
+								'network' => $this->Get('connectableci_id'),
+								'device' => $this->Get('networkdevice_id'),
+								'devport' => $this->GetOriginal('network_port'),
+								'nwport' => $this->GetOriginal('device_port'),
+								'patch_label' => $this->Get('patch_label'),
+								)
+			);	
+			$sLink = $this->Get('connection_type');
+			$sConnLink = ($sLink == 'uplink') ? 'downlink' : 'uplink';
+
+			// There should be one link - do it in a safe manner anyway
+			while ($oConnection = $oConnectionSet->Fetch())
+			{
+				$oConnection->Set('connection_type', $sConnLink);
+				$oConnection->Set('network_port', $this->Get('device_port'));
+				$oConnection->Set('device_port', $this->Get('network_port'));
+				$oConnection->Set('patch_label', $this->Get('patch_label'));
+				$oConnection->DBUpdate();	
+			}
+		}
+	}]]></code>
+				</method>
+				<method id="DeleteConnectedNetworkDevice">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-cmdbAbstractObject</type>
+					<code><![CDATA[	protected function DeleteConnectedNetworkDevice()
+	{
+		// The device might be already deleted (reentrance in the current procedure when both device are NETWORK devices!)
+		$oDevice = MetaModel::GetObject('ConnectableCI', $this->Get('connectableci_id'), false);
+		if (is_object($oDevice) && in_array(get_class($oDevice), Array('NetworkDevice', 'IPPhone')) )
+		{
+			// Track and delete the counterpart link
+			$sOQL = "SELECT lnkConnectableCIToConnectableCI WHERE connectableci_id = :device AND networkdevice_id = :network AND network_port = :nwport AND device_port = :devport";
+			$oConnectionSet = new DBObjectSet(DBObjectSearch::FromOQL($sOQL),
+							array(),
+							array(
+								'network' => $this->Get('connectableci_id'),
+								'device' => $this->Get('networkdevice_id'),
+								'devport' => $this->Get('network_port'),
+								'nwport' => $this->Get('device_port'),
+								'patch_label' => $this->Get('patch_label'),
+								)
+			);
+			// There should be one link - do it in a safe manner anyway
+			while ($oConnection = $oConnectionSet->Fetch())
+			{
+				$oConnection->DBDelete();	
+			}
+		}	
+	}]]></code>
+				</method>
+				<method id="AfterInsert">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function AfterInsert()
+	{
+		$this->AddConnectedNetworkDevice();
+		parent::AfterInsert();
+	}]]></code>
+				</method>
+				<method id="AfterUpdate">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function AfterUpdate()
+	{
+		$this->UpdateConnectedNetworkDevice();
+		parent::AfterUpdate();
+	}]]></code>
+				</method>
+				<method id="AfterDelete">
+					<static>false</static>
+					<access>protected</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	protected function AfterDelete()
+	{
+		$this->DeleteConnectedNetworkDevice();
+		parent::AfterDelete();
+	}]]></code>
+				</method>
+			</methods>
+			<presentation>
+				<details>
+					<items>
+						<item id="networkdevice_id">
+							<rank>10</rank>
+						</item>
+						<item id="connectableci_id">
+							<rank>20</rank>
+						</item>
+						<item id="network_port">
+							<rank>30</rank>
+						</item>
+						<item id="device_port">
+							<rank>40</rank>
+						</item>
+						<item id="connection_type">
+							<rank>50</rank>
+						</item>
+						<item id="patch_label">
+							<rank>60</rank>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="networkdevice_id">
+							<rank>10</rank>
+						</item>
+						<item id="connectableci_id">
+							<rank>20</rank>
+						</item>
+						<item id="network_port">
+							<rank>30</rank>
+						</item>
+						<item id="device_port">
+							<rank>40</rank>
+						</item>
+						<item id="connection_type">
+							<rank>50</rank>
+						</item>
+						<item id="patch_label">
+							<rank>60</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="networkdevice_id">
+							<rank>10</rank>
+						</item>
+						<item id="connectableci_id">
+							<rank>20</rank>
+						</item>
+						<item id="network_port">
+							<rank>30</rank>
+						</item>
+						<item id="device_port">
+							<rank>40</rank>
+						</item>
+						<item id="connection_type">
+							<rank>50</rank>
+						</item>
+						<item id="patch_label">
+							<rank>60</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+		<!-- 
+			Fix for ConnectableCIs which wouldn't show our IPDevices (goal: make IPPhone available as a device to which a ConnectableCI such as a PC can be linked) 
+		-->
+		<class id="ConnectableCI"> 
+			<fields>
+				<field id="networkdevice_list" xsi:type="AttributeLinkedSetIndirect">
+					<linked_class _delta="redefine">lnkConnectableCIToConnectableCI</linked_class>
+				</field>
+			</fields>
+		</class>
+		<!-- 
+			lnkConnectableCIToNetworkDevice automatically adds a reversed record for a NetworkDevice. 
+			Our version of the IPPhone class is also heavily based on NetworkDevice. It should have the same behavior. 
+			Rather than altering the code, we'll just use our custom class based on lnkConnectableCIToNetworkDevice
+		-->
+		<class id="NetworkDevice"> 
+			<fields>
+				<field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect">
+					<linked_class _delta="redefine">lnkConnectableCIToConnectableCI</linked_class> 
+				</field>
+			</fields>
+			<relations>
+				<relation id="impacts">
+					<neighbours>
+						<neighbour id="connectableci">
+							<query_down _delta="redefine">SELECT ConnectableCI AS d JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
+							<query_up _delta="redefine">SELECT ConnectableCI AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
+						</neighbour>
+					</neighbours>
+				</relation>
+			</relations>
+		</class>
+		<!-- 
+			An abstract class for IP Devices to inherit from.
+		-->  
+		<class id="IPDevice" _delta="define">
+			<parent>ConnectableCI</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>true</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>ipdevice</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/ipdevice.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="org_id"/>
+						<attribute id="organization_name"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields>
+				<field id="management_ip" xsi:type="AttributeIPAddress">
+					<sql>management_ip</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+			</fields>
+
+			<methods>
+				<method id="GetRelationQueries">
+					<comment>/**
+	 * Placeholder for backward compatibility (iTop &lt;= 2.1.0)
+	 * in case an extension attempts to redefine this function...	 
+	 */</comment>
+					<static>true</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	public static function GetRelationQueries($sRelCode){return parent::GetRelationQueries($sRelCode);}]]></code>
+				</method>
+			</methods>
+			<relations>
+				<relation id="impacts">
+					<neighbours>
+						<neighbour id="connectableci">
+							<!-- leave the original table name here. -->
+							<query_down>SELECT ConnectableCI AS d JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.connectableci_id = d.id WHERE l1.networkdevice_id = :this-&gt;id AND l1.connection_type='downlink'</query_down>
+							<query_up>SELECT NetworkDevice AS nw JOIN lnkConnectableCIToConnectableCI AS l1 ON l1.networkdevice_id = nw.id WHERE l1.connectableci_id = :this-&gt;id AND l1.connection_type='downlink'</query_up>
+						</neighbour>
+					</neighbours>
+				</relation>
+			</relations>
+			<presentation>
+				<details>
+					<items>
+						<item id="contacts_list">
+							<rank>10</rank>
+						</item>
+						<item id="documents_list">
+							<rank>20</rank>
+						</item>
+						<item id="physicalinterface_list">
+							<rank>40</rank>
+						</item>
+						<item id="networkdevice_list">
+							<rank>50</rank>
+						</item>
+						<item id="providercontracts_list">
+							<rank>60</rank>
+						</item>
+						<item id="services_list">
+							<rank>70</rank>
+						</item>
+						<item id="col:col1">
+							<rank>80</rank>
+							<items>
+								<item id="fieldset:Server:baseinfo">
+									<rank>10</rank>
+									<items>
+										<item id="name">
+											<rank>10</rank>
+										</item>
+										<item id="org_id">
+											<rank>20</rank>
+										</item>
+										<item id="status">
+											<rank>30</rank>
+										</item>
+										<item id="business_criticity">
+											<rank>40</rank>
+										</item>
+										<item id="location_id">
+											<rank>50</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:moreinfo">
+									<rank>20</rank>
+									<items>
+										<item id="brand_id">
+											<rank>10</rank>
+										</item>
+										<item id="model_id">
+											<rank>20</rank>
+										</item>
+										<item id="serialnumber">
+											<rank>30</rank>
+										</item>
+										<item id="asset_number">
+											<rank>40</rank>
+										</item> 
+										<item id="management_ip">
+											<rank>50</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+						<item id="col:col2">
+							<rank>90</rank>
+							<items>
+								<item id="fieldset:Server:Date">
+									<rank>10</rank>
+									<items>
+										<item id="move2production">
+											<rank>10</rank>
+										</item>
+										<item id="purchase_date">
+											<rank>20</rank>
+										</item>
+										<item id="end_of_warranty">
+											<rank>30</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:otherinfo">
+									<rank>20</rank>
+									<items>
+										<item id="description">
+											<rank>10</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="status">
+							<rank>30</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>40</rank>
+						</item>
+						<item id="location_id">
+							<rank>50</rank>
+						</item>
+						<item id="brand_id">
+							<rank>60</rank>
+						</item>
+						<item id="model_id">
+							<rank>70</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>80</rank>
+						</item>
+						<item id="asset_number">
+							<rank>90</rank>
+						</item>
+						<item id="move2production">
+							<rank>100</rank>
+						</item>
+						<item id="purchase_date">
+							<rank>110</rank>
+						</item>
+						<item id="end_of_warranty">
+							<rank>120</rank>
+						</item> 
+						<item id="management_ip">
+							<rank>130</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>10</rank>
+						</item>
+						<item id="status">
+							<rank>20</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>30</rank>
+						</item>
+						<item id="location_id">
+							<rank>40</rank>
+						</item>
+						<item id="brand_id">
+							<rank>50</rank>
+						</item>
+						<item id="model_id">
+							<rank>60</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>70</rank>
+						</item> 
+						<item id="management_ip">
+							<rank>80</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+		<class id="IPCamera" _delta="define">
+			<parent>IPDevice</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>ipcamera</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/ipcamera.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="org_id"/>
+						<attribute id="organization_name"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields/> 
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="contacts_list">
+							<rank>10</rank>
+						</item>
+						<item id="documents_list">
+							<rank>20</rank>
+						</item>
+						<item id="physicalinterface_list">
+							<rank>40</rank>
+						</item>
+						<item id="networkdevice_list">
+							<rank>50</rank>
+						</item>
+						<item id="providercontracts_list">
+							<rank>60</rank>
+						</item>
+						<item id="services_list">
+							<rank>70</rank>
+						</item>
+						<item id="col:col1">
+							<rank>80</rank>
+							<items>
+								<item id="fieldset:Server:baseinfo">
+									<rank>10</rank>
+									<items>
+										<item id="name">
+											<rank>10</rank>
+										</item>
+										<item id="org_id">
+											<rank>20</rank>
+										</item>
+										<item id="status">
+											<rank>30</rank>
+										</item>
+										<item id="business_criticity">
+											<rank>40</rank>
+										</item>
+										<item id="location_id">
+											<rank>50</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:moreinfo">
+									<rank>20</rank>
+									<items>
+										<item id="brand_id">
+											<rank>10</rank>
+										</item>
+										<item id="model_id">
+											<rank>20</rank>
+										</item>
+										<item id="serialnumber">
+											<rank>30</rank>
+										</item>
+										<item id="asset_number">
+											<rank>40</rank>
+										</item>
+										<item id="management_ip">
+											<rank>50</rank>
+										</item> 
+									</items>
+								</item>
+							</items>
+						</item>
+						<item id="col:col2">
+							<rank>90</rank>
+							<items>
+								<item id="fieldset:Server:Date">
+									<rank>10</rank>
+									<items>
+										<item id="move2production">
+											<rank>10</rank>
+										</item>
+										<item id="purchase_date">
+											<rank>20</rank>
+										</item>
+										<item id="end_of_warranty">
+											<rank>30</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:otherinfo">
+									<rank>20</rank>
+									<items>
+										<item id="description">
+											<rank>10</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="status">
+							<rank>30</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>40</rank>
+						</item>
+						<item id="location_id">
+							<rank>50</rank>
+						</item>
+						<item id="brand_id">
+							<rank>60</rank>
+						</item>
+						<item id="model_id">
+							<rank>70</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>80</rank>
+						</item>
+						<item id="asset_number">
+							<rank>90</rank>
+						</item>
+						<item id="move2production">
+							<rank>100</rank>
+						</item>
+						<item id="purchase_date">
+							<rank>110</rank>
+						</item>
+						<item id="end_of_warranty">
+							<rank>120</rank>
+						</item>
+						<item id="management_ip">
+							<rank>130</rank>
+						</item> 
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>10</rank>
+						</item>
+						<item id="status">
+							<rank>20</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>30</rank>
+						</item>
+						<item id="location_id">
+							<rank>40</rank>
+						</item>
+						<item id="brand_id">
+							<rank>50</rank>
+						</item>
+						<item id="model_id">
+							<rank>60</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>70</rank>
+						</item>
+						<item id="management_ip">
+							<rank>80</rank>
+						</item> 
+					</items>
+				</list>
+			</presentation>
+		</class>
+		<class id="IPDeviceGeneric" _delta="define">
+			<parent>IPDevice</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>ipdevicegeneric</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/ipdevice.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="org_id"/>
+						<attribute id="organization_name"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields/> 
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="contacts_list">
+							<rank>10</rank>
+						</item>
+						<item id="documents_list">
+							<rank>20</rank>
+						</item>
+						<item id="physicalinterface_list">
+							<rank>40</rank>
+						</item>
+						<item id="networkdevice_list">
+							<rank>50</rank>
+						</item>
+						<item id="providercontracts_list">
+							<rank>60</rank>
+						</item>
+						<item id="services_list">
+							<rank>70</rank>
+						</item>
+						<item id="col:col1">
+							<rank>80</rank>
+							<items>
+								<item id="fieldset:Server:baseinfo">
+									<rank>10</rank>
+									<items>
+										<item id="name">
+											<rank>10</rank>
+										</item>
+										<item id="org_id">
+											<rank>20</rank>
+										</item>
+										<item id="status">
+											<rank>30</rank>
+										</item>
+										<item id="business_criticity">
+											<rank>40</rank>
+										</item>
+										<item id="location_id">
+											<rank>50</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:moreinfo">
+									<rank>20</rank>
+									<items>
+										<item id="brand_id">
+											<rank>10</rank>
+										</item>
+										<item id="model_id">
+											<rank>20</rank>
+										</item>
+										<item id="serialnumber">
+											<rank>30</rank>
+										</item>
+										<item id="asset_number">
+											<rank>40</rank>
+										</item>
+										<item id="management_ip">
+											<rank>50</rank>
+										</item> 
+									</items>
+								</item>
+							</items>
+						</item>
+						<item id="col:col2">
+							<rank>90</rank>
+							<items>
+								<item id="fieldset:Server:Date">
+									<rank>10</rank>
+									<items>
+										<item id="move2production">
+											<rank>10</rank>
+										</item>
+										<item id="purchase_date">
+											<rank>20</rank>
+										</item>
+										<item id="end_of_warranty">
+											<rank>30</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:otherinfo">
+									<rank>20</rank>
+									<items>
+										<item id="description">
+											<rank>10</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="status">
+							<rank>30</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>40</rank>
+						</item>
+						<item id="location_id">
+							<rank>50</rank>
+						</item>
+						<item id="brand_id">
+							<rank>60</rank>
+						</item>
+						<item id="model_id">
+							<rank>70</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>80</rank>
+						</item>
+						<item id="asset_number">
+							<rank>90</rank>
+						</item>
+						<item id="move2production">
+							<rank>100</rank>
+						</item>
+						<item id="purchase_date">
+							<rank>110</rank>
+						</item>
+						<item id="end_of_warranty">
+							<rank>120</rank>
+						</item>
+						<item id="management_ip">
+							<rank>130</rank>
+						</item> 
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>10</rank>
+						</item>
+						<item id="status">
+							<rank>20</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>30</rank>
+						</item>
+						<item id="location_id">
+							<rank>40</rank>
+						</item>
+						<item id="brand_id">
+							<rank>50</rank>
+						</item>
+						<item id="model_id">
+							<rank>60</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>70</rank>
+						</item>
+						<item id="management_ip">
+							<rank>80</rank>
+						</item> 
+					</items>
+				</list>
+			</presentation>
+		</class>
+		<class id="IPPhone" _delta="redefine">
+			<parent>IPDevice</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>ipphone</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/ipphone.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="org_id"/>
+						<attribute id="organization_name"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields>
+				<field id="number_internal" xsi:type="AttributeString">
+					<sql>number_internal</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="number_external" xsi:type="AttributeString">
+					<sql>number_external</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field> 
+				<field id="connectablecis_list" xsi:type="AttributeLinkedSetIndirect">
+					<linked_class>lnkConnectableCIToConnectableCI</linked_class>
+					<ext_key_to_me>networkdevice_id</ext_key_to_me>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+					<ext_key_to_remote>connectableci_id</ext_key_to_remote>
+					<duplicates>true</duplicates>
+				</field>
+			</fields>
+			<methods/>
+			<presentation>
+				<details>
+					<items>
+						<item id="contacts_list">
+							<rank>10</rank>
+						</item>
+						<item id="documents_list">
+							<rank>20</rank>
+						</item>
+						<item id="physicalinterface_list">
+							<rank>40</rank>
+						</item>
+						<!-- No networkdevice_list here, but connectablecis_list . Reversed ext_key_to_me <=> ext_key_to_remote; similar to NetworkDevice -->
+						<item id="connectablecis_list">
+							<rank>50</rank>
+						</item>
+						<item id="providercontracts_list">
+							<rank>60</rank>
+						</item>
+						<item id="services_list">
+							<rank>70</rank>
+						</item>
+						<item id="col:col1">
+							<rank>80</rank>
+							<items>
+								<item id="fieldset:Server:baseinfo">
+									<rank>10</rank>
+									<items>
+										<item id="name">
+											<rank>10</rank>
+										</item>
+										<item id="org_id">
+											<rank>20</rank>
+										</item>
+										<item id="status">
+											<rank>30</rank>
+										</item>
+										<item id="business_criticity">
+											<rank>40</rank>
+										</item>
+										<item id="location_id">
+											<rank>50</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:moreinfo">
+									<rank>20</rank>
+									<items>
+										<item id="brand_id">
+											<rank>10</rank>
+										</item>
+										<item id="model_id">
+											<rank>20</rank>
+										</item>
+										<item id="serialnumber">
+											<rank>30</rank>
+										</item>
+										<item id="asset_number">
+											<rank>40</rank>
+										</item>
+										<item id="management_ip">
+											<rank>50</rank>
+										</item>
+										<item id="number_internal">
+											<rank>60</rank>
+										</item>
+										<item id="number_external">
+											<rank>70</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+						<item id="col:col2">
+							<rank>90</rank>
+							<items>
+								<item id="fieldset:Server:Date">
+									<rank>10</rank>
+									<items>
+										<item id="move2production">
+											<rank>10</rank>
+										</item>
+										<item id="purchase_date">
+											<rank>20</rank>
+										</item>
+										<item id="end_of_warranty">
+											<rank>30</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Server:otherinfo">
+									<rank>20</rank>
+									<items>
+										<item id="description">
+											<rank>10</rank>
+										</item>
+									</items>
+								</item>
+							</items>
+						</item>
+					</items>
+				</details>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="status">
+							<rank>30</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>40</rank>
+						</item>
+						<item id="location_id">
+							<rank>50</rank>
+						</item>
+						<item id="brand_id">
+							<rank>60</rank>
+						</item>
+						<item id="model_id">
+							<rank>70</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>80</rank>
+						</item>
+						<item id="asset_number">
+							<rank>90</rank>
+						</item>
+						<item id="move2production">
+							<rank>100</rank>
+						</item>
+						<item id="purchase_date">
+							<rank>110</rank>
+						</item>
+						<item id="end_of_warranty">
+							<rank>120</rank>
+						</item>
+						<item id="management_ip">
+							<rank>130</rank>
+						</item>
+						<item id="number_internal">
+							<rank>140</rank>
+						</item>
+						<item id="number_external">
+							<rank>150</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>10</rank>
+						</item>
+						<item id="status">
+							<rank>20</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>30</rank>
+						</item>
+						<item id="location_id">
+							<rank>40</rank>
+						</item>
+						<item id="brand_id">
+							<rank>50</rank>
+						</item>
+						<item id="model_id">
+							<rank>60</rank>
+						</item>
+						<item id="serialnumber">
+							<rank>70</rank>
+						</item>
+						<item id="management_ip">
+							<rank>80</rank>
+						</item>
+						<item id="number_internal">
+							<rank>90</rank>
+						</item>
+						<item id="number_external">
+							<rank>100</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+		</class>
+	</classes>
+	<!-- Add items in config management -->
+	<menus>
+		<menu id="ConfigManagementOverview" xsi:type="DashboardMenuNode" _delta="must_exist">
+			<definition>
+				<cells>
+					<cell id="2" _delta="must_exist">
+						<dashlets>
+							<dashlet id="8901" xsi:type="DashletBadge" _delta="define">
+								<rank>9</rank>
+								<class>IPDeviceGeneric</class>
+							</dashlet>
+							<dashlet id="8902" xsi:type="DashletBadge" _delta="define">
+								<rank>10</rank>
+								<class>IPCamera</class>
+							</dashlet> 
+						</dashlets>
+					</cell>
+				</cells>
+			</definition>
+		</menu>
+	</menus>
+</itop_design>
+

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!-- 
+		This extension requires jb-ipdevices. It makes the jb-ipdevices extension compatible with Combodo's TeemIP. 
+		Basically it deletes management_ip fields (similar to what TeemIP does for native iTop classes); and adds managementip_id.
+	-->
+	<classes>  
+		<class id="IPDevice" _delta="must_exist">
+			<fields>  
+				<field id="management_ip" xsi:type="AttributeIPAddress" _delta="delete"/>
+				<field id="managementip_id" xsi:type="AttributeExternalKey" _delta="define">
+					<!-- <filter><![CDATA[SELECT IPAddress AS ip WHERE (ip.status NOT IN ('allocated', 'reserved') OR ip.id = :this->managementip_id) AND ip.org_id = :this->org_id]]></filter> -->
+					<dependencies>
+						<attribute id="org_id"/>
+					</dependencies>
+					<sql>managementip_id</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<target_class>IPAddress</target_class>
+					<on_target_delete>DEL_MANUAL</on_target_delete>
+				</field>
+				<field id="managementip_name" xsi:type="AttributeExternalField" _delta="define">
+					<extkey_attcode>managementip_id</extkey_attcode>
+					<target_attcode>fqdn</target_attcode>
+				</field>
+			</fields>  
+			<methods>
+				<method id="AfterInsert" _delta="define">
+					<comment/>
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	
+						public function AfterInsert()
+						{
+							parent::AfterInsert();
+							
+							$iIpId = $this->Get('managementip_id');
+							IPAddress::SetStatusOnAttachment($iIpId);
+
+						}
+					]]></code>
+				</method>
+				<method id="AfterUpdate" _delta="define">
+					<comment/>
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	
+						public function AfterUpdate()
+						{
+							parent::AfterUpdate();
+							
+							$iIpId = $this->Get('managementip_id');
+							$iPreviousIpId = $this->GetOriginal('managementip_id');
+							IPAddress::SetStatusOnAttachment($iIpId, $iPreviousIpId);
+
+						}
+					]]></code>
+				</method>
+				<method id="OnDelete" _delta="define">
+					<comment/>
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<code><![CDATA[	
+						public function OnDelete()
+						{
+							parent::OnDelete();
+							
+							$iIpId = $this->Get('managementip_id');
+							IPAddress::SetStatusOnDetachment($iIpId);
+
+						}
+					]]></code>
+				</method>
+			</methods>
+			<presentation>
+				<details>
+					<items> 
+						<item id="col:col1">
+							<rank>80</rank>
+							<items> 
+								<item id="fieldset:Server:moreinfo">
+									<rank>20</rank>
+									<items> 
+										<item id="management_ip" _delta="delete"/> 
+									</items>
+								</item>
+							</items>
+						</item>  
+					</items>
+				</details>
+				<search>
+					<items> 
+						<item id="management_ip" _delta="delete"/> 
+					</items>
+				</search>
+				<list>
+					<items> 
+						<item id="management_ip" _delta="delete"/> 
+					</items>
+				</list>
+			</presentation>
+		</class>
+		<class id="IPCamera" _delta="must_exist">
+			<presentation>
+				<details>
+					<items> 
+						<item id="col:col1"> 
+							<items> 
+								<item id="fieldset:Server:moreinfo"> 
+									<items> 
+										<item id="management_ip" _delta="delete"/> 
+										<item id="managementip_id">
+											<rank>55</rank>
+										</item> 
+									</items>
+								</item>
+							</items>
+						</item> 
+					</items>
+				</details>
+				<search>
+					<items> 
+						<item id="management_ip" _delta="delete"/> 
+						<item id="managementip_id">
+							<rank>130</rank>
+						</item> 
+					</items>
+				</search>
+				<list>
+					<items> 
+						<item id="management_ip" _delta="delete"/> 
+						<item id="managementip_id">
+							<rank>80</rank>
+						</item> 
+					</items> 
+				</list>
+			</presentation>
+		</class> 
+		<class id="IPDeviceGeneric" _delta="must_exist">
+			<presentation>
+				<details>
+					<items> 
+						<item id="col:col1"> 
+							<items> 
+								<item id="fieldset:Server:moreinfo"> 
+									<items> 
+										<item id="management_ip" _delta="delete"/>
+										<item id="managementip_id">
+											<rank>55</rank>
+										</item> 
+									</items>
+								</item>
+							</items>
+						</item> 
+					</items>
+				</details>
+				<search>
+					<items> 
+						<item id="management_ip" _delta="delete"/> 
+						<item id="managementip_id">
+							<rank>135</rank>
+						</item> 
+					</items>
+				</search>
+				<list>
+					<items> 
+						<item id="management_ip" _delta="delete"/> 
+						<item id="managementip_id">
+							<rank>85</rank>
+						</item> 
+					</items> 
+				</list>
+			</presentation>
+		</class> 
+		<class id="IPPhone" _delta="must_exist">
+			<presentation>
+				<details>
+					<items> 
+						<item id="ipaddress_id" _delta="delete"/>- 
+						<item id="col:col1"> 
+							<items> 
+								<item id="fieldset:Server:moreinfo"> 
+									<items> 
+										<item id="management_ip" _delta="delete"/> 
+										<item id="managementip_id">
+											<rank>55</rank>
+										</item> 
+									</items>
+								</item>
+							</items>
+						</item> 
+					</items>
+				</details>
+				<search>
+					<items> 
+						<item id="ipaddress_id" _delta="delete"/> 
+						<item id="management_ip" _delta="delete"/> 
+						<item id="managementip_id">
+							<rank>135</rank>
+						</item> 
+					</items>
+				</search>
+				<list>
+					<items>  
+						<item id="management_ip" _delta="delete"/> 
+						<item id="managementip_id">
+							<rank>85</rank>
+						</item> 
+					</items> 
+				</list>
+			</presentation> 
+		</class> 
+	</classes>  
+</itop_design>

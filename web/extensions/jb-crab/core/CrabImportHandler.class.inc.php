@@ -3,9 +3,9 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
- * Definition of Address
+ * Definition of CrabImportHandler
  */
  
 namespace jb_itop_extensions\crab;
@@ -275,9 +275,6 @@ namespace jb_itop_extensions\crab;
 					$aDebugInfo[] = $sValue;
 				}
 				
-				// Must fix: street_id is currently the crab_id; but it has to be translated into the iTop internal ID
-				$oAddress->Set('street_id', $aStreets_crab_id['crab_id::'.$oAddress->Get('street_id')]->GetKey());
-			
 				$this->Trace('Processing GeoJSON Feature '.sprintf('%08d', $iAddress ).' | '.implode(' | ', $aDebugInfo));
 				
 				// Street exists in array? (crab_id is unique)
@@ -293,6 +290,9 @@ namespace jb_itop_extensions\crab;
 					$iNewStreets += 1;
 					
 				}
+				
+				// Must fix: street_id is currently the crab_id; but it has to be translated into the iTop internal ID
+				$oAddress->Set('street_id', $aStreets_crab_id['crab_id::'.$oAddress->Get('street_id')]->GetKey());
 				
 				// Crab address exists in array?
 					

@@ -7,21 +7,21 @@
  *
  * iTop module definition file
  */
-
+ 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-crab/2.6.200409',
+	'jb-ipdevices-main/2.6.200409',
 	array(
 		// Identification
 		//
-		'label' => 'Datamodel: CRAB Management',
+		'label' => 'Datamodel: IP Devices',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
-			'jb-geom-pro/2.6.0',
-			'jb-framework/2.6.0',
+			'itop-config-mgmt/2.6.0',
+			'itop-endusers-devices/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -29,9 +29,7 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-crab.php',
-			'core/CrabImportHandler.class.inc.php',
-			'core/ScheduledProcessCrab.class.inc.php',
+			'model.jb-ipdevices-main.php'
 		),
 		'webservice' => array(
 			
@@ -52,9 +50,7 @@ SetupWebPage::AddModule(
 		//
 		'settings' => array(
 			// Module specific settings go here, if any
-			'time' => '16:14',
-			'enabled' => true,
-			'debug' => false
 		),
 	)
 );
+

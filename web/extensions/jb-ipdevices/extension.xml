@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension format="1.0">
-	<extension_code>jb-crab</extension_code>
+	<extension_code>jb-ipdevices</extension_code>
 	<company></company>
 	<author><![CDATA[jbostoen]]></author>
-	<label><![CDATA[Flemish Crab Addresses]]></label>
-	<description><![CDATA[Adds 2 classes for Flemish Crab Addresses.  See read me of this extension.]]></description>
+	<label><![CDATA[Datamodel: IP Devices]]></label>
+	<description><![CDATA[Adds new classes for IP Devices, but be careful! See read me for details.]]></description>
 	<version>2.6.200409</version>
 	<release_date>2020-04-09</release_date>
 	<version_description><![CDATA[]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
-	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions</more_info_url>
+	<more_info_url>https://github.com/jbostoen/iTop-custom-extensions/</more_info_url>
 </extension>

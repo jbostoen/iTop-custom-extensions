@@ -10,28 +10,29 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-crab/2.6.200409',
+	'jb-ipdevices-teemip/2.6.200409',
 	array(
 		// Identification
 		//
-		'label' => 'Datamodel: CRAB Management',
+		'label' => 'Datamodel: IP Devices - TeemIP enhancements',
 		'category' => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(
-			'jb-geom-pro/2.6.0',
-			'jb-framework/2.6.0',
+			'itop-config-mgmt/2.6.0',
+			'itop-endusers-devices/2.6.0',
+			'teemip-endusers-devices-adaptor/2.2.0', // @todo Verify if this is 2.4.0 already or higher and still compatible.
+			'jb-ipdevices-main/2.6.190110'
 		),
 		'mandatory' => false,
 		'visible' => true,
+		'auto_select' => 'SetupInfo::ModuleIsSelected("jb-ipdevices") && SetupInfo::ModuleIsSelected("teemip-ip-mgmt")',
 
 		// Components
 		//
 		'datamodel' => array(
-			'model.jb-crab.php',
-			'core/CrabImportHandler.class.inc.php',
-			'core/ScheduledProcessCrab.class.inc.php',
+			'model.jb-ipdevices-teemip.php'
 		),
 		'webservice' => array(
 			
@@ -52,9 +53,6 @@ SetupWebPage::AddModule(
 		//
 		'settings' => array(
 			// Module specific settings go here, if any
-			'time' => '16:14',
-			'enabled' => true,
-			'debug' => false
 		),
 	)
 );
