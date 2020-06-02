@@ -26,8 +26,8 @@
 		</class>
 		<!-- 
 			This class is very similar to the lnkConnectableCIToNetworkDevice.
-			However, we want more: we want to link our ConnectableCI (parent of DatacenterDevics such as NAS, NetworkDevice, Server, SANSwitch, StorageSystem, TypeLibrary...) 
-			to other ConnectableCIs
+			However, due to this implementation, ConnectableCI should be linkable to other ConnectableCIs 
+			(ConnectableCI = parent of DatacenterDevices such as NAS, NetworkDevice, Server, SANSwitch, StorageSystem, TypeLibrary...)
 		-->
 		<class id="lnkConnectableCIToConnectableCI" _delta="define">
 			<parent>cmdbAbstractObject</parent>
@@ -99,6 +99,16 @@
 					<sql>patch_label</sql>
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="cable_type" xsi:type="AttributeEnum" _delta="define">
+					<sql>cable_type</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+					<values>
+						<value id="rj45">rj45</value>
+						<value id="optical_fiber_single_mode">optical_fiber_single_mode</value>
+						<value id="optical_fiber_multi_mode">optical_fiber_multi_mode</value>
+					</values>
 				</field>
 			</fields>
 			<methods>  
@@ -285,6 +295,9 @@
 						<item id="patch_label">
 							<rank>60</rank>
 						</item>
+						<item id="cable_type">
+							<rank>70</rank>
+						</item>
 					</items>
 				</details>
 				<search>
@@ -307,6 +320,9 @@
 						<item id="patch_label">
 							<rank>60</rank>
 						</item>
+						<item id="cable_type">
+							<rank>70</rank>
+						</item>
 					</items>
 				</search>
 				<list>
@@ -328,6 +344,9 @@
 						</item>
 						<item id="patch_label">
 							<rank>60</rank>
+						</item>
+						<item id="cable_type">
+							<rank>70</rank>
 						</item>
 					</items>
 				</list>

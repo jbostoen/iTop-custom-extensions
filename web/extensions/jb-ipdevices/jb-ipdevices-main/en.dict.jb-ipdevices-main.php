@@ -65,11 +65,16 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:lnkConnectableCIToConnectableCI/Attribute:device_port+' => '',
 	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type' => 'Connection type',
 	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type+' => '',
-	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:downlink' => 'down link',
-	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:downlink+' => 'down link',
-	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:uplink' => 'up link',
-	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:uplink+' => 'up link',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:downlink' => 'Down link',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:downlink+' => 'Down link',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:uplink' => 'Up link',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:connection_type/Value:uplink+' => 'Up link',
 	'Class:lnkConnectableCIToConnectableCI/Attribute:patch_label' => 'Patch label',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:patch_label+' => 'The label of the patch (port/cable)',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:cable_type' => 'Cable type',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:cable_type/Value:rj45' => 'RJ45',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:cable_type/Value:optical_fiber_single_mode' => 'Optical fiber (single mode)',
+	'Class:lnkConnectableCIToConnectableCI/Attribute:cable_type/Value:optical_fiber_multi_mode' => 'Optical fiber (multi mode)',
 
 ));
 
