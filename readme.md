@@ -7,7 +7,7 @@
 # About this repo
 This repository contains all sorts of **unofficial** examples and extensions for iTop, both finished and unfinished.
 
-There's some very basic examples about adding/changing fields; creating new object classes. 
+There are some very basic examples on adding/changing/removing fields; creating new object classes. 
 Advanced examples include adding menus, entirely new dashlets, flexible reports, custom front ends, ...
 
 
@@ -19,7 +19,7 @@ Advanced examples include adding menus, entirely new dashlets, flexible reports,
 - **wip**: work in progress. Unfinished. Also contains some concepts.
 
 
-# Support development / freelance
+# Support, development and freelance work
 If you appreciate this work, consider a small donation.
 Also open to offers to discuss configuring, customizing and troubleshooting your iTop instance. 
 Or to develop new features or extensions.
@@ -55,4 +55,4 @@ In 2019, I got the honour of speaking at an iTop Community Event in Cologne.
 
 
 # Special thanks
-Special thanks to [Molkobain](https://github.com/Molkobain)
+Special thanks to [Molkobain](https://github.com/Molkobain) for translations and support
