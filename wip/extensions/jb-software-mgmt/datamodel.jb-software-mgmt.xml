@@ -3,11 +3,33 @@
 	<!-- 
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @details     Prefixed tables to avoid conflicts with existing ones.
+ * @details     Prefixed class names and tables to avoid conflicts with existing ones.
 -->
 	<classes>
 
-		<class id="izSoftware" _delta="define">
+		<!-- Simply overrule softwares_list on FunctionalCI -->
+		<class id="FunctionalCI">
+			<fields>
+				<field id="softwares_list" xsi:type="AttributeLinkedSet">
+					<linked_class _delta="redefine">IzSoftwareInstallation</linked_class>
+					<ext_key_to_me _delta="redefine">functionalci_id</ext_key_to_me>
+					<edit_mode _delta="redefine">add_only</edit_mode>
+				</field>
+			</fields>
+			<relations>
+				<relation id="impacts">
+					<neighbours>
+						<!-- Not really required since it refers to the same attribute, but still. -->
+						<neighbour id="softwareinstance" _delta="delete"/>
+						<neighbour id="izsoftwareinstallation" _delta="define">
+							<attribute>softwares_list</attribute>
+						</neighbour>
+					</neighbours>
+				</relation>
+			</relations>
+		</class>
+		
+		<class id="IzSoftware" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
 				<category>bizmodel,searchable,structure</category>
@@ -64,7 +86,7 @@
 					<display_style>list</display_style>
 				</field>
 				<field id="versions_list" xsi:type="AttributeLinkedSet">
-					<linked_class>izSoftwareVersion</linked_class>
+					<linked_class>IzSoftwareVersion</linked_class>
 					<ext_key_to_me>software_id</ext_key_to_me>
 					<edit_mode>add_only</edit_mode>
 				</field>
@@ -127,7 +149,7 @@
 		</class>
 
 
-		<class id="izSoftwareVersion" _delta="define">
+		<class id="IzSoftwareVersion" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
 				<category>bizmodel,searchable,structure</category>
@@ -169,7 +191,7 @@
 					<sql>software_id</sql>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>izSoftware</target_class>
+					<target_class>IzSoftware</target_class>
 					<allow_target_creation>true</allow_target_creation>
 				</field>
 				<field id="software_id_friendlyname" xsi:type="AttributeExternalField">
@@ -182,7 +204,7 @@
 					<is_null_allowed>true</is_null_allowed>					
 				</field>
 				<field id="installations_list" xsi:type="AttributeLinkedSet">
-					<linked_class>izSoftwareInstallation</linked_class>
+					<linked_class>IzSoftwareInstallation</linked_class>
 					<ext_key_to_me>softwareversion_id</ext_key_to_me>
 					<edit_mode>add_only</edit_mode>
 				</field>
@@ -235,24 +257,25 @@
 			</presentation>
 		</class>
 
-		<class id="izSoftwareInstallation" _delta="define">
-			<parent>cmdbAbstractObject</parent>
+		<class id="IzSoftwareInstallation" _delta="define">
+			<parent>FunctionalCI</parent>
 			<properties>
-				<category>bizmodel,searchable,structure</category>
+				<category>bizmodel,searchable</category>
 				<abstract>false</abstract>
 				<key_type>autoincrement</key_type>
 				<db_table>izsoftwareinstallation</db_table>
 				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
 				<naming>
 					<attributes>
-						<attribute id="softwareversion_id_friendlyname"/>
-						<attribute id="functionalci_id_friendlyname"/>
+						<attribute id="softwareversion_id"/>
+						<attribute id="functionalci_id"/>
 					</attributes>
 				</naming>
 				<order>
 					<columns>
-						<attribute id="softwareversion_id"/>
-						<attribute id="functionalci_id"/>
+						<column id="softwareversion_id" ascending="true"/>
+						<column id="functionalci_id" ascending="true"/>
 					</columns>
 				</order>
 				<reconciliation>
@@ -275,15 +298,9 @@
 			</properties>
 			<fields>
 				<!-- 2020-02-18: 
-					It might be interesting to have a dependency for FunctionalCI and izSoftwareVersion to be within org_id.
+					It might be interesting to have a dependency for FunctionalCI and IzSoftwareVersion to share the same org_id.
 					However, some organizations may share a license.
 				-->
-				<field id="org_id" xsi:type="AttributeExternalKey">
-					<sql>org_id</sql>
-					<is_null_allowed>false</is_null_allowed>
-					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>Organization</target_class>
-				</field>
 				<field id="functionalci_id" xsi:type="AttributeExternalKey">
 					<sql>functionalci_id</sql>
 					<is_null_allowed>false</is_null_allowed>
@@ -299,7 +316,7 @@
 					<sql>softwareversion_id</sql>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>izSoftwareVersion</target_class>
+					<target_class>IzSoftwareVersion</target_class>
 				</field>
 				<field id="softwareversion_id_friendlyname" xsi:type="AttributeExternalField">
 					<extkey_attcode>softwareversion_id</extkey_attcode>
@@ -310,7 +327,7 @@
 					<!-- Not all software has a license -->
 					<is_null_allowed>true</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>izLicense</target_class>
+					<target_class>IzLicense</target_class>
 					<!-- Don't apply this filter, otherwise "downgrade" rights won't work. -->
 					<!-- <filter>SELECT izLicense WHERE softwareversion_id = :this->softwareversion_id</filter> -->
 					<dependencies>
@@ -331,8 +348,14 @@
 			<presentation>
 				<details>
 					<items>
-						<item id="org_id">
+						<item id="name">
 							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>2</rank>
+						</item>
+						<item id="status">
+							<rank>3</rank>
 						</item>
 						<item id="functionalci_id">
 							<rank>11</rank>
@@ -350,8 +373,14 @@
 				</details>
 				<search>
 					<items>
-						<item id="org_id">
+						<item id="name">
 							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>2</rank>
+						</item>
+						<item id="status">
+							<rank>3</rank>
 						</item>
 						<item id="functionalci_id">
 							<rank>11</rank>
@@ -369,8 +398,14 @@
 				</search>
 				<default_search>
 					<items>
-						<item id="org_id">
+						<item id="name">
 							<rank>1</rank>
+						</item>
+						<item id="org_id">
+							<rank>2</rank>
+						</item>
+						<item id="status">
+							<rank>3</rank>
 						</item>
 						<item id="functionalci_id">
 							<rank>11</rank>
@@ -410,8 +445,8 @@
 
 
 
-		<class id="izLicense" _delta="define">
-			<parent>cmdbAbstractObject</parent>
+		<class id="IzLicense" _delta="define">
+			<parent>FunctionalCI</parent>
 			<properties>
 				<category>bizmodel,searchable,structure</category>
 				<abstract>false</abstract>
@@ -445,17 +480,6 @@
 				</uniqueness_rules>
 			</properties>
 			<fields>
-				<field id="name" xsi:type="AttributeString">
-					<sql>name</sql>
-					<is_null_allowed>false</is_null_allowed>
-					<default_value/>
-				</field>
-				<field id="org_id" xsi:type="AttributeExternalKey">
-					<sql>org_id</sql>
-					<is_null_allowed>false</is_null_allowed>
-					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>Organization</target_class>
-				</field>
 				<field id="provider_org_id" xsi:type="AttributeExternalKey">
 					<sql>provider_org_id</sql>
 					<is_null_allowed>false</is_null_allowed>
@@ -466,7 +490,7 @@
 					<sql>softwareversion_id</sql>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>izSoftwareVersion</target_class>
+					<target_class>IzSoftwareVersion</target_class>
 				</field>
 				<field id="comment" xsi:type="AttributeHTML">
 					<sql>comment</sql>
@@ -518,21 +542,9 @@
 					<default_value/>
 				</field>
 				<field id="installations_list" xsi:type="AttributeLinkedSet">
-					<linked_class>izSoftwareInstallation</linked_class>
+					<linked_class>IzSoftwareInstallation</linked_class>
 					<ext_key_to_me>license_id</ext_key_to_me>
 					<edit_mode>add_only</edit_mode>
-				</field>
-				<field id="contacts_list" xsi:type="AttributeLinkedSetIndirect">
-					<linked_class>lnkIzLicenseToContact</linked_class>
-					<ext_key_to_me>license_id</ext_key_to_me>
-					<ext_key_to_remote>contact_id</ext_key_to_remote>
-					<duplicates>false</duplicates>
-				</field>
-				<field id="documents_list" xsi:type="AttributeLinkedSetIndirect">
-					<linked_class>lnkIzLicenseToDocument</linked_class>
-					<ext_key_to_me>license_id</ext_key_to_me>
-					<ext_key_to_remote>document_id</ext_key_to_remote>
-					<duplicates>false</duplicates>
 				</field>
 			</fields>
 			<methods/>
@@ -747,7 +759,7 @@
 			<fields>
 				<field id="license_id" xsi:type="AttributeExternalKey">
 					<sql>license_id</sql>
-					<target_class>izLicense</target_class>
+					<target_class>IzLicense</target_class>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
 				</field>
@@ -854,7 +866,7 @@
 			<fields>
 				<field id="license_id" xsi:type="AttributeExternalKey">
 					<sql>license_id</sql>
-					<target_class>izLicense</target_class>
+					<target_class>IzLicense</target_class>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
 				</field>
@@ -921,18 +933,257 @@
 				</list>
 			</presentation>
 		</class>
+		
 
-		<!-- Simply overrule softwares_list on FunctionalCI -->
-		<class id="FunctionalCI">
+		<class id="IzDatabaseSchema" _delta="define">
+			<parent>FunctionalCI</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>izdatabaseschema</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/database-schema.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="org_id"/>
+						<attribute id="organization_name"/>
+					</attributes>
+				</reconciliation>
+			</properties>
 			<fields>
-				<field id="softwares_list" xsi:type="AttributeLinkedSet">
-					<linked_class _delta="redefine">izSoftwareInstallation</linked_class>
-					<ext_key_to_me _delta="redefine">functionalci_id</ext_key_to_me>
-					<edit_mode _delta="redefine">add_only</edit_mode>
+				<field id="izsoftwareinstallation_id" xsi:type="AttributeExternalKey">
+					<sql>izsoftwareinstallation_id</sql>
+					<target_class>IzSoftwareInstallation</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_MANUAL</on_target_delete>
+				</field>
+				<field id="izsoftwareinstallation_name" xsi:type="AttributeExternalField">
+					<extkey_attcode>izsoftwareinstallation_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
 				</field>
 			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="izsoftwareinstallation_id">
+							<rank>30</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>40</rank>
+						</item>
+						<item id="move2production">
+							<rank>50</rank>
+						</item>
+						<item id="description">
+							<rank>60</rank>
+						</item>
+						<item id="contacts_list">
+							<rank>70</rank>
+						</item>
+						<item id="documents_list">
+							<rank>80</rank>
+						</item>
+						<item id="applicationsolution_list">
+							<rank>100</rank>
+						</item>
+						<item id="providercontracts_list">
+							<rank>110</rank>
+						</item>
+						<item id="services_list">
+							<rank>120</rank>
+						</item>
+					</items>
+				</details>
+				<default_search>
+					<items>
+						<item id="friendlyname">
+							<rank>10</rank>
+						</item>
+						<item id="izsoftwareinstallation_id">
+							<rank>20</rank>
+						</item>
+						<item id="org_id">
+							<rank>30</rank>
+						</item>
+					</items>
+				</default_search>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>30</rank>
+						</item>
+						<item id="move2production">
+							<rank>40</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>10</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>20</rank>
+						</item>
+						<item id="move2production">
+							<rank>30</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+			<methods/>
 		</class>
 
+
+		<class id="IzWebApplication" _delta="define">
+			<parent>FunctionalCI</parent>
+			<properties>
+				<category>bizmodel,searchable</category>
+				<abstract>false</abstract>
+				<key_type>autoincrement</key_type>
+				<db_table>izwebapplication</db_table>
+				<db_key_field>id</db_key_field>
+				<db_final_class_field/>
+				<naming>
+					<attributes>
+						<attribute id="name"/>
+					</attributes>
+				</naming>
+				<display_template/>
+				<icon>images/webapp.png</icon>
+				<reconciliation>
+					<attributes>
+						<attribute id="name"/>
+						<attribute id="org_id"/>
+						<attribute id="organization_name"/>
+					</attributes>
+				</reconciliation>
+			</properties>
+			<fields>
+				<field id="izsoftwareinstallation_id" xsi:type="AttributeExternalKey">
+					<sql>izsoftwareinstallation_id</sql>
+					<target_class>IzSoftwareInstallation</target_class>
+					<is_null_allowed>false</is_null_allowed>
+					<on_target_delete>DEL_MANUAL</on_target_delete>
+				</field>
+				<field id="izsoftwareinstallation_name" xsi:type="AttributeExternalField">
+					<extkey_attcode>izsoftwareinstallation_id</extkey_attcode>
+					<target_attcode>friendlyname</target_attcode>
+				</field>
+				<field id="url" xsi:type="AttributeURL">
+					<sql>url</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+					<target>_blank</target>
+				</field>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="izsoftwareinstallation_id">
+							<rank>30</rank>
+						</item>
+						<item id="url">
+							<rank>40</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>50</rank>
+						</item>
+						<item id="move2production">
+							<rank>60</rank>
+						</item>
+						<item id="description">
+							<rank>70</rank>
+						</item>
+						<item id="contacts_list">
+							<rank>80</rank>
+						</item>
+						<item id="documents_list">
+							<rank>90</rank>
+						</item>
+						<item id="applicationsolution_list">
+							<rank>110</rank>
+						</item>
+						<item id="providercontracts_list">
+							<rank>120</rank>
+						</item>
+						<item id="services_list">
+							<rank>130</rank>
+						</item>
+					</items>
+				</details>
+				<default_search>
+					<items>
+						<item id="friendlyname">
+							<rank>10</rank>
+						</item>
+						<item id="izsoftwareinstallation_id">
+							<rank>20</rank>
+						</item>
+						<item id="org_id">
+							<rank>30</rank>
+						</item>
+					</items>
+				</default_search>
+				<search>
+					<items>
+						<item id="name">
+							<rank>10</rank>
+						</item>
+						<item id="org_id">
+							<rank>20</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>30</rank>
+						</item>
+						<item id="move2production">
+							<rank>40</rank>
+						</item>
+					</items>
+				</search>
+				<list>
+					<items>
+						<item id="org_id">
+							<rank>10</rank>
+						</item>
+						<item id="business_criticity">
+							<rank>20</rank>
+						</item>
+						<item id="move2production">
+							<rank>30</rank>
+						</item>
+					</items>
+				</list>
+			</presentation>
+			<methods/>
+		</class>
 
 
 	</classes>
@@ -947,21 +1198,29 @@
 							<!-- Avoid re-using official dashlet IDs -->
 							<dashlet id="sw_1" xsi:type="DashletBadge" _delta="define">
 								<rank>1.1</rank>
-								<class>izSoftware</class>
+								<class>IzSoftware</class>
 							</dashlet>
 							<dashlet id="sw_2" xsi:type="DashletBadge" _delta="define">
 								<rank>1.2</rank>
-								<class>izSoftwareVersion</class>
+								<class>IzSoftwareVersion</class>
 							</dashlet>
 							<dashlet id="sw_3" xsi:type="DashletBadge" _delta="define">
 								<rank>1.3</rank>
-								<class>izSoftwareInstallation</class>
+								<class>IzSoftwareInstallation</class>
 							</dashlet>
 							<dashlet id="sw_4" xsi:type="DashletBadge" _delta="define">
 								<rank>1.4</rank>
-								<class>izLicense</class>
+								<class>IzLicense</class>
 							</dashlet>
-							
+							<dashlet id="sw_5" xsi:type="DashletBadge" _delta="define">
+								<rank>1.54</rank>
+								<class>IzDatabaseSchema</class>
+							</dashlet>
+							<dashlet id="sw_6" xsi:type="DashletBadge" _delta="define">
+								<rank>1.6</rank>
+								<class>IzWebApplication</class>
+							</dashlet>
+
 							<!-- Remove traditional items from overview -->
 							<dashlet id="5" xsi:type="DashletBadge" _delta="delete"/><!-- Middleware -->
 							<dashlet id="6" xsi:type="DashletBadge" _delta="delete"/><!-- DBServer -->
@@ -969,15 +1228,17 @@
 							<dashlet id="8" xsi:type="DashletBadge" _delta="delete"/><!-- PCSoftware -->
 							<dashlet id="9" xsi:type="DashletBadge" _delta="delete"/><!-- OtherSoftware -->
 							<dashlet id="10" xsi:type="DashletBadge" _delta="delete"/><!-- MiddlewareInstance -->
-							<!-- 11 = DatabaseSchema (keep), 12 = WebApplication (?), 13 = Patch (?) -->
+							<dashlet id="11" xsi:type="DashletBadge" _delta="delete"/><!-- DatabaseSchema -->
+							<dashlet id="12" xsi:type="DashletBadge" _delta="delete"/><!-- WebApplication -->
+							<!-- 13 = Patch (?) -->
 							<dashlet id="14" xsi:type="DashletBadge" _delta="delete"/><!-- Licence -->
-							
+
 						</dashlets>
 					</cell>
 				</cells>
 			</definition>
 		</menu>
-		
+
 		<!-- Remove traditional Software catalog menu. More items must be deleted. -->
 		<menu id="Software" xsi:type="OQLMenuNode" _delta="delete"/>
 	</menus>

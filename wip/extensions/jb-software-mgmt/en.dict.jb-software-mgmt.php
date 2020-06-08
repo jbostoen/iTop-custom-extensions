@@ -16,7 +16,7 @@ Dict::Add('EN US', 'English', 'English', array(
     //	'Class:SomeClass/Attribute:some_attribute/Value:some_value+' => 'your translation for more info on the value',
 	
 	'Class:izSoftware' => 'Software',
-	'Class:izSoftware+' => 'Generic name for the software',
+	'Class:izSoftware+' => 'Generic name of the software',
 	'Class:izSoftware/Attribute:name' => 'Name of the software',
 	'Class:izSoftware/Attribute:name+' => 'Main name of the software, such as MS Office, MS Windows Server. Does not include version info or a year.',
 	'Class:izSoftware/Attribute:org_id' => 'Organization',
@@ -39,7 +39,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:izSoftwareVersion/Attribute:software_id' => 'Software',
 	'Class:izSoftwareVersion/Attribute:software_id+' => 'Software name',
 	'Class:izSoftwareVersion/Attribute:version' => 'Version',
-	'Class:izSoftwareVersion/Attribute:version+' => 'Version of this software. Could be a name, build number, ...',
+	'Class:izSoftwareVersion/Attribute:version+' => 'Version of this software. Could be a name, major/minor version, build number, ...',
 	'Class:izSoftwareVersion/Attribute:installations_list' => 'Installations',
 	'Class:izSoftwareVersion/Attribute:installations_list+' => 'Installations of this software version on physical or virtual devices',
 	
@@ -55,7 +55,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:izSoftwareInstallation/Attribute:functionalci_id' => 'Host',
 	'Class:izSoftwareInstallation/Attribute:functionalci_id+' => 'Device on which the software is installed',
 	'Class:izSoftwareInstallation/Attribute:version_details' => 'Version detail',
-	'Class:izSoftwareInstallation/Attribute:version_details+' => 'Detailed version info',
+	'Class:izSoftwareInstallation/Attribute:version_details+' => 'Detailed version info. Example: build info.',
 	
 	'Class:izLicense' => 'License',
 	'Class:izLicense+' => 'License',
@@ -97,8 +97,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:izLicense/Attribute:installations_list' => 'Licensed devices',
 	'Class:izLicense/Attribute:installations_list+' => 'Devices using this license',
 		
-	'Class:lnkIzLicenseToContact' => 'Link izLicense / Contact',
-	'Class:lnkIzLicenseToContact+' => 'Link between izLicense and Contact',
+	'Class:lnkIzLicenseToContact' => 'Link License / Contact',
+	'Class:lnkIzLicenseToContact+' => 'Link between License and Contact',
 	'Class:lnkIzLicenseToContact/Name' => '%1$s | %2$s',
 	'Class:lnkIzLicenseToContact/Attribute:izlicense_id' => 'License',
 	'Class:lnkIzLicenseToContact/Attribute:izlicense_id+' => 'License',
@@ -107,8 +107,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:lnkIzLicenseToContact/Attribute:comment' => 'Comment',
 	'Class:lnkIzLicenseToContact/Attribute:comment+' => 'Comment. Reason of installation, downgrade rights, ... could be logged here.',
 	
-	'Class:lnkIzLicenseToDocument' => 'Link izLicense / Document',
-	'Class:lnkIzLicenseToDocument+' => 'Link between izLicense and Document',
+	'Class:lnkIzLicenseToDocument' => 'Link License / Document',
+	'Class:lnkIzLicenseToDocument+' => 'Link between License and Document',
 	'Class:lnkIzLicenseToDocument/Name' => '%1$s | %2$s',
 	'Class:lnkIzLicenseToDocument/Attribute:izlicense_id' => 'License',
 	'Class:lnkIzLicenseToDocument/Attribute:izlicense_id+' => 'License',
@@ -116,6 +116,14 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:lnkIzLicenseToDocument/Attribute:document_id+' => 'Document related to this license.',
 	'Class:lnkIzLicenseToDocument/Attribute:comment' => 'Comment',
 	'Class:lnkIzLicenseToDocument/Attribute:comment+' => 'Comment. Extra info can be added here.',
+	
+	'Class:izDatabaseSchema' => 'Database Schema',
+	'Class:izDatabaseSchema/Attribute:izsoftwareinstallation_id' => 'Software installation',
+	
+	'Class:izWebApplication' => 'Web Application',
+	'Class:izWebApplication/Attribute:izsoftwareinstallation_id' => 'Software installation',
+	'Class:izWebApplication/Attribute:url' => 'URL',
+	
 	
 	// Temporary
 	'Class:Software' => 'Software (original)',
@@ -126,6 +134,10 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:DBServer' => 'Database Server (original)',
 	'Class:WebServer' => 'Web Server (original)',
 	'Class:Licence' => 'License (original)',
+	'Class:SoftwareInstance' => 'Software Instance (original)',
+	'Class:SoftwareLicence' => 'Software Licence (original)',
+	'Class:lnkSoftwareInstanceToSoftwarePatch' => 'Link Software Instance (original) / Software Patch',
+	'Class:DatabaseSchema' => 'Database Schema (original)',
 	
 ));
 
