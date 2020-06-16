@@ -102,6 +102,7 @@ $Environments | ForEach-Object {
 		
 		$Cmd = "$($phpExe) $($installScript) --response_file=$($installXML)";
 		
+		Write-Host "Start: $((Get-Date).ToString('yyyy-MM-dd HH:mm:ss'))"
 		Write-Host "Running PHP script for unattended installation..."
 		Write-Host "Unattended installation script: $($installScript)"
 		Write-Host "Unattended installation XML: $($installXML)"
@@ -115,6 +116,7 @@ $Environments | ForEach-Object {
 		Write-Host ""
 		Write-Host "$('*' * 25)"
 		Write-Host "Ran unattended installation. See above for details."
+		Write-Host "Finish: $((Get-Date).ToString('yyyy-MM-dd HH:mm:ss'))"
 		
 
 	}
