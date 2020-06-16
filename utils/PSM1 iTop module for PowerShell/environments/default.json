@@ -37,6 +37,10 @@
 	"Cron": {
 		"User": "admin",
 		"Password": "admin"
+	},
+	
+	"PHP": {
+		"Path": "C:\\xampp\\php\\php.exe"
 	}
 	
 }
