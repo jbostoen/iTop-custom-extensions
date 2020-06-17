@@ -66,7 +66,7 @@
 				while($sDirName != dirname($sDirName)) {
 					
 					$sFile = $sDirName.'/approot.inc.php';
-					if(file_exists($sFile) == true ) {
+					if(file_exists($sFile) == true) {
 
 						// Compatibility with iTop 2.7; NOT loading Twig etc. Defaults!
 						defined('APPROOT') || define('APPROOT', dirname($sFile).'/');
@@ -74,9 +74,9 @@
 						defined('ITOP_DEFAULT_ENV') || define('ITOP_DEFAULT_ENV', 'production');
 						
 						// Get iTop config file 
-						if( file_exists( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php') == true ) {
+						if(file_exists(APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php') == true) {
 							
-							require( APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php' ); // local scope
+							require(APPCONF . ITOP_DEFAULT_ENV . '/config-itop.php'); // local scope
 							$this->url = $MySettings['app_root_url'] . 'webservices/rest.php';
 
 							return;
@@ -113,19 +113,19 @@
 		 * @return Array - see processResult()
 		 *
 		 */ 
-		public function Create( Array $aParameters = [] ) {
+		public function Create(Array $aParameters = []) {
 			
-			$sClassName = $this->GetClassName( $aParameters );
+			$sClassName = $this->GetClassName($aParameters);
 						
 			$aResult = $this->Post([
 				'operation' => 'core/create', // Action
 				'class' => $sClassName, // Class of object to create
 				'fields' => $aParameters['fields'], // Field data to be saved
-				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Created by ' . $this->name ), // Comment in history tab
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ )
+				'comment' => (isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Created by ' . $this->name), // Comment in history tab
+				'output_fields' => (isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */)
 			]);
 			
-			return $this->ProcessResult( $aResult, $aParameters ); 
+			return $this->ProcessResult($aResult, $aParameters); 
 			
 		}
 		
@@ -152,20 +152,20 @@
 		 * @return Array - see processResult()
 		 *
 		 */ 
-		public function Delete( Array $aParameters = [] ) {
+		public function Delete(Array $aParameters = []) {
 			
-			$sClassName = $this->GetClassName( $aParameters );
+			$sClassName = $this->GetClassName($aParameters);
 			
 			$aResult = $this->Post([
 				'operation' => 'core/delete', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object to delete
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
-				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Deleted by ' . $this->name ), // Comment in history tab?
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ ),
-				'simulate' => ( isset($aParameters['simulate']) == true ? $aParameters['simulate'] : false )
+				'comment' => (isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Deleted by ' . $this->name), // Comment in history tab?
+				'output_fields' => (isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */),
+				'simulate' => (isset($aParameters['simulate']) == true ? $aParameters['simulate'] : false)
 			]);
 			
-			return $this->ProcessResult( $aResult, $aParameters ); 
+			return $this->ProcessResult($aResult, $aParameters); 
 			
 		}
 		
@@ -193,16 +193,16 @@
 		 */ 
 		public function Get(Array $aParameters = []) {
 			
-			$sClassName = $this->GetClassName( $aParameters );
+			$sClassName = $this->GetClassName($aParameters);
 			 			
 			$aResult = $this->Post([
 				'operation' => 'core/get', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object(s) to retrieve
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ )			
+				'output_fields' => (isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */)			
 			]);
 			 
-			return $this->ProcessResult( $aResult, $aParameters ); 
+			return $this->ProcessResult($aResult, $aParameters); 
 			
 		} 
 	
@@ -215,7 +215,7 @@
 		 */
 		private function GetClassName(Array $aInput = []) {
 							
-			if( isset( $aInput['class'] ) == true ) {
+			if(isset(aInput['class']) == true) {
 				
 				return $aInput['class'];
 			
@@ -224,14 +224,14 @@
 				 				
 				// Is this an OQL query? 
 				// Other possibilities: Integer (ID); Array of one or more fields and their values.
-				if( is_string($aInput['key']) == true ) {
+				if(is_string($aInput['key']) == true) {
 					 
-					if( preg_match('/^select /i', $aInput['key'] ) ) {
+					if(preg_match('/^select /i', $aInput['key'])) {
 						// Dealing with an OQL query. 
 						// Generic: SELECT UserRequest
 						// Specific: SELECT UserRequest WHERE ...
 						// Class names can't contain space, so:
-						return explode(' ', $aInput['key'] )[1]; 
+						return explode(' ', $aInput['key'])[1]; 
 					}					
 				} 
 				
@@ -246,7 +246,7 @@
 		 *
 		 * @param $aJSONData [
 		 *  'operation'       => Required. String.
-		 *		( other fields, depending on the operation. Read iTop Rest/JSON documentation. )
+		 *		(other fields, depending on the operation. Read iTop Rest/JSON documentation.)
 		 * ];
 		 * 
 		 * @return Array containing the data obtained from the iTop REST Services
@@ -281,8 +281,8 @@
 				'Content-Length: ' . strlen($sPostString)                                                                       
 			]);             
 
-			if( $this->showRequest == true ) {				
-				echo 'Request:' . PHP_EOL .json_encode($aJSONData, JSON_PRETTY_PRINT ); 				
+			if($this->showRequest == true) {				
+				echo 'Request:' . PHP_EOL .json_encode($aJSONData, JSON_PRETTY_PRINT); 				
 			}
 			
 			// Execute
@@ -326,7 +326,7 @@
 			
 			return [
 				'data' => base64_encode($oData), // Warning: escape url_encode!
-				'filename' => basename( $sFileName ),
+				'filename' => basename($sFileName),
 				'mimetype' => $sType
 			];
 			
@@ -375,22 +375,22 @@
 		private function ProcessResult(Array $aServiceResponse = [], Array $aParameters = []) {
 			
 			// Valid response ('code' = 0)
-			if( isset( $aServiceResponse['code'] ) == true && $aServiceResponse['code'] == 0 ) {
+			if(isset($aServiceResponse['code']) == true && $aServiceResponse['code'] == 0) {
 								
 				// Valid call, no results? (usually after 'operation/get'
-				if(isset($aServiceResponse['objects'] ) == false) {
+				if(isset($aServiceResponse['objects']) == false) {
 					return [];
 				}
 				else {
 					$aObjects = $aServiceResponse['objects'];
-					return (isset( $aParameters['no_keys']) == true ? ( $aParameters['no_keys'] == true ? array_values($aObjects) : $aObjects ) : $aObjects);
+					return (isset($aParameters['no_keys']) == true ? ($aParameters['no_keys'] == true ? array_values($aObjects) : $aObjects) : $aObjects);
 				}
 			}
 			else {
 				
 				// Service response contained an error.
 				// Return all.
-				if( isset($aServiceResponse['code']) == true && isset($aServiceResponse['message']) == true ) {
+				if(isset($aServiceResponse['code']) == true && isset($aServiceResponse['message']) == true) {
 					// Valid response but error
 					throw new \iTop_Rest_Exception('Invalid response from iTop REST/JSON Service: '.$aServiceResponse['message'], $aServiceResponse['code'], null, $aServiceResponse);
 				}
@@ -425,18 +425,18 @@
 		 */ 
 		public function Update(Array $aParameters = []) {
 			
-			$sClassName = $this->GetClassName( $aParameters );
+			$sClassName = $this->GetClassName($aParameters);
 			
 			$aResult = $this->Post([
 				'operation' => 'core/update', // iTop REST/JSON operation
 				'class' => $sClassName, // Class of object to update
 				'key' => $aParameters['key'], // OQL query (String), ID (Float) or fields/values (Array)
 				'fields' => $aParameters['fields'], // Field data to be updated
-				'comment' => ( isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Updated by ' . $this->name ), // Comment in history tab
-				'output_fields' => ( isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */ ),
+				'comment' => (isset($aParameters['comment']) == true ? $aParameters['comment'] : 'Updated by ' . $this->name), // Comment in history tab
+				'output_fields' => (isset($aParameters['output_fields']) == true ? $aParameters['output_fields'] :	'*' /* All fields */),
 			]);
 			
-			return $this->ProcessResult( $aResult, $aParameters ); 
+			return $this->ProcessResult($aResult, $aParameters); 
 			
 		}
 		
