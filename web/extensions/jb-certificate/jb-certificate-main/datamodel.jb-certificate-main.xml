@@ -6,7 +6,7 @@
 -->
 	<classes>
 		<class id="Certificate" _delta="define">
-			<parent>cmdbAbstractObject</parent>
+			<parent>FunctionalCI</parent>
 			<properties>
 				<category>bizmodel,searchable,structure</category>
 				<abstract>false</abstract>
@@ -31,18 +31,6 @@
 				<icon>images/certificate.png</icon>
 			</properties>
 			<fields>
-				<field id="name" xsi:type="AttributeString">
-					<sql>name</sql>
-					<default_value/>
-					<is_null_allowed>false</is_null_allowed>
-				</field>
-				<!-- org_id for permission silo -->
-				<field id="org_id" xsi:type="AttributeExternalKey">
-					<sql>org_id</sql>
-					<target_class>Organization</target_class>
-					<is_null_allowed>false</is_null_allowed>
-					<on_target_delete>DEL_AUTO</on_target_delete>
-				</field>
 				<field id="creator_id" xsi:type="AttributeExternalKey">
 					<sql>creator_id</sql>
 					<target_class>Contact</target_class>
@@ -53,18 +41,18 @@
 						<attribute id="org_id"/>
 					</dependencies>
 				</field>
-				<field id="provider_org_id" xsi:type="AttributeExternalKey">
-					<sql>provider_org_id</sql>
+				<field id="issuer_org_id" xsi:type="AttributeExternalKey">
+					<sql>issuer_org_id</sql>
 					<target_class>Organization</target_class>
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
 				</field>
-				<field id="date_creation" xsi:type="AttributeDateTime">
-					<sql>date_creation</sql>
+				<field id="date_not_before" xsi:type="AttributeDateTime">
+					<sql>date_not_before</sql>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
-				<field id="date_expiration" xsi:type="AttributeDateTime">
-					<sql>date_expiration</sql>
+				<field id="date_not_after" xsi:type="AttributeDateTime">
+					<sql>date_not_after</sql>
 					<is_null_allowed>false</is_null_allowed>
 				</field>
 				<field id="password" xsi:type="AttributeEncryptedString">
@@ -72,12 +60,9 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-				<field id="description" xsi:type="AttributeText">
-					<sql>description</sql>
-					<default_value/>
+				<field id="certificate" xsi:type="AttributeBlob">
 					<is_null_allowed>true</is_null_allowed>
 				</field>
-				<field id="certificate" xsi:type="AttributeBlob"/>
 				<field id="renewal" xsi:type="AttributeEnum">
 					<values>
 						<value id="manually">manually</value>
@@ -88,6 +73,31 @@
 					<is_null_allowed>true</is_null_allowed>
 					<display_style>radio_vertical</display_style>
 				</field>
+				<field id="parent_id" xsi:type="AttributeExternalKey">
+					<sql>parent_id</sql>
+					<target_class>Certificate</target_class>
+					<is_null_allowed>true</is_null_allowed>
+					<!-- if parent certificate is gone, this certificate also becomes invalid -->
+					<on_target_delete>DEL_AUTO</on_target_delete>
+					<filter>SELECT Certificate WHERE id != :this->id</filter>
+				</field>
+				<field id="hierarchy" xsi:type="AttributeEnum">
+					<values>
+						<value id="root">root</value>
+						<value id="intermediate">intermediate</value>
+						<value id="end_entity">end_entity</value>
+						<value id="self_signed">self_signed</value>
+					</values>
+					<sql>hierarchy</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+					<display_style>radio_vertical</display_style>
+				</field>
+				<field id="serial_number" xsi:type="AttributeString">
+					<sql>serial_number</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
 				<field id="functionalcis_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
 					<linked_class>lnkCertificateToFunctionalCI</linked_class>
 					<ext_key_to_remote>functionalci_id</ext_key_to_remote>
@@ -96,15 +106,23 @@
 					<count_min>0</count_min>
 					<count_max>0</count_max>
 				</field>
-				<field id="webservers_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
-					<linked_class>lnkCertificateToWebServer</linked_class>
-					<ext_key_to_remote>webserver_id</ext_key_to_remote>
-					<ext_key_to_me>certificate_id</ext_key_to_me>
-					<duplicates>false</duplicates>
-					<count_min>0</count_min>
-					<count_max>0</count_max>
-				</field>
 			</fields>
+			<relations>
+				<relation id="impacts">
+					<neighbours>
+						<neighbour id="certificate">
+							<query_up><![CDATA[SELECT Certificate WHERE id = :this->parent_id]]></query_up>
+							<query_down><![CDATA[SELECT Certificate WHERE parent_id = :this->id]]></query_down>
+							<direction>both</direction>
+						</neighbour>
+						<neighbour id="functionalci">
+							<query_up><![CDATA[SELECT FunctionalCI AS f JOIN lnkCertificateToFunctionalCI AS lnk ON lnk.functionalci_id = f.id WHERE lnk.certificate_id = :this->id]]></query_up>
+							<query_down><![CDATA[SELECT FunctionalCI AS f JOIN lnkCertificateToFunctionalCI AS lnk ON lnk.functionalci_id = f.id WHERE lnk.certificate_id = :this->id]]></query_down>
+							<direction>both</direction>
+						</neighbour>
+					</neighbours>
+				</relation>
+			</relations>
 			<methods/>
 			<presentation>
 				<details>
@@ -118,31 +136,34 @@
 						<item id="creator_id">
 							<rank>21</rank>
 						</item>
-						<item id="provider_org_id">
+						<item id="issuer_org_id">
 							<rank>31</rank>
 						</item>
-						<item id="date_creation">
+						<item id="date_not_before">
 							<rank>41</rank>
 						</item>
-						<item id="date_expiration">
+						<item id="date_not_after">
 							<rank>51</rank>
 						</item>
 						<item id="password">
 							<rank>61</rank>
 						</item>
-						<item id="description">
+						<item id="parent_id">
 							<rank>71</rank>
 						</item>
-						<item id="renewal">
+						<item id="description">
 							<rank>81</rank>
 						</item>
-						<item id="certificate">
+						<item id="serial_number">
+							<rank>82</rank>
+						</item>
+						<item id="renewal">
 							<rank>91</rank>
 						</item>
-						<item id="functionalcis_list">
+						<item id="certificate">
 							<rank>101</rank>
 						</item>
-						<item id="webservers_list">
+						<item id="functionalcis_list">
 							<rank>111</rank>
 						</item>
 					</items>
@@ -158,13 +179,13 @@
 						<item id="creator_id">
 							<rank>21</rank>
 						</item>
-						<item id="provider_org_id">
+						<item id="issuer_org_id">
 							<rank>31</rank>
 						</item>
-						<item id="date_creation">
+						<item id="date_not_before">
 							<rank>41</rank>
 						</item>
-						<item id="date_expiration">
+						<item id="date_not_after">
 							<rank>51</rank>
 						</item>
 						<item id="description">
@@ -189,13 +210,13 @@
 						<item id="creator_id">
 							<rank>21</rank>
 						</item>
-						<item id="provider_org_id">
+						<item id="issuer_org_id">
 							<rank>31</rank>
 						</item>
-						<item id="date_creation">
+						<item id="date_not_before">
 							<rank>41</rank>
 						</item>
-						<item id="date_expiration">
+						<item id="date_not_after">
 							<rank>51</rank>
 						</item>
 						<item id="description">
@@ -214,13 +235,13 @@
 						<item id="creator_id">
 							<rank>21</rank>
 						</item>
-						<item id="provider_org_id">
+						<item id="issuer_org_id">
 							<rank>31</rank>
 						</item>
-						<item id="date_creation">
+						<item id="date_not_before">
 							<rank>41</rank>
 						</item>
-						<item id="date_expiration">
+						<item id="date_not_after">
 							<rank>51</rank>
 						</item>
 						<item id="description">
@@ -234,7 +255,10 @@
 			</presentation>
 		</class>
 
-		<!-- Allow links to FunctionalCI. Limited to Server, VirtualMachine. -->
+		<!--
+			Allow links to FunctionalCI. Limited to Server, VirtualMachine, WebServer (original). 
+			It also adds an option to link to IzSoftwareInstallation.
+		-->
 		<class id="lnkCertificateToFunctionalCI" _delta="define">
 			<parent>cmdbAbstractObject</parent>
 			<properties>
@@ -258,8 +282,8 @@
 				</order>
 				<reconciliation>
 					<attributes>
-						<attirbute id="certificate_id"/>
-						<attirbute id="functionalci_id"/>
+						<attribute id="certificate_id"/>
+						<attribute id="functionalci_id"/>
 					</attributes>
 				</reconciliation>
 				<icon/>
@@ -276,7 +300,12 @@
 					<is_null_allowed>false</is_null_allowed>
 					<on_target_delete>DEL_AUTO</on_target_delete>
 					<target_class>FunctionalCI</target_class>
-					<filter><![CDATA[SELECT FunctionalCI WHERE finalclass IN ('Server', 'VirtualMachine')]]></filter>
+					<filter><![CDATA[SELECT FunctionalCI WHERE finalclass IN ('IzSoftwareInstallation', 'Server', 'VirtualMachine', 'WebServer')]]></filter>
+				</field>
+				<field id="comment" xsi:type="AttributeString">
+					<sql>comment</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
 				</field>
 			</fields>
 			<methods/>
@@ -289,6 +318,9 @@
 						<item id="functionalci_id">
 							<rank>11</rank>
 						</item>
+						<item id="comment">
+							<rank>21</rank>
+						</item>
 					</items>
 				</details>
 				<list>
@@ -298,6 +330,9 @@
 						</item>
 						<item id="functionalci_id">
 							<rank>11</rank>
+						</item>
+						<item id="comment">
+							<rank>21</rank>
 						</item>
 					</items>
 				</list>
@@ -309,6 +344,9 @@
 						<item id="functionalci_id">
 							<rank>11</rank>
 						</item>
+						<item id="comment">
+							<rank>21</rank>
+						</item>
 					</items>
 				</default_search>
 				<search>
@@ -319,12 +357,15 @@
 						<item id="functionalci_id">
 							<rank>11</rank>
 						</item>
+						<item id="comment">
+							<rank>21</rank>
+						</item>
 					</items>
 				</search>
 			</presentation>
 		</class>
 
-		<!-- Add Certificates tab to Server and VirtualMachine objects -->
+		<!-- Add Certificates tab to Server, VirtualMachine, WebServer objects -->
 		<class id="Server">
 			<fields>
 				<field id="certificates_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
@@ -367,103 +408,11 @@
 				</details>
 			</presentation>
 		</class>
-	
-
-		<!-- Allow links to WebServer. Limited to Server, VirtualMachine. -->
-		<class id="lnkCertificateToWebServer" _delta="define">
-			<parent>cmdbAbstractObject</parent>
-			<properties>
-				<is_link>1</is_link>
-				<category>bizmodel,searchable,structure</category>
-				<abstract>false</abstract>
-				<key_type>autoincrement</key_type>
-				<db_table>lnkcertificatetowebserver</db_table>
-				<db_key_field>id</db_key_field>
-				<naming>
-					<attributes>
-						<attribute id="certificate_id_friendlyname"/>
-						<attribute id="webserver_id_friendlyname"/>
-					</attributes>
-				</naming>
-				<order>
-					<columns>
-						<column id="certificate_id" ascending="true"/>
-						<column id="webserver_id" ascending="true"/>
-					</columns>
-				</order>
-				<reconciliation>
-					<attributes>
-						<attirbute id="certificate_id"/>
-						<attirbute id="webserver_id"/>
-					</attributes>
-				</reconciliation>
-				<icon/>
-			</properties>
-			<fields>
-				<field id="certificate_id" xsi:type="AttributeExternalKey">
-					<sql>certificate_id</sql>
-					<is_null_allowed>false</is_null_allowed>
-					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>Certificate</target_class>
-				</field>
-				<field id="webserver_id" xsi:type="AttributeExternalKey">
-					<sql>webserver_id</sql>
-					<is_null_allowed>false</is_null_allowed>
-					<on_target_delete>DEL_AUTO</on_target_delete>
-					<target_class>WebServer</target_class>
-				</field>
-			</fields>
-			<methods/>
-			<presentation>
-				<details>
-					<items>
-						<item id="certificate_id">
-							<rank>1</rank>
-						</item>
-						<item id="webserver_id">
-							<rank>11</rank>
-						</item>
-					</items>
-				</details>
-				<list>
-					<items>
-						<item id="certificate_id">
-							<rank>1</rank>
-						</item>
-						<item id="webserver_id">
-							<rank>11</rank>
-						</item>
-					</items>
-				</list>
-				<default_search>
-					<items>
-						<item id="certificate_id">
-							<rank>1</rank>
-						</item>
-						<item id="webserver_id">
-							<rank>11</rank>
-						</item>
-					</items>
-				</default_search>
-				<search>
-					<items>
-						<item id="certificate_id">
-							<rank>1</rank>
-						</item>
-						<item id="webserver_id">
-							<rank>11</rank>
-						</item>
-					</items>
-				</search>
-			</presentation>
-		</class>
-
-		<!-- Add Certificates tab to Server and VirtualMachine objects -->
 		<class id="WebServer">
 			<fields>
 				<field id="certificates_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
-					<linked_class>lnkCertificateToWebServer</linked_class>
-					<ext_key_to_me>webserver_id</ext_key_to_me>
+					<linked_class>lnkCertificateToFunctionalCI</linked_class>
+					<ext_key_to_me>functionalci_id</ext_key_to_me>
 					<ext_key_to_remote>certificate_id</ext_key_to_remote>
 					<duplicates>false</duplicates>
 					<count_min>0</count_min>
@@ -479,6 +428,20 @@
 					</items>
 				</details>
 			</presentation>
+		</class>
+		
+		<class id="FunctionalCI">
+			<relations>
+				<relation id="impacts">
+					<neighbours>
+						<neighbour id="certificate" _delta="define">
+							<query_up><![CDATA[SELECT Certificate AS c JOIN lnkCertificateToFunctionalCI AS lnk ON lnk.certificate_id = c.id WHERE lnk.functionalci_id = :this->id]]></query_up>
+							<query_down><![CDATA[SELECT Certificate AS c JOIN lnkCertificateToFunctionalCI AS lnk ON lnk.certificate_id = c.id WHERE lnk.functionalci_id = :this->id]]></query_down>
+							<direction>both</direction>
+						</neighbour>
+					</neighbours>
+				</relation>
+			</relations>
 		</class>
 		
 		
@@ -502,3 +465,4 @@
 	</menus>	
 
 </itop_design>
+

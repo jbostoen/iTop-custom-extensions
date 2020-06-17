@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.6">
+	<!-- 
+ * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
+-->
+	<classes>
+		<!-- Add Certificates tab to IzSoftwareInstallation objects -->
+		<class id="IzSoftwareInstallation">
+			<fields>
+				<field id="certificates_list" xsi:type="AttributeLinkedSetIndirect" _delta="define">
+					<linked_class>lnkCertificateToFunctionalCI</linked_class>
+					<ext_key_to_me>functionalci_id</ext_key_to_me>
+					<ext_key_to_remote>certificate_id</ext_key_to_remote>
+					<duplicates>false</duplicates>
+					<count_min>0</count_min>
+					<count_max>0</count_max>
+				</field>
+			</fields>
+			<presentation>
+				<details>
+					<items>
+						<item id="certificates_list" _delta="define">
+							<rank>101</rank>
+						</item>
+					</items>
+				</details>
+			</presentation>
+		</class>
+	</classes>
+</itop_design>
+
+

@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-certificate/2.6.200409',
+        'jb-certificate-main/2.6.200409',
         array(
                 // Identification
                 //
@@ -27,7 +27,7 @@ SetupWebPage::AddModule(
                 // Components
                 //
                 'datamodel' => array(
-					'model.jb-certificate.php'
+					'model.jb-certificate-main.php'
                 ),
                 'webservice' => array(
 
@@ -51,4 +51,5 @@ SetupWebPage::AddModule(
                 ),
         )
 );
+
 
