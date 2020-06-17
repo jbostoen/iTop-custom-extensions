@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2019-10-28 13:58:34
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-ldap/2.6.200409',
+	'jb-ldap/2.6.191028',
 	array(
 		// Identification
 		//
@@ -20,6 +20,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
+			'jb-framework/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
@@ -27,8 +28,8 @@ SetupWebPage::AddModule(
 		// Components
 		//
 		'datamodel' => array(
-			'core/LDAPSync.class.inc.php',
-			'core/ScheduledProcessLDAPSync.class.inc.php',
+			'app/common/ldapsync.class.inc.php',
+			'app/core/scheduledprocessldapsync.class.inc.php',
 		),
 		'webservice' => array(
 			
@@ -61,18 +62,20 @@ SetupWebPage::AddModule(
 			// Settings are similar to Combodo's authent-ldap and used as default settings for any sync rule (the specific rules can overrule this)
 			'default_sync_rule' => array(
 			
-				'create_objects' => true,
-				'update_objects' => true,
-				'host' => '127.0.0.1',
-				'port' => 389,
-				'default_user' => 'someuser@intranet.domain.org',
+				'host' => 'ldaps://127.0.0.1',
+				'port' => 636, // LDAP: 389, LDAPS: 636
+				'default_user' => 'intranet.domain.org\scanuser',
 				'default_pwd' => 'someuser',
 				'base_dn' => 'DC=intranet,DC=domain,DC=org',
 				'start_tls' => false,
 				'options' => array(
 					17 => 3,
-					8 => 0
+					8 => 0,
+					// LDAP_OPT_X_TLS_REQUIRE_CERT => 0,
 				),
+				
+				'create_objects' => true,
+				'update_objects' => true,
 				
 				// Currently only strings and integers are supported; not lists/arrays/...
 				// These attributes will be fetched and are then available in the $ldap_user->ldap_att$ placeholder
@@ -113,7 +116,7 @@ SetupWebPage::AddModule(
 							'class' => 'Person',
 							'attributes' => array(
 								'org_id' => 1, // Organization for the user. Required attribute
-								'email' => '$ldap_user->mail$',
+								'mail' => '$ldap_user->mail$',
 								'first_name' => '$ldap_user->givenname$',
 								'name' => '$ldap_user->sn$',
 								'phone' => '$ldap_user->telephonenumber$',
