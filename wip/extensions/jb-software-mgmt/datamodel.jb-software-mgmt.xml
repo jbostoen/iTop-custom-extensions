@@ -268,8 +268,9 @@
 				<db_final_class_field/>
 				<naming>
 					<attributes>
-						<attribute id="softwareversion_id"/>
-						<attribute id="functionalci_id"/>
+						<!-- Obscure iTop issue: "failed to create alias" if you use functionalci_id_friendlyname -->
+						<attribute id="softwareversion_friendlyname"/>
+						<attribute id="functionalci_name"/>
 					</attributes>
 				</naming>
 				<order>
@@ -308,9 +309,9 @@
 					<target_class>FunctionalCI</target_class>
 					<filter>SELECT FunctionalCI WHERE finalclass IN ('Hypervisor', 'NetworkDevice', 'Printer', 'PC', 'Server', 'VirtualMachine')</filter>
 				</field>
-				<field id="functionalci_id_friendlyname" xsi:type="AttributeExternalField">
+				<field id="functionalci_name" xsi:type="AttributeExternalField">
 					<extkey_attcode>functionalci_id</extkey_attcode>
-					<target_attcode>friendlyname</target_attcode>
+					<target_attcode>name</target_attcode>
 				</field>
 				<field id="softwareversion_id" xsi:type="AttributeExternalKey">
 					<sql>softwareversion_id</sql>
@@ -318,7 +319,7 @@
 					<on_target_delete>DEL_AUTO</on_target_delete>
 					<target_class>IzSoftwareVersion</target_class>
 				</field>
-				<field id="softwareversion_id_friendlyname" xsi:type="AttributeExternalField">
+				<field id="softwareversion_friendlyname" xsi:type="AttributeExternalField">
 					<extkey_attcode>softwareversion_id</extkey_attcode>
 					<target_attcode>friendlyname</target_attcode>
 				</field>
@@ -343,14 +344,79 @@
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>					
 				</field>
+				<field id="status" xsi:type="AttributeEnum">
+					<sql>status</sql>
+					<values>
+						<value id="implementation">implementation</value>
+						<value id="obsolete">obsolete</value>
+						<value id="production">production</value>
+					</values>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
 			</fields>
-			<methods/>
+			<methods>
+				<!-- Trick to avoid a warning in the frontend about 'name' being empty, since it's a required field (due to parent class) -->
+				<method id="PrefillCreationForm" _delta="define">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<arguments>
+						<argument id="1">
+							<type>reference</type>
+							<mandatory>true</mandatory>
+						</argument>
+					</arguments>
+					<code><![CDATA[
+					
+						public function PrefillCreationForm(&$aContextParam) {       
+							$this->Set('name', 'Name'); // Doesn't really matter
+						}
+						
+					]]></code>
+				</method>
+				<method id="OnInsert">
+				  <static>false</static>
+				  <access>protected</access>
+				  <type>Overload-DBObject</type>
+				  <code><![CDATA[
+				  
+						public function OnInsert() {
+			
+							parent::OnInsert();
+							
+							// Remember how the "name" didn't matter (specific dummy value in PrefillCreationForm and hidden elsewhere?)
+							$this->Set('name', $this->Get('softwareversion_friendlyname').' | '.$this->Get('functionalci_name'));
+						
+						}
+						
+					]]></code>
+				</method>
+				<method id="OnUpdate">
+				  <static>false</static>
+				  <access>protected</access>
+				  <type>Overload-DBObject</type>
+				  <code><![CDATA[
+				  
+						public function OnUpdate() {
+						
+							parent::OnUpdate();
+							
+							$aChanges = $this->ListChanges();
+							if(array_key_exists('functionalci_id', $aChanges) == true || array_key_exists('softwareversion_id', $aChanges) == true) {
+								$this->Set('name', $this->Get('softwareversion_friendlyname').' | '.$this->Get('functionalci_name'));
+							}
+							
+						}
+					]]></code>
+				</method>
+			</methods>
 			<presentation>
 				<details>
 					<items>
-						<item id="name">
-							<rank>1</rank>
-						</item>
+						<!-- Irrelevant -->
+						<!-- <item id="name"> -->
+							<!-- <rank>1</rank> -->
+						<!-- </item> -->
 						<item id="org_id">
 							<rank>2</rank>
 						</item>
@@ -373,9 +439,10 @@
 				</details>
 				<search>
 					<items>
-						<item id="name">
-							<rank>1</rank>
-						</item>
+						<!-- Irrelevant -->
+						<!-- <item id="name"> -->
+							<!-- <rank>1</rank> -->
+						<!-- </item> -->
 						<item id="org_id">
 							<rank>2</rank>
 						</item>
@@ -398,9 +465,10 @@
 				</search>
 				<default_search>
 					<items>
-						<item id="name">
-							<rank>1</rank>
-						</item>
+						<!-- Irrelevant -->
+						<!-- <item id="name"> -->
+							<!-- <rank>1</rank> -->
+						<!-- </item> -->
 						<item id="org_id">
 							<rank>2</rank>
 						</item>

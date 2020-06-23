@@ -110,7 +110,8 @@
 			<relations>
 				<relation id="impacts">
 					<neighbours>
-						<neighbour id="certificate">
+						<!-- Note: the ID of this "neighbour" must be different from the neighbour relationship defined in parent FunctionalCI! -->
+						<neighbour id="certificate_hierarchy">
 							<query_up><![CDATA[SELECT Certificate WHERE id = :this->parent_id]]></query_up>
 							<query_down><![CDATA[SELECT Certificate WHERE parent_id = :this->id]]></query_down>
 							<direction>both</direction>
@@ -465,4 +466,3 @@
 	</menus>	
 
 </itop_design>
-
