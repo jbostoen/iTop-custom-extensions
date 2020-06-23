@@ -20,7 +20,7 @@ SetupWebPage::AddModule(
 		// Setup
 		//
 		'dependencies' => array(
-			'jb-software-mgmt/2.6.0'
+			// 'jb-software-mgmt/2.6.0'
 		),
 		'mandatory' => false,
 		'visible' => true,
