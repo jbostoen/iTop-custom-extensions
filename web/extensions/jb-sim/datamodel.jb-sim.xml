@@ -79,6 +79,19 @@
 					<is_null_allowed>true</is_null_allowed>
 					<default_value/>
 				</field>
+				<field id="type" xsi:type="AttributeEnum">
+					<sql>type</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+					<values>
+						<value id="regular">regular</value>
+						<value id="regular_to_micro">regular_to_micro</value>
+						<value id="regular_to_nano">regular_to_nano</value>
+						<value id="micro">micro</value>
+						<value id="micro_to_nano">micro_to_nano</value>
+						<value id="nano">nano</value>
+					</values>
+				</field>
 			</fields>
 			<methods/>
 			<presentation>
@@ -125,6 +138,9 @@
 								</item>
 								<item id="puk2">
 									<rank>52</rank>
+								</item>
+								<item id="type">
+									<rank>53</rank>
 								</item>
 								<item id="move2production">
 									<rank>61</rank>
@@ -209,13 +225,25 @@
 						<item id="location_id">
 							<rank>32</rank>
 						</item>
+						<item id="description">
+							<rank>33</rank>
+						</item>
 					</items>
 				</list>
 			</presentation>
 		</class>
 		<class id="MobilePhone">
 			<fields>
-				
+				<field id="sim_card_type" xsi:type="AttributeEnum" _delta="define">
+					<sql>sim_card_type</sql>
+					<is_null_allowed>true</is_null_allowed>
+					<default_value/>
+					<values>
+						<value id="regular">regular</value>
+						<value id="micro">micro</value>
+						<value id="nano">nano</value>
+					</values>
+				</field>
 			</fields>
 		</class>
 	</classes>

@@ -47,7 +47,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	
 	'Class:IzSoftwareInstallation' => 'Software Installation',
 	'Class:IzSoftwareInstallation+' => 'Software installation on a physical or virtual device.',
-	'Class:IzSoftwareInstallation/Name' => '%1$s | %2$s',
+	'Class:IzSoftwareInstallation/Name' => '%1$s | %2$s (%3$s)',
 	'Class:IzSoftwareInstallation/Attribute:org_id' => 'Organization',
 	'Class:IzSoftwareInstallation/Attribute:org_id+' => 'Organization',
 	'Class:IzSoftwareInstallation/Attribute:softwareversion_id' => 'Software version',
@@ -63,7 +63,7 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:IzSoftwareInstallation/Attribute:status/Value:production' => 'Production',
 	'Class:IzSoftwareInstallation/Attribute:status/Value:implementation' => 'Implementation',
 	'Class:IzSoftwareInstallation/Attribute:status/Value:obsolete' => 'Obsolete',
-	'Class:IZSoftwareInstallation/UniquenessRule:unique_software_installation_per_org' => 'The combination of the software version, functional CI and organization must be unique.',
+	'Class:IzSoftwareInstallation/UniquenessRule:unique_software_installation_per_org' => 'The combination of the software version, functional CI and organization must be unique.',
 	
 	'Class:IzLicense' => 'License',
 	'Class:IzLicense+' => 'License',

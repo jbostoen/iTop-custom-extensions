@@ -93,8 +93,48 @@
 					<is_null_allowed>true</is_null_allowed>
 					<display_style>radio_vertical</display_style>
 				</field>
+				<field id="common_name" xsi:type="AttributeString">
+					<sql>common_name</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="alt_names" xsi:type="AttributeText">
+					<sql>alt_names</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
 				<field id="serial_number" xsi:type="AttributeString">
 					<sql>serial_number</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="public_key_algorithm" xsi:type="AttributeString">
+					<sql>public_key_algorithm</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="public_key_size" xsi:type="AttributeString">
+					<sql>public_key_size</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="public_key_modules" xsi:type="AttributeString">
+					<sql>public_key_modules</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="public_key_exponent" xsi:type="AttributeString">
+					<sql>public_key_exponent</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="version" xsi:type="AttributeString">
+					<sql>version</sql>
+					<default_value/>
+					<is_null_allowed>true</is_null_allowed>
+				</field>
+				<field id="signature_algorithm" xsi:type="AttributeString">
+					<sql>signature_algorithm</sql>
 					<default_value/>
 					<is_null_allowed>true</is_null_allowed>
 				</field>
@@ -124,48 +164,134 @@
 					</neighbours>
 				</relation>
 			</relations>
-			<methods/>
+			<methods>
+				<method id="PrefillCreationForm">
+					<static>false</static>
+					<access>public</access>
+					<type>Overload-DBObject</type>
+					<arguments>
+						<argument id="1">
+							<type>reference</type>
+							<mandatory>true</mandatory>
+						</argument>
+					</arguments>
+					<code><![CDATA[
+					
+						public function PrefillCreationForm(&$aContextParam) {
+						
+							parent::PrefillCreationForm($aContextParam);
+						
+							 // work-around for default_value which can not be overruled since it's inherited from FunctionalCI
+							$this->Set('business_criticity', 'high');
+						}
+						
+					]]></code>
+				</method>
+			</methods>
 			<presentation>
 				<details>
 					<items>
-						<item id="name">
-							<rank>1</rank>
+						<item id="col:1">
+							<items>
+								<item id="fieldset:Certificate:BasicInfo">
+									<rank>1</rank>
+									<items>
+										<item id="name">
+											<rank>1</rank>
+										</item>
+										<item id="org_id">
+											<rank>11</rank>
+										</item>
+										<item id="creator_id">
+											<rank>21</rank>
+										</item>
+										<item id="description">
+											<rank>22</rank>
+										</item>
+										<item id="issuer_org_id">
+											<rank>31</rank>
+										</item>
+										<item id="common_name">
+											<rank>35</rank>
+										</item>
+										<item id="alt_names">
+											<rank>36</rank>
+										</item>
+										<item id="password">
+											<rank>61</rank>
+										</item>
+										<item id="business_criticity">
+											<rank>82</rank>
+										</item>
+										<item id="renewal">
+											<rank>91</rank>
+										</item>
+									</items>
+								</item>
+								<item id="functionalcis_list">
+									<rank>111</rank>
+								</item>
+							</items>
 						</item>
-						<item id="org_id">
-							<rank>11</rank>
-						</item>
-						<item id="creator_id">
-							<rank>21</rank>
-						</item>
-						<item id="issuer_org_id">
-							<rank>31</rank>
-						</item>
-						<item id="date_not_before">
-							<rank>41</rank>
-						</item>
-						<item id="date_not_after">
-							<rank>51</rank>
-						</item>
-						<item id="password">
-							<rank>61</rank>
-						</item>
-						<item id="parent_id">
-							<rank>71</rank>
-						</item>
-						<item id="description">
-							<rank>81</rank>
-						</item>
-						<item id="serial_number">
-							<rank>82</rank>
-						</item>
-						<item id="renewal">
-							<rank>91</rank>
-						</item>
-						<item id="certificate">
-							<rank>101</rank>
-						</item>
-						<item id="functionalcis_list">
-							<rank>111</rank>
+						<item id="col:2">
+							<items>
+								<item id="fieldset:Certificate:Validity">
+									<rank>1</rank>
+									<items>
+										<item id="date_not_before">
+											<rank>1</rank>
+										</item>
+										<item id="date_not_after">
+											<rank>2</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Certificate:Hierarchy">
+									<rank>1</rank>
+									<items>
+										<item id="hierarchy">
+											<rank>1</rank>
+										</item>
+										<item id="parent_id">
+											<rank>2</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Certificate:PublicKeyInfo">
+									<rank>11</rank>
+									<items>
+										<item id="public_key_algorithm">
+											<rank>1</rank>
+										</item>
+										<item id="public_key_size">
+											<rank>2</rank>
+										</item>
+										<item id="public_key_exponent">
+											<rank>3</rank>
+										</item>
+										<item id="public_key_modules">
+											<rank>4</rank>
+										</item>
+									</items>
+								</item>
+								<item id="fieldset:Certificate:MiscInfo">
+									<rank>21</rank>
+									<items>
+										<item id="serial_number">
+											<rank>1</rank>
+										</item>
+										<item id="signature_algorithm">
+											<rank>2</rank>
+										</item>
+										<item id="version">
+											<rank>3</rank>
+										</item>
+										<item id="certificate">
+											<rank>4</rank>
+										</item>
+									</items>
+								</item>
+							</items>
 						</item>
 					</items>
 				</details>

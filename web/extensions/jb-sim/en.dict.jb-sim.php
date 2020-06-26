@@ -32,8 +32,20 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:SimCard/Attribute:pin2+' => 'PIN 2 of the SIM card',
 	'Class:SimCard/Attribute:puk2' => 'PUK 2',
 	'Class:SimCard/Attribute:puk2+' => 'PUK 2 of the SIM card',
+	'Class:SimCard/Attribute:type' => 'Type',
+	'Class:SimCard/Attribute:type/Value:regular' => 'Regular',
+	'Class:SimCard/Attribute:type/Value:regular_to_micro' => 'Regular - can be cut to micro',
+	'Class:SimCard/Attribute:type/Value:regular_to_nano' => 'Regular - can be cut to nano',
+	'Class:SimCard/Attribute:type/Value:micro' => 'Micro',
+	'Class:SimCard/Attribute:type/Value:micro_to_nano' => 'Micro - can be cut to nano',
+	'Class:SimCard/Attribute:type/Value:nano' => 'Nano',
 	
-	'SimCard:info' => 'General info',	
+	'SimCard:info' => 'General info',
+
+	'Class:MobilePhone/Attribute:sim_card_type' => 'SIM card type',
+	'Class:MobilePhone/Attribute:sim_card_type/Value:regular' => 'Regular',
+	'Class:MobilePhone/Attribute:sim_card_type/Value:micro' => 'Micro',
+	'Class:MobilePhone/Attribute:sim_card_type/Value:nano' => 'Nano',
 	
 ));
 

@@ -7,10 +7,10 @@ It also integrates with the Software Management extension so a certificate can b
 
 ## Cookbook
 
-XML:
 * add new Class Certificate, with relations (impacts/depends on)
 * add tabs to existing classes to show relations: link Certificate to FunctionalCI (Server, VirtualMachine, WebServer)
 * adds additional changes to datamodel based upon installation of another extension
+* using the PrefillCreationForm() method
 
 ## Upgrade notes
 
