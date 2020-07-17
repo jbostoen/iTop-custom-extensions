@@ -41,9 +41,12 @@
 		'LeisureCheck' => [
 			'list' => [
 				[
-					'title' => 'test',
+					'title' => 'NH Export',
 					'button' => true,
-					'file' => 'test.xml'
+					'file' => 'test.xml',
+					'parameters' => [
+						'action' => 'export_new_horizon'
+					]
 				]
 			]
 		]

@@ -3,12 +3,17 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * PHP Main file
  */
+ 
+namespace jb_itop_extensions\authentication_method;
 
-class cApplicationObjectExtension_AuthenticationMethod implements iApplicationObjectExtension {
+use \iApplicationObjectExtension;
+use \Dict;
+
+class ApplicationObjectExtension_AuthenticationMethod implements iApplicationObjectExtension {
 	 
 	/**
 	 * Invoked to determine whether an object can be written to the database 
@@ -19,7 +24,7 @@ class cApplicationObjectExtension_AuthenticationMethod implements iApplicationOb
 	 * @param DBObject $oObject The target object
 	 * @return string[] A list of errors message. An error message is made of one line and it can be displayed to the end-user.
 	 */	
-	public function OnCheckToWrite( $oObject ) {
+	public function OnCheckToWrite($oObject) {
 		
 		return $this->ValidateInput($oObject);
 		
@@ -100,7 +105,7 @@ class cApplicationObjectExtension_AuthenticationMethod implements iApplicationOb
 	
 	/**
 	 * 
-	 * Validates contact method.
+	 * Validates authentication method.
 	 * 
 	 * @param Object $oObject iTop object to validate	 * 
 	 *  
@@ -109,19 +114,19 @@ class cApplicationObjectExtension_AuthenticationMethod implements iApplicationOb
 	 */
 	public function ValidateInput($oObject) {
 		
-		if( $oObject instanceof AuthenticationMethod ) {
+		if($oObject instanceof AuthenticationMethod) {
 			
 			$sAuthenticationDetail = $oObject->Get('authentication_detail');
 			
-			switch( $oObject->Get('authentication_method') ) {
+			switch($oObject->Get('authentication_method')) {
 				
 				case 'email':
 								
-					if( !filter_var($sAuthenticationDetail, FILTER_VALIDATE_EMAIL) ) {
+					if(!filter_var($sAuthenticationDetail, FILTER_VALIDATE_EMAIL)) {
 					 
-						return Array( 
+						return [
 							Dict::S('Errors/AuthenticationMethod/InvalidEmail')
-						);	
+						];	
 						
 					}
 				
@@ -130,10 +135,9 @@ class cApplicationObjectExtension_AuthenticationMethod implements iApplicationOb
 					
 			}
 		}
-		 
 		
 		// No errors		
-		return Array();
+		return [];
 		
 	}
 	

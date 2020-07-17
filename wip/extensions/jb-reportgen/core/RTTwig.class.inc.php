@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * Definition of class RTTwig. Report tool which renders content using Twig.
  */
@@ -129,15 +129,15 @@ abstract class RTTwig extends RTParent implements iReportTool {
 		$sReportFile = self::GetReportFileName();
 		
 		// Twig Loader
-		$loader = new \Twig_Loader_Filesystem(dirname($sReportFile));
+		$loader = new \Twig\Loader\FilesystemLoader(dirname($sReportFile));
 		
 		// Twig environment options
-		$oTwigEnv = new \Twig_Environment($loader, [
+		$oTwigEnv = new \Twig\Environment($loader, [
 			'autoescape' => false
 		]); 
 
 		// Combodo uses this filter, so let's use it the same way for our report generator
-		$oTwigEnv->addFilter(new \Twig_SimpleFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
+		$oTwigEnv->addFilter(new \Twig\TwigFilter('dict_s', function ($sStringCode, $sDefault = null, $bUserLanguageOnly = false) {
 				return \Dict::S($sStringCode, $sDefault, $bUserLanguageOnly);
 			})
 		);
@@ -145,7 +145,7 @@ abstract class RTTwig extends RTParent implements iReportTool {
 		// Relies on chillerlan/php-qrcode
 		if(class_exists('chillerlan\QRCode\QRCode') == true) {
 			
-			$oTwigEnv->addFilter(new \Twig_SimpleFilter('qr', function ($sString) {
+			$oTwigEnv->addFilter(new \Twig\TwigFilter('qr', function ($sString) {
 
 					$aOptions = new \chillerlan\QRCode\QROptions([
 						'version'    => 5,
@@ -167,7 +167,7 @@ abstract class RTTwig extends RTParent implements iReportTool {
 		}
 		else {
 			
-			$oTwigEnv->addFilter(new \Twig_SimpleFilter('qr', function ($sString) {
+			$oTwigEnv->addFilter(new \Twig\TwigFilter('qr', function ($sString) {
 				return $sString.' (QR library missing)';
 			}));
 				

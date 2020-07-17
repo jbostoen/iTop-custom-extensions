@@ -24,6 +24,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	'Class:AuthenticationMethod/Attribute:authentication_method/Value:twitter_id' => 'Twitter ID',
 	'Class:AuthenticationMethod/Attribute:authentication_method/Value:token' => 'Token',
 	'Class:AuthenticationMethod/Attribute:authentication_detail' => 'Authentication detail',
+	'Class:AuthenticationMethod/Attribute:first_used' => 'First used',
+	'Class:AuthenticationMethod/Attribute:last_used' => 'Last used',
 	
 	'Errors/AuthenticationMethod/InvalidEmail' => 'Invalid email address.',
 	

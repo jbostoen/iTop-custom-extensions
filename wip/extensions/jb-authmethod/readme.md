@@ -10,12 +10,12 @@ This class is used for a front-end application.
 ## Cookbook
 
 XML:
-- add AttributeLinkedSet to UserLocal
-- add new class AuthenticationMethod
+* add AttributeLinkedSet to UserLocal
+* add new class AuthenticationMethod
 
 PHP:
-- input validation (checks validity of email address)
+* input validation (checks validity of email address)
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
-Copyright (C) 2019-2020 Jeffrey Bostoen
+Copyright (C) 2019 Jeffrey Bostoen

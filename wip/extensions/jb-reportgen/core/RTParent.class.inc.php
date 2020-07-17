@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-04-09 16:58:14
  *
  * Definition of class RTParent. Parent Report Tool (RT) to expand upon.
  */
@@ -42,11 +42,12 @@ abstract class RTParent {
 	}
 	
 	/**
-	 * Rendering hook
+	 * Rendering hook. Can enrich report data (fetching additional info).
 	 *
 	 * @var \Array $aReportData Report data
 	 * @var \CMDBObjectSet[] $oSet_Objects CMDBObjectSet of iTop objects which are being processed
 	 *
+	 * @return void
 	 */
 	public static function EnrichData(&$aReportData, $oSet_Objects) {
 		
@@ -60,6 +61,7 @@ abstract class RTParent {
 	 * @var \Array $aReportData Report data
 	 * @var \CMDBObjectSet[] $oSet_Objects CMDBObjectSet of iTop objects which are being processed
 	 *
+	 * @return void
 	 */
 	public static function DoExec($aReportData, $oSet_objects) {
 		
@@ -72,6 +74,7 @@ abstract class RTParent {
 	 *
 	 * @var \Exception $e Exception
 	 *
+	 * @return void
 	 */
 	public static function OutputError(\Exception $e) {
 		

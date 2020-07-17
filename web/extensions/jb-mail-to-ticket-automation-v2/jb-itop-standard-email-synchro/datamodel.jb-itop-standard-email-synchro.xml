@@ -1197,7 +1197,7 @@ EOF
 		</menu>
 		<menu id="MailInboxes" xsi:type="OQLMenuNode" _delta="define">
 			<rank>20</rank>
-			<parent>Configuration</parent>
+			<parent>ConfigurationTools</parent>
 			<oql><![CDATA[SELECT MailInboxStandard]]></oql>
 			<do_search>1</do_search>
 			<enable_admin_only>1</enable_admin_only>

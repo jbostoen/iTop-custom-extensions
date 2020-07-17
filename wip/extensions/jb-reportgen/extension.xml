@@ -2,12 +2,12 @@
 <extension format="1.0">
 	<extension_code>jb-reportgen</extension_code>
 	<company></company>
-	<author><![CDATA[ jbostoen ]]></author>
-	<label><![CDATA[ Feature: Report generator ]]></label>
-	<description><![CDATA[ Quickly add new reports on object details in a generic way. ]]></description>
+	<author><![CDATA[jbostoen]]></author>
+	<label><![CDATA[Feature: Report generator]]></label>
+	<description><![CDATA[Quickly add new reports on object details in a generic way.]]></description>
 	<version>2.6.200409</version>
 	<release_date>2020-04-09</release_date>
-	<version_description><![CDATA[  ]]></version_description>
+	<version_description><![CDATA[]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
 	<mandatory>false</mandatory>
