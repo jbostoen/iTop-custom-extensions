@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-05-06 13:36:24
+ * @version     2020-07-21 19:29:11
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-sim/2.6.200506',
+        'jb-sim/2.6.200721',
         array(
                 // Identification
                 //

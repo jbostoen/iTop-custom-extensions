@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 17:01:06
+ * @version     2020-07-21 19:29:11
  * @see         https://www.itophub.io/wiki/page?id=latest%3Aadvancedtopics%3Arest_json
  *
  * Defines class iTop_Rest, which communicates with iTop REST/JSON API

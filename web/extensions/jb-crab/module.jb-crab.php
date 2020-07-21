@@ -3,14 +3,14 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-04-09 16:58:14
+ * @version     2020-07-21 19:29:11
  *
  * iTop module definition file
  */
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jb-crab/2.6.200409',
+	'jb-crab/2.6.200721',
 	array(
 		// Identification
 		//
