@@ -3,7 +3,7 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-07-21 19:29:11
+ * @version     2020-08-05 19:34:49
  *
  * Definition of ScheduledProcess
  */
@@ -19,20 +19,14 @@ use \MetaModel;
 class ScheduledProcess {
 	
 	/**
-	 * @var \String MODULE_CODE Identifier of the extension (used in iTop configuration settings)
+	 * @var \String MODULE_CODE Identifier of the extension (used in iTop configuration settings). Should be redefined in subclasses.
 	 */
-	const MODULE_CODE = 'jb-scheduled-process';
+	const MODULE_CODE = 'jb-scheduled-process---should-be-overwritten';
 	
-	/**
-	 * @var \String Debug level. Values are: 'none', 'error', 'info' (shows info and errors)
-	 */
-	protected $sDebugLevel;
-
 	/**
 	 * Constructor.
 	 */
 	function __construct() {
-		$this->sDebugLevel = MetaModel::GetModuleSetting(static::MODULE_CODE, 'debug_level', 'info');
 	}
 
 	/**
@@ -160,30 +154,13 @@ class ScheduledProcess {
 	 *
 	 * @param \String $sMessage Message to put in the trace log (CRON output)
 	 * @param \String $sType Type of message. Possible values: info, error
+	 *
+	 * @uses \jb_itop_extensions\components\TraceLog::Trace()
 	 */
 	protected function Trace($sMessage, $sType = 'info') {
 		
-		switch($this->sDebugLevel) {
-			
-			case 'info':
-				if(in_array($sType, ['info', 'error']) == true) {
-					echo $sMessage. PHP_EOL;
-				}
-				break;
-				
-			case 'error':
-				if($sType == 'error') {
-					echo $sMessage. PHP_EOL;
-				}
-				break;
-			
-			case 'none':
-				break;
-				
-			default:
-				echo 'Unexpected trace level: '.$this->sDebugLevel. PHP_EOL;
-			
-		}
+		\jb_itop_extensions\components\TraceLog::Trace($sMessage, $sType, \utils::GetCurrentModuleSetting('debug_level', 'info'));
+		
 	}
 	
 }

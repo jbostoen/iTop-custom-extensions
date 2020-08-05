@@ -5,7 +5,7 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'jd-class-printersupply/2.6.200721',
+	'jd-class-printersupply/2.6.200805',
 	array(
 		// Identification
 		//

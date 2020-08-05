@@ -5,8 +5,8 @@
 	<author><![CDATA[jbostoen]]></author>
 	<label><![CDATA[Tweaks: Config Management]]></label>
 	<description><![CDATA[Various tweaks to the Config Management. See read me of this extension.]]></description>
-	<version>2.6.200721</version>
-	<release_date>2020-07-21</release_date>
+	<version>2.6.200805</version>
+	<release_date>2020-08-05</release_date>
 	<version_description><![CDATA[ ]]></version_description>
 	<itop_version_min>2.6.0</itop_version_min>
 	<status>stable</status>
