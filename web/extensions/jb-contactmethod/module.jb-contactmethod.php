@@ -1,16 +1,16 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-07-21 19:29:11
+ * @version     2019-08-22 12:47:48
  *
  * PHP Main file
  */
 
 SetupWebPage::AddModule(
         __FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-        'jb-contactmethod/2.6.200721',
+        'jb-contactmethod/2.6.190822',
         array(
                 // Identification
                 //
@@ -28,8 +28,8 @@ SetupWebPage::AddModule(
                 //
                 'datamodel' => array(
 					'model.jb-contactmethod.php',
-					'main.jb-contactmethod.php',
-					'classes/class.iTop_Helper_Phone.php'
+					'app/application/applicationextension.inc.php',
+					'app/common/phonehelper.class.inc.php'
                 ),
                 'webservice' => array(
 

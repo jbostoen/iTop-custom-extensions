@@ -10,10 +10,8 @@
 Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 
 	// Crab City	 
-	'Class:CrabCity' => 'Crab Gemeente',
-	'Class:CrabCity+' => 'Crab Gemeente',
-	'Class:CrabCity/Attribute:name' => 'Naam',
-	'Class:CrabCity/Attribute:name+' => 'Officiële naam',
+	'Class:CrabCity' => 'Naam',
+	'Class:CrabCity+' => 'Officiële naam',
 	'CrabCity:baseinfo' => 'Algemene info',
 	
 	'Class:CrabCity/Attribute:streets_list' => 'Stratenlijst',
@@ -22,16 +20,13 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	// Crab-Street
 	'CrabStreet:baseinfo' => 'Algemene info',
 	 
-	'Class:CrabStreet' => 'Crab Straatnaam',
-	'Class:CrabStreet+' => 'Crab Straatnaam',
+	'Class:CrabStreet' => 'Crab-straatnaam',
+	'Class:CrabStreet+' => 'Straatnaam in Crab.',
 	 
 	'Class:CrabStreet/Attribute:crab_id' => 'Crab-ID',
 	'Class:CrabStreet/Attribute:crab_id+' => 'Interne ID (Crab-Services)',
 	'Class:CrabStreet/Attribute:name' => 'Straatnaam',
 	'Class:CrabStreet/Attribute:name+' => 'Straatnaam',
-	
-	'Class:CrabStreet/Attribute:city_id' => 'Gemeente',
-	'Class:CrabStreet/Attribute:city_id+' => 'Gemeente',
 	
 	'Class:CrabStreet/Attribute:status' => 'Status',
 	'Class:CrabStreet/Attribute:status+' => 'Status',
@@ -55,8 +50,8 @@ Dict::Add('NL NL', 'Dutch', 'Dutch', array(
 	// Crab-Address
 	'CrabAddress:baseinfo' => 'Algemene info',
 	 
-	'Class:CrabAddress' => 'Crab Adres',
-	'Class:CrabAddress+' => 'Crab Adres',
+	'Class:CrabAddress' => 'Crab-adres',
+	'Class:CrabAddress+' => 'Huisnummer in Crab.',
 	 
 	'Class:CrabAddress/Attribute:crab_id' => 'Crab-ID',
 	'Class:CrabAddress/Attribute:crab_id+' => 'Interne ID (Crab-Services)',

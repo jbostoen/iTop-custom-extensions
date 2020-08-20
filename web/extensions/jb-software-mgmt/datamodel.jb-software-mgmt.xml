@@ -271,7 +271,7 @@
 						<!-- Obscure iTop issue: "failed to create alias" if you use functionalci_id_friendlyname -->
 						<attribute id="softwareversion_friendlyname"/>
 						<attribute id="functionalci_name"/>
-						<attribute id="org_id_friendlyname"/>
+						<attribute id="org_id"/>
 					</attributes>
 				</naming>
 				<order>
@@ -549,6 +549,8 @@
 						<attributes>
 							<attribute id="org_id"/>
 							<attribute id="name"/>
+							<attribute id="start_date"/>
+							<attribute id="serial"/>
 						</attributes>
 						<is_blocking>false</is_blocking>
 					</rule>

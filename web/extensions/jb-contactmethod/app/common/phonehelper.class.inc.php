@@ -3,33 +3,31 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-07-21 19:29:11
+ * @version     2020-08-16 12:53:00
  * @experimental
  *
- * Defines class jb_itop_extensions\helpers\phone, which offers some methods to validate phone numbers. 
- * Warning: specifically for Belgian use.
+ * Defines class PhoneHelper, which offers some methods to validate phone numbers. Warning: specifically for Belgian use.
  *
  */
  
-namespace jb_itop_extensions\helpers;
-	
+ namespace jb_itop_extensions\contact_method;
+ 
 	/**
-	 * Class phone. Provides some phone functions.
+	 * Class PhoneHelper. Provides some phone functions.
 	 */
-	abstract class phone {
+	abstract class PhoneHelper {
 		
 		/**
 		 * @var String $allowedCharsRegex Allowed characters in phone number
-		 * @used-by \jb_extensions\helpers\phone::OnlyContainsAllowedCharacters
 		 */
 		private static $allowedCharsRegex = '\.\/\+ 0-9]';
 		
 		/**
 		 * Returns whether this is a local phone number
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
 		public static function IsLocal($sPhone) {
 			$sPhone = self::ReturnDigits($sPhone);
@@ -39,16 +37,16 @@ namespace jb_itop_extensions\helpers;
 		/**
 		 * Returns whether this is a valid prefix for a Belgian mobile phone number
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
 		public static function IsMobilePrefix_BE( $sPhone ) {
 			
 			// https://www.bipt.be/en/consumers/telephone/numbering/numbering-principles
 			// 046, 047, 048, 049
 			// 04 = land line too, Liège and Voeren. Less digits!
-			// That's why the 2 first digits are checked.
+			// That's why we check for the first 2 digits.
 			
 			// Strip leading country code, zero
 			$sPhone = self::ReturnDigitsWithoutLocalDigits_BE($sPhone);		
@@ -73,9 +71,9 @@ namespace jb_itop_extensions\helpers;
 		/**
 		 * Returns whether this is a valid Belgian phone number (land line) (based on length)
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
 		public static function IsValidLandLinePhone_BE( $sPhone ) {
 		
@@ -93,9 +91,9 @@ namespace jb_itop_extensions\helpers;
 		/**
 		 * Returns whether this is a valid phone number (based on length)
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
 		public static function IsValidPhone($sPhone) {	
 		
@@ -108,7 +106,7 @@ namespace jb_itop_extensions\helpers;
 			// Assume a Belgian phone number has been specified. Stricter requirements.
 			$sPhone_digits = self::ReturnDigits($sPhone);
 						
-			if( strlen($sPhone_digits) != strlen(self::ReturnDigitsWithoutLocalDigits_BE($sPhone)) ) {
+			if(strlen($sPhone_digits) != strlen(self::ReturnDigitsWithoutLocalDigits_BE($sPhone))) {
 				// Belgian; more strict requirements
 				return self::IsValidPhone_BE($sPhone);
 			}
@@ -125,39 +123,36 @@ namespace jb_itop_extensions\helpers;
 		/**
 		 * Returns whether this is a valid Belgian mobile phone number (based on length)
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
 		public static function IsValidMobilePhone_BE($sMobilePhone) {
 			
 			$sMobilePhone_significant_digits = self::ReturnDigitsWithoutLocalDigits_BE($sMobilePhone);
-			return ( self::OnlyContainsAllowedCharacters($sMobilePhone) == true && strlen($sMobilePhone_significant_digits) == 9 && self::IsMobilePrefix_BE($sMobilePhone) == true );
+			return (self::OnlyContainsAllowedCharacters($sMobilePhone) == true && strlen($sMobilePhone_significant_digits) == 9 && self::IsMobilePrefix_BE($sMobilePhone) == true);
 					
 		}
 		
 		/**
 		 * Returns whether this is a valid Belgian phone number (land line or mobile)
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
-		public static function IsValidPhone_BE( $sPhone ) {
+		public static function IsValidPhone_BE($sPhone) {
 			return (self::IsValidLandLinePhone_BE($sPhone) == true || self::IsValidMobilePhone_BE($sPhone) == true);
 		}
 		
 		/**
 		 * Checks if only allowed characters are used.
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @uses \jb_itop_extensions\helpers\phone::$allowedCharsRegex
-		 *
-		 *
-		 * @return Boolean
+		 * @return \Boolean
 		 */
-		public static function OnlyContainsAllowedCharacters( $sPhone ) {
+		public static function OnlyContainsAllowedCharacters($sPhone) {
 			// Only keep listed characters
 			return ($sPhone === preg_replace('/[^'.self::$allowedCharsRegex.']/', '', $sPhone));
 		}
@@ -165,11 +160,11 @@ namespace jb_itop_extensions\helpers;
 		/**
  		 * Returns digits only.
  		 *
- 		 * @param String $sPhone Phone number
+ 		 * @param \String $sPhone Phone number
  		 *
- 		 * @return String Digits only of provided string (phone number)
+ 		 * @return \String Digits only of provided string (phone number)
  		 */
-		public static function ReturnDigits( $sPhone ) {
+		public static function ReturnDigits($sPhone) {
 			// Only keep digits
 			return preg_replace('/\D/', '', $sPhone);		
 		
@@ -178,9 +173,9 @@ namespace jb_itop_extensions\helpers;
 		/**
 		 * Returns significant digits only (meaning: no leading zero and no national number if Belgian phone number)
 		 *
-		 * @param String $sPhone Phone number
+		 * @param \String $sPhone Phone number
 		 *
-		 * @return String Digits only of provided string (phone number)
+		 * @return \String Digits only of provided string (phone number)
 		 *
 		 * @details Significant details: the ones which make up the zone number (or mobile prefix), without leading zero and without (Belgian) country code
 		 */
@@ -189,22 +184,18 @@ namespace jb_itop_extensions\helpers;
 			$sPhone = self::ReturnDigits($sPhone);
 			
 			// Adapted to Belgian situation
-			if( substr($sPhone, 0, 2) == '32' ) {
+			if(substr($sPhone, 0, 2) == '32') {
 				
 				// 32 47x xx xx xx
 				// 32 51 xx xx xx
 				return substr($sPhone, 2);
 			
 			}
-			elseif( substr($sPhone, 0, 1) == '0' ) {
+			elseif(substr($sPhone, 0, 1) == '0') {
 					
 				// Remove leading zero
 				return substr($sPhone, 1);
 				
-			}
-			else {
-				// Possibly already stripped
-				return $sPhone;
 			}
 			
 		}

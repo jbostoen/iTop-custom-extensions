@@ -3,12 +3,12 @@
 /**
  * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-08-05 19:34:49
+ * @version     2020-04-09 16:58:14
  *
  * Definition of ScheduledProcessCrabSync
  */
 
-namespace jb_itop_extensions\crab;
+namespace jb_itop_extensions\jb_crab;
 
 use \CoreUnexpectedValue;
 use \iScheduledProcess;
@@ -45,7 +45,7 @@ class ScheduledProcessCrabSync extends \jb_itop_extensions\components\ScheduledP
 		// Ignore time limit, it should run nightly and it will take some time.
 		try {
 			
-			$oCrab = new \jb_itop_extensions\crab\CrabImportHandler;
+			$oCrab = new \jb_itop_extensions\jb_crab\CrabImportHandler;
 			$oCrab->DownloadShapeFile();
 			$oCrab->ConvertShapeFileToGeoJSON();
 			$oCrab->ImportFromGeoJSON();			

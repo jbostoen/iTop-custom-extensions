@@ -1,16 +1,32 @@
 <?php
 
 /**
- * @copyright   Copyright (C) 2019-2020 Jeffrey Bostoen
+ * @copyright   Copyright (C) 2019 Jeffrey Bostoen
  * @license     https://www.gnu.org/licenses/gpl-3.0.en.html
- * @version     2020-07-21 19:29:11
+ * @version     2019-08-22 12:47:48
  *
- * ApplicationObjectExtension_ContactMethod
+ * PHP Main file
  */
- 
+
 namespace jb_itop_extensions\contact_method;
 
-class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExtension {
+use \jb_itop_extensions\contact_method\PhoneHelper;
+
+// iTop internals
+use \CMDBChange;
+use \DBObject;
+use \DBObjectSearch;
+use \DBOBjectSet;
+use \Dict;
+use \iApplicationObjectExtension;
+
+
+// iTop classes
+use \ContactMethod;
+use \Person;
+
+
+class ApplicationObjectExtension_ContactMethod implements iApplicationObjectExtension {
 	 	  
 	/**
 	 * Invoked to determine whether an object can be written to the database 
@@ -21,12 +37,12 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 	 * @param DBObject $oObject The target object
 	 * @return string[] A list of errors message. An error message is made of one line and it can be displayed to the end-user.
 	 */	
-	public function OnCheckToWrite( $oObject ) {
+	public function OnCheckToWrite($oObject) {
 				
-		// Note: do not set properties here on the object! (so no way to fix the format)
+		// Note: you can not set properties here on the object! (so no way to fix the format)
 		// Only blocks invalid input
 				
-		if($oObject instanceof \ContactMethod) {
+		if($oObject instanceof ContactMethod) {
 			
 			$sContactDetail = $oObject->Get('contact_detail');
 			
@@ -34,26 +50,28 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				
 				case 'phone':
 				
-					$sPhone_digits = \jb_itop_extensions\helpers\phone::ReturnDigits($sContactDetail);
+					$sPhone_digits = PhoneHelper::ReturnDigits( $sContactDetail );
 					
 					switch(true) {
 						
 						// Belgian land line phone number
-						case \jb_itop_extensions\helpers\phone::IsValidPhone_BE($sPhone_digits) == true:
+						case PhoneHelper::IsValidPhone_BE($sPhone_digits) == true:
 						
 						// International phone number - hopefully land line
-						case \jb_itop_extensions\helpers\phone::OnlyContainsAllowedCharacters($sContactDetail) == true && \jb_itop_extensions\helpers\phone::IsLocal($sContactDetail) == false && strlen($sPhone_digits) > 8:
+						case PhoneHelper::OnlyContainsAllowedCharacters($sContactDetail) == true && PhoneHelper::IsLocal($sContactDetail) == false && strlen($sPhone_digits) > 8:
 						
 							// No error
 							break;
 						
 						// Belgian mobile phone number
-						case \jb_itop_extensions\helpers\phone::IsValidMobilePhone_BE($sPhone_digits) == true:
+						case PhoneHelper::IsValidMobilePhone_BE($sPhone_digits) == true:
 						
 						// Unidentified
 						default:
 						
-							return [ \Dict::S('Errors/ContactMethod/InvalidPhoneNumber') ];
+							return [ 
+								Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
+							];
 							
 						
 					}
@@ -62,27 +80,29 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				
 				case 'mobile_phone':
 				
-					$sMobilePhone_digits = \jb_itop_extensions\helpers\phone::ReturnDigits( $sContactDetail );
+					$sMobilePhone_digits = PhoneHelper::ReturnDigits( $sContactDetail );
 					
 					switch(true) {
 						
 						// Belgian mobile phone number
-						case \jb_itop_extensions\helpers\phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true:
+						case PhoneHelper::IsValidMobilePhone_BE($sMobilePhone_digits) == true:
 						
 						// International phone number - hopefully mobile
-						case \jb_itop_extensions\helpers\phone::OnlyContainsAllowedCharacters($sContactDetail) == true && \jb_itop_extensions\helpers\phone::IsLocal($sContactDetail) == false && strlen($sMobilePhone_digits) > 9:
+						case PhoneHelper::OnlyContainsAllowedCharacters($sContactDetail) == true && PhoneHelper::IsLocal($sContactDetail) == false && strlen($sMobilePhone_digits) > 9:
 						
 							// No error
 							break;
 						
 						// Belgian land line phone number
-						case \jb_itop_extensions\helpers\phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true:
+						case PhoneHelper::IsValidLandLinePhone_BE($sMobilePhone_digits) == true:
 						
 						// Unidentified
 						default: 
 							
 							// Belgian land line phone number
-							return [ \Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber') ];
+							return [ 
+								Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
+							];
 							
 					}
 					
@@ -91,9 +111,11 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				
 				case 'email':
 								
-					if( !filter_var($sContactDetail, FILTER_VALIDATE_EMAIL) ) {
+					if(!filter_var($sContactDetail, FILTER_VALIDATE_EMAIL)) {
 					 
-						return [ \Dict::S('Errors/ContactMethod/InvalidEmail') ];
+						return [
+							Dict::S('Errors/ContactMethod/InvalidEmail')
+						];
 						
 					}
 				
@@ -104,14 +126,14 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 			
 		}
 		
-		elseif($oObject instanceof \Person) {
+		elseif($oObject instanceof Person) {
 			
 			$aErrors = [];
 			
 			// Check phone
 			// ---
 			$sPhone_original = $oObject->Get('phone');
-			$sPhone_digits = \jb_itop_extensions\helpers\phone::ReturnDigits($sPhone_original);
+			$sPhone_digits = PhoneHelper::ReturnDigits($sPhone_original);
 			
 			switch(true) {
 				
@@ -119,28 +141,31 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				case strlen($sPhone_original) == 0:
 				
 				// Belgian land line number
-				case \jb_itop_extensions\helpers\phone::IsValidPhone_BE($sPhone_original) == true:
+				case PhoneHelper::IsValidPhone_BE($sPhone_original) == true:
 				
 				// International phone number - hopefully land line
-				case \jb_itop_extensions\helpers\phone::OnlyContainsAllowedCharacters($sPhone_original) == true && \jb_itop_extensions\helpers\phone::IsLocal($sPhone_digits) == false && strlen($sPhone_digits) > 8:
+				case PhoneHelper::OnlyContainsAllowedCharacters($sPhone_original) == true && PhoneHelper::IsLocal($sPhone_digits) == false && strlen($sPhone_digits) > 8:
+				
+				// 'admin' gets +00 000 000 000 by default during iTop installation
+				case $sPhone_original == '+00 000 000 000' && (Int)$oObject->GetKey() < 1:
 				
 					// No error
 					break;
-				
-				// Belgian mobile phone number
-				case \jb_itop_extensions\helpers\phone::IsValidMobilePhone_BE($sPhone_digits) == true:
+					
+				// Belgian mobile phone number (just for logic, would fall through to default anyway):
+				// case PhoneHelper::IsValidMobilePhone_BE($sPhone_digits) == true:
 				
 				// Unidentified
 				default:
 				
-					$aErrors[] = \Dict::S('Errors/ContactMethod/InvalidPhoneNumber');
+					$aErrors[] = Dict::S('Errors/ContactMethod/InvalidPhoneNumber').' - Person ID '.$oObject->GetKey().' - Number: '.$sPhone_original;
 				
 			}
 			
 			// Check mobile phone
 			// ---
 			$sMobile_original = $oObject->Get('mobile_phone');
-			$sMobile_digits = \jb_itop_extensions\helpers\phone::ReturnDigits($sMobile_original);
+			$sMobile_digits = PhoneHelper::ReturnDigits($sMobile_original);
 			
 			switch(true) {
 				
@@ -148,21 +173,21 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				case strlen($sMobile_original) == 0:
 				
 				// Belgian mobile phone number
-				case \jb_itop_extensions\helpers\phone::IsValidMobilePhone_BE($sMobile_original) == true:
+				case PhoneHelper::IsValidMobilePhone_BE($sMobile_original) == true:
 				
 				// International phone number - hopefully mobile
-				case \jb_itop_extensions\helpers\phone::OnlyContainsAllowedCharacters($sMobile_original) == true && \jb_itop_extensions\helpers\phone::IsLocal($sMobile_digits) == false && strlen($sMobile_digits) > 9:
+				case PhoneHelper::OnlyContainsAllowedCharacters($sMobile_original) == true && PhoneHelper::IsLocal($sMobile_digits) == false && strlen($sMobile_digits) > 9:
 				
 					// No error
 					break;
 				
 				// Belgian land line number
-				case \jb_itop_extensions\helpers\phone::IsValidPhone_BE($sMobile_original) == true:
+				case PhoneHelper::IsValidPhone_BE($sMobile_original) == true:
 				
 				// Unidentified
 				default:
 				
-					$aErrors[] = \Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber');
+					$aErrors[] = Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber');
 				
 			}
 			
@@ -171,7 +196,7 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 			$sEmail = $oObject->Get('email');
 			
 			if( $sEmail != '' && !filter_var( $sEmail, FILTER_VALIDATE_EMAIL) ) {
-				$aErrors[] = \Dict::S('Errors/ContactMethod/InvalidEmail');				
+				$aErrors[] = Dict::S('Errors/ContactMethod/InvalidEmail');				
 			}
 		
 			return $aErrors;
@@ -264,9 +289,10 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 	 *
 	 */
 	public function OnContactMethodChanged($oObject) {
-		
+			
+			
 		// If a ContactMethod changed, validate and port back to Person object
-		if($oObject instanceof \ContactMethod) {
+		if( $oObject instanceof ContactMethod ) {
 			
 			$sContactMethod = $oObject->Get('contact_method');
 			
@@ -278,21 +304,25 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				// These properties are available in the Person class
 				case 'phone':
 				
-					$sPhone_digits = \jb_itop_extensions\helpers\phone::ReturnDigits($oObject->Get('contact_detail'));
+					$sPhone_digits = PhoneHelper::ReturnDigits( $oObject->Get('contact_detail') );
 					
 					// Belgian number or most likely international
-					if( \jb_itop_extensions\helpers\phone::IsValidMobilePhone_BE($sPhone_digits) == true ) {
+					if(PhoneHelper::IsValidMobilePhone_BE($sPhone_digits) == true) {
 						
-						return [ \Dict::S('Errors/ContactMethod/InvalidPhoneNumber') ];
+						return [ 
+							Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
+						];	
 					}
-					elseif( \jb_itop_extensions\helpers\phone::IsValidLandLinePhone_BE($sPhone_digits) == true || (\jb_itop_extensions\helpers\phone::OnlyContainsAllowedCharacters($sPhone) == true && strlen($sPhone_digits) > 8) ) {
+					elseif(PhoneHelper::IsValidLandLinePhone_BE($sPhone_digits) == true || (PhoneHelper::OnlyContainsAllowedCharacters($sPhone) == true && strlen($sPhone_digits) > 8)) {
 						// OK, assuming Belgian phone OR international number
 						$oObject->Set('contact_detail', $sPhone_digits);
 						$oObject->DBUpdate();
 					}
 					else {
 						
-						return [ \Dict::S('Errors/ContactMethod/InvalidPhoneNumber') ];
+						return [
+							Dict::S('Errors/ContactMethod/InvalidPhoneNumber')
+						];						
 						
 					}
 				
@@ -300,21 +330,25 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				
 				case 'mobile_phone':
 					
-					$sMobilePhone_digits = \jb_itop_extensions\helpers\phone::ReturnDigits($oObject->Get('contact_detail'));
+					$sMobilePhone_digits = PhoneHelper::ReturnDigits( $oObject->Get('contact_detail') );
 										
 					// Belgian number or most likely international
-					if( \jb_itop_extensions\helpers\phone::IsValidLandLinePhone_BE($sMobilePhone_digits) == true ) {
+					if( PhoneHelper::IsValidLandLinePhone_BE($sMobilePhone_digits) == true ) {
 						
-						return [ \Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber') ];
+						return [ 
+							Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
+						];			
 					}
-					elseif( \jb_itop_extensions\helpers\phone::IsValidMobilePhone_BE($sMobilePhone_digits) == true || (\jb_itop_extensions\helpers\phone::OnlyContainsAllowedCharacters($oObject->Get('contact_detail')) == true && strlen(sMobilePhone_digits) > 9) ) {
+					elseif(PhoneHelper::IsValidMobilePhone_BE($sMobilePhone_digits) == true || (PhoneHelper::OnlyContainsAllowedCharacters($oObject->Get('contact_detail')) == true && strlen(sMobilePhone_digits) > 9)) {
 						// OK, assuming Belgian mobile_phone OR international number
 						$oObject->Set('contact_detail', $sMobilePhone_digits);
 						$oObject->DBUpdate();
 					}
 					else {
 						
-						return [ \Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber') ];
+						return [ 
+							Dict::S('Errors/ContactMethod/InvalidMobilePhoneNumber')
+						];
 						
 					}
 					
@@ -337,22 +371,22 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				
 				// Write back to Person. Latest change should be primary.						
 				$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
-				$oSet_Person = new \DBObjectSet(\DBObjectSearch::FromOQL($sOQL));
+				$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 							
 				// Only 1 person will be retrieved (assuming person_id was valid)
 				$oPerson = $oSet_Person->Fetch();
 				
 				// Prevent loop: only if the Person property is not equal to this new detail: update().
-				if( $oPerson->Get($sContactMethod) != $oObject->Get('contact_detail') ) {
+				if($oPerson->Get($sContactMethod) != $oObject->Get('contact_detail')) {
 					$oPerson->Set($oObject->Get('contact_method'), $oObject->Get('contact_detail'));
-					$oPerson->DBUpdate();
+					$oPerson->DBUpdate();					
 				}
 				
 			}			
 		}
 		
 		// If contact info on the Person object changed, update ContactMethods if necessary
-		elseif($oObject instanceof \Person) {
+		elseif($oObject instanceof Person) {
 			
 			// Check if a ContactMethod exists for email, phone, mobile_phone. 
 			// If not, create.
@@ -363,23 +397,25 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 				
 				// Write back to Person
 			
-				// Ignore if empty
-				if( $oObject->Get($sContactMethod) != '' ) {
+				if($sContactMethod == 'phone' && $oObject->Get($sContactMethod) == '+00 000 000 000') {
+					// Do nothing
+				}
+				elseif($oObject->Get($sContactMethod) != '') {
 						
 					// Select ContactMethod
 					// Use LIKE without wildcards to enforce case insensitivity (email)
-					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->GetKey() .' AND contact_method LIKE "' . $sContactMethod . '" AND contact_detail = "' . $oObject->Get($sContactMethod). '"';
-					$oSet_ContactMethods = new \DBObjectSet(\DBObjectSearch::FromOQL($sOQL));
+					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('id') .' AND contact_method LIKE "' . $sContactMethod . '" AND contact_detail = "' . $oObject->Get($sContactMethod). '"';
+					$oSet_ContactMethods = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 					
 					// There shouldn't be a ContactMethod with the same details if a new one is added
-					if( $oSet_ContactMethods->Count() == 0 ) {
+					if($oSet_ContactMethods->Count() == 0) {
 						
 						// Create ContactMethod
-						$oContactMethod = new \ContactMethod();
-						$oContactMethod->Set('person_id', $oObject->GetKey());
+						$oContactMethod = new ContactMethod();
+						$oContactMethod->Set('person_id', $oObject->Get('id'));
 						$oContactMethod->Set('contact_method', $sContactMethod);
 						$oContactMethod->Set('contact_detail', $oObject->Get($sContactMethod));
-						$oContactMethod->DBInsert();
+						$oContactMethod->DBInsert();	
 						
 					}
 				
@@ -398,7 +434,7 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 		
 		// If a ContactMethod is deleted, the related Person object should be updated to reflect these changes 
 		
-		if($oObject instanceof \ContactMethod) {
+		if($oObject instanceof ContactMethod) {
 			
 			$sContactMethod = $oObject->Get('contact_method');
 			
@@ -410,7 +446,7 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 					
 					// Write back to Person object. Latest change should be primary.
 					$sOQL = 'SELECT Person WHERE id = '. $oObject->Get('person_id');
-					$oSet_Person = new \DBObjectSet(\DBObjectSearch::FromOQL($sOQL));
+					$oSet_Person = new DBObjectSet(DBObjectSearch::FromOQL($sOQL));
 			
 					// Only 1 person should be retrieved
 					$oPerson = $oSet_Person->Fetch();
@@ -421,8 +457,8 @@ class ApplicationObjectExtension_ContactMethod implements \iApplicationObjectExt
 					// But what if a fallback is possible, to update the Person object with another most recent ContactMethod of the same contact_method type?
 					// Since this query is executed before ContactMethod is really deleted: 
 					// Don't include this ContactMethod object (which might have been the most recent one)
-					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('person_id') . ' AND contact_method = "' . $sContactMethod . '" AND id != "' . $oObject->GetKey(). '"';			
-					$oSet_ContactMethod = new \DBObjectSet(\DBObjectSearch::FromOQL($sOQL), /* Order ASC by */ ['id' =>false], /* Arguments */ [], /* Extended data spec */ null, /* Amount */ 1);
+					$sOQL = 'SELECT ContactMethod WHERE person_id = ' . $oObject->Get('person_id') . ' AND contact_method = "' . $sContactMethod . '" AND id != "' . $oObject->Get('id'). '"';			
+					$oSet_ContactMethod = new DBObjectSet(DBObjectSearch::FromOQL($sOQL), /* Order by */ ['id' => /* Ascending */ false], /* Arguments */ [], /* Extended data spec */ null, /* Amount */ 1);
 						
 					// But maybe there's another last known ContactMethod.
 					// Simply look at 'id' and take the last one, not date of last change (yet)

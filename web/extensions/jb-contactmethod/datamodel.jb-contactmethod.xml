@@ -3,7 +3,7 @@
 	<classes>
 		<class id="Person">
 			<fields>
-				<field id="contact_methods" xsi:type="AttributeLinkedSet" _delta="define">   
+				<field id="contactmethods_list" xsi:type="AttributeLinkedSet" _delta="define">   
 					<linked_class>ContactMethod</linked_class>
 					<ext_key_to_me>person_id</ext_key_to_me>
 					<edit_mode>actions</edit_mode>
@@ -14,7 +14,7 @@
 			<presentation>
 				<details>
 					<items>
-						<item id="contact_methods">
+						<item id="contactmethods_list">
 						  <rank>110</rank>
 						</item>
 					</items>
@@ -47,7 +47,7 @@
 					</attributes>
 				</reconciliation>
 				<uniqueness_rules>
-					<!-- Theoretically, contact methods are NOT unique. People might share e-mail address, (land line) phones, ... -->
+					<!-- Theoretically, a couple could share an email address -->
 					<rule id="unique_contact_method">
 						<attributes>
 							<attribute id="person_id"/>

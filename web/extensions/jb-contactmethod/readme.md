@@ -8,12 +8,12 @@ Based on the situation in Belgium (length of phone numbers).
 ## Cookbook
 
 XML:
-- add AttributeLinkedSet to Person
-- create new class ContactMethod
+* add AttributeLinkedSet to Person
+* create new class ContactMethod
 
 PHP:
-- make sure ContactMethod follows certain rules. Warning if necessary, strip unnecessary parts where needed
+* make sure ContactMethod follows certain rules. Warning if necessary, strip unnecessary parts where needed
 
 ## License
 https://www.gnu.org/licenses/gpl-3.0.en.html
-Copyright (C) 2019-2020 Jeffrey Bostoen
+Copyright (C) 2019 Jeffrey Bostoen

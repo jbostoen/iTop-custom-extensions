@@ -10,11 +10,8 @@
 Dict::Add('EN US', 'English', 'English', array(
 
 	// Crab City
-	'Class:CrabCity' => 'Crab Municipality',
-	'Class:CrabCity+' => 'Crab Municipality',
-	
-	'Class:CrabCity/Attribute:name' => 'Name',
-	'Class:CrabCity/Attribute:name+' => 'Official name',
+	'Class:CrabCity' => 'Name',
+	'Class:CrabCity+' => 'Official name',
 	'CrabCity:baseinfo' => 'General information',
 	
 	'Class:CrabCity/Attribute:streets_list' => 'Streets list',
@@ -23,16 +20,13 @@ Dict::Add('EN US', 'English', 'English', array(
 	// Crab Street
 	'CrabStreet:baseinfo' => 'General information',
 	 
-	'Class:CrabStreet' => 'Crab Street',
-	'Class:CrabStreet+' => 'Crab Street',
+	'Class:CrabStreet' => 'Crab street',
+	'Class:CrabStreet+' => 'Crab street.',
 	 
 	'Class:CrabStreet/Attribute:crab_id' => 'Crab ID',
 	'Class:CrabStreet/Attribute:crab_id+' => 'Internal ID within Crab Services',
 	'Class:CrabStreet/Attribute:name' => 'Street name',
 	'Class:CrabStreet/Attribute:name+' => 'Street name',
-	
-	'Class:CrabStreet/Attribute:city_id' => 'City',
-	'Class:CrabStreet/Attribute:city_id+' => 'City',
 	
 	'Class:CrabStreet/Attribute:status' => 'Status',
 	'Class:CrabStreet/Attribute:status+' => 'Status',
@@ -53,8 +47,8 @@ Dict::Add('EN US', 'English', 'English', array(
 	// Crab Address
 	'CrabAddress:baseinfo' => 'General information',
 	 
-	'Class:CrabAddress' => 'Crab Address',
-	'Class:CrabAddress+' => 'Crab Address',
+	'Class:CrabAddress' => 'Crab address',
+	'Class:CrabAddress+' => 'Crab address.',
 	 
 	'Class:CrabAddress/Attribute:crab_id' => 'Crab ID',
 	'Class:CrabAddress/Attribute:crab_id+' => 'Internal ID within Crab Services',
