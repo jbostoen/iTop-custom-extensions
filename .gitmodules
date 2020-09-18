@@ -1,3 +1,6 @@
 [submodule "web/extensions/jb-mail-to-ticket-automation-v2"]
 	path = web/extensions/jb-mail-to-ticket-automation-v2
 	url = git@github.com:jbostoen/itop-jb-mail-to-ticket-automation-v2.git
+[submodule "utils/PowerShell module for iTop API"]
+	path = utils/PowerShell module for iTop API
+	url = git@github.com:jbostoen/itop-jb-powershell.git
