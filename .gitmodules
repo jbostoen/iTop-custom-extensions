@@ -31,3 +31,6 @@
 [submodule "wip/extensions/jb-ldap"]
 	path = wip/extensions/jb-ldap
 	url = https://github.com/jbostoen/itop-jb-ldap
+[submodule "wip/extensions/jb-crab"]
+	path = wip/extensions/jb-crab
+	url = https://github.com/jbostoen/itop-jb-crab
