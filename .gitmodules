@@ -7,3 +7,18 @@
 [submodule "web/extensions/jb-crab"]
 	path = web/extensions/jb-crab
 	url = https://github.com/jbostoen/itop-jb-crab.git
+[submodule "extensions/jb-crab"]
+	path = extensions/jb-crab
+	url = https://github.com/jbostoen/itop-jb-crab.git
+[submodule "web/extensions/jb-sim"]
+	path = web/extensions/jb-sim
+	url = https://github.com/jbostoen/itop-jb-sim.git
+[submodule "web/extensions/jb-software-mgmt"]
+	path = web/extensions/jb-software-mgmt
+	url = https://github.com/jbostoen/itop-jb-software-mgmt.git
+[submodule "web/extensions/jb-ssid"]
+	path = web/extensions/jb-ssid
+	url = https://github.com/jbostoen/itop-jb-ssid.git
+[submodule "web/extensions/jb-ldap"]
+	path = web/extensions/jb-ldap
+	url = https://github.com/jbostoen/itop-jb-ldap.git
