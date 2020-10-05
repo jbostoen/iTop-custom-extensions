@@ -4,12 +4,7 @@
 [submodule "utils/PowerShell module for iTop API"]
 	path = utils/PowerShell module for iTop API
 	url = git@github.com:jbostoen/itop-jb-powershell.git
-[submodule "web/extensions/jb-crab"]
-	path = web/extensions/jb-crab
-	url = https://github.com/jbostoen/itop-jb-crab.git
-[submodule "extensions/jb-crab"]
-	path = extensions/jb-crab
-	url = https://github.com/jbostoen/itop-jb-crab.git
+
 [submodule "web/extensions/jb-sim"]
 	path = web/extensions/jb-sim
 	url = https://github.com/jbostoen/itop-jb-sim.git
@@ -19,9 +14,7 @@
 [submodule "web/extensions/jb-ssid"]
 	path = web/extensions/jb-ssid
 	url = https://github.com/jbostoen/itop-jb-ssid.git
-[submodule "web/extensions/jb-ldap"]
-	path = web/extensions/jb-ldap
-	url = https://github.com/jbostoen/itop-jb-ldap.git
+
 [submodule "web/extensions/jb-tweaks-change-mgmt-itil"]
 	path = web/extensions/jb-tweaks-change-mgmt-itil
 	url = https://github.com/jbostoen/itop-jb-tweaks-change-mgmt-itil
@@ -31,6 +24,7 @@
 [submodule "wip/extensions/jb-ldap"]
 	path = wip/extensions/jb-ldap
 	url = https://github.com/jbostoen/itop-jb-ldap
-[submodule "wip/extensions/jb-crab"]
-	path = wip/extensions/jb-crab
+
+[submodule "web/extensions/jb-crab"]
+	path = web/extensions/jb-crab
 	url = https://github.com/jbostoen/itop-jb-crab
