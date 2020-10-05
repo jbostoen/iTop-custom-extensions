@@ -22,3 +22,6 @@
 [submodule "web/extensions/jb-ldap"]
 	path = web/extensions/jb-ldap
 	url = https://github.com/jbostoen/itop-jb-ldap.git
+[submodule "web/extensions/jb-tweaks-change-mgmt-itil"]
+	path = web/extensions/jb-tweaks-change-mgmt-itil
+	url = https://github.com/jbostoen/itop-jb-tweaks-change-mgmt-itil
