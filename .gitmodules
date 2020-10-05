@@ -25,3 +25,9 @@
 [submodule "web/extensions/jb-tweaks-change-mgmt-itil"]
 	path = web/extensions/jb-tweaks-change-mgmt-itil
 	url = https://github.com/jbostoen/itop-jb-tweaks-change-mgmt-itil
+[submodule "web/extensions/jb-framework"]
+	path = web/extensions/jb-framework
+	url = https://github.com/jbostoen/itop-jb-framework
+[submodule "wip/extensions/jb-ldap"]
+	path = wip/extensions/jb-ldap
+	url = https://github.com/jbostoen/itop-jb-ldap
