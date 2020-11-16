@@ -1,9 +1,3 @@
-[submodule "web/extensions/jb-mail-to-ticket-automation-v2"]
-	path = web/extensions/jb-mail-to-ticket-automation-v2
-	url = git@github.com:jbostoen/itop-jb-mail-to-ticket-automation-v2.git
-[submodule "utils/PowerShell module for iTop API"]
-	path = utils/PowerShell module for iTop API
-	url = git@github.com:jbostoen/itop-jb-powershell.git
 
 [submodule "web/extensions/jb-sim"]
 	path = web/extensions/jb-sim
@@ -17,17 +11,17 @@
 
 [submodule "web/extensions/jb-tweaks-change-mgmt-itil"]
 	path = web/extensions/jb-tweaks-change-mgmt-itil
-	url = https://github.com/jbostoen/itop-jb-tweaks-change-mgmt-itil
+	url = https://github.com/jbostoen/itop-jb-tweaks-change-mgmt-itil.git
 [submodule "web/extensions/jb-framework"]
 	path = web/extensions/jb-framework
-	url = https://github.com/jbostoen/itop-jb-framework
+	url = https://github.com/jbostoen/itop-jb-framework.git
 [submodule "wip/extensions/jb-ldap"]
 	path = wip/extensions/jb-ldap
-	url = https://github.com/jbostoen/itop-jb-ldap
+	url = https://github.com/jbostoen/itop-jb-ldap.git
 
 [submodule "web/extensions/jb-crab"]
 	path = web/extensions/jb-crab
-	url = https://github.com/jbostoen/itop-jb-crab
+	url = https://github.com/jbostoen/itop-jb-crab.git
 [submodule "wip/extensions/jb-reportgen"]
 	path = wip/extensions/jb-reportgen
 	url = https://github.com/jbostoen/itop-jb-report-generator.git
@@ -36,4 +30,4 @@
 	url = https://github.com/jbostoen/itop-jb-action-rest.git
 [submodule "web/extensions/jb-authenticationmethod"]
 	path = web/extensions/jb-authenticationmethod
-	url = https://github.com/jbostoen/itop-jb-action-rest.git
+	url = https://github.com/jbostoen/itop-authenticationmethod.git
