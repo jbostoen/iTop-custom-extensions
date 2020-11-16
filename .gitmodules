@@ -30,4 +30,10 @@
 	url = https://github.com/jbostoen/itop-jb-action-rest.git
 [submodule "web/extensions/jb-authenticationmethod"]
 	path = web/extensions/jb-authenticationmethod
-	url = https://github.com/jbostoen/itop-authenticationmethod.git
+	url = https://github.com/jbostoen/itop-jb-authenticationmethod.git
+[submodule "web/extensions/jb-mail-to-ticket-automation-v2"]
+	path = web/extensions/jb-mail-to-ticket-automation-v2
+	url = https://github.com/jbostoen/itop-jb-mail-to-ticket-automation-v2.git
+[submodule "utils/PowerShell module for iTop API"]
+	path = utils/PowerShell module for iTop API
+	url = https://github.com/jbostoen/itop-jb-powershell.git
