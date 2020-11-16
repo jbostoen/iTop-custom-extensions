@@ -28,3 +28,12 @@
 [submodule "web/extensions/jb-crab"]
 	path = web/extensions/jb-crab
 	url = https://github.com/jbostoen/itop-jb-crab
+[submodule "wip/extensions/jb-reportgen"]
+	path = wip/extensions/jb-reportgen
+	url = https://github.com/jbostoen/itop-jb-report-generator.git
+[submodule "wip/extensions/jb-action-rest"]
+	path = wip/extensions/jb-action-rest
+	url = https://github.com/jbostoen/itop-jb-action-rest.git
+[submodule "web/extensions/jb-authenticationmethod"]
+	path = web/extensions/jb-authenticationmethod
+	url = https://github.com/jbostoen/itop-jb-action-rest.git
