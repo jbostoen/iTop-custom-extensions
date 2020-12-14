@@ -4,36 +4,31 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/jbostoen)
 🍻 ☕
 
+
+Need assistance with iTop or one of its extensions?  
+Need custom development?  
+Please get in touch to discuss the terms: **jbostoen.itop@outlook.com**
+
 # About this repo
 This repository contains all sorts of **unofficial** examples and extensions for iTop, both finished and unfinished.
+As of 2020, this collection is being split up into subrepos. Most extensions and other work will be available here as submodules of this repo.
 
 There are some very basic examples on adding/changing/removing fields; creating new object classes. 
 Advanced examples include adding menus, entirely new dashlets, flexible reports, custom front ends, ...
 
-
 # Folders
-- **docs**: contains info/hints on using the extensions in this repository, but also on implementing/using iTop
-- **utils**: some utilities I use for debugging and development
-- **web/extensions**: extensions which are actively maintained and which should be stable. You can drop and merge this under <iTop folder>/web .
+* **docs**: contains info/hints on using the extensions in this repository, but also on implementing/using iTop
+* **utils**: some utilities I use for debugging and development
+* **web/extensions**: extensions which are actively maintained and which should be stable. You can drop and merge this under <iTop folder>/web .
 
-- **wip**: work in progress. Unfinished. Also contains some concepts.
-
-
-# Support, development and freelance work
-If you appreciate this work, consider a small donation.
-Also open to offers to discuss configuring, customizing and troubleshooting your iTop instance. 
-Or to develop new features or extensions.
-Feel free to get in touch: **jbostoen.itop@outlook.com**
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/jbostoen)
-
+* **wip**: work in progress. Unfinished. Also contains some concepts.
 
 # What is iTop?
 "iTop stands for IT Operational Portal. iTop is an Open Source web application for the day to day operations of an IT environment. At the heart of iTop is the CMDB (Configuration Management Data Base), this is originally the first part of iTop that was developed." 
 
 It's developed by a great team at Combodo.
-- [GitHub](https://github.com/Combodo/iTop) (as of end of August, 2018: development)
-- [SourceForge](https://sourceforge.net/p/itop/discussion/) (bug reports = tickets and discussion board)
+* [GitHub](https://github.com/Combodo/iTop) (as of end of August, 2018: development)
+* [SourceForge](https://sourceforge.net/p/itop/discussion/) (bug reports = tickets and discussion board)
 
 
 # Compatibility / branches
