@@ -46,3 +46,15 @@
 [submodule "utils/PowerShell module for iTop API"]
 	path = utils/PowerShell module for iTop API
 	url = https://github.com/jbostoen/itop-jb-powershell.git
+[submodule "web/extensions/jb-monitor"]
+	path = web/extensions/jb-monitor
+	url = https://github.com/jbostoen/itop-jb-monitor.git
+[submodule "web/extensions/jb-contactmethod"]
+	path = web/extensions/jb-contactmethod
+	url = https://github.com/jbostoen/itop-jb-contactmethod.git
+[submodule "web/extensions/jb-map"]
+	path = web/extensions/jb-map
+	url = https://github.com/jbostoen/itop-jb-pro-extensions.git
+[submodule "web/extensions/jb-ticket-merge"]
+	path = web/extensions/jb-ticket-merge
+	url = https://github.com/jbostoen/itop-jb-pro-extensions.git
