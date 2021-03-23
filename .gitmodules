@@ -58,3 +58,9 @@
 [submodule "web/extensions/jb-ticket-merge"]
 	path = web/extensions/jb-ticket-merge
 	url = https://github.com/jbostoen/itop-jb-pro-extensions.git
+[submodule "web/extensions/jb-dockingstation"]
+	path = web/extensions/jb-dockingstation
+	url = https://github.com/jbostoen/itop-jb-dockingstation
+[submodule "web/extensions/jb-barcodescanner"]
+	path = web/extensions/jb-barcodescanner
+	url = https://github.com/jbostoen/itop-jb-barcodescanner
