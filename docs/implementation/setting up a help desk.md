@@ -2,7 +2,9 @@
 
 ## Steps
 * make a contact (example: John Smith from IT Support) part of a team (example: IT Crowd)
-* create a delivery model for the organization (provider = yourself) and add the team(s) which will respond to requests (IT Crowd).
+* create a delivery model for the organization (provider = yourself)
+  * add the team(s) which will respond to requests (IT Crowd)
+  * add the client organizations
 * create a service (and service subcategories where at least one is in production and of the type service request)
 * create a customer contract for the organization you want to deliver services to (even if it's your own organization); add the services you created.
 
