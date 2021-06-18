@@ -64,3 +64,6 @@
 [submodule "web/extensions/jb-barcodescanner"]
 	path = web/extensions/jb-barcodescanner
 	url = https://github.com/jbostoen/itop-jb-barcodescanner
+[submodule "web/extensions/jb-modelconfiguration"]
+	path = web/extensions/jb-modelconfiguration
+	url = https://github.com/jbostoen/itop-jb-modelconfiguration.git
