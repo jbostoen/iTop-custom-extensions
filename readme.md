@@ -7,9 +7,10 @@
 
 Need assistance with iTop or one of its extensions?  
 Need custom development?  
-Please get in touch to discuss the terms: **jbostoen.itop@outlook.com**
+Please get in touch to discuss the terms: **info@jeffreybostoen.be** / https://jeffreybostoen.be
 
 # About this repo
+
 This repository contains all sorts of **unofficial** examples and extensions for iTop, both finished and unfinished.
 As of 2020, this collection is being split up into subrepos. Most extensions and other work will be available here as submodules of this repo.
 
@@ -41,13 +42,16 @@ Making minor adjustments might be enough to make them backward compatible. (down
 
 
 # History
-I (Jeffrey Bostoen / jbostoen) started using iTop in 2015. Since then, I've been using and customizing this application more every day. 
-I also stimulated others to use it and also made small contributions to iTop, both in code and translations.
 
-In the meanwhile, my colleague [jdefoort](https://github.com/jdefoort) also became an iTop enthousiast and we often collaborate on new extensions.
+I started using iTop in 2015. Since then, I've been using and customizing this application more every day.  
+I also stimulated others to use it and also made small contributions to iTop: bug fixes, enhancements, translations, feedback, ...
+
+In the meanwhile, my colleague back then [jdefoort](https://github.com/jdefoort) also became an iTop enthousiast and  
+we often collaborate on new extensions.
 
 In 2019, I got the honour of speaking at an iTop Community Event in Cologne.
 
 
 # Special thanks
 Special thanks to [Molkobain](https://github.com/Molkobain) for translations and support
+
