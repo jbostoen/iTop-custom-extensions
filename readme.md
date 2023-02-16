@@ -9,7 +9,16 @@ Need assistance with iTop or one of its extensions?
 Need custom development?  
 Please get in touch to discuss the terms: **info@jeffreybostoen.be** / https://jeffreybostoen.be
 
+⚠️ I am no longer actively updating this repository, so it does not contain all my iTop work.  
+Over the years, the amount of extensions has grown a lot and they moved into their own [Github Repositories](https://github.com/jbostoen?tab=repositories&q=itop&type=&language=&sort=).  
+This repo is still here as a reference though.
+
+For my pro extensions, check out [https://jeffreybostoen.be](my personal website) instead. 
+This includes: Auto Assigner, Maps, Multi-Factor Authentication, Portal URL brick, Suggested Articles (FAQs), Ticket Merge, Vote and Comment, ...
+
+
 # About this repo
+
 
 This repository contains all sorts of **unofficial** examples and extensions for iTop, both finished and unfinished.
 As of 2020, this collection is being split up into subrepos. Most extensions and other work will be available here as submodules of this repo.
@@ -24,32 +33,6 @@ Advanced examples include adding menus, entirely new dashlets, flexible reports,
 
 * **wip**: work in progress. Unfinished. Also contains some concepts.
 
-# What is iTop?
-"iTop stands for IT Operational Portal. iTop is an Open Source web application for the day to day operations of an IT environment. At the heart of iTop is the CMDB (Configuration Management Data Base), this is originally the first part of iTop that was developed." 
-
-It's developed by a great team at Combodo.
-* [GitHub](https://github.com/Combodo/iTop) (as of end of August, 2018: development)
-* [SourceForge](https://sourceforge.net/p/itop/discussion/) (bug reports = tickets and discussion board)
-
-
-# Compatibility / branches
-These are ***unofficial*** extensions (tweaks and extra features; both simple and complex) for iTop using PHP 7.2 and MySQL 5.7.
-
-It's unknown if these extensions work on older versions of iTop or other configurations.
-Making minor adjustments might be enough to make them backward compatible. (downgrading version number of datamodel XML and dependencies in module PHP file).
-
-* [Support plan](https://github.com/jbostoen/iTop-custom-extensions/blob/master/docs/support%20plan.md)
-
-
-# History
-
-I started using iTop in 2015. Since then, I've been using and customizing this application more every day.  
-I also stimulated others to use it and also made small contributions to iTop: bug fixes, enhancements, translations, feedback, ...
-
-In the meanwhile, my colleague back then [jdefoort](https://github.com/jdefoort) also became an iTop enthousiast and  
-we often collaborate on new extensions.
-
-In 2019, I got the honour of speaking at an iTop Community Event in Cologne.
 
 
 # Special thanks
