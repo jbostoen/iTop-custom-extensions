@@ -25,9 +25,7 @@
 [submodule "wip/extensions/jb-reportgen"]
 	path = wip/extensions/jb-reportgen
 	url = https://github.com/jbostoen/itop-jb-report-generator.git
-[submodule "wip/extensions/jb-action-rest"]
-	path = wip/extensions/jb-action-rest
-	url = https://github.com/jbostoen/itop-jb-action-rest.git
+	
 [submodule "web/extensions/jb-authenticationmethod"]
 	path = web/extensions/jb-authenticationmethod
 	url = https://github.com/jbostoen/itop-jb-authenticationmethod.git
@@ -52,12 +50,9 @@
 [submodule "web/extensions/jb-contactmethod"]
 	path = web/extensions/jb-contactmethod
 	url = https://github.com/jbostoen/itop-jb-contactmethod.git
-[submodule "web/extensions/jb-map"]
-	path = web/extensions/jb-map
-	url = https://github.com/jbostoen/itop-jb-pro-extensions.git
-[submodule "web/extensions/jb-ticket-merge"]
-	path = web/extensions/jb-ticket-merge
-	url = https://github.com/jbostoen/itop-jb-pro-extensions.git
+	
+	
+	
 [submodule "web/extensions/jb-dockingstation"]
 	path = web/extensions/jb-dockingstation
 	url = https://github.com/jbostoen/itop-jb-dockingstation
