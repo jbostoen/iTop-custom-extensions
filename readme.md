@@ -13,7 +13,7 @@ Please get in touch to discuss the terms: **info@jeffreybostoen.be** / https://j
 Over the years, the amount of extensions has grown a lot and they moved into their own [Github Repositories](https://github.com/jbostoen?tab=repositories&q=itop&type=&language=&sort=).  
 This repo is still here as a reference though.
 
-For my pro extensions, check out [https://jeffreybostoen.be](my personal website) instead. 
+For my pro extensions, check out [jeffreybostoen.be](https://jeffreybostoen.be) instead. 
 This includes: Auto Assigner, Maps, Multi-Factor Authentication, Portal URL brick, Suggested Articles (FAQs), Ticket Merge, Vote and Comment, ...
 
 
